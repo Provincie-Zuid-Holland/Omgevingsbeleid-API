@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -19,7 +19,7 @@ def get_public_list_modules_endpoint(
 ) -> PagedResponse[PublicModuleShort]:
     paginated_result = module_repository.get_public_modules(session, pagination)
 
-    modules: List[PublicModuleShort] = [
+    modules: list[PublicModuleShort] = [
         PublicModuleShort(
             Module_ID=module.Module_ID,
             Title=module.Title,

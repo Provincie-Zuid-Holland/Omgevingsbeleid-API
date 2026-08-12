@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
@@ -55,7 +55,7 @@ def post_module_patch_status_endpoint(
     module_status_history = ModuleStatusHistoryTable(
         Module_ID=module.Module_ID,
         Status=object_in.Status,
-        Created_Date=datetime.now(timezone.utc),
+        Created_Date=datetime.now(UTC),
         Created_By_UUID=user.UUID,
     )
     session.add(module_status_history)

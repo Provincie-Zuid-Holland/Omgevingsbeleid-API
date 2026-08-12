@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, List, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -26,8 +26,8 @@ class ModuleAddNewObject(BaseModel):
     Object_Type: str
     Title: str = Field(..., min_length=3)
     Owner_1_UUID: uuid.UUID
-    Owner_2_UUID: Optional[uuid.UUID] = Field(None)
-    Client_1_UUID: Optional[uuid.UUID] = Field(None)
+    Owner_2_UUID: uuid.UUID | None = Field(None)
+    Client_1_UUID: uuid.UUID | None = Field(None)
 
     Explanation: str = Field("")
     Conclusion: str = Field("")
@@ -56,7 +56,7 @@ class NewObjectStaticResponse(BaseModel):
 
 class ModuleAddNewObjectEndpointContext(BaseEndpointContext):
     object_type: str
-    allowed_object_types: List[str]
+    allowed_object_types: list[str]
 
 
 class ModuleAddNewObjectService:
@@ -71,7 +71,7 @@ class ModuleAddNewObjectService:
         self._module: ModuleTable = module
         self._user: UsersTable = user
         self._object_in: ModuleAddNewObject = object_in
-        self._timepoint: datetime = datetime.now(timezone.utc)
+        self._timepoint: datetime = datetime.now(UTC)
 
     def process(self) -> NewObjectStaticResponse:
         try:
@@ -110,7 +110,7 @@ class ModuleAddNewObjectService:
             .returning(ObjectStaticsTable)
         )
 
-        response: Optional[ObjectStaticsTable] = self._session.execute(stmt).scalars().first()
+        response: ObjectStaticsTable | None = self._session.execute(stmt).scalars().first()
         if response is None:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create new object static")
 

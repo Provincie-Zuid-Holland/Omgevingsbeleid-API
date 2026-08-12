@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.state.patch_act_mutation import PatchActMutation
@@ -28,7 +26,7 @@ class ApiActInputDataPatcher:
         # - You want to make minor changes on your Draft -> Get the latest Draft (the source Draft)
         # We do no support this flow anyware in our system yet,
         # Therefor I did not take the time to fix it here
-        active_act: Optional[ActiveAct] = self._state.get_act(
+        active_act: ActiveAct | None = self._state.get_act(
             data.Publication_Version.Publication.Document_Type,
             ProcedureType.FINAL.value,
         )

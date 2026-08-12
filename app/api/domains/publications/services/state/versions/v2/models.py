@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Purpose(BaseModel):
     Purpose_Type: str
-    Effective_Date: Optional[str] = None
+    Effective_Date: str | None = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str
@@ -18,10 +18,10 @@ class Purpose(BaseModel):
 
 @dataclass
 class PublicationData:
-    objects: List[dict]
-    documents: List[dict]
-    assets: List[dict]
-    bill_attachments: List[Dict]
+    objects: list[dict]
+    documents: list[dict]
+    assets: list[dict]
+    bill_attachments: list[dict]
     area_of_jurisdiction: dict
     parsed_template: str
 
@@ -61,13 +61,13 @@ class Werkingsgebied(BaseModel):
 
 
 class WidData(BaseModel):
-    Known_Wid_Map: Dict[str, str]
-    Known_Wids: List[str]
+    Known_Wid_Map: dict[str, str]
+    Known_Wids: list[str]
 
 
 class OwData(BaseModel):
-    Ow_Objects: Dict[str, Any] = Field({}, alias="ow_objects")
-    Terminated_Ow_Ids: List[str] = Field([], alias="terminated_ow_ids")
+    Ow_Objects: dict[str, Any] = Field({}, alias="ow_objects")
+    Terminated_Ow_Ids: list[str] = Field([], alias="terminated_ow_ids")
     model_config = ConfigDict(populate_by_name=True)
 
 
@@ -77,7 +77,7 @@ class ActiveAct(BaseModel):
     Consolidation_Purpose: Purpose
     Document_Type: str
     Procedure_Type: str
-    Werkingsgebieden: Dict[int, Werkingsgebied]
+    Werkingsgebieden: dict[int, Werkingsgebied]
     Wid_Data: WidData
     Ow_Data: OwData
     Act_Text: str

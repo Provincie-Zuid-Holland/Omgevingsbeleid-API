@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
@@ -59,7 +59,7 @@ class EndpointHandler:
         self._announcement: PublicationAnnouncementTable = announcement
         self._publication: PublicationTable = announcement.Publication
         self._environment: PublicationEnvironmentTable = announcement.Publication.Environment
-        self._timepoint: datetime = datetime.now(timezone.utc)
+        self._timepoint: datetime = datetime.now(UTC)
 
     def handle(self) -> PublicationAnnouncementPackageCreatedResponse:
         self._guard_validate_package_type()
@@ -121,8 +121,8 @@ class EndpointHandler:
             )
             return response
 
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
 
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:

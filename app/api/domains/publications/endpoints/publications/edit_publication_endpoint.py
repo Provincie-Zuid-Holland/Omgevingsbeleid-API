@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -19,7 +19,7 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationEdit(BaseModel):
-    Template_UUID: Optional[uuid.UUID] = None
+    Template_UUID: uuid.UUID | None = None
 
 
 @inject
@@ -42,7 +42,7 @@ def post_edit_publication_endpoint(
     if not publication.Module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
@@ -53,7 +53,7 @@ def post_edit_publication_endpoint(
         setattr(publication, key, value)
 
     publication.Modified_By_UUID = user.UUID
-    publication.Modified_Date = datetime.now(timezone.utc)
+    publication.Modified_Date = datetime.now(UTC)
 
     session.add(publication)
     session.flush()
@@ -68,7 +68,7 @@ def _guard_template(
     document_type: str,
     template_uuid: uuid.UUID,
 ) -> None:
-    template: Optional[PublicationTemplateTable] = template_repository.get_by_uuid(session, template_uuid)
+    template: PublicationTemplateTable | None = template_repository.get_by_uuid(session, template_uuid)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
     if not template.Is_Active:

@@ -85,16 +85,16 @@ def post_create_announcement_pdf_endpoint(
 
         return response
 
-    except HTTPException as e:
+    except HTTPException:
         # This is already correctly formatted
-        raise e
+        raise
     except ValidationError as e:
         raise HTTPException(441, e.errors())
     except DSOConfigurationException as e:
         raise LoggedHttpException(status_code=442, detail=e.message)
     except PdfExportError as e:
         raise LoggedHttpException(status_code=444, detail=e.msg)
-    except Exception as e:
+    except Exception:
         # We do not know what to except here
         # This will result in a 500 server error
-        raise e
+        raise

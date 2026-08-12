@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -12,9 +10,9 @@ from app.api.events.listeners.retrieved_objects_event_listeners import (
     GetColumnImagesListenerBase,
     JoinDocumentsListenerBase,
     JoinGebiedenGroepBaseListener,
-    ResolveChildObjectsViaHierarchyListenerBase,
-    JoinObjectsBaseListener,
     JoinGebiedsaanwijzingenBaseListener,
+    JoinObjectsBaseListener,
+    ResolveChildObjectsViaHierarchyListenerBase,
 )
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.events.types import ApiListener
@@ -32,16 +30,14 @@ class JoinWerkingsgebiedToModuleObjectsListener(ApiListener[RetrievedModuleObjec
     def __init__(self, service_factory: JoinWerkingsgebiedenServiceFactory):
         self._service_factory: JoinWerkingsgebiedenServiceFactory = service_factory
 
-    def handle_event(
-        self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> Optional[RetrievedModuleObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
         join_service: JoinWerkingsgebiedenService = self._service_factory.create_service(
             session,
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: List[BaseModel] = join_service.join_werkingsgebieden()
+        result_rows: list[BaseModel] = join_service.join_werkingsgebieden()
         event.payload.rows = result_rows
 
         return event
@@ -51,16 +47,14 @@ class AddRelationsToModuleObjectsListener(ApiListener[RetrievedModuleObjectsEven
     def __init__(self, service_factory: AddRelationsServiceFactory):
         self._service_factory: AddRelationsServiceFactory = service_factory
 
-    def handle_event(
-        self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> Optional[RetrievedModuleObjectsEvent]:
+    def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
         add_service: AddRelationsService = self._service_factory.create_service(
             session,
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: List[BaseModel] = add_service.add_relations()
+        result_rows: list[BaseModel] = add_service.add_relations()
         event.payload.rows = result_rows
 
         return event

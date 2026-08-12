@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -32,7 +32,7 @@ def post_delete_version_endpoint(
     if version.Act_Packages:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Publication Version has related Act Packages, cannot delete")
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     version.Deleted_At = timepoint
     version.Modified_By_UUID = user.UUID
     version.Modified_Date = timepoint

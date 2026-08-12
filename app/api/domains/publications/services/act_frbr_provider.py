@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -12,7 +12,7 @@ class ActFrbrProvider:
     def generate_frbr(self, session: Session, act: PublicationActTable) -> ActFrbr:
         expression_version: int = self._get_next_expression_version(session, act.UUID)
 
-        timepoint: datetime = datetime.now(timezone.utc)
+        timepoint: datetime = datetime.now(UTC)
         frbr: ActFrbr = ActFrbr(
             Act_ID=act.ID,
             Work_Province_ID=act.Work_Province_ID,

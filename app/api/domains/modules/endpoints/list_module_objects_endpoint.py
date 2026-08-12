@@ -1,6 +1,7 @@
-from enum import Enum
 import uuid
-from typing import Annotated, Generic, List, Optional, Dict, Sequence, Tuple
+from collections.abc import Sequence
+from enum import Enum
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, Query, status
@@ -17,7 +18,6 @@ from app.api.domains.modules.types import (
     ModuleStatusCode,
     ObjectStaticShort,
 )
-from app.api.domains.others.types import TModel
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import (
@@ -33,7 +33,7 @@ from app.core.tables.objects import ObjectStaticsTable
 from app.core.tables.users import UsersTable
 
 
-class ModuleObjectsResponse(BaseModel, Generic[TModel]):
+class ModuleObjectsResponse[TModel: BaseModel](BaseModel):
     Module_ID: int
     Module_Latest_Status: str
 
@@ -47,7 +47,7 @@ class ModuleObjectsResponse(BaseModel, Generic[TModel]):
 
 class ListModuleObjectsEndpointContext(BaseEndpointContext):
     order_config: OrderConfig
-    model_map: Dict[str, str]
+    model_map: dict[str, str]
 
 
 class OwnerType(str, Enum):
@@ -68,19 +68,19 @@ def get_list_module_objects_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    object_types: Annotated[List[str], Query()] = [],
-    owner_uuid: Optional[uuid.UUID] = None,
+    object_types: Annotated[list[str], Query()] = [],  # noqa: B006
+    owner_uuid: uuid.UUID | None = None,
     owner_type: OwnerType = OwnerType.ALL,
-    minimum_status: Optional[ModuleStatusCode] = None,
+    minimum_status: ModuleStatusCode | None = None,
     only_active_modules: bool = True,
-    title: Optional[str] = None,
-    actions: Annotated[List[ModuleObjectActionFull], Query()] = [],
-    module_id: Optional[int] = None,
+    title: str | None = None,
+    actions: Annotated[list[ModuleObjectActionFull], Query()] = [],  # noqa: B006
+    module_id: int | None = None,
 ) -> PagedResponse[ModuleObjectsResponse]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    owner_filter: Optional[OwnerFilter] = None
+    owner_filter: OwnerFilter | None = None
     match (owner_type, owner_uuid):
         case (OwnerType.MINE, uuid.UUID()):
             owner_filter = OwnerFilter(is_mine=True, owner_uuid=owner_uuid)
@@ -105,11 +105,11 @@ def get_list_module_objects_endpoint(
         actions=actions,
         module_id=module_id,
     )
-    paginated_items: Sequence[Tuple[ModuleObjectsTable, ObjectStaticsTable, ModuleObjectContextTable, str]] = (
+    paginated_items: Sequence[tuple[ModuleObjectsTable, ObjectStaticsTable, ModuleObjectContextTable, str]] = (
         paginated_result.items
     )
 
-    rows: List[ModuleObjectsResponse] = []
+    rows: list[ModuleObjectsResponse] = []
     for object_table, object_static, module_object_context, module_status in paginated_items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_table, context.model_map)
         response: ModuleObjectsResponse = ModuleObjectsResponse(

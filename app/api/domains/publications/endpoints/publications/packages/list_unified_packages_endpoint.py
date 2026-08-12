@@ -1,6 +1,6 @@
-from datetime import datetime
 import uuid
-from typing import Annotated, List, Optional
+from datetime import datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.publications.services.unified_packages_provider import UnifiedPackagesProvider
-from app.api.domains.publications.types.enums import PackageType, ReportStatusType, DocumentType, PublicationType
+from app.api.domains.publications.types.enums import DocumentType, PackageType, PublicationType, ReportStatusType
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.endpoint import BaseEndpointContext
 from app.api.permissions import Permissions
@@ -54,12 +54,12 @@ def get_list_unified_packages_endpoint(
         ),
     ],
     context: Annotated[ListUnifiedPackagesEndpointContext, Depends()],
-    environment_uuid: Optional[uuid.UUID] = None,
-    module_id: Optional[int] = None,
-    report_status: Optional[ReportStatusType] = None,
-    package_type: Optional[PackageType] = None,
-    document_type: Optional[DocumentType] = None,
-    publication_type: Optional[PublicationType] = None,
+    environment_uuid: uuid.UUID | None = None,
+    module_id: int | None = None,
+    report_status: ReportStatusType | None = None,
+    package_type: PackageType | None = None,
+    document_type: DocumentType | None = None,
+    publication_type: PublicationType | None = None,
 ) -> PagedResponse[UnifiedPackage]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
@@ -75,7 +75,7 @@ def get_list_unified_packages_endpoint(
         publication_type=publication_type,
     )
 
-    results: List[UnifiedPackage] = [UnifiedPackage.model_validate(item) for item in paginated_result.items]
+    results: list[UnifiedPackage] = [UnifiedPackage.model_validate(item) for item in paginated_result.items]
 
     return PagedResponse[UnifiedPackage](
         total=paginated_result.total_count,

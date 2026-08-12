@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 
 from pydantic import BaseModel
 
@@ -9,7 +8,7 @@ from app.core.types import Model
 
 @dataclass
 class RetrievedObjectsEventPayload:
-    rows: List[BaseModel]
+    rows: list[BaseModel]
 
 
 @dataclass
@@ -30,7 +29,7 @@ class RetrievedObjectsEvent(ApiEvent):
 
     @staticmethod
     def create(
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         endpoint_id: str,
         response_model: Model,
     ):

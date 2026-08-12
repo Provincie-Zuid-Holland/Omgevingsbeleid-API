@@ -1,6 +1,6 @@
 import json
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -37,7 +37,7 @@ def atemporal_delete_object_endpoint(
         user,
     )
 
-    maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
+    maybe_object: ObjectsTable | None = object_repository.get_latest_by_id(
         session,
         context.object_type,
         lineage_id,
@@ -45,7 +45,7 @@ def atemporal_delete_object_endpoint(
     if not maybe_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object not found")
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     if maybe_object.End_Validity is not None and maybe_object.End_Validity < timepoint:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Object is already deleted")
 

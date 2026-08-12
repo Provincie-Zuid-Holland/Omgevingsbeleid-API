@@ -6,7 +6,12 @@ line-length = 120
 
 [tool.ruff.lint]
 ignore = [
-    "E712", # true-false-comparison: Which is unreadable in sqlalchemy filters
+    "E712",   # true-false-comparison: Which is unreadable in sqlalchemy filters
+    "SIM102", # collapsible-if: nested ifs often check separate things and read better apart
+    "DTZ007", # strptime-without-zone: we parse date-only strings of which I'm not sure that we can safely set the timezone without code breaking
+    "TRY004", # type-check-without-type-error: TypeError escapes pydantic validators (422 becomes 500)
+    "TRY203", # useless-try-except:
+    "BLE001", # blind-except:
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]

@@ -1,5 +1,4 @@
 from uuid import UUID
-from typing import Dict
 
 from sqlalchemy.orm import Session
 
@@ -44,8 +43,8 @@ class StateV7Upgrader(StateUpgrader):
 
         return new_state
 
-    def _mutate_purposes(self, old_state: state_v6.StateV6) -> Dict[str, models_v7.Purpose]:
-        purposes: Dict[str, models_v7.Purpose] = {}
+    def _mutate_purposes(self, old_state: state_v6.StateV6) -> dict[str, models_v7.Purpose]:
+        purposes: dict[str, models_v7.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
             new_purpose: models_v7.Purpose = models_v7.Purpose.model_validate(old_purpose.model_dump())
@@ -53,8 +52,8 @@ class StateV7Upgrader(StateUpgrader):
 
         return purposes
 
-    def _mutate_announcements(self, old_state: state_v6.StateV6) -> Dict[str, models_v7.ActiveAnnouncement]:
-        announcements: Dict[str, models_v7.ActiveAnnouncement] = {}
+    def _mutate_announcements(self, old_state: state_v6.StateV6) -> dict[str, models_v7.ActiveAnnouncement]:
+        announcements: dict[str, models_v7.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
             new_announcement: models_v7.ActiveAnnouncement = models_v7.ActiveAnnouncement.model_validate(
@@ -64,8 +63,8 @@ class StateV7Upgrader(StateUpgrader):
 
         return announcements
 
-    def _mutate_acts(self, old_state: state_v6.StateV6) -> Dict[str, models_v7.ActiveAct]:
-        acts: Dict[str, models_v7.ActiveAct] = {}
+    def _mutate_acts(self, old_state: state_v6.StateV6) -> dict[str, models_v7.ActiveAct]:
+        acts: dict[str, models_v7.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
             new_act: models_v7.ActiveAct = self._mutate_act(old_act)
@@ -75,7 +74,7 @@ class StateV7Upgrader(StateUpgrader):
 
     def _mutate_act(self, old_act: models_v6.ActiveAct) -> models_v7.ActiveAct:
         act_dict: dict = old_act.model_dump()
-        resolved_gios: Dict[str, models_v7.Gio] = self._resolve_gios(old_act)
+        resolved_gios: dict[str, models_v7.Gio] = self._resolve_gios(old_act)
         act_dict["Gios"] = resolved_gios
 
         # By removing these, their references get removed and the GIOs become invalid
@@ -87,8 +86,8 @@ class StateV7Upgrader(StateUpgrader):
         act: models_v7.ActiveAct = models_v7.ActiveAct.model_validate(act_dict)
         return act
 
-    def _resolve_gios(self, old_act: models_v6.ActiveAct) -> Dict[str, models_v7.Gio]:
-        result_gios: Dict[str, models_v7.Gio] = {}
+    def _resolve_gios(self, old_act: models_v6.ActiveAct) -> dict[str, models_v7.Gio]:
+        result_gios: dict[str, models_v7.Gio] = {}
 
         # We do not bother keeping the lineage of these old GIO's alive as their origin is no longer relevant
         # Therefor all references to these gios will be made invalid (by just removing the gebiedengroepen and gebiedsaanwijzingen)

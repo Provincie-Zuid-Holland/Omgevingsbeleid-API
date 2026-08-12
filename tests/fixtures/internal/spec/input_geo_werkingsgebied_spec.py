@@ -1,26 +1,24 @@
-from typing import Optional, Sequence
 import uuid
-
+from collections.abc import Sequence
+from datetime import datetime
 
 from app.core.db.base import Base
 from app.core.tables.werkingsgebieden import InputGeoWerkingsgebiedenTable
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.types import (
-    Spec,
-    Record,
-    PrimaryKey,
-    PersistContext,
     BasePersistHandler,
+    PersistContext,
+    PrimaryKey,
+    Record,
+    Spec,
 )
-
-from datetime import datetime
 
 
 class InputGeoWerkingsgebiedenSpec(Spec):
-    UUID: Optional[uuid.UUID] = None
+    UUID: uuid.UUID | None = None
     Title: str
     Description: str = ""
-    Created_Date: Optional[datetime] = None
+    Created_Date: datetime | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
         assert self.UUID, "UUID is not set which is expected to happen at this stage."

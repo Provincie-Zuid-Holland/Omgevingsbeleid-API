@@ -1,21 +1,23 @@
-from typing import Optional, Sequence
 import uuid
+from collections.abc import Sequence
+from datetime import date
+
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import func
-from datetime import date
+
 from app.api.base_repository import BaseRepository
 from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.core.tables.werkingsgebieden import InputGeoWerkingsgebiedenTable
 
 
 class InputGeoWerkingsgebiedenRepository(BaseRepository):
-    def get_by_id(self, session: Session, werkingsgbied_uuid: uuid.UUID) -> Optional[InputGeoWerkingsgebiedenTable]:
+    def get_by_id(self, session: Session, werkingsgbied_uuid: uuid.UUID) -> InputGeoWerkingsgebiedenTable | None:
         stmt = select(InputGeoWerkingsgebiedenTable).where(InputGeoWerkingsgebiedenTable.UUID == werkingsgbied_uuid)
         return self.fetch_first(session, stmt)
 
     def get_by_title_paginated(
-        self, session: Session, title: str, from_date: Optional[date]
+        self, session: Session, title: str, from_date: date | None
     ) -> Sequence[InputGeoWerkingsgebiedenTable]:
         stmt = select(InputGeoWerkingsgebiedenTable).filter(InputGeoWerkingsgebiedenTable.Title == title)
         if from_date:

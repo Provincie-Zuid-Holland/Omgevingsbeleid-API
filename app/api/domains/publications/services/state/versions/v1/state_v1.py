@@ -1,5 +1,3 @@
-from typing import Dict, List, Optional
-
 from pydantic import BaseModel, Field
 
 from app.api.domains.publications.services.state.state import State
@@ -7,7 +5,7 @@ from app.api.domains.publications.services.state.state import State
 
 class Purpose(BaseModel):
     Purpose_Type: str
-    Effective_Date: Optional[str] = None
+    Effective_Date: str | None = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str
@@ -35,17 +33,17 @@ class Werkingsgebied(BaseModel):
 
 
 class WidData(BaseModel):
-    Known_Wid_Map: Dict[str, str]
-    Known_Wids: List[str]
+    Known_Wid_Map: dict[str, str]
+    Known_Wids: list[str]
 
 
 class OwObjectMap(BaseModel):
-    id_mapping: Dict[str, Dict[str, str]]
-    tekstdeel_mapping: Dict[str, Dict[str, str]]
+    id_mapping: dict[str, dict[str, str]]
+    tekstdeel_mapping: dict[str, dict[str, str]]
 
 
 class OwData(BaseModel):
-    Object_Ids: List[str]
+    Object_Ids: list[str]
     Object_Map: OwObjectMap
 
 
@@ -55,7 +53,7 @@ class ActiveAct(BaseModel):
     Consolidation_Purpose: Purpose
     Document_Type: str
     Procedure_Type: str
-    Werkingsgebieden: Dict[int, Werkingsgebied]
+    Werkingsgebieden: dict[int, Werkingsgebied]
     Wid_Data: WidData
     Ow_Data: OwData
     Act_Text: str
@@ -70,9 +68,9 @@ class ActiveAnnouncement(BaseModel):
 
 
 class StateV1(State):
-    Purposes: Dict[str, Purpose] = Field({})
-    Acts: Dict[str, ActiveAct] = Field({})
-    Announcements: Dict[str, ActiveAnnouncement] = Field({})
+    Purposes: dict[str, Purpose] = Field({})
+    Acts: dict[str, ActiveAct] = Field({})
+    Announcements: dict[str, ActiveAnnouncement] = Field({})
 
     @staticmethod
     def get_schema_version() -> int:

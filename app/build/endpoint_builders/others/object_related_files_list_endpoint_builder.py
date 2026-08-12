@@ -1,5 +1,3 @@
-from typing import List
-
 from app.api.domains.others.endpoints.object_related_files_list_endpoint import (
     ObjectRelatedFilesListEndpointContext,
     get_object_related_files_list_endpoint,
@@ -33,7 +31,7 @@ class ObjectRelatedFilesListEndpointBuilder(EndpointBuilder):
             endpoint=endpoint,
             methods=["GET"],
             summary="List related files for an object",
-            response_model=List[ObjectRelatedFileResponse],
+            response_model=list[ObjectRelatedFileResponse],
             description=None,
             tags=["Object Related Files"],
         )

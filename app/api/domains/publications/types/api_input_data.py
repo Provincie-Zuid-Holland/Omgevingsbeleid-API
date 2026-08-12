@@ -1,14 +1,12 @@
 from dataclasses import dataclass
 from datetime import date
-from typing import Dict, List, Optional
+
+import dso.models as dso_models
+from pydantic import BaseModel, Field
 
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
 from app.api.domains.publications.types.models import AnnouncementContent, AnnouncementMetadata, AnnouncementProcedural
 from app.core.tables.publications import PublicationAnnouncementTable, PublicationVersionTable
-from typing import Set
-
-from pydantic import BaseModel, Field
-import dso.models as dso_models
 
 
 @dataclass
@@ -86,7 +84,7 @@ class DocFrbr:
 @dataclass
 class Purpose:
     Purpose_Type: PurposeType
-    Effective_Date: Optional[date]
+    Effective_Date: date | None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str
@@ -111,7 +109,7 @@ class PublicationGioLocatie(BaseModel):
 
 class PublicationGio(BaseModel):
     key: str
-    source_codes: Set[str]
+    source_codes: set[str]
     title: str
 
     frbr: dso_models.FRBR
@@ -121,7 +119,7 @@ class PublicationGio(BaseModel):
     achtergrond_verwijzing: str
     achtergrond_actualiteit: str
 
-    locaties: List[PublicationGioLocatie]
+    locaties: list[PublicationGioLocatie]
 
     def has_same_data(self, other: "PublicationGio") -> bool:
         if self.title != other.title:
@@ -136,7 +134,7 @@ class PublicationGebiedengroep(BaseModel):
     uuid: str
     code: str
     title: str
-    source_gebieden_codes: Set[str]
+    source_gebieden_codes: set[str]
     gio_key: str
 
 
@@ -151,28 +149,28 @@ class PublicationGebiedsaanwijzing(BaseModel):
     # Used to determine reuse and target to geo_gio
     # @note: unused at the moment, but useful to have in the state machine
     #           Else we can not conclude reuse in the next version
-    source_target_codes: Set[str]
-    resolved_gebied_codes: Set[str]
+    source_target_codes: set[str]
+    resolved_gebied_codes: set[str]
 
 
 class PublicationGeoData(BaseModel):
-    gios: Dict[str, PublicationGio] = Field(default_factory=dict)
-    gebiedengroepen: Dict[str, PublicationGebiedengroep] = Field(default_factory=dict)
-    gebiedsaanwijzingen: Dict[str, PublicationGebiedsaanwijzing] = Field(default_factory=dict)
+    gios: dict[str, PublicationGio] = Field(default_factory=dict)
+    gebiedengroepen: dict[str, PublicationGebiedengroep] = Field(default_factory=dict)
+    gebiedsaanwijzingen: dict[str, PublicationGebiedsaanwijzing] = Field(default_factory=dict)
 
 
 @dataclass
 class PublicationData:
-    all_object_codes: Set[str]
-    all_objects: List[dict]
-    used_object_codes: Set[str]
-    used_objects: List[dict]
-    documents: List[dict]
-    assets: List[dict]
-    gios: Dict[str, PublicationGio]
-    gebiedengroepen: Dict[str, PublicationGebiedengroep]
-    gebiedsaanwijzingen: Dict[str, PublicationGebiedsaanwijzing]
-    bill_attachments: List[Dict]
+    all_object_codes: set[str]
+    all_objects: list[dict]
+    used_object_codes: set[str]
+    used_objects: list[dict]
+    documents: list[dict]
+    assets: list[dict]
+    gios: dict[str, PublicationGio]
+    gebiedengroepen: dict[str, PublicationGebiedengroep]
+    gebiedsaanwijzingen: dict[str, PublicationGebiedsaanwijzing]
+    bill_attachments: list[dict]
     area_of_jurisdiction: dict
     parsed_template: str
 
@@ -181,9 +179,9 @@ class PublicationData:
 class ActMutation:
     Consolidated_Act_Frbr: ActFrbr
     Consolidated_Act_Text: str
-    Known_Wid_Map: Dict[str, str]
-    Known_Wids: List[str]
-    Removed_Gios: List[dict]
+    Known_Wid_Map: dict[str, str]
+    Known_Wids: list[str]
+    Removed_Gios: list[dict]
 
 
 @dataclass
@@ -194,8 +192,8 @@ class ApiActInputData:
     Publication_Data: PublicationData
     Package_Type: PackageType
     Publication_Version: PublicationVersionTable
-    Act_Mutation: Optional[ActMutation]
-    Ow_State: Optional[str]
+    Act_Mutation: ActMutation | None
+    Ow_State: str | None
     Mutation_Strategy: MutationStrategy
 
 

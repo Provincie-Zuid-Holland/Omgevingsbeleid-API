@@ -1,11 +1,9 @@
-from typing import Dict, Type
-
-from pydantic import BaseModel
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import BaseModel
 
 from tests.conftest import Context
-from tests.fixtures.internal.spec.objects import BeleidsdoelSpec, BeleidskeuzeSpec, MaatregelSpec, BaseObjectSpec
+from tests.fixtures.internal.spec.objects import BaseObjectSpec, BeleidsdoelSpec, BeleidskeuzeSpec, MaatregelSpec
 from tests.fixtures.internal.types import Ref
 
 
@@ -131,9 +129,9 @@ def test_invalid_sort_column_returns_400(client: TestClient):
 
 def test_result_matches_the_response_model_shape(client: TestClient, ctx: Context):
     expected: BeleidsdoelSpec = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_1_latest_valid")).spec
-    model: Type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_basic")
+    model: type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_basic")
 
-    row: Dict[str, dict] = {r["Code"]: r for r in client.get("/beleidsdoelen/valid").json()["results"]}[expected.Code]
+    row: dict[str, dict] = {r["Code"]: r for r in client.get("/beleidsdoelen/valid").json()["results"]}[expected.Code]
 
     assert set(row.keys()) == set(model.model_fields)
     # No later valid version exists for this lineage, so the enrichment yields None.

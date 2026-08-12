@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -22,7 +22,7 @@ def get_list_werkingsgebieden_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[WerkingsgebiedenRepository, Depends(Provide[ApiContainer.werkingsgebieden_repository])],
     context: Annotated[ListWerkingsgebiedenEndpointContext, Depends()],
-    title: Optional[str] = None,
+    title: str | None = None,
 ) -> PagedResponse[Werkingsgebied]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
@@ -32,7 +32,7 @@ def get_list_werkingsgebieden_endpoint(
     else:
         paged_results = repository.get_by_title_paginated(session, pagination, title)
 
-    werkingsgebieden: List[Werkingsgebied] = [Werkingsgebied.model_validate(w) for w in paged_results.items]
+    werkingsgebieden: list[Werkingsgebied] = [Werkingsgebied.model_validate(w) for w in paged_results.items]
 
     return PagedResponse[Werkingsgebied](
         total=paged_results.total_count,

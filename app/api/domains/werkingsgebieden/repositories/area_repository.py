@@ -1,4 +1,3 @@
-from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -9,17 +8,15 @@ from app.core.tables.others import AreasTable
 
 
 class AreaRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> Optional[AreasTable]:
+    def get_by_uuid(self, session: Session, uuidx: UUID) -> AreasTable | None:
         stmt = select(AreasTable).filter(AreasTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_by_source_uuid(self, session: Session, werkingsgebied_uuid: UUID) -> Optional[AreasTable]:
+    def get_by_source_uuid(self, session: Session, werkingsgebied_uuid: UUID) -> AreasTable | None:
         stmt = select(AreasTable).filter(AreasTable.Source_UUID == werkingsgebied_uuid)
         return self.fetch_first(session, stmt)
 
-    def get_by_source_hash_and_title(
-        self, session: Session, source_hash: str, source_title: str
-    ) -> Optional[AreasTable]:
+    def get_by_source_hash_and_title(self, session: Session, source_hash: str, source_title: str) -> AreasTable | None:
         if not source_hash:
             return None
 
@@ -32,7 +29,7 @@ class AreaRepository(BaseRepository):
         )
         return self.fetch_first(session, stmt)
 
-    def get_by_source_hash(self, session: Session, source_hash: str) -> Optional[AreasTable]:
+    def get_by_source_hash(self, session: Session, source_hash: str) -> AreasTable | None:
         if not source_hash:
             return None
 
@@ -44,11 +41,11 @@ class AreaRepository(BaseRepository):
         )
         return self.fetch_first(session, stmt)
 
-    def get_with_gml(self, session: Session, uuidx: UUID) -> Optional[AreasTable]:
+    def get_with_gml(self, session: Session, uuidx: UUID) -> AreasTable | None:
         stmt = select(AreasTable).options(undefer(AreasTable.Gml)).filter(AreasTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_many_with_gml(self, session: Session, uuids: List[UUID]) -> List[AreasTable]:
+    def get_many_with_gml(self, session: Session, uuids: list[UUID]) -> list[AreasTable]:
         if len(uuids) == 0:
             return []
 

@@ -1,50 +1,44 @@
-from typing import Optional, Sequence, cast
 import uuid
+from collections.abc import Sequence
+from datetime import datetime
+from typing import ClassVar, cast
 
 from pydantic import Field
-
 
 from app.core.db.base import Base
 from app.core.tables.others import AreasTable
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
-from tests.fixtures.internal.types import (
-    Spec,
-    Record,
-    PrimaryKey,
-    PersistContext,
-    BasePersistHandler,
-    DATETIME_T0,
-    Ref,
-)
 from tests.fixtures.internal.spec.input_geo_onderverdeling_spec import InputGeoOnderverdelingSpec
-
-from datetime import datetime
-from typing import ClassVar, Set
-
-
 from tests.fixtures.internal.types import (
+    DATETIME_T0,
+    BasePersistHandler,
     Link,
+    PersistContext,
+    PrimaryKey,
+    Record,
+    Ref,
+    Spec,
 )
 
 
 class AreaSpec(Spec):
-    __link_fields__: ClassVar[Set[str]] = {"Created_By_UUID"}
+    __link_fields__: ClassVar[set[str]] = {"Created_By_UUID"}
 
-    UUID: Optional[uuid.UUID] = None
-    Created_Date: Optional[datetime] = None
-    Created_By_UUID: Optional[Link] = None
+    UUID: uuid.UUID | None = None
+    Created_Date: datetime | None = None
+    Created_By_UUID: Link | None = None
 
     Source_Ref: Ref
 
     # These will be filled if you just set Source_Ref
-    Source_UUID: Optional[uuid.UUID] = None
-    Shape: Optional[bytes] = None
+    Source_UUID: uuid.UUID | None = None
+    Shape: bytes | None = None
     Gml: str = ""
     Source_Title: str = ""
-    Source_Symbol: Optional[str] = None
+    Source_Symbol: str | None = None
     Source_Created_Date: datetime = Field(default=DATETIME_T0)
-    Source_Geometry_Index: Optional[str] = None
-    Source_Geometry_Hash: Optional[str] = None
+    Source_Geometry_Index: str | None = None
+    Source_Geometry_Hash: str | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
         assert self.UUID, "UUID is not set which is expected to happen at this stage."

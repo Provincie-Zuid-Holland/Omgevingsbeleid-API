@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Annotated, Generic, List, Optional, Dict, Self, Set
+from datetime import UTC, datetime
+from typing import Annotated, Self
 
 from bs4 import BeautifulSoup
 from dependency_injector.wiring import Provide
@@ -12,7 +12,6 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.modules.types import PublicModuleStatusCode
-from app.api.domains.others.types import TModel
 from app.api.domains.users.dependencies import depends_optional_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import (
@@ -32,15 +31,15 @@ from app.core.tables.users import UsersTable
 
 
 class SearchEndpointContext(BaseEndpointContext):
-    model_map: Dict[str, str]
-    allowed_object_types: Set[str]
-    search_columns: Set[str]
-    used_columns: Set[str]
+    model_map: dict[str, str]
+    allowed_object_types: set[str]
+    search_columns: set[str]
+    used_columns: set[str]
 
 
 class RequestData(BaseModel):
-    object_types: Set[str] = Field(default_factory=set)
-    module_id: Optional[int] = None
+    object_types: set[str] = Field(default_factory=set)
+    module_id: int | None = None
     include_valids: bool = Field(default=True, description="Search in Objects?")
     include_modules: bool = Field(default=True, description="Search in Module Objects?")
     query: str = Field(min_length=1)
@@ -53,12 +52,12 @@ class RequestData(BaseModel):
             raise ValueError("You must include something")
         return self
 
-    def validate_object_types(self, allowed: Set[str]):
+    def validate_object_types(self, allowed: set[str]):
         if not self.object_types:
             self.object_types = allowed
             return
 
-        invalid_object_types: Set[str] = self.object_types - allowed
+        invalid_object_types: set[str] = self.object_types - allowed
         if invalid_object_types:
             raise HTTPException(
                 status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -66,13 +65,13 @@ class RequestData(BaseModel):
             )
 
 
-class SearchObject(BaseModel, Generic[TModel]):
-    Module_ID: Optional[int] = None
+class SearchObject[T: BaseModel](BaseModel):
+    Module_ID: int | None = None
     Object_Type: str
 
     Title: str
     Description: str
-    Model: TModel
+    Model: T
 
     model_config = ConfigDict(from_attributes=True, title="SearchObject")
 
@@ -82,14 +81,14 @@ class EndpointHandler:
         self,
         session: Session,
         module_objects_to_models_parser: ModuleObjectsToModelsParser,
-        user: Optional[UsersTable],
+        user: UsersTable | None,
         context: SearchEndpointContext,
         request_data: RequestData,
         pagination: SimplePagination,
     ):
         self._session: Session = session
         self._module_objects_to_models_parser: ModuleObjectsToModelsParser = module_objects_to_models_parser
-        self._user: Optional[UsersTable] = user
+        self._user: UsersTable | None = user
         self._context: SearchEndpointContext = context
         self._request_data: RequestData = request_data
         self._pagination: SimplePagination = pagination
@@ -106,7 +105,7 @@ class EndpointHandler:
             offset=self._pagination.offset,
         )
 
-        search_objects: List[SearchObject] = []
+        search_objects: list[SearchObject] = []
         for row in paginated.items:
             parsed_model: BaseModel = self._module_objects_to_models_parser.parse(
                 row,
@@ -136,7 +135,7 @@ class EndpointHandler:
         )
 
     def _build_statement(self) -> Select:
-        branches: List[Select] = []
+        branches: list[Select] = []
         if self._request_data.include_valids:
             branches.append(self._valid_branch())
         if self._request_data.include_modules:
@@ -151,7 +150,7 @@ class EndpointHandler:
         )
 
     def _valid_branch(self) -> Select:
-        timepoint: datetime = datetime.now(timezone.utc)
+        timepoint: datetime = datetime.now(UTC)
         subq = (
             select(
                 ObjectsTable,
@@ -251,7 +250,7 @@ def get_search_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    user: Annotated[Optional[UsersTable], Depends(depends_optional_current_user)],
+    user: Annotated[UsersTable | None, Depends(depends_optional_current_user)],
     context: Annotated[SearchEndpointContext, Depends()],
     request_data: Annotated[RequestData, Body()],
 ) -> PagedResponse[SearchObject]:

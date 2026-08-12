@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -30,8 +30,8 @@ def get_list_templates_endpoint(
     template_repository: Annotated[
         PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
     ],
-    is_active: Optional[bool] = None,
-    document_type: Optional[DocumentType] = None,
+    is_active: bool | None = None,
+    document_type: DocumentType | None = None,
 ) -> PagedResponse[PublicationTemplate]:
     paginated_result = template_repository.get_with_filters(
         session=session,

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Type
+from typing import Any
 
 from bs4 import BeautifulSoup, PageElement, Tag
 from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory, Thema
@@ -37,20 +37,20 @@ class ValidateModuleSeverity(str, Enum):
 class ValidateModuleError(BaseModel):
     rule: str
     object: ValidateModuleObject
-    messages: List[str]
+    messages: list[str]
     severity: ValidateModuleSeverity = Field(default=ValidateModuleSeverity.error)
 
 
 class ValidateModuleRequest(BaseModel):
     module_id: int
-    module_objects: List[ModuleObjectsTable]
+    module_objects: list[ModuleObjectsTable]
 
-    _module_object_lookup: Dict[str, ModuleObjectsTable] = PrivateAttr(default_factory=dict)
+    _module_object_lookup: dict[str, ModuleObjectsTable] = PrivateAttr(default_factory=dict)
 
     def model_post_init(self, context: Any) -> None:
         self._module_object_lookup = {module_object.Code: module_object for module_object in self.module_objects}
 
-    def get_module_object(self, code: str) -> Optional[ModuleObjectsTable]:
+    def get_module_object(self, code: str) -> ModuleObjectsTable | None:
         return self._module_object_lookup.get(code, None)
 
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
@@ -58,12 +58,12 @@ class ValidateModuleRequest(BaseModel):
 
 class ValidateModuleRule(ABC):
     @abstractmethod
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         pass
 
 
 class ValidateModuleResult(BaseModel):
-    errors: List[ValidateModuleError]
+    errors: list[ValidateModuleError]
 
     @computed_field
     @property
@@ -74,11 +74,11 @@ class ValidateModuleResult(BaseModel):
 
 
 class ValidateModuleService:
-    def __init__(self, rules: List[ValidateModuleRule]):
-        self._rules: List[ValidateModuleRule] = rules
+    def __init__(self, rules: list[ValidateModuleRule]):
+        self._rules: list[ValidateModuleRule] = rules
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> ValidateModuleResult:
-        errors: List[ValidateModuleError] = []
+        errors: list[ValidateModuleError] = []
         for rule in self._rules:
             errors += rule.validate(db, request)
 
@@ -88,14 +88,14 @@ class ValidateModuleService:
 
 
 class RequiredObjectFieldsRule(ValidateModuleRule):
-    def __init__(self, object_map: Dict[str, Type[BaseModel]]):
-        self._object_map: Dict[str, Type[BaseModel]] = object_map
+    def __init__(self, object_map: dict[str, type[BaseModel]]):
+        self._object_map: dict[str, type[BaseModel]] = object_map
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        errors: List[ValidateModuleError] = []
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        errors: list[ValidateModuleError] = []
 
         for module_object_table in request.module_objects:
-            model: Optional[Type[BaseModel]] = self._object_map.get(module_object_table.Object_Type)
+            model: type[BaseModel] | None = self._object_map.get(module_object_table.Object_Type)
             if not model:
                 continue
 
@@ -121,15 +121,15 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
     def __init__(self, repository: PublicationObjectRepository):
         self._repository: PublicationObjectRepository = repository
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        objects: List[dict] = self._repository.fetch_objects(
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        objects: list[dict] = self._repository.fetch_objects(
             db,
             request.module_id,
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
         )
-        existing_object_codes: Set[str] = {o["Code"] for o in objects}
+        existing_object_codes: set[str] = {o["Code"] for o in objects}
 
-        errors: List[ValidateModuleError] = []
+        errors: list[ValidateModuleError] = []
 
         for object_info in objects:
             target_code = object_info.get("Hierarchy_Code")
@@ -161,14 +161,14 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
             input_geo_onderverdeling_repository
         )
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        errors: List[ValidateModuleError] = []
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
             if object_table.Object_Type != "gebied":
                 continue
 
-            area_current: Optional[AreasTable] = object_table.Area
+            area_current: AreasTable | None = object_table.Area
             if area_current is None:
                 errors.append(
                     ValidateModuleError(
@@ -186,7 +186,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
 
             area_hash: str = area_current.Source_Geometry_Hash or ""
             area_title: str = area_current.Source_Title
-            onderverdeling: Optional[InputGeoOnderverdelingenTable] = (
+            onderverdeling: InputGeoOnderverdelingenTable | None = (
                 self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
             )
             if onderverdeling is None:
@@ -229,8 +229,8 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
 
 
 class ForbiddenHtmlTagsRuleConfig(BaseModel):
-    fields: List[str]
-    forbidden_html_tags: List[str]
+    fields: list[str]
+    forbidden_html_tags: list[str]
 
 
 class ForbiddenHtmlTagsRule(ValidateModuleRule):
@@ -240,8 +240,8 @@ class ForbiddenHtmlTagsRule(ValidateModuleRule):
             ForbiddenHtmlTagsRuleConfig,
         )
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        errors: List[ValidateModuleError] = []
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
             for field_name in self._config.fields:
@@ -263,7 +263,7 @@ class ForbiddenHtmlTagsRule(ValidateModuleRule):
 
         return errors
 
-    def _has_forbidden_tags(self, text: str) -> Optional[str]:
+    def _has_forbidden_tags(self, text: str) -> str | None:
         soup = BeautifulSoup(text, "html.parser")
         for tag in self._config.forbidden_html_tags:
             elements = soup.find_all(tag)
@@ -273,9 +273,9 @@ class ForbiddenHtmlTagsRule(ValidateModuleRule):
 
 
 class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
-    fields: List[str]
-    html_void_elements: List[str] = Field(default_factory=list)
-    allowed_empty_when_sole_child: Dict[str, List[str]] = Field(default_factory=dict)
+    fields: list[str]
+    html_void_elements: list[str] = Field(default_factory=list)
+    allowed_empty_when_sole_child: dict[str, list[str]] = Field(default_factory=dict)
 
 
 class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
@@ -285,8 +285,8 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
             ForbidEmptyHtmlNodesRuleConfig,
         )
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        errors: List[ValidateModuleError] = []
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
             for field_name in self._config.fields:
@@ -324,32 +324,29 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
         return False
 
     def _is_allowed_empty_sole_child(self, tag: Tag) -> bool:
-        parent: Optional[Tag] = tag.parent
+        parent: Tag | None = tag.parent
         if parent is None:
             return False
 
-        allowed_children: List[str] = self._config.allowed_empty_when_sole_child.get(parent.name, [])
+        allowed_children: list[str] = self._config.allowed_empty_when_sole_child.get(parent.name, [])
         if tag.name not in allowed_children:
             return False
 
         # Only allowed when this empty tag is the single element child and the parent holds no other text,
         # so `<td><p></p></td>` passes but `<td><p>text</p><p></p></td>` does not.
-        element_children: List[PageElement] = [child for child in parent.children if child.name]
+        element_children: list[PageElement] = [child for child in parent.children if child.name]
         if len(element_children) != 1:
             return False
-        if parent.get_text(strip=True):
-            return False
-
-        return True
+        return not parent.get_text(strip=True)
 
 
 class AreaDesignationRefCheckRule(ValidateModuleRule):
     def __init__(self, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
         self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        errors: List[ValidateModuleError] = []
-        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        errors: list[ValidateModuleError] = []
+        gebiedsaanwijzingen: Gebiedsaanwijzingen | None = self._dso_gebiedsaanwijzingen_factory.get_for_document(
             DocumentType.OMGEVINGSVISIE
         )
 
@@ -357,7 +354,7 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
             if object_table.Object_Type != "gebiedsaanwijzing":
                 continue
 
-            ref_type: Optional[Gebiedsaanwijzing] = gebiedsaanwijzingen.get_by_type_label(object_table.Ref_Type)
+            ref_type: Gebiedsaanwijzing | None = gebiedsaanwijzingen.get_by_type_label(object_table.Ref_Type)
             if ref_type is None:
                 errors.append(
                     ValidateModuleError(
@@ -389,7 +386,7 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                 )
                 continue
 
-            ref_group: Optional[GebiedsaanwijzingWaarde] = ref_type.get_value_by_label(object_table.Ref_Group)
+            ref_group: GebiedsaanwijzingWaarde | None = ref_type.get_value_by_label(object_table.Ref_Group)
             if ref_group is None:
                 errors.append(
                     ValidateModuleError(
@@ -429,16 +426,16 @@ class ThemasCheckRule(ValidateModuleRule):
     def __init__(self, dso_thema_factory: ThemaFactory):
         self._dso_thema_factory: ThemaFactory = dso_thema_factory
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        errors: List[ValidateModuleError] = []
-        dso_themas: Dict[str, Thema] = self._dso_thema_factory.get_all()
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        errors: list[ValidateModuleError] = []
+        dso_themas: dict[str, Thema] = self._dso_thema_factory.get_all()
 
         for object_table in request.module_objects:
             if not object_table.Themas:
                 continue
 
             for thema in object_table.Themas:
-                dso_thema: Optional[Thema] = dso_themas.get(thema)
+                dso_thema: Thema | None = dso_themas.get(thema)
                 if dso_thema is None:
                     errors.append(
                         ValidateModuleError(
@@ -469,7 +466,7 @@ class ThemasCheckRule(ValidateModuleRule):
 
 
 class CheckEmptyAreaDesignationTextConfig(BaseModel):
-    fields: List[str]
+    fields: list[str]
 
 
 class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
@@ -479,8 +476,8 @@ class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
             CheckEmptyAreaDesignationTextConfig,
         )
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> List[ValidateModuleError]:
-        errors: List[ValidateModuleError] = []
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
             for field_name in self._config.fields:
@@ -517,10 +514,10 @@ class ValidateModuleRunner:
         self._validate_module_service: ValidateModuleService = validate_module_service
 
     def run(self, session: Session, module_id: int) -> ValidateModuleResult:
-        module_objects: List[ModuleObjectsTable] = self._module_object_repository.get_objects_in_time(
+        module_objects: list[ModuleObjectsTable] = self._module_object_repository.get_objects_in_time(
             session,
             module_id,
-            datetime.now(timezone.utc),
+            datetime.now(UTC),
         )
         non_terminated_module_objects = [
             module_object

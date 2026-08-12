@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional, Set
 
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -15,7 +14,7 @@ from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
 class AreaProcessorConfig(BaseModel):
-    fields: Set[str] = Field(default_factory=set)
+    fields: set[str] = Field(default_factory=set)
 
 
 class AreaProcessorService:
@@ -61,7 +60,7 @@ class AreaProcessorService:
         # And finally store the Area UUID back in to the record
 
         # The Area check
-        area_table: Optional[AreasTable] = self._area_repository.get_by_uuid(self._session, new_field_value)
+        area_table: AreasTable | None = self._area_repository.get_by_uuid(self._session, new_field_value)
         if area_table is not None:
             return new_record
 
@@ -73,7 +72,7 @@ class AreaProcessorService:
         return new_record
 
     def _get_input_geo_onderverdeling(self, input_geo_onderverdeling_uuid: uuid.UUID) -> InputGeoOnderverdelingenTable:
-        onderverdeling: Optional[InputGeoOnderverdelingenTable] = self._onderverdeling_repository.get_by_uuid(
+        onderverdeling: InputGeoOnderverdelingenTable | None = self._onderverdeling_repository.get_by_uuid(
             self._session,
             input_geo_onderverdeling_uuid,
         )
@@ -92,7 +91,7 @@ class AreaProcessorService:
         if existing_area is not None:
             return existing_area.UUID
 
-        existing_area: Optional[AreasTable] = self._area_repository.get_by_source_uuid(
+        existing_area: AreasTable | None = self._area_repository.get_by_source_uuid(
             self._session,
             onderverdeling.UUID,
         )

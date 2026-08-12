@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -10,8 +10,7 @@ from app.api.domains.werkingsgebieden.dependencies import depends_optional_input
 from app.api.domains.werkingsgebieden.repositories.input_geo.input_geo_werkingsgebieden_repository import (
     InputGeoWerkingsgebiedenRepository,
 )
-from app.api.domains.werkingsgebieden.types import InputGeoWerkingsgebied
-from app.api.domains.werkingsgebieden.types import input_geo_werkingsgebieden_order_config
+from app.api.domains.werkingsgebieden.types import InputGeoWerkingsgebied, input_geo_werkingsgebieden_order_config
 from app.api.utils.pagination import OptionalSortedPagination, PagedResponse, Sort, SortedPagination
 
 
@@ -29,7 +28,7 @@ def get_input_geo_list_latest_werkingsgebieden_endpoint(
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     paged_results = repository.get_unique_paginated(session, pagination)
-    werkingsgebieden: List[InputGeoWerkingsgebied] = [
+    werkingsgebieden: list[InputGeoWerkingsgebied] = [
         InputGeoWerkingsgebied.model_validate(w) for w in paged_results.items
     ]
 

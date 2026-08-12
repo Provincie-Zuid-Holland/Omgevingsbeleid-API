@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from typing import Annotated
 
 from fastapi import Depends
@@ -40,7 +40,7 @@ def post_create_aoj_endpoint(
         Administrative_Borders_ID=object_in.Administrative_Borders_ID,
         Administrative_Borders_Domain=object_in.Administrative_Borders_Domain,
         Administrative_Borders_Date=object_in.Administrative_Borders_Date,
-        Created_Date=datetime.now(timezone.utc),
+        Created_Date=datetime.now(UTC),
         Created_By_UUID=user.UUID,
     )
 

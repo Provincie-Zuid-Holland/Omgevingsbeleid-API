@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict, field_validator
@@ -50,7 +50,7 @@ class EndpointHandler:
             offset=self._pagination.offset,
         )
 
-        search_objects: List[SearchObject] = [SearchObject.model_validate(r._asdict()) for r in result.items]
+        search_objects: list[SearchObject] = [SearchObject.model_validate(r._asdict()) for r in result.items]
 
         return PagedResponse[SearchObject](
             total=result.total_count,

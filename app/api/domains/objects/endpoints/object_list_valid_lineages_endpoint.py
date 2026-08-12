@@ -1,15 +1,17 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy import Select
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.endpoint import BaseEndpointContext
 from app.api.events.before_select_execution_event import BeforeSelectExecutionEvent
+from app.api.events.event_manager import ApiEventManager
 from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
 from app.api.types import PreparedQuery
 from app.api.utils.pagination import (
@@ -21,14 +23,13 @@ from app.api.utils.pagination import (
     SortedPagination,
     query_paginated,
 )
-from app.api.events.event_manager import ApiEventManager
 from app.core.types import Model
 
 
 class ObjectListValidLineagesEndpointContext(BaseEndpointContext):
     object_type: str
     response_config_model: Model
-    allowed_filter_columns: List[str]  # @todo: confirm if this is needed
+    allowed_filter_columns: list[str]  # @todo: confirm if this is needed
     order_config: OrderConfig
 
 
@@ -38,8 +39,8 @@ def list_valid_lineages_endpoint(
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     context: Annotated[ObjectListValidLineagesEndpointContext, Depends()],
-    session=Depends(depends_db_session),
-    filter_title: Optional[str] = None,
+    session: Annotated[Session, Depends(depends_db_session)],
+    filter_title: str | None = None,
 ) -> PagedResponse[BaseModel]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
@@ -65,7 +66,7 @@ def list_valid_lineages_endpoint(
         sort=(getattr(prepared_query.aliased_ref, pagination.sort.column), pagination.sort.order),
     )
 
-    rows: List[BaseModel] = [
+    rows: list[BaseModel] = [
         context.response_config_model.pydantic_model.model_validate(r) for r in paginated_result.items
     ]
     retrieved_objects_event: RetrievedObjectsEvent = event_manager.dispatch(

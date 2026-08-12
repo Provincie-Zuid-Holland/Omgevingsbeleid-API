@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -12,9 +12,9 @@ from app.core.tables.objects import ObjectStaticsTable
 
 
 def depends_filter_object_code(
-    object_type: Optional[str] = None,
-    lineage_id: Optional[int] = None,
-) -> Optional[FilterObjectCode]:
+    object_type: str | None = None,
+    lineage_id: int | None = None,
+) -> FilterObjectCode | None:
     if object_type is None and lineage_id is None:
         return None
 
@@ -36,7 +36,7 @@ def depends_object_static_by_object_type_and_id(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])],
 ):
-    maybe_static: Optional[ObjectStaticsTable] = repository.get_by_object_type_and_id(
+    maybe_static: ObjectStaticsTable | None = repository.get_by_object_type_and_id(
         session,
         object_type,
         lineage_id,

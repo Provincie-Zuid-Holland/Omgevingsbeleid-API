@@ -1,20 +1,19 @@
-from typing import Dict, List, Optional, Set
 from uuid import UUID
 
+import dso.models as dso_models
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.state.versions.v7 import models
 from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutation, ApiActInputData, PublicationGio
-import dso.models as dso_models
 
 
 # used_by: owner codes (gebiedengroep / gebiedsaanwijzing) that referenced
 # this state gio in the previous publication. A state gio is claimed at most
 # once, by the first new gio that reuses its lineage.
 class StateGioEntry(BaseModel):
-    used_by: Set[str]
+    used_by: set[str]
     state_gio: models.Gio
     claimed: bool = False
 
@@ -44,9 +43,9 @@ class StateGioPool:
     """
 
     def __init__(self, active_act: models.ActiveAct):
-        self._entries: List[StateGioEntry] = []
+        self._entries: list[StateGioEntry] = []
         for gio_key, state_gio in active_act.Gios.items():
-            used_by: Set[str] = set()
+            used_by: set[str] = set()
             for groep in active_act.Gebiedengroepen.values():
                 if groep.gio_key == gio_key:
                     used_by.add(groep.code)
@@ -61,14 +60,14 @@ class StateGioPool:
                 )
             )
 
-    def claim(self, new_gio: PublicationGio, owner_codes: List[str]) -> PublicationGio:
+    def claim(self, new_gio: PublicationGio, owner_codes: list[str]) -> PublicationGio:
         """
         `owner_codes` must be ordered by priority: the first owner whose
         state gio is still unclaimed wins. Without a usable state gio
         `new_gio` is returned unchanged, keeping its own new FRBR.
         """
         for owner_code in owner_codes:
-            entry: Optional[StateGioEntry] = self._find_unclaimed_entry_for_owner(owner_code)
+            entry: StateGioEntry | None = self._find_unclaimed_entry_for_owner(owner_code)
             if entry is None:
                 continue
 
@@ -77,7 +76,7 @@ class StateGioPool:
 
         return new_gio
 
-    def _find_unclaimed_entry_for_owner(self, owner_code: str) -> Optional[StateGioEntry]:
+    def _find_unclaimed_entry_for_owner(self, owner_code: str) -> StateGioEntry | None:
         for entry in self._entries:
             if not entry.claimed and owner_code in entry.used_by:
                 return entry
@@ -112,7 +111,7 @@ class StateGioPool:
 
         return state_locs == new_locs
 
-    def get_removed_state_gios(self) -> List[models.Gio]:
+    def get_removed_state_gios(self) -> list[models.Gio]:
         # Unclaimed state gios are no longer used and must be withdrawn.
         return [entry.state_gio for entry in self._entries if not entry.claimed]
 
@@ -132,10 +131,10 @@ class PatchActMutation:
         return data
 
     def _patch_gios(self, data: ApiActInputData) -> ApiActInputData:
-        gios: Dict[str, PublicationGio] = data.Publication_Data.gios
+        gios: dict[str, PublicationGio] = data.Publication_Data.gios
 
         for gio_key, new_gio in gios.items():
-            owner_codes: List[str] = self._owner_codes_for_gio(data, gio_key)
+            owner_codes: list[str] = self._owner_codes_for_gio(data, gio_key)
             gios[gio_key] = self._gio_pool.claim(new_gio, owner_codes)
 
         # After patching the GIOs, we need to restore the original basisgeo_ids on the locaties.
@@ -149,7 +148,7 @@ class PatchActMutation:
         # keyed by source_hash -> basisgeo_id. We then iterate over the new data and, where
         # a matching source_hash exists, overwrite the generated basisgeo_id with the
         # original one to preserve identity across versions.
-        state_hash_map: Dict[str, str] = {}
+        state_hash_map: dict[str, str] = {}
         for state_gio in self._active_act.Gios.values():
             for state_location in state_gio.locaties:
                 state_hash_map[state_location.source_hash] = state_location.basisgeo_id
@@ -166,12 +165,12 @@ class PatchActMutation:
 
         return data
 
-    def _owner_codes_for_gio(self, data: ApiActInputData, gio_key: str) -> List[str]:
+    def _owner_codes_for_gio(self, data: ApiActInputData, gio_key: str) -> list[str]:
         # Owners are ordered by priority: gebiedengroepen first (sorted by
         # code), then gebiedsaanwijzingen (sorted by code). So when a new gio
         # is shared by owners that previously pointed to different state gios,
         # the gebiedengroep lineage wins deterministically.
-        owner_codes: List[str] = []
+        owner_codes: list[str] = []
 
         gebiedengroepen = data.Publication_Data.gebiedengroepen.values()
         for groep in sorted(gebiedengroepen, key=lambda g: g.code):
@@ -186,12 +185,12 @@ class PatchActMutation:
         return owner_codes
 
     def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
-        state_documents: Dict[int, models.Document] = self._active_act.Documents
+        state_documents: dict[int, models.Document] = self._active_act.Documents
 
-        documents: List[dict] = data.Publication_Data.documents
+        documents: list[dict] = data.Publication_Data.documents
         for index, document in enumerate(documents):
             object_id: int = document["Object_ID"]
-            existing_document: Optional[models.Document] = state_documents.get(object_id)
+            existing_document: models.Document | None = state_documents.get(object_id)
             if existing_document is None:
                 continue
 
@@ -226,14 +225,14 @@ class PatchActMutation:
         return gebiedengroep["code"] == existing.code
 
     def _patch_assets(self, session: Session, data: ApiActInputData) -> ApiActInputData:
-        state_assets: Dict[str, models.Asset] = self._active_act.Assets
+        state_assets: dict[str, models.Asset] = self._active_act.Assets
 
-        fetched_assets_uuids: Set[str] = set([a["UUID"] for a in data.Publication_Data.assets])
-        additional_asset_uuids_str: Set[str] = set(
-            [sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_uuids]
-        )
-        additional_asset_uuids: List[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_uuids_str]
-        additional_assets: List[dict] = self._asset_provider.get_assets_by_uuids(session, additional_asset_uuids)
+        fetched_assets_uuids: set[str] = {a["UUID"] for a in data.Publication_Data.assets}
+        additional_asset_uuids_str: set[str] = {
+            sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_uuids
+        }
+        additional_asset_uuids: list[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_uuids_str]
+        additional_assets: list[dict] = self._asset_provider.get_assets_by_uuids(session, additional_asset_uuids)
 
         data.Publication_Data.assets = data.Publication_Data.assets + additional_assets
 
@@ -259,8 +258,8 @@ class PatchActMutation:
         )
         return data
 
-    def _get_removed_gios(self) -> List[dict]:
-        removed_gios: List[dict] = []
+    def _get_removed_gios(self) -> list[dict]:
+        removed_gios: list[dict] = []
 
         for state_gio in self._gio_pool.get_removed_state_gios():
             removed_gio: dict = {

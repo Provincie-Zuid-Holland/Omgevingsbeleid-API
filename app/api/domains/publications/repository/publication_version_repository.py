@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -10,14 +9,14 @@ from app.core.tables.publications import PublicationVersionTable
 
 
 class PublicationVersionRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[PublicationVersionTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> PublicationVersionTable | None:
         stmt = select(PublicationVersionTable).where(PublicationVersionTable.UUID == uuid)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
         self,
         session: Session,
-        publication_uuid: Optional[UUID] = None,
+        publication_uuid: UUID | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:

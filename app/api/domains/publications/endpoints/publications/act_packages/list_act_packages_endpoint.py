@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -37,8 +37,8 @@ def get_list_act_packages_endpoint(
         ),
     ],
     context: Annotated[ListActPackagesEndpointContext, Depends()],
-    version_uuid: Optional[uuid.UUID] = None,
-    package_type: Optional[PackageType] = None,
+    version_uuid: uuid.UUID | None = None,
+    package_type: PackageType | None = None,
 ) -> PagedResponse[PublicationActPackage]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
@@ -50,7 +50,7 @@ def get_list_act_packages_endpoint(
         pagination=pagination,
     )
 
-    results: List[PublicationActPackage] = [PublicationActPackage.model_validate(r) for r in paginated_result.items]
+    results: list[PublicationActPackage] = [PublicationActPackage.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[PublicationActPackage](
         total=paginated_result.total_count,

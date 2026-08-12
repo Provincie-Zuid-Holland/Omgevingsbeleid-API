@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from pydantic.functional_validators import FieldValidatorModes
 

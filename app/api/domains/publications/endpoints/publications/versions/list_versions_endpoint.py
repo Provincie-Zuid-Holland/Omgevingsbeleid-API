@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -30,7 +30,7 @@ def get_list_versions_endpoint(
             )
         ),
     ],
-    publication_uuid: Optional[uuid.UUID] = None,
+    publication_uuid: uuid.UUID | None = None,
 ) -> PagedResponse[PublicationVersionShort]:
     paginated_result = version_repository.get_with_filters(
         session=session,
@@ -39,7 +39,7 @@ def get_list_versions_endpoint(
         limit=pagination.limit,
     )
 
-    results: List[PublicationVersionShort] = [PublicationVersionShort.model_validate(r) for r in paginated_result.items]
+    results: list[PublicationVersionShort] = [PublicationVersionShort.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[PublicationVersionShort](
         total=paginated_result.total_count,

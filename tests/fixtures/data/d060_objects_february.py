@@ -1,8 +1,8 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from tests.fixtures.internal.services.collector import Collector
-from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.spec.objects import BeleidsdoelSpec, BeleidskeuzeSpec, MaatregelSpec
+from tests.fixtures.internal.spec.user_spec import UserSpec
 
 
 def load(col: Collector) -> None:
@@ -10,8 +10,8 @@ def load(col: Collector) -> None:
         # We explicitly do not set a default Created_Data
         # this way the Created_Date of the previous version will be used
         # as this is the same behaviour as the real code
-        Modified_Date=datetime(2025, 2, 1, tzinfo=timezone.utc),
-        Start_Validity=datetime(2025, 2, 1, tzinfo=timezone.utc),
+        Modified_Date=datetime(2025, 2, 1, tzinfo=UTC),
+        Start_Validity=datetime(2025, 2, 1, tzinfo=UTC),
         Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
     ):
         # Beleidsdoel

@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -16,15 +16,15 @@ from app.core.tables.users import UsersTable
 
 
 class TemplateEdit(BaseModel):
-    Title: Optional[str] = None
-    Description: Optional[str] = None
-    Is_Active: Optional[bool] = None
-    Document_Type: Optional[DocumentType] = None
-    Field_Map: Optional[List[str]] = Field(None, deprecated=True)
-    Object_Field_Map: Optional[Dict[str, List[str]]] = None
-    Object_Types: Optional[List[str]] = None
-    Text_Template: Optional[str] = None
-    Object_Templates: Optional[Dict[str, str]] = None
+    Title: str | None = None
+    Description: str | None = None
+    Is_Active: bool | None = None
+    Document_Type: DocumentType | None = None
+    Field_Map: list[str] | None = Field(None, deprecated=True)
+    Object_Field_Map: dict[str, list[str]] | None = None
+    Object_Types: list[str] | None = None
+    Text_Template: str | None = None
+    Object_Templates: dict[str, str] | None = None
 
 
 def post_edit_template_endpoint(
@@ -40,7 +40,7 @@ def post_edit_template_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: TemplateEdit,
 ) -> ResponseOK:
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
@@ -48,7 +48,7 @@ def post_edit_template_endpoint(
         setattr(template, key, value)
 
     template.Modified_By_UUID = user.UUID
-    template.Modified_Date = datetime.now(timezone.utc)
+    template.Modified_Date = datetime.now(UTC)
 
     session.add(template)
     session.flush()

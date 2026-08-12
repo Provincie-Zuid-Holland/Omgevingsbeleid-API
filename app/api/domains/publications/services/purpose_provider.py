@@ -1,11 +1,10 @@
-from datetime import datetime, timezone
-from typing import Dict
+from datetime import UTC, datetime
 
 from app.api.domains.publications.types.api_input_data import ActFrbr, Purpose
 from app.api.domains.publications.types.enums import PurposeType
 from app.core.tables.publications import PublicationEnvironmentTable, PublicationVersionTable
 
-TYPE_MAP: Dict[str, str] = {
+TYPE_MAP: dict[str, str] = {
     PurposeType.CONSOLIDATION: "instelling",
     PurposeType.WITHDRAWAL: "intrekken",
 }
@@ -57,7 +56,7 @@ class PurposeProvider:
     ) -> Purpose:
         environment: PublicationEnvironmentTable = publication_version.Publication.Environment
 
-        timepoint: datetime = datetime.now(timezone.utc)
+        timepoint: datetime = datetime.now(UTC)
         purpose: Purpose = Purpose(
             Purpose_Type=purpose_type,
             Effective_Date=publication_version.Effective_Date,

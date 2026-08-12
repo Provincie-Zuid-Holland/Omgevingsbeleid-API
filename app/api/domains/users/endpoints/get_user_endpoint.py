@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -20,7 +20,7 @@ def view_get_user_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
 ) -> User:
-    db_user: Optional[UsersTable] = repository.get_by_uuid(session, user_uuid)
+    db_user: UsersTable | None = repository.get_by_uuid(session, user_uuid)
     if not db_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "User does not exist")
 

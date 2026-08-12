@@ -1,4 +1,5 @@
-from typing import Annotated, List, Sequence
+from collections.abc import Sequence
+from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import or_, select
@@ -10,8 +11,8 @@ from app.api.endpoint import BaseEndpointContext
 from app.core.tables.others import RelationsTable
 
 
-def _format_rows(object_code: str, table_rows: Sequence[RelationsTable]) -> List[ReadRelation]:
-    result: List[ReadRelation] = []
+def _format_rows(object_code: str, table_rows: Sequence[RelationsTable]) -> list[ReadRelation]:
+    result: list[ReadRelation] = []
 
     for row in table_rows:
         # Need to determine which the relation is based on my_code
@@ -43,7 +44,7 @@ def get_relations_list_endpoint(
     lineage_id: int,
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[RelationsListEndpointContext, Depends()],
-) -> List[ReadRelation]:
+) -> list[ReadRelation]:
     object_code: str = f"{context.object_type}-{lineage_id}"
 
     stmt = (
@@ -61,5 +62,5 @@ def get_relations_list_endpoint(
     )
     table_rows: Sequence[RelationsTable] = session.scalars(stmt).all()
 
-    response: List[ReadRelation] = _format_rows(object_code, table_rows)
+    response: list[ReadRelation] = _format_rows(object_code, table_rows)
     return response

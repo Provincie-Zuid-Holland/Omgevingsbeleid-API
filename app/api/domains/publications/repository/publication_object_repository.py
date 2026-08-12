@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from datetime import datetime
-from typing import List, Set, Final
+from typing import Final
 
 from sqlalchemy import case, desc, select
 from sqlalchemy.orm import Session, aliased, selectinload
@@ -9,8 +10,7 @@ from app.api.base_repository import BaseRepository
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectsTable
 
-
-PUBLICATION_BASE_FIELDS: Final[Set[str]] = {
+PUBLICATION_BASE_FIELDS: Final[set[str]] = {
     "UUID",
     "Object_Type",
     "Object_ID",
@@ -27,10 +27,10 @@ class PublicationObjectRepository(BaseRepository):
         session: Session,
         module_id: int,
         timepoint: datetime,
-        object_types: List[str] = [],
-        requested_fields: List[str] = [],
-    ) -> List[dict]:
-        fields: Set[str] = PUBLICATION_BASE_FIELDS.union(set(requested_fields))
+        object_types: Sequence[str] = (),
+        requested_fields: Sequence[str] = (),
+    ) -> list[dict]:
+        fields: set[str] = PUBLICATION_BASE_FIELDS.union(set(requested_fields))
 
         query = self._get_full_query(module_id, timepoint, object_types, fields)
         result = session.execute(query)
@@ -40,8 +40,8 @@ class PublicationObjectRepository(BaseRepository):
     def _get_object_query(
         self,
         timepoint: datetime,
-        object_types: List[str],
-        field_map: Set[str],
+        object_types: Sequence[str],
+        field_map: set[str],
     ):
         row_number = (
             func.row_number()
@@ -85,8 +85,8 @@ class PublicationObjectRepository(BaseRepository):
         self,
         module_id: int,
         timepoint: datetime,
-        object_types: List[str],
-        field_map: Set[str],
+        object_types: Sequence[str],
+        field_map: set[str],
     ):
         query = (
             select(
@@ -127,8 +127,8 @@ class PublicationObjectRepository(BaseRepository):
         self,
         module_id: int,
         timepoint: datetime,
-        object_types: List[str],
-        field_map: Set[str],
+        object_types: Sequence[str],
+        field_map: set[str],
     ):
         object_query = self._get_object_query(timepoint, object_types, field_map)
         module_query = self._get_module_object_query(module_id, timepoint, object_types, field_map)

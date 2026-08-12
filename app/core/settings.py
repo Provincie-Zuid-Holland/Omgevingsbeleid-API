@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Self
+from typing import Any, Self
 from urllib.parse import quote_plus
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     SQLALCHEMY_TEST_DATABASE_URI: str = ""
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
-    def assemble_db_connection(cls, v: Optional[str], info) -> Any:
+    def assemble_db_connection(cls, v: str | None, info) -> Any:
         if isinstance(v, str) and len(v):
             return v
 
@@ -47,10 +47,10 @@ class Settings(BaseSettings):
         db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
         encoded_settings = quote_plus(db_connection_settings)
 
-        return "mssql+pyodbc:///?odbc_connect=%s" % encoded_settings
+        return f"mssql+pyodbc:///?odbc_connect={encoded_settings}"
 
     @field_validator("SQLALCHEMY_TEST_DATABASE_URI", mode="before")
-    def assemble_test_db_connection(cls, v: Optional[str], info) -> Any:
+    def assemble_test_db_connection(cls, v: str | None, info) -> Any:
         if isinstance(v, str) and len(v):
             return v
 
@@ -61,7 +61,7 @@ class Settings(BaseSettings):
         )
         encoded_settings = quote_plus(db_connection_settings)
 
-        return "mssql+pyodbc:///?odbc_connect=%s" % encoded_settings
+        return f"mssql+pyodbc:///?odbc_connect={encoded_settings}"
 
     # Dynamic
     MAIN_CONFIG_FILE: str = "./config/main.yml"
@@ -71,7 +71,7 @@ class Settings(BaseSettings):
     MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
     MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
 
-    PUBLICATION_KOOP: Dict[str, KoopSettings] = Field(default_factory=dict)
+    PUBLICATION_KOOP: dict[str, KoopSettings] = Field(default_factory=dict)
     PUBLICATION_OW_DATASET: str = Field(
         "provincie Zuid-holland",
         description="Dataset identifier for OW (Omgevingswet) publications",

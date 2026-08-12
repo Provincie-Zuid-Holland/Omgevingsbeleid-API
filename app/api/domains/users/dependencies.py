@@ -1,4 +1,5 @@
-from typing import Annotated, Callable, Optional
+from collections.abc import Callable
+from typing import Annotated
 from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
@@ -19,7 +20,7 @@ reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login/access-token", auto_erro
 
 @inject
 def depends_current_user(
-    token: Annotated[Optional[str], Depends(reusable_oauth2)],
+    token: Annotated[str | None, Depends(reusable_oauth2)],
     session: Annotated[Session, Depends(depends_db_session)],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
@@ -29,7 +30,7 @@ def depends_current_user(
 
 def _do_depends_current_user(
     session: Session,
-    token: Optional[str],
+    token: str | None,
     user_repository: UserRepository,
     security: Security,
 ) -> UsersTable:
@@ -38,7 +39,7 @@ def _do_depends_current_user(
 
     token_data: TokenPayload = security.decode_token(token)
 
-    user: Optional[UsersTable] = user_repository.get_by_uuid(session, UUID(token_data.sub))
+    user: UsersTable | None = user_repository.get_by_uuid(session, UUID(token_data.sub))
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Token valid, but no matching user found.")
     if not user.IsActive:
@@ -50,10 +51,10 @@ def _do_depends_current_user(
 @inject
 def depends_optional_current_user(
     session: Annotated[Session, Depends(depends_db_session)],
-    token: Annotated[Optional[str], Depends(reusable_oauth2)],
+    token: Annotated[str | None, Depends(reusable_oauth2)],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
-) -> Optional[UsersTable]:
+) -> UsersTable | None:
     try:
         return _do_depends_current_user(session, token, user_repository, security)
     except HTTPException:

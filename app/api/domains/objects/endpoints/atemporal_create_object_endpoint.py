@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional, Type
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -20,13 +20,13 @@ from app.core.tables.users import UsersTable
 
 class AtemporalCreateObjectEndpointContext(BaseEndpointContext):
     object_type: str
-    request_type: Type[BaseModel]
-    response_type: Type[BaseModel]
+    request_type: type[BaseModel]
+    response_type: type[BaseModel]
 
 
 def _create_new_static_object(
     session: Session,
-    static_fields: Dict[str, Any],
+    static_fields: dict[str, Any],
     object_type: str,
     title: str,
 ) -> ObjectStaticsTable:
@@ -50,7 +50,7 @@ def _create_new_static_object(
         .returning(ObjectStaticsTable)
     )
 
-    result: Optional[ObjectStaticsTable] = session.execute(stmt).scalars().first()
+    result: ObjectStaticsTable | None = session.execute(stmt).scalars().first()
     if result is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create static object")
     return result
@@ -66,9 +66,9 @@ def atemporal_create_object_endpoint(
 ) -> BaseModel:
     permission_service.guard_valid_user(Permissions.atemporal_can_create_object, user)
 
-    object_in_data: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    object_in_data: dict[str, Any] = object_in.model_dump(exclude_unset=True)
 
-    static_fields: Dict[str, Any] = {}
+    static_fields: dict[str, Any] = {}
     if "ObjectStatics" in object_in_data:
         static_fields = object_in_data["ObjectStatics"]
         del object_in_data["ObjectStatics"]
@@ -81,7 +81,7 @@ def atemporal_create_object_endpoint(
             object_in_data.get("Title", ""),
         )
 
-        timepoint: datetime = datetime.now(timezone.utc)
+        timepoint: datetime = datetime.now(UTC)
         new_object: ObjectsTable = ObjectsTable(
             Object_Type=object_static.Object_Type,
             Object_ID=object_static.Object_ID,
@@ -101,6 +101,6 @@ def atemporal_create_object_endpoint(
 
         response: BaseModel = context.response_type.model_validate(new_object)
         return response
-    except Exception as e:
+    except Exception:
         session.rollback()
-        raise e
+        raise

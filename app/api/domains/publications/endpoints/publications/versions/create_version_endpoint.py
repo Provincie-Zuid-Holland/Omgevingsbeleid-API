@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -69,7 +69,7 @@ def post_create_version_endpoint(
     if publication.Environment.Has_State:
         status = PublicationVersionStatus.ACTIVE
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     version: PublicationVersionTable = PublicationVersionTable(
         UUID=uuid.uuid4(),
         Publication_UUID=publication.UUID,
@@ -107,7 +107,7 @@ def _guard_locked(publication: PublicationTable):
 def _get_module_status(
     session: Session, module_status_repository: ModuleStatusRepository, module_id: int, status_id: int
 ) -> ModuleStatusHistoryTable:
-    module_status: Optional[ModuleStatusHistoryTable] = module_status_repository.get_by_id(
+    module_status: ModuleStatusHistoryTable | None = module_status_repository.get_by_id(
         session,
         module_id,
         status_id,

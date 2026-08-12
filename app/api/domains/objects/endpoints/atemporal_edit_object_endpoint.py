@@ -1,6 +1,6 @@
 import json
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional, Type
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -22,7 +22,7 @@ from app.core.tables.users import UsersTable
 
 class AtemporalEditObjectEndpointContext(BaseEndpointContext):
     object_type: str
-    request_type: Type[BaseModel]
+    request_type: type[BaseModel]
 
 
 @inject
@@ -40,7 +40,7 @@ def atemporal_edit_object_endpoint(
         user,
     )
 
-    maybe_object: Optional[ObjectsTable] = object_repository.get_latest_by_id(
+    maybe_object: ObjectsTable | None = object_repository.get_latest_by_id(
         session,
         context.object_type,
         lineage_id,
@@ -48,7 +48,7 @@ def atemporal_edit_object_endpoint(
     if not maybe_object:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object not found")
 
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nothing to update")
 
@@ -57,7 +57,7 @@ def atemporal_edit_object_endpoint(
     for key, value in changes.items():
         setattr(maybe_object, key, value)
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     maybe_object.Modified_By_UUID = user.UUID
     maybe_object.Modified_Date = timepoint
     session.add(maybe_object)

@@ -1,8 +1,8 @@
 import re
 import secrets
 import string
-from datetime import datetime, timedelta, timezone
-from typing import Any, Optional, Union
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import jwt
 from fastapi import HTTPException, status
@@ -38,9 +38,9 @@ class Security:
 
     def create_access_token(
         self,
-        subject: Union[str, Any],
+        subject: str | Any,
     ) -> str:
-        expire = datetime.now(timezone.utc) + self._token_lifetime
+        expire = datetime.now(UTC) + self._token_lifetime
         to_encode = {"exp": expire, "sub": str(subject)}
         encoded_jwt = jwt.encode(to_encode, self._secret_key, algorithm=self.ALGORITHM)
 
@@ -48,8 +48,8 @@ class Security:
 
     def verify_password(
         self,
-        plain_password: Optional[str],
-        hashed_password: Optional[str],
+        plain_password: str | None,
+        hashed_password: str | None,
     ) -> bool:
         if plain_password is None:
             return False

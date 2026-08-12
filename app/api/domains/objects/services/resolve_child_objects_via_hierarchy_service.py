@@ -1,10 +1,9 @@
-from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Dict, List, Optional, Set
 import uuid
+from collections import defaultdict
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import select, func, desc, or_
+from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.tables.objects import ObjectsTable
@@ -22,7 +21,7 @@ class HierachyReference(BaseModel):
     Object_ID: int
     Code: str
     Hierarchy_Code: str
-    Title: Optional[str] = None
+    Title: str | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -35,21 +34,21 @@ class ResolveChildObjectsViaHierarchyService:
         self._session: Session = session
         self._config: ResolveChildObjectsViaHierarchyConfig = config
 
-    def resolve_child_objects(self, rows: List[BaseModel]) -> List[BaseModel]:
-        target_codes: Set[str] = {row.Code for row in rows}
+    def resolve_child_objects(self, rows: list[BaseModel]) -> list[BaseModel]:
+        target_codes: set[str] = {row.Code for row in rows}
         child_rows = self._fetch_children(target_codes)
 
-        map_for_target: Dict[str, List[HierachyReference]] = defaultdict(list)
+        map_for_target: dict[str, list[HierachyReference]] = defaultdict(list)
         for child_row in child_rows:
             map_for_target[child_row.Hierarchy_Code].append(child_row)
 
         for row in rows:
-            children: List[HierachyReference] = map_for_target.get(row.Code, [])
+            children: list[HierachyReference] = map_for_target.get(row.Code, [])
             setattr(row, self._config.to_field, children)
 
         return rows
 
-    def _fetch_children(self, hierarchy_targets: Set[str]) -> List[HierachyReference]:
+    def _fetch_children(self, hierarchy_targets: set[str]) -> list[HierachyReference]:
         if len(hierarchy_targets) == 0:
             return []
 
@@ -69,7 +68,7 @@ class ResolveChildObjectsViaHierarchyService:
                 )
                 .label("_RowNumber"),
             )
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
             .subquery()
         )
 
@@ -79,7 +78,7 @@ class ResolveChildObjectsViaHierarchyService:
             .filter(subq.c.Hierarchy_Code.in_(hierarchy_targets))
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity > datetime.now(UTC),
                     subq.c.End_Validity.is_(None),
                 )
             )
@@ -87,7 +86,7 @@ class ResolveChildObjectsViaHierarchyService:
 
         child_rows = self._session.execute(stmt).all()
 
-        result: List[HierachyReference] = [HierachyReference.model_validate(child) for child in child_rows]
+        result: list[HierachyReference] = [HierachyReference.model_validate(child) for child in child_rows]
 
         return result
 

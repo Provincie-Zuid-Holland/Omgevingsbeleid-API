@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -29,14 +29,14 @@ def get_object_related_files_list_endpoint(
         ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
     context: Annotated[ObjectRelatedFilesListEndpointContext, Depends()],
-) -> List[ObjectRelatedFileResponse]:
-    object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
+) -> list[ObjectRelatedFileResponse]:
+    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
         session, context.object_type, lineage_id
     )
     if not object_static:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object niet gevonden")
 
-    related_files: List[ObjectRelatedFileTable] = object_related_file_repository.get_by_object_code(
+    related_files: list[ObjectRelatedFileTable] = object_related_file_repository.get_by_object_code(
         session, object_static.Code
     )
 

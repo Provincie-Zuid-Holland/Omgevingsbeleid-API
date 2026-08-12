@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -22,7 +21,7 @@ class PublicationActVersionRepository(BaseRepository):
         expression_language: str,
         expression_date: str,
         expression_version: int,
-    ) -> Optional[PublicationActVersionTable]:
+    ) -> PublicationActVersionTable | None:
         stmt = (
             select(PublicationActVersionTable)
             .join(PublicationActTable)
@@ -38,5 +37,5 @@ class PublicationActVersionRepository(BaseRepository):
             .filter(PublicationActVersionTable.Expression_Version == expression_version)
         )
 
-        result: Optional[PublicationActVersionTable] = self.fetch_first(session, stmt)
+        result: PublicationActVersionTable | None = self.fetch_first(session, stmt)
         return result

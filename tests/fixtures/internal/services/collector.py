@@ -1,23 +1,22 @@
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Type
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
-
-from tests.fixtures.internal.types import Spec, Ref, Record, FixtureCtx
 from tests.fixtures.internal.services.contexts import DefaultsCtx, ModuleCtx
+from tests.fixtures.internal.types import FixtureCtx, Record, Ref, Spec
 
 
 class Collector:
     def __init__(self) -> None:
-        self._records: List[Record] = []
+        self._records: list[Record] = []
 
         # Context services
-        self._timepoint: datetime = datetime.now(timezone.utc)
-        self._defaults: Dict[str, Any] = {}
-        self._current_module_id: Optional[int] = 0
+        self._timepoint: datetime = datetime.now(UTC)
+        self._defaults: dict[str, Any] = {}
+        self._current_module_id: int | None = 0
 
         self.at(self._timepoint)
 
-    def adds(self, specs: List[Spec]) -> None:
+    def adds(self, specs: list[Spec]) -> None:
         for spec in specs:
             self.add(spec)
 
@@ -57,7 +56,7 @@ class Collector:
     def with_defaults(self, **kwargs: Any) -> DefaultsCtx:
         return DefaultsCtx(self, kwargs)
 
-    def _apply_defaults(self, data: Dict[str, Any]) -> None:
+    def _apply_defaults(self, data: dict[str, Any]) -> None:
         # The timepoint and the Created_/Modified_Date defaults are one source of
         # truth: setting the dates here moves the cursor so a following move_at()
         # advances from the explicitly set time, not from a stale timepoint.
@@ -82,8 +81,8 @@ class Collector:
         return self._timepoint
 
     # Helpers
-    def ref(self, spec_type: Type[Spec], key: str) -> Ref:
+    def ref(self, spec_type: type[Spec], key: str) -> Ref:
         return Ref(spec_type, key)
 
-    def get_results(self) -> List[Record]:
+    def get_results(self) -> list[Record]:
         return self._records

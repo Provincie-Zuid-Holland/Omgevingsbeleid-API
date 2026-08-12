@@ -1,23 +1,23 @@
-from typing import ClassVar, List, Optional, Set
+from typing import ClassVar
 
 from pydantic import BaseModel
 
 from tests.fixtures.internal.spec.objects.base_object_spec import (
     BaseObjectPersistHandler,
-    BaseObjectSpec,
     BaseObjectPrefillHandler,
+    BaseObjectSpec,
 )
 
 
 class GebiedsaanwijzingMixin(BaseModel):
     __object_type__: ClassVar[str] = "gebiedsaanwijzing"
-    __inheritable__: ClassVar[Set[str]] = {"Title", "Ref_Type", "Ref_Group", "Target_Codes"}
-    __object_fields__: ClassVar[Set[str]] = {"Title", "Ref_Type", "Ref_Group", "Target_Codes"}
+    __inheritable__: ClassVar[set[str]] = {"Title", "Ref_Type", "Ref_Group", "Target_Codes"}
+    __object_fields__: ClassVar[set[str]] = {"Title", "Ref_Type", "Ref_Group", "Target_Codes"}
 
-    Title: Optional[str] = None
-    Ref_Type: Optional[str] = None
-    Ref_Group: Optional[str] = None
-    Target_Codes: Optional[List[str]] = None
+    Title: str | None = None
+    Ref_Type: str | None = None
+    Ref_Group: str | None = None
+    Target_Codes: list[str] | None = None
 
 
 class GebiedsaanwijzingSpec(GebiedsaanwijzingMixin, BaseObjectSpec):

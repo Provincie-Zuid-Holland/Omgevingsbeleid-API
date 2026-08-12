@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -30,7 +30,7 @@ def get_list_users_endpoint(
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     paginated_result = repository.get_active(session, pagination)
-    users: List[User] = [User.model_validate(u) for u in paginated_result.items]
+    users: list[User] = [User.model_validate(u) for u in paginated_result.items]
 
     return PagedResponse[User](
         total=paginated_result.total_count,

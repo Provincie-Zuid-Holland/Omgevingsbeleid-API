@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
@@ -11,7 +10,7 @@ from app.core.tables.publications import PublicationAnnouncementPackageReportTab
 
 
 class PublicationAnnouncementReportRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> Optional[PublicationAnnouncementPackageReportTable]:
+    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationAnnouncementPackageReportTable | None:
         stmt = select(PublicationAnnouncementPackageReportTable).where(
             PublicationAnnouncementPackageReportTable.UUID == uuidx
         )
@@ -20,9 +19,9 @@ class PublicationAnnouncementReportRepository(BaseRepository):
     def get_with_filters(
         self,
         session: Session,
-        announcement_package_uuid: Optional[uuid.UUID] = None,
-        filename: Optional[str] = None,
-        report_status: Optional[ReportStatusType] = None,
+        announcement_package_uuid: uuid.UUID | None = None,
+        filename: str | None = None,
+        report_status: ReportStatusType | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
