@@ -1,5 +1,3 @@
-
-
 class ObjectFieldMappingProvider:
     def __init__(self, field_mappings: dict[str, set[str]]):
         self._field_mappings: dict[str, set[str]] = field_mappings

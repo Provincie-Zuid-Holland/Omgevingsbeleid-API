@@ -73,9 +73,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             record_rows: Sequence[Base] = handler.to_rows(record, context)
             table_rows.extend(record_rows)
 
-            fixture_ref: Ref | None = (
-                Ref(type(record.spec), record.spec.key) if record.spec.key is not None else None
-            )
+            fixture_ref: Ref | None = Ref(type(record.spec), record.spec.key) if record.spec.key is not None else None
             result_records.append(
                 PersistRecord(
                     spec=record.spec,

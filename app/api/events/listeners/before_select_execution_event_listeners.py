@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql.base import ExecutableOption
 

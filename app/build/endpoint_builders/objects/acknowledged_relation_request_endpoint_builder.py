@@ -1,4 +1,3 @@
-
 from app.api.domains.objects.endpoints.acknowledged_relation_request_endpoint import (
     AcknowledgedRelationRequestEndpointContext,
     get_acknowledged_relation_request_endpoint,

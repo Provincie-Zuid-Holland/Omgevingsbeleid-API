@@ -1,4 +1,3 @@
-
 from app.api.domains.modules.endpoints.module_add_new_object_endpoint import (
     ModuleAddNewObjectEndpointContext,
     NewObjectStaticResponse,

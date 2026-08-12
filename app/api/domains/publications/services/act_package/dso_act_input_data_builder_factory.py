@@ -1,4 +1,3 @@
-
 from app.api.domains.publications.services.act_package.dso_act_input_data_builder import DsoActInputDataBuilder
 from app.api.domains.publications.types.api_input_data import ApiActInputData
 from app.core.settings import KoopSettings

@@ -1,4 +1,3 @@
-
 from app.api.domains.users.endpoints.create_user_endpoint import (
     CreateUserEndpointContext,
     UserCreateResponse,

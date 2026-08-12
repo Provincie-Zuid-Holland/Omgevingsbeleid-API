@@ -1,4 +1,3 @@
-
 from app.api.domains.objects.endpoints import ObjectListValidLineagesEndpointContext, list_valid_lineages_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.utils.pagination import OrderConfig, PagedResponse

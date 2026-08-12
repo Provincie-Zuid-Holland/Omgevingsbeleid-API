@@ -151,7 +151,12 @@ class GebiedengroepRef(UnresolvedGebiedengroepRef):
 
 
 LocationRefUnion = Annotated[
-    AmbtsgebiedRef | UnresolvedAmbtsgebiedRef | GebiedRef | UnresolvedGebiedRef | GebiedengroepRef | UnresolvedGebiedengroepRef,
+    AmbtsgebiedRef
+    | UnresolvedAmbtsgebiedRef
+    | GebiedRef
+    | UnresolvedGebiedRef
+    | GebiedengroepRef
+    | UnresolvedGebiedengroepRef,
     Field(discriminator="ref_type"),
 ]
 

@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel
 
 from app.api.domains.others.endpoints.search_endpoint import SearchEndpointContext, SearchObject, get_search_endpoint

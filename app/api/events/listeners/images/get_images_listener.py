@@ -74,9 +74,7 @@ class GetImagesForModuleListener(ApiListener[RetrievedModuleObjectsEvent]):
     def __init__(self, service_factory: ImageInserterFactory):
         self._service_factory: ImageInserterFactory = service_factory
 
-    def handle_event(
-        self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> RetrievedModuleObjectsEvent | None:
+    def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
         config: GetImagesConfig | None = self._collect_config(event.context.response_model)
         if not config:
             return event

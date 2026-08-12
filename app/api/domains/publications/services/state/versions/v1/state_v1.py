@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, Field
 
 from app.api.domains.publications.services.state.state import State

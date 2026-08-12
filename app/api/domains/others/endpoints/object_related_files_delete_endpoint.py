@@ -27,9 +27,7 @@ def delete_object_related_files_delete_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ResponseOK:
-    maybe_file: ObjectRelatedFileTable | None = object_related_file_repository.get_by_uuid(
-        session, related_file_uuid
-    )
+    maybe_file: ObjectRelatedFileTable | None = object_related_file_repository.get_by_uuid(session, related_file_uuid)
     if not maybe_file:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Bestand niet gevonden")
 

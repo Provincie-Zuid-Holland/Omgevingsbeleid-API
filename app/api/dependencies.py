@@ -1,4 +1,3 @@
-
 from fastapi import Request
 from sqlalchemy import text
 

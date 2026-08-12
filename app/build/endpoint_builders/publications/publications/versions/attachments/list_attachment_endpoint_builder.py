@@ -1,4 +1,3 @@
-
 from app.api.domains.publications.endpoints.publications.versions.attachments.list_attachments_endpoint import (
     get_list_attachments_endpoint,
 )

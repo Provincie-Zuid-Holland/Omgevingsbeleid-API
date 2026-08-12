@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -31,9 +30,7 @@ class JoinWerkingsgebiedToModuleObjectsListener(ApiListener[RetrievedModuleObjec
     def __init__(self, service_factory: JoinWerkingsgebiedenServiceFactory):
         self._service_factory: JoinWerkingsgebiedenServiceFactory = service_factory
 
-    def handle_event(
-        self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> RetrievedModuleObjectsEvent | None:
+    def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
         join_service: JoinWerkingsgebiedenService = self._service_factory.create_service(
             session,
             event.payload.rows,
@@ -50,9 +47,7 @@ class AddRelationsToModuleObjectsListener(ApiListener[RetrievedModuleObjectsEven
     def __init__(self, service_factory: AddRelationsServiceFactory):
         self._service_factory: AddRelationsServiceFactory = service_factory
 
-    def handle_event(
-        self, session: Session, event: RetrievedModuleObjectsEvent
-    ) -> RetrievedModuleObjectsEvent | None:
+    def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
         add_service: AddRelationsService = self._service_factory.create_service(
             session,
             event.payload.rows,

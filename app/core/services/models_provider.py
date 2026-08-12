@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel
 
 from app.core.types import DynamicObjectModel, Model

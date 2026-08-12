@@ -221,9 +221,7 @@ def test_target_codes_are_scoped_to_the_patched_module(
         pytest.param(["beleidskeuze-1"], "Invalid object type", id="object-type-that-is-not-allowed"),
     ],
 )
-def test_target_codes_rejects_invalid_values(
-    admin: TestClient, target_codes: list[str] | None, expected_message: str
-):
+def test_target_codes_rejects_invalid_values(admin: TestClient, target_codes: list[str] | None, expected_message: str):
     response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"Target_Codes": target_codes})
 
     assert response.status_code == 422, response.text

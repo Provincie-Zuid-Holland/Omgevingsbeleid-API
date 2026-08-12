@@ -151,9 +151,7 @@ def depends_publication_announcement_report(
         Depends(Provide[ApiContainer.publication.announcement_report_repository]),
     ],
 ) -> PublicationAnnouncementPackageReportTable:
-    report: PublicationAnnouncementPackageReportTable | None = repository.get_by_uuid(
-        session, announcement_report_uuid
-    )
+    report: PublicationAnnouncementPackageReportTable | None = repository.get_by_uuid(session, announcement_report_uuid)
     if report is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Package report not found")
     return report

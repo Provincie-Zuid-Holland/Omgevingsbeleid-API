@@ -16,9 +16,7 @@ class AreaRepository(BaseRepository):
         stmt = select(AreasTable).filter(AreasTable.Source_UUID == werkingsgebied_uuid)
         return self.fetch_first(session, stmt)
 
-    def get_by_source_hash_and_title(
-        self, session: Session, source_hash: str, source_title: str
-    ) -> AreasTable | None:
+    def get_by_source_hash_and_title(self, session: Session, source_hash: str, source_title: str) -> AreasTable | None:
         if not source_hash:
             return None
 

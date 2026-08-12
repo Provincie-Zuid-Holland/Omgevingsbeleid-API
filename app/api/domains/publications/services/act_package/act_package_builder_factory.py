@@ -1,4 +1,3 @@
-
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from sqlalchemy.orm import Session
 

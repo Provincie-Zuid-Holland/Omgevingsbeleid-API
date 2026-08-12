@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.state.patch_act_mutation import PatchActMutation

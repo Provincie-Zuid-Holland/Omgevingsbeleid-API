@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel
 
 from app.api.domains.others.endpoints.mssql_valid_search_endpoint import (

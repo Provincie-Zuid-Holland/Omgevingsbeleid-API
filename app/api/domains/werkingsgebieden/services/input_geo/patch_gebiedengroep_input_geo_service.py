@@ -200,12 +200,10 @@ class PatchGebiedengroepInputGeoService:
         area_uuid: uuid.UUID,
         title: str,
     ) -> tuple[ObjectResultType, ModuleObjectsTable]:
-        existing_object: ModuleObjectsTable | None = (
-            self._module_object_repository.get_latest_by_module_id_object_code(
-                self._session,
-                module_id,
-                sub_object_static.Code,
-            )
+        existing_object: ModuleObjectsTable | None = self._module_object_repository.get_latest_by_module_id_object_code(
+            self._session,
+            module_id,
+            sub_object_static.Code,
         )
         if existing_object is None:
             return ObjectResultType.CREATED, self._create_sub_object(sub_object_static, module_id, area_uuid, title)

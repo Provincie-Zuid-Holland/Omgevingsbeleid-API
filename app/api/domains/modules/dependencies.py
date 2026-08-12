@@ -51,9 +51,7 @@ def depends_module_object_latest_by_id(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])],
 ) -> ModuleObjectsTable:
-    maybe_object: ModuleObjectsTable | None = repository.get_latest_by_id(
-        session, module_id, object_type, lineage_id
-    )
+    maybe_object: ModuleObjectsTable | None = repository.get_latest_by_id(session, module_id, object_type, lineage_id)
     if not maybe_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module object niet gevonden")
     return maybe_object
@@ -69,9 +67,7 @@ def depends_active_module_object_context(
         ModuleObjectContextRepository, Depends(Provide[ApiContainer.module_object_context_repository])
     ],
 ) -> ModuleObjectContextTable:
-    maybe_context: ModuleObjectContextTable | None = repository.get_by_ids(
-        session, module_id, object_type, lineage_id
-    )
+    maybe_context: ModuleObjectContextTable | None = repository.get_by_ids(session, module_id, object_type, lineage_id)
     if not maybe_context:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object context niet gevonden")
     if maybe_context.Hidden:

@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel
 
 from app.api.domains.modules.endpoints.list_module_objects_endpoint import (

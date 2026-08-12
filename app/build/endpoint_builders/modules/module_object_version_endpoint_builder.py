@@ -1,4 +1,3 @@
-
 from app.api.domains.modules.endpoints.module_object_version_endpoint import (
     ModuleObjectVersionEndpointContext,
     view_module_object_version_endpoint,

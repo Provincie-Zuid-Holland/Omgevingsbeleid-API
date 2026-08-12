@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import Session
 
 from app.api.domains.werkingsgebieden.services.change_area_processor import (

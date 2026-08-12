@@ -1,4 +1,3 @@
-
 from app.api.domains.modules.endpoints.list_active_module_objects_endpoint import (
     ActiveModuleObjectsResponse,
     ListActiveModuleObjectsEndpointContext,

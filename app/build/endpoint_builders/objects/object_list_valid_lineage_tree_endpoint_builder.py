@@ -1,4 +1,3 @@
-
 from app.api.domains.objects.endpoints import (
     ObjectListValidLineageTreeEndpointContext,
     list_valid_lineage_tree_endpoint,

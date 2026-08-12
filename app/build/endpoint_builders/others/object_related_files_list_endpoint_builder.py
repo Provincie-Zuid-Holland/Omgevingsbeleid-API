@@ -1,4 +1,3 @@
-
 from app.api.domains.others.endpoints.object_related_files_list_endpoint import (
     ObjectRelatedFilesListEndpointContext,
     get_object_related_files_list_endpoint,

@@ -1,4 +1,3 @@
-
 from app.api.domains.objects.endpoints.relations_list_endpoint import (
     RelationsListEndpointContext,
     get_relations_list_endpoint,

@@ -1,4 +1,3 @@
-
 from app.api.domains.werkingsgebieden.endpoints.input_geo.input_geo_werkingsgebied_history_endpoint import (
     get_input_geo_werkingsgebieden_history_endpoint,
 )

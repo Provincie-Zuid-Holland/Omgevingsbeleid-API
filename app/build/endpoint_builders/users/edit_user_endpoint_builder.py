@@ -1,4 +1,3 @@
-
 from app.api.domains.users.endpoints.edit_user_endpoint import EditUserEndpointContext, post_edit_user_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK

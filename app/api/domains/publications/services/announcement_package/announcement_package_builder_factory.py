@@ -1,4 +1,3 @@
-
 from dso.announcement_builder.state_manager.models import InputData
 from sqlalchemy.orm import Session
 
