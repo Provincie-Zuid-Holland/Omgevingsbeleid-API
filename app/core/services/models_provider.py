@@ -8,7 +8,7 @@ class ModelsProvider:
     def __init__(self):
         self._models: dict[str, Model | DynamicObjectModel] = {}
 
-    def add(self, model: Union[Model, DynamicObjectModel]):
+    def add(self, model: Model | DynamicObjectModel):
         if model.id in self._models:
             raise ValueError(f"Model with id '{model.id}' already exists.")
         self._models[model.id] = model

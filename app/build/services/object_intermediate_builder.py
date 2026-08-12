@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from copy import deepcopy
 from typing import Any
 
@@ -48,7 +49,7 @@ class ObjectIntermediateBuilder:
             if field_id in fields:
                 raise RuntimeError(f"Field ID: '{field_id}' already exists")
 
-            default_value = FIELD_TYPES.get(data.get("type")).default
+            default_value = FIELD_TYPES[data.get("type")].default
             if "default" in data:
                 default_value = data.get("default")
 
