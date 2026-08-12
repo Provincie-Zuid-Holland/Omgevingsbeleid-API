@@ -1,5 +1,3 @@
-from typing import Optional
-
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
 from sqlalchemy.orm import Session
 
@@ -20,9 +18,9 @@ from app.api.domains.publications.services.purpose_provider import PurposeProvid
 from app.api.domains.publications.services.state.state_loader import StateLoader
 from app.api.domains.publications.services.state.versions import ActiveState
 from app.api.domains.publications.services.validate_publication_service import (
-    ValidatePublicationService,
     ValidatePublicationException,
     ValidatePublicationRequest,
+    ValidatePublicationService,
 )
 from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
@@ -61,7 +59,7 @@ class ActPackageBuilderFactory:
         session: Session,
         publication_version: PublicationVersionTable,
         package_type: PackageType,
-        overwrite_mutation_strategy: Optional[MutationStrategy] = None,
+        overwrite_mutation_strategy: MutationStrategy | None = None,
     ) -> ActPackageBuilder:
         publication: PublicationTable = publication_version.Publication
         act: PublicationActTable = publication.Act
@@ -96,7 +94,7 @@ class ActPackageBuilderFactory:
             Mutation_Strategy=mutation_strategy,
         )
 
-        state: Optional[ActiveState] = self._state_loader.load_from_publication_version(session, publication_version)
+        state: ActiveState | None = self._state_loader.load_from_publication_version(session, publication_version)
         if state is not None:
             data_patcher: ApiActInputDataPatcher = self._data_patcher_factory.create(state)
             api_input_data = data_patcher.apply(session, api_input_data)

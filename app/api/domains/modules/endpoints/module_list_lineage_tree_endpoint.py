@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -12,6 +12,7 @@ from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
 from app.api.events.before_select_execution_event import BeforeSelectExecutionEvent
+from app.api.events.event_manager import ApiEventManager
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.utils.pagination import (
     OptionalSortedPagination,
@@ -21,7 +22,6 @@ from app.api.utils.pagination import (
     SortedPagination,
     query_paginated,
 )
-from app.api.events.event_manager import ApiEventManager
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
@@ -31,7 +31,7 @@ class ModuleListLineageTreeEndpointContext(BaseEndpointContext):
     object_type: str
     response_config_model: Model
     order_config: OrderConfig
-    allowed_filter_columns: List[str]
+    allowed_filter_columns: list[str]
 
 
 @inject
@@ -71,7 +71,7 @@ def get_module_list_lineage_tree_endpoint(
         sort=(getattr(ModuleObjectsTable, pagination.sort.column), pagination.sort.order),
     )
 
-    rows: List[BaseModel] = [
+    rows: list[BaseModel] = [
         context.response_config_model.pydantic_model.model_validate(r) for r in paginated_result.items
     ]
     rows_event: RetrievedModuleObjectsEvent = event_manager.dispatch(

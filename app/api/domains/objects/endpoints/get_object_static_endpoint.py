@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -9,8 +9,8 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.api.endpoint import BaseEndpointContext
-from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
 from app.api.events.event_manager import ApiEventManager
+from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
 from app.core.tables.objects import ObjectStaticsTable
 from app.core.types import Model
 
@@ -28,7 +28,7 @@ def view_get_object_static_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ObjectStaticEndpointContext, Depends()],
 ) -> BaseModel:
-    maybe_static: Optional[ObjectStaticsTable] = repository.get_by_object_type_and_id(
+    maybe_static: ObjectStaticsTable | None = repository.get_by_object_type_and_id(
         session,
         context.object_type,
         lineage_id,

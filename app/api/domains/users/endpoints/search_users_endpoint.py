@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -25,15 +25,15 @@ def get_search_users_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     context: Annotated[SearchUsersEndpointContext, Depends()],
-    role: Optional[str] = None,
-    query: Optional[str] = None,
-    active: Optional[bool] = None,
+    role: str | None = None,
+    query: str | None = None,
+    active: bool | None = None,
 ) -> PagedResponse[User]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     paginated_result = repository.get_filtered(session, pagination, role, query, active)
-    users: List[User] = [User.model_validate(u) for u in paginated_result.items]
+    users: list[User] = [User.model_validate(u) for u in paginated_result.items]
 
     return PagedResponse[User](
         total=paginated_result.total_count,

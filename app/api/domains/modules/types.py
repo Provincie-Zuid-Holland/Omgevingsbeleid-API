@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
@@ -93,14 +92,14 @@ class ModuleShort(BaseModel):
     Closed: bool
     Title: str
     Description: str
-    Status: Optional[ModuleStatus] = None
-    Module_Manager_1: Optional[UserShort] = None
-    Module_Manager_2: Optional[UserShort] = None
+    Status: ModuleStatus | None = None
+    Module_Manager_1: UserShort | None = None
+    Module_Manager_2: UserShort | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
 class ActiveModuleObject(BaseModel):
-    Module_ID: Optional[int] = None
+    Module_ID: int | None = None
     UUID: uuid.UUID
     Modified_Date: datetime
     Title: str
@@ -108,17 +107,17 @@ class ActiveModuleObject(BaseModel):
 
 
 class ObjectStaticShort(BaseModel):
-    Owner_1_UUID: Optional[uuid.UUID] = None
-    Owner_2_UUID: Optional[uuid.UUID] = None
-    Portfolio_Holder_1_UUID: Optional[uuid.UUID] = None
-    Portfolio_Holder_2_UUID: Optional[uuid.UUID] = None
-    Client_1_UUID: Optional[uuid.UUID] = None
+    Owner_1_UUID: uuid.UUID | None = None
+    Owner_2_UUID: uuid.UUID | None = None
+    Portfolio_Holder_1_UUID: uuid.UUID | None = None
+    Portfolio_Holder_2_UUID: uuid.UUID | None = None
+    Client_1_UUID: uuid.UUID | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleObjectContextShort(BaseModel):
     Action: str
-    Original_Adjust_On: Optional[uuid.UUID] = None
+    Original_Adjust_On: uuid.UUID | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -132,8 +131,8 @@ class ModuleObjectShort(BaseModel):
     Modified_Date: datetime
     Title: str
 
-    ObjectStatics: Optional[ObjectStaticShort] = None
-    ModuleObjectContext: Optional[ModuleObjectContextShort] = None
+    ObjectStatics: ObjectStaticShort | None = None
+    ModuleObjectContext: ModuleObjectContextShort | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -150,13 +149,13 @@ class Module(BaseModel):
     Title: str
     Description: str
     Module_Manager_1_UUID: uuid.UUID
-    Module_Manager_2_UUID: Optional[uuid.UUID] = None
-    Status: Optional[ModuleStatus] = None
+    Module_Manager_2_UUID: uuid.UUID | None = None
+    Status: ModuleStatus | None = None
 
-    Created_By: Optional[UserShort] = None
-    Modified_By: Optional[UserShort] = None
-    Module_Manager_1: Optional[UserShort] = None
-    Module_Manager_2: Optional[UserShort] = None
+    Created_By: UserShort | None = None
+    Modified_By: UserShort | None = None
+    Module_Manager_1: UserShort | None = None
+    Module_Manager_2: UserShort | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -164,7 +163,7 @@ class PublicModuleShort(BaseModel):
     Module_ID: int
     Title: str
     Description: str
-    Status: Optional[ModuleStatus] = None
+    Status: ModuleStatus | None = None
 
     @field_validator("Title", "Description", mode="before")
     def default_empty_string(cls, v):
@@ -188,5 +187,5 @@ class GenericObjectShort(BaseModel):
     Object_Type: str
     Object_ID: int
     UUID: uuid.UUID
-    Title: Optional[str] = None
+    Title: str | None = None
     model_config = ConfigDict(from_attributes=True)

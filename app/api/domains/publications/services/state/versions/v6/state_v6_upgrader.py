@@ -1,5 +1,4 @@
 from uuid import UUID
-from typing import Dict
 
 from sqlalchemy.orm import Session
 
@@ -40,8 +39,8 @@ class StateV6Upgrader(StateUpgrader):
 
         return new_state
 
-    def _mutate_purposes(self, old_state: state_v5.StateV5) -> Dict[str, models_v6.Purpose]:
-        purposes: Dict[str, models_v6.Purpose] = {}
+    def _mutate_purposes(self, old_state: state_v5.StateV5) -> dict[str, models_v6.Purpose]:
+        purposes: dict[str, models_v6.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
             new_purpose: models_v6.Purpose = models_v6.Purpose.model_validate(old_purpose.model_dump())
@@ -49,8 +48,8 @@ class StateV6Upgrader(StateUpgrader):
 
         return purposes
 
-    def _mutate_announcements(self, old_state: state_v5.StateV5) -> Dict[str, models_v6.ActiveAnnouncement]:
-        announcements: Dict[str, models_v6.ActiveAnnouncement] = {}
+    def _mutate_announcements(self, old_state: state_v5.StateV5) -> dict[str, models_v6.ActiveAnnouncement]:
+        announcements: dict[str, models_v6.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
             new_announcement: models_v6.ActiveAnnouncement = models_v6.ActiveAnnouncement.model_validate(
@@ -60,8 +59,8 @@ class StateV6Upgrader(StateUpgrader):
 
         return announcements
 
-    def _mutate_acts(self, old_state: state_v5.StateV5) -> Dict[str, models_v6.ActiveAct]:
-        acts: Dict[str, models_v6.ActiveAct] = {}
+    def _mutate_acts(self, old_state: state_v5.StateV5) -> dict[str, models_v6.ActiveAct]:
+        acts: dict[str, models_v6.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
             new_act: models_v6.ActiveAct = self._mutate_act(old_act)
@@ -71,7 +70,7 @@ class StateV6Upgrader(StateUpgrader):
 
     def _mutate_act(self, old_act: models_v5.ActiveAct) -> models_v6.ActiveAct:
         act_dict: dict = old_act.model_dump()
-        resolved_gios: Dict[str, models_v6.Gio] = self._resolve_gios(old_act)
+        resolved_gios: dict[str, models_v6.Gio] = self._resolve_gios(old_act)
         act_dict["Gios"] = resolved_gios
         act_dict["Gebiedengroepen"] = self._resolve_gebiedengroepen(old_act)
         act_dict["Gebiedsaanwijzingen"] = {}
@@ -81,8 +80,8 @@ class StateV6Upgrader(StateUpgrader):
         act: models_v6.ActiveAct = models_v6.ActiveAct.model_validate(act_dict)
         return act
 
-    def _resolve_gios(self, old_act: models_v5.ActiveAct) -> Dict[str, models_v6.Gio]:
-        result_gios: Dict[str, models_v6.Gio] = {}
+    def _resolve_gios(self, old_act: models_v5.ActiveAct) -> dict[str, models_v6.Gio]:
+        result_gios: dict[str, models_v6.Gio] = {}
         for old_werkingsgebied in old_act.Werkingsgebieden.values():
             """
             In the old werkingsgebieden system an Object Werkingsgebied
@@ -123,8 +122,8 @@ class StateV6Upgrader(StateUpgrader):
 
         return result_gios
 
-    def _resolve_gebiedengroepen(self, old_act: models_v5.ActiveAct) -> Dict[str, models_v6.Gebiedengroep]:
-        result: Dict[str, models_v6.Gebiedengroep] = {}
+    def _resolve_gebiedengroepen(self, old_act: models_v5.ActiveAct) -> dict[str, models_v6.Gebiedengroep]:
+        result: dict[str, models_v6.Gebiedengroep] = {}
         for old_werkingsgebied in old_act.Werkingsgebieden.values():
             werkingsgebied_code: str = f"werkingsgebied-{old_werkingsgebied.Object_ID}"
             gebied_code: str = f"{werkingsgebied_code}-1"
@@ -133,8 +132,8 @@ class StateV6Upgrader(StateUpgrader):
                 uuid=old_werkingsgebied.UUID,
                 code=werkingsgebied_code,
                 title=old_werkingsgebied.Title,
-                source_gebieden_codes=set([gebied_code]),
-                gio_keys=set([gebied_code]),
+                source_gebieden_codes={gebied_code},
+                gio_keys={gebied_code},
             )
 
         return result

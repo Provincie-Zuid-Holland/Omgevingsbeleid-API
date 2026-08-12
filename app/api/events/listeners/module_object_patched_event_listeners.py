@@ -1,5 +1,3 @@
-from typing import List, Optional, Set
-
 from sqlalchemy.orm import Session
 
 from app.api.domains.werkingsgebieden.services.change_area_processor import (
@@ -16,8 +14,8 @@ class ChangeAreaListener(ApiListener[ModuleObjectPatchedEvent]):
     def __init__(self, service_factory: AreaProcessorServiceFactory):
         self._service_factory: AreaProcessorServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> Optional[ModuleObjectPatchedEvent]:
-        config: Optional[AreaProcessorConfig] = self._collect_config(event)
+    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> ModuleObjectPatchedEvent | None:
+        config: AreaProcessorConfig | None = self._collect_config(event)
         if not config:
             return event
 
@@ -30,7 +28,7 @@ class ChangeAreaListener(ApiListener[ModuleObjectPatchedEvent]):
         event.payload.new_record = new_record
         return event
 
-    def _collect_config(self, event: ModuleObjectPatchedEvent) -> Optional[AreaProcessorConfig]:
+    def _collect_config(self, event: ModuleObjectPatchedEvent) -> AreaProcessorConfig | None:
         request_model: Model = event.context.request_model
         if not isinstance(request_model, DynamicObjectModel):
             return None
@@ -38,7 +36,7 @@ class ChangeAreaListener(ApiListener[ModuleObjectPatchedEvent]):
             return None
 
         config_dict: dict = request_model.service_config.get("change_area", {})
-        fields: List[str] = []
+        fields: list[str] = []
         for field in config_dict.get("fields", []):
             if not isinstance(field, str):
                 raise RuntimeError("Invalid change_area config, expect `fields` to be a list of strings")
@@ -46,8 +44,8 @@ class ChangeAreaListener(ApiListener[ModuleObjectPatchedEvent]):
         if not fields:
             return None
 
-        changed_fields: Set[str] = set(event.context.changes.keys())
-        interested_fields: Set[str] = set.intersection(set(fields), changed_fields)
+        changed_fields: set[str] = set(event.context.changes.keys())
+        interested_fields: set[str] = set.intersection(set(fields), changed_fields)
         if not interested_fields:
             return None
 

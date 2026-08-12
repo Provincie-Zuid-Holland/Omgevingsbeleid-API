@@ -1,6 +1,5 @@
 import time
 from abc import ABCMeta
-from typing import Dict, Optional
 from urllib.parse import urljoin
 
 import requests
@@ -46,9 +45,9 @@ class PdfExportUnkownError(PdfExportError):
 
 
 class PdfExportService:
-    def __init__(self, koop_settings: Dict[str, KoopSettings]):
+    def __init__(self, koop_settings: dict[str, KoopSettings]):
         # @todo: should be parsed by the Settings
-        self._koop_settings: Dict[str, KoopSettings] = {
+        self._koop_settings: dict[str, KoopSettings] = {
             k: KoopSettings(**v) if not isinstance(v, KoopSettings) else v for k, v in koop_settings.items()
         }
 
@@ -172,7 +171,7 @@ class PdfExportService:
                 raise PdfExportUnkownError(response.text, code)
 
     def _get_api_settings(self, environment_code: str) -> KoopSettings:
-        api_settings: Optional[KoopSettings] = self._koop_settings.get(environment_code)
+        api_settings: KoopSettings | None = self._koop_settings.get(environment_code)
         if api_settings is None:
             raise RuntimeError("Missing runtime environment settings for this Publication Environment Code")
 

@@ -1,6 +1,5 @@
 import uuid
 
-
 from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
 
 

@@ -1,6 +1,5 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from sqlalchemy import ForeignKey, and_
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -17,17 +16,17 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
     Version: Mapped[int] = mapped_column(default=1, nullable=False, primary_key=True)
     Requested_By_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"))
     From_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
-    From_Acknowledged: Mapped[Optional[datetime]]
-    From_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    From_Acknowledged: Mapped[datetime | None]
+    From_Acknowledged_By_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
     From_Explanation: Mapped[str] = mapped_column(default="")
 
     To_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
-    To_Acknowledged: Mapped[Optional[datetime]] = mapped_column(nullable=True)
-    To_Acknowledged_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    To_Acknowledged: Mapped[datetime | None] = mapped_column(nullable=True)
+    To_Acknowledged_By_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
     To_Explanation: Mapped[str] = mapped_column(default="")
 
-    Denied: Mapped[Optional[datetime]]
-    Deleted_At: Mapped[Optional[datetime]]
+    Denied: Mapped[datetime | None]
+    Deleted_At: Mapped[datetime | None]
 
     @hybrid_property
     def side_from(self) -> AcknowledgedRelationSide:
@@ -81,12 +80,12 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
     def deny(self):
         if self.Denied is not None:
             return
-        self.Denied = datetime.now(timezone.utc)
+        self.Denied = datetime.now(UTC)
 
     def delete(self):
         if self.Is_Deleted:
             return
-        self.Deleted_At = datetime.now(timezone.utc)
+        self.Deleted_At = datetime.now(UTC)
 
     # dynamic property for better ORM filtering.
     @hybrid_property

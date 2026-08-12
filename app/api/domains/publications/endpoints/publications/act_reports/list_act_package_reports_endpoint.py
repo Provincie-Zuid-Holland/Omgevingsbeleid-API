@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -31,8 +31,8 @@ def get_list_act_package_reports_endpoint(
             )
         ),
     ],
-    act_package_uuid: Optional[uuid.UUID] = None,
-    report_status: Optional[ReportStatusType] = None,
+    act_package_uuid: uuid.UUID | None = None,
+    report_status: ReportStatusType | None = None,
 ) -> PagedResponse[PublicationActPackageReportShort]:
     paginated_result = report_repository.get_with_filters(
         session=session,
@@ -42,7 +42,7 @@ def get_list_act_package_reports_endpoint(
         limit=pagination.limit,
     )
 
-    results: List[PublicationActPackageReportShort] = [
+    results: list[PublicationActPackageReportShort] = [
         PublicationActPackageReportShort.model_validate(r) for r in paginated_result.items
     ]
 

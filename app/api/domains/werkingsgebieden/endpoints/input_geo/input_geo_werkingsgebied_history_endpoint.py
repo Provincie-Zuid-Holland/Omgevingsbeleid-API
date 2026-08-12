@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from datetime import date
-from typing import Annotated, List, Optional, Sequence
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -21,8 +22,8 @@ def get_input_geo_werkingsgebieden_history_endpoint(
         InputGeoWerkingsgebiedenRepository, Depends(Provide[ApiContainer.input_geo_werkingsgebieden_repository])
     ],
     title: str,
-    from_date: Optional[date] = None,
-) -> List[InputGeoWerkingsgebied]:
+    from_date: date | None = None,
+) -> list[InputGeoWerkingsgebied]:
     """
     Retrieves version history of an external InputGeo werkingsgebied by title.
 
@@ -34,6 +35,6 @@ def get_input_geo_werkingsgebieden_history_endpoint(
         title,
         from_date,
     )
-    result: List[InputGeoWerkingsgebied] = [InputGeoWerkingsgebied.model_validate(w) for w in werkingsgebieden]
+    result: list[InputGeoWerkingsgebied] = [InputGeoWerkingsgebied.model_validate(w) for w in werkingsgebieden]
 
     return result

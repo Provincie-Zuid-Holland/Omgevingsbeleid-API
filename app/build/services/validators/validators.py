@@ -2,19 +2,19 @@ import io
 import logging
 import re
 from base64 import b64decode
-from typing import List, Optional, Set
 
-from PIL import Image
 from bs4 import BeautifulSoup
-from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from dso.models import DocumentType
+from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
+from PIL import Image
 from pydantic import ValidationInfo
-from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
 
+from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.core.db.session import SessionFactoryType, session_scope_with_context
-from .types import PydanticValidator, Validator
 from app.core.logging import log_message
+
+from .types import PydanticValidator, Validator
 
 
 class NoneToDefaultValueValidator(Validator):
@@ -38,8 +38,8 @@ class LengthValidator(Validator):
         return "length"
 
     def get_validator_func(self, config: dict) -> PydanticValidator:
-        min_length: Optional[int] = config.get("min", None)
-        max_length: Optional[int] = config.get("max", None)
+        min_length: int | None = config.get("min", None)
+        max_length: int | None = config.get("max", None)
 
         def pydantic_length_validator(cls, value, info: ValidationInfo):
             if not isinstance(value, str):
@@ -119,40 +119,38 @@ class FilenameValidator(Validator):
 
 class HtmlValidator(Validator):
     def __init__(self):
-        self._allowed_tags = set(
-            [
-                "h1",
-                "h2",
-                "h3",
-                "h4",
-                "h5",
-                "p",
-                "b",
-                "i",
-                "a",
-                "strong",
-                "li",
-                "ol",
-                "ul",
-                "img",
-                "br",
-                "u",
-                "em",
-                "span",
-                "sub",
-                "sup",
-                "table",
-                "tbody",
-                "tr",
-                "td",
-                "th",
-            ]
-        )
+        self._allowed_tags = {
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "p",
+            "b",
+            "i",
+            "a",
+            "strong",
+            "li",
+            "ol",
+            "ul",
+            "img",
+            "br",
+            "u",
+            "em",
+            "span",
+            "sub",
+            "sup",
+            "table",
+            "tbody",
+            "tr",
+            "td",
+            "th",
+        }
 
         # @todo: validate these
-        self._allowed_attrs = set(["src", "alt", "rel", "target", "href"])
-        self._allowed_styles = set(["color"])
-        self._allowed_schemas = set(["data", "https", "http"])
+        self._allowed_attrs = {"src", "alt", "rel", "target", "href"}
+        self._allowed_styles = {"color"}
+        self._allowed_schemas = {"data", "https", "http"}
 
     def get_id(self) -> str:
         return "html"
@@ -165,7 +163,7 @@ class HtmlValidator(Validator):
                 raise ValueError("Value must be a string")
 
             soup: BeautifulSoup = BeautifulSoup(value, "html.parser")
-            used_tags = set([tag.name for tag in soup.find_all()])
+            used_tags = {tag.name for tag in soup.find_all()}
             invalid_tags = set.difference(used_tags, self._allowed_tags)
             if invalid_tags:
                 raise ValueError(f"Invalid html tags used [{invalid_tags}]")
@@ -290,7 +288,7 @@ class ObjectCodeAllowedTypeValidator(Validator):
         return "object_code_allowed_type"
 
     def get_validator_func(self, config: dict) -> PydanticValidator:
-        allowed_object_types: List[str] = config.get("allowed_object_types", [])
+        allowed_object_types: list[str] = config.get("allowed_object_types", [])
 
         def pydantic_validator_object_code_allowed_type(cls, value, info: ValidationInfo):
             if value is None:
@@ -384,14 +382,14 @@ class ObjectCodesValidForModuleValidator(Validator):
                 return value
 
             module_id: int = int(info.context["module_id"])
-            object_codes: Set[str] = set(value)
+            object_codes: set[str] = set(value)
             with session_scope_with_context(self._session_factory) as session:
-                accessible_object_codes: Set[str] = self._module_object_repository.confirm_accessible_object_codes(
+                accessible_object_codes: set[str] = self._module_object_repository.confirm_accessible_object_codes(
                     session,
                     module_id,
                     object_codes,
                 )
-                invalid_object_codes: Set[str] = object_codes - accessible_object_codes
+                invalid_object_codes: set[str] = object_codes - accessible_object_codes
                 if invalid_object_codes:
                     raise ValueError(f"Invalid object codes: {', '.join(invalid_object_codes)}")
 
@@ -408,7 +406,7 @@ class ObjectCodesAllowedTypeValidator(Validator):
         return "object_codes_allowed_type"
 
     def get_validator_func(self, config: dict) -> PydanticValidator:
-        allowed_object_types: List[str] = config.get("allowed_object_types", [])
+        allowed_object_types: list[str] = config.get("allowed_object_types", [])
 
         def pydantic_validator_object_codes_allowed_type(cls, value, info: ValidationInfo):
             if value is None:
@@ -441,7 +439,7 @@ class GebiedsaanwijzingValidator(Validator):
         object_static_repository: ObjectStaticRepository,
         dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory,
     ):
-        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = dso_gebiedsaanwijzingen_factory.get_for_document(
+        gebiedsaanwijzingen: Gebiedsaanwijzingen | None = dso_gebiedsaanwijzingen_factory.get_for_document(
             DocumentType.OMGEVINGSVISIE
         )
         if gebiedsaanwijzingen is None:
@@ -455,7 +453,7 @@ class GebiedsaanwijzingValidator(Validator):
         return "gebiedsaanwijzing_in_text"
 
     def get_validator_func(self, config: dict) -> PydanticValidator:
-        allowed_code_types: List[str] = config.get("allowed_code_types", [])
+        allowed_code_types: list[str] = config.get("allowed_code_types", [])
 
         def pydantic_validator_gebiedsaanwijzing_in_text(cls, value, info: ValidationInfo):
             if value is None:
@@ -472,7 +470,7 @@ class GebiedsaanwijzingValidator(Validator):
             HTML pattern:
                 <a data-hint-type="gebiedsaanwijzing" data-code="gebiedsaanwijzing-1" href="#">het Malieveld</a>
             """
-            used_codes: Set[str] = set()
+            used_codes: set[str] = set()
             for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
                 # Code of the gebiedsaanwijzing object
                 data_code: str = str(aanwijzing_html.get("data-code", ""))
@@ -489,7 +487,7 @@ class GebiedsaanwijzingValidator(Validator):
 
             # Not tests all the codes to limit the query count
             for used_code in used_codes:
-                code_parts: List[str] = used_code.split("-")
+                code_parts: list[str] = used_code.split("-")
                 if len(code_parts) != 2:
                     raise ValueError(f"Invalid data-code `{used_code}`")
                 if code_parts[0] not in allowed_code_types:

@@ -1,38 +1,40 @@
-from typing import Callable, List
+from collections.abc import Callable
 
 from sqlalchemy.orm import Session
 
-from tests.fixtures.internal.types import DATETIME_T0, FixtureData
+from tests.fixtures.data import (
+    d001_users,
+    d002_assets,
+    d003_storage_files,
+    d020_input_geo_v1,
+    d021_input_geo_v2,
+    d022_input_geo_v3,
+    d030_areas,
+    d050_objects_january,
+    d060_objects_february,
+    d070_objects_march,
+    d080_objects_2099,
+    d101_object_related_files,
+    d201_module_1_basic,
+    d202_module_2_inactive,
+    d203_module_3_closed,
+    d204_module_4_ambtenaar_managed,
+    d205_module_5_patch_module_1,
+    d206_module_6_patch_module_2,
+)
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.services.linker_service import LinkerService
 from tests.fixtures.internal.services.persist_service import PersistService
 from tests.fixtures.internal.services.prefill_service import PrefillService
-import tests.fixtures.data.d001_users as d001_users
-import tests.fixtures.data.d002_assets as d002_assets
-import tests.fixtures.data.d003_storage_files as d003_storage_files
-import tests.fixtures.data.d020_input_geo_v1 as d020_input_geo_v1
-import tests.fixtures.data.d021_input_geo_v2 as d021_input_geo_v2
-import tests.fixtures.data.d022_input_geo_v3 as d022_input_geo_v3
-import tests.fixtures.data.d030_areas as d030_areas
-import tests.fixtures.data.d050_objects_january as d050_objects_january
-import tests.fixtures.data.d060_objects_february as d060_objects_february
-import tests.fixtures.data.d070_objects_march as d070_objects_march
-import tests.fixtures.data.d080_objects_2099 as d080_objects_2099
-import tests.fixtures.data.d101_object_related_files as d101_object_related_files
-import tests.fixtures.data.d201_module_1_basic as d201_module_1_basic
-import tests.fixtures.data.d202_module_2_inactive as d202_module_2_inactive
-import tests.fixtures.data.d203_module_3_closed as d203_module_3_closed
-import tests.fixtures.data.d204_module_4_ambtenaar_managed as d204_module_4_ambtenaar_managed
-import tests.fixtures.data.d205_module_5_patch_module_1 as d205_module_5_patch_module_1
-import tests.fixtures.data.d206_module_6_patch_module_2 as d206_module_6_patch_module_2
 
 # import tests.fixtures.data.d050_basic_demo as d050_basic_demo
 from tests.fixtures.internal.spec.user_spec import UserSpec
+from tests.fixtures.internal.types import DATETIME_T0, FixtureData
 
 
 class FixturesService:
     def load(self, session: Session):
-        sources: List[Callable[[Collector], None]] = [
+        sources: list[Callable[[Collector], None]] = [
             d001_users.load,
             d002_assets.load,
             d003_storage_files.load,

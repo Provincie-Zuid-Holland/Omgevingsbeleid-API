@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import Dict, List
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
@@ -11,8 +10,8 @@ from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 
 class AddPublicRevisionsConfig(BaseModel):
     to_field: str
-    object_codes: List[str]
-    allowed_status_list: List[str]
+    object_codes: list[str]
+    allowed_status_list: list[str]
 
 
 class AddPublicRevisionsService:
@@ -20,23 +19,23 @@ class AddPublicRevisionsService:
         self,
         session: Session,
         config: AddPublicRevisionsConfig,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
     ):
         self._session: Session = session
         self._config: AddPublicRevisionsConfig = config
-        self._rows: List[BaseModel] = rows
+        self._rows: list[BaseModel] = rows
 
-    def add_revisions(self) -> List[BaseModel]:
-        public_revisions_map: Dict[str, List[PublicModuleObjectRevision]] = self._fetch()
+    def add_revisions(self) -> list[BaseModel]:
+        public_revisions_map: dict[str, list[PublicModuleObjectRevision]] = self._fetch()
 
         for row in self._rows:
-            code: str = getattr(row, "Code")
+            code: str = row.Code
             if code in public_revisions_map:
                 setattr(row, self._config.to_field, public_revisions_map[code])
 
         return self._rows
 
-    def _fetch(self) -> Dict[str, List[PublicModuleObjectRevision]]:
+    def _fetch(self) -> dict[str, list[PublicModuleObjectRevision]]:
         # group public statuses per module
         latest_status_subq = (
             select(
@@ -97,7 +96,7 @@ class AddPublicRevisionsService:
             .order_by(desc(module_objects_filtered_subq.c.Modified_Date))
         )
 
-        public_revisions_map: Dict[str, List[PublicModuleObjectRevision]] = defaultdict(list)
+        public_revisions_map: dict[str, list[PublicModuleObjectRevision]] = defaultdict(list)
         db_result = self._session.execute(stmt).all()
         for db_row in db_result:
             public_revision: PublicModuleObjectRevision = PublicModuleObjectRevision.model_validate(db_row)
@@ -111,7 +110,7 @@ class AddPublicRevisionsServiceFactory:
         self,
         session: Session,
         config: AddPublicRevisionsConfig,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
     ) -> AddPublicRevisionsService:
         return AddPublicRevisionsService(
             session=session,

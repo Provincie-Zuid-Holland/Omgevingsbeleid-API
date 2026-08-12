@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 import requests
 from dependency_injector.wiring import Provide, inject
@@ -31,7 +31,7 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationPackagePdf(BaseModel):
-    Mutation: Optional[MutationStrategy] = None
+    Mutation: MutationStrategy | None = None
 
 
 @inject
@@ -88,9 +88,9 @@ def post_create_version_pdf_endpoint(
 
         return response
 
-    except HTTPException as e:
+    except HTTPException:
         # This is already correctly formatted
-        raise e
+        raise
     except ValidationError as e:
         raise HTTPException(441, e.errors())
     except DSOConfigurationException as e:
@@ -101,10 +101,10 @@ def post_create_version_pdf_endpoint(
         raise LoggedHttpException(status_code=444, detail=e.dump_errors(), log_message=e.dump_errors())
     except PdfExportError as e:
         raise LoggedHttpException(status_code=444, detail=e.msg)
-    except Exception as e:
+    except Exception:
         # We do not know what to except here
         # This will result in a 500 server error
-        raise e
+        raise
 
 
 def _guard_publication(
@@ -114,6 +114,6 @@ def _guard_publication(
     if not version.Publication.Module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
-    errors: List[ErrorDetails] = validator.get_errors(version)
+    errors: list[ErrorDetails] = validator.get_errors(version)
     if len(errors) != 0:
         raise HTTPException(status.HTTP_409_CONFLICT, errors)

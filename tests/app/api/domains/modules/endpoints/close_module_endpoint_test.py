@@ -1,9 +1,8 @@
-from typing import Optional
 import uuid
 
 import pytest
-from pytest import FixtureRequest
 from fastapi.testclient import TestClient
+from pytest import FixtureRequest
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
@@ -25,7 +24,7 @@ def _status_count(session: Session, module_id: int) -> int:
     )
 
 
-def _latest_status(session: Session, module_id: int) -> Optional[ModuleStatusHistoryTable]:
+def _latest_status(session: Session, module_id: int) -> ModuleStatusHistoryTable | None:
     return session.scalar(
         select(ModuleStatusHistoryTable)
         .where(ModuleStatusHistoryTable.Module_ID == module_id)

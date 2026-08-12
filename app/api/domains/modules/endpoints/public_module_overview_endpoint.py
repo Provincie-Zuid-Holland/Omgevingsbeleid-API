@@ -1,6 +1,7 @@
 import uuid
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Annotated, List, Optional, Sequence
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -13,15 +14,15 @@ from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.modules.types import PublicModuleShort, PublicModuleStatusCode
-from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
 from app.api.events.event_manager import ApiEventManager
+from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.types import Model
 
 
 class PublicModuleObjectContextShort(BaseModel):
     Action: str
-    Original_Adjust_On: Optional[uuid.UUID] = None
+    Original_Adjust_On: uuid.UUID | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -36,7 +37,7 @@ class PublicModuleObjectShort(BaseModel):
     Modified_Date: datetime
     Title: str
 
-    ModuleObjectContext: Optional[PublicModuleObjectContextShort] = None
+    ModuleObjectContext: PublicModuleObjectContextShort | None = None
 
     @field_validator("Description", mode="before")
     def default_empty_string(cls, v):
@@ -47,7 +48,7 @@ class PublicModuleObjectShort(BaseModel):
 
 class PublicModuleOverview(BaseModel):
     Module: PublicModuleShort
-    Objects: List[PublicModuleObjectShort]
+    Objects: list[PublicModuleObjectShort]
 
 
 @inject
@@ -86,7 +87,7 @@ def get_public_module_overview_endpoint(
     )
 
     rows: Sequence[ModuleObjectsTable] = session.execute(stmt).scalars().all()
-    snapshot_objects: List[PublicModuleObjectShort] = [PublicModuleObjectShort.model_validate(r) for r in rows]
+    snapshot_objects: list[PublicModuleObjectShort] = [PublicModuleObjectShort.model_validate(r) for r in rows]
 
     event: RetrievedObjectsEvent = event_manager.dispatch(
         session,
@@ -100,7 +101,7 @@ def get_public_module_overview_endpoint(
             ),
         ),
     )
-    objects: List[PublicModuleObjectShort] = event.payload.rows
+    objects: list[PublicModuleObjectShort] = event.payload.rows
 
     response = PublicModuleOverview(
         Module=PublicModuleShort.model_validate(module),

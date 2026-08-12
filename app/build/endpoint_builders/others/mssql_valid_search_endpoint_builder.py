@@ -1,5 +1,3 @@
-from typing import Union, Dict
-
 from pydantic import BaseModel
 
 from app.api.domains.others.endpoints.mssql_valid_search_endpoint import (
@@ -31,7 +29,7 @@ class MssqlValidSearchEndpointBuilder(EndpointBuilder):
     ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
         search_config: ValidSearchConfig = ValidSearchConfig(**resolver_config)
-        model_map: Dict[str, str] = resolver_config["model_map"]
+        model_map: dict[str, str] = resolver_config["model_map"]
         response_model_name: str = resolver_config["response_model_name"]
 
         context = MssqlValidSearchEndpointContext(
@@ -41,7 +39,7 @@ class MssqlValidSearchEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(get_mssql_valid_search_endpoint, context)
 
-        union_object_type: Union[BaseModel] = self._model_dynamic_type_builder.build_object_union_type(model_map)
+        union_object_type: BaseModel = self._model_dynamic_type_builder.build_object_union_type(model_map)
         response_type = PagedResponse[ValidSearchObject[union_object_type]]
         response_type.__name__ = response_model_name
 

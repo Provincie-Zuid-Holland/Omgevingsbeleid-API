@@ -1,4 +1,3 @@
-from typing import List
 from app.api.domains.modules.endpoints.module_list_lineage_tree_endpoint import (
     ModuleListLineageTreeEndpointContext,
     get_module_list_lineage_tree_endpoint,
@@ -30,7 +29,7 @@ class ModuleListLineageTreeEndpointBuilder(EndpointBuilder):
         resolver_config: dict = endpoint_config.resolver_data
         response_model: Model = models_provider.get_model(resolver_config["response_model"])
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
-        allowed_filter_columns: List[str] = resolver_config.get("allowed_filter_columns", [])
+        allowed_filter_columns: list[str] = resolver_config.get("allowed_filter_columns", [])
 
         context = ModuleListLineageTreeEndpointContext(
             object_type=api.object_type,

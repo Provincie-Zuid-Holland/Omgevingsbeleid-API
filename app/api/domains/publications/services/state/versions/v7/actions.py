@@ -1,14 +1,13 @@
 import uuid
 from abc import ABCMeta
 from datetime import date
-from typing import Dict, Optional
 
 from pydantic import BaseModel
 
 from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.api.domains.publications.types.enums import PurposeType
 
-from .models import Asset, Document, Frbr, Purpose, Gio, Gebiedengroep, Gebiedsaanwijzing, WidData, OwState
+from .models import Asset, Document, Frbr, Gebiedengroep, Gebiedsaanwijzing, Gio, OwState, Purpose, WidData
 
 
 class Action(BaseModel, metaclass=ABCMeta):
@@ -29,11 +28,11 @@ class AddPublicationAction(Action):
     Consolidation_Purpose: Purpose
     Document_Type: str
     Procedure_Type: str
-    Gios: Dict[str, Gio]
-    Gebiedengroepen: Dict[str, Gebiedengroep]
-    Gebiedsaanwijzingen: Dict[str, Gebiedsaanwijzing]
-    Documents: Dict[int, Document]
-    Assets: Dict[str, Asset]
+    Gios: dict[str, Gio]
+    Gebiedengroepen: dict[str, Gebiedengroep]
+    Gebiedsaanwijzingen: dict[str, Gebiedsaanwijzing]
+    Documents: dict[int, Document]
+    Assets: dict[str, Asset]
     Wid_Data: WidData
     Ow_State: OwState
     Act_Text: str
@@ -42,7 +41,7 @@ class AddPublicationAction(Action):
 
 class AddPurposeAction(Action):
     Purpose_Type: PurposeType
-    Effective_Date: Optional[date] = None
+    Effective_Date: date | None = None
     Work_Province_ID: str
     Work_Date: str
     Work_Other: str

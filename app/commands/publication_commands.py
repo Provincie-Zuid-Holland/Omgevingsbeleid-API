@@ -46,7 +46,7 @@ def create_dso_json_scenario(
         click.echo(click.style("Publication version UUID does not exist in DB", fg="red"))
         return
 
-    click.echo(click.style("Creating DSO JSON scenario from publication version: %s" % publication_version, fg="green"))
+    click.echo(click.style(f"Creating DSO JSON scenario from publication version: {publication_version}", fg="green"))
 
     builder: ActPackageBuilder = act_package_builder_factory.create_builder(
         pub_version,

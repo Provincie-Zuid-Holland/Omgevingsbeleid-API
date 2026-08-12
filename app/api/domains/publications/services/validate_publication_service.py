@@ -1,14 +1,15 @@
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Dict, List, Type, Optional, Set
+from typing import Any
 
-from bs4 import BeautifulSoup, Tag, ResultSet
-from dso.services.koop.waardelijsten.gen import OnderwerpType, RechtsgebiedType
-from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
+from bs4 import BeautifulSoup, ResultSet, Tag
+from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
 from dso.models import DocumentType
+from dso.services.koop.waardelijsten.gen import OnderwerpType, RechtsgebiedType
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
-from pydantic import BaseModel, Field, computed_field, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, computed_field
 from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.act_package.dso_act_input_data_builder import DOCUMENT_TYPE_MAP
@@ -17,10 +18,10 @@ from app.core.services import MainConfig
 
 
 class ValidatePublicationObject(BaseModel):
-    code: Optional[str] = None
-    object_id: Optional[int] = None
-    object_type: Optional[str] = None
-    title: Optional[str] = None
+    code: str | None = None
+    object_id: int | None = None
+    object_type: str | None = None
+    title: str | None = None
 
 
 class ValidatePublicationSeverity(str, Enum):
@@ -32,7 +33,7 @@ class ValidatePublicationSeverity(str, Enum):
 class ValidatePublicationError(BaseModel):
     rule: str
     object: ValidatePublicationObject = Field(default_factory=ValidatePublicationObject)
-    messages: List[str]
+    messages: list[str]
     severity: ValidatePublicationSeverity = Field(default=ValidatePublicationSeverity.error)
 
 
@@ -44,7 +45,7 @@ class ValidatePublicationRequest(BaseModel):
 
 
 class ValidatePublicationException(Exception):
-    def __init__(self, message: str, publication_errors: List[ValidatePublicationError] = []):
+    def __init__(self, message: str, publication_errors: Sequence[ValidatePublicationError] = ()):
         super().__init__(message)
         self.message: str = message
         self.publication_errors = publication_errors
@@ -55,12 +56,12 @@ class ValidatePublicationException(Exception):
 
 class ValidatePublicationRule(ABC):
     @abstractmethod
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         pass
 
 
 class ValidatePublicationResult(BaseModel):
-    errors: List[ValidatePublicationError]
+    errors: list[ValidatePublicationError]
 
     @computed_field
     @property
@@ -71,11 +72,11 @@ class ValidatePublicationResult(BaseModel):
 
 
 class ValidatePublicationService:
-    def __init__(self, rules: List[ValidatePublicationRule]):
-        self._rules: List[ValidatePublicationRule] = rules
+    def __init__(self, rules: list[ValidatePublicationRule]):
+        self._rules: list[ValidatePublicationRule] = rules
 
     def validate(self, db: Session, request: ValidatePublicationRequest) -> ValidatePublicationResult:
-        errors: List[ValidatePublicationError] = []
+        errors: list[ValidatePublicationError] = []
         for rule in self._rules:
             errors += rule.validate(db, request)
 
@@ -85,16 +86,16 @@ class ValidatePublicationService:
 
 
 class RequiredObjectFieldsRule(ValidatePublicationRule):
-    def __init__(self, document_type_map: Dict[str, Dict[str, Type[BaseModel]]]):
-        self._document_type_map: Dict[str, Dict[str, Type[BaseModel]]] = document_type_map
+    def __init__(self, document_type_map: dict[str, dict[str, type[BaseModel]]]):
+        self._document_type_map: dict[str, dict[str, type[BaseModel]]] = document_type_map
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
         object_map = self._document_type_map.get(request.document_type)
 
         for object_to_validate in request.input_data.Publication_Data.used_objects:
-            model: Optional[Type[BaseModel]] = object_map.get(object_to_validate.get("Object_Type"))
+            model: type[BaseModel] | None = object_map.get(object_to_validate.get("Object_Type"))
             if not model:
                 continue
 
@@ -117,8 +118,8 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
 
 
 class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
         publication_data_codes = [
             object_to_validate.get("Code") for object_to_validate in request.input_data.Publication_Data.used_objects
@@ -138,10 +139,10 @@ class UsedObjectsInPublicationExistInTemplateRule(ValidatePublicationRule):
 
 
 class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
-        used_object_types_in_template: Set[str] = set()
+        used_object_types_in_template: set[str] = set()
         for used_object_code in request.input_data.Publication_Data.used_object_codes:
             object_type, _ = used_object_code.split("-")
             used_object_types_in_template.add(object_type)
@@ -167,13 +168,13 @@ class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
 
 
 class UsedObjectTypeExistsRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
         soup: BeautifulSoup = BeautifulSoup(request.input_data.Publication_Data.parsed_template, "html.parser")
         object_tags: ResultSet[Tag] = soup.find_all("object")
-        objects: List[str] = [obj.get("code") for obj in object_tags if obj.get("code")]
-        object_types: Set[str] = set(v.split("-", 1)[0] for v in objects)
-        object_templates: Set[str] = request.input_data.Publication_Version.Publication.Template.Object_Templates.keys()
+        objects: list[str] = [obj.get("code") for obj in object_tags if obj.get("code")]
+        object_types: set[str] = {v.split("-", 1)[0] for v in objects}
+        object_templates: set[str] = request.input_data.Publication_Version.Publication.Template.Object_Templates.keys()
 
         for object_type in object_types:
             if object_type not in object_templates:
@@ -190,15 +191,15 @@ class UsedObjectTypeExistsRule(ValidatePublicationRule):
 
 
 class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
-        existing_gebiedengroepen: Set[str] = {
+        existing_gebiedengroepen: set[str] = {
             gebiedengroep.code for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values()
         }
 
         for used_object in request.input_data.Publication_Data.used_objects:
-            gebiedengroep_code: Optional[str] = used_object.get("Gebiedengroep_Code")
+            gebiedengroep_code: str | None = used_object.get("Gebiedengroep_Code")
             if not gebiedengroep_code:
                 continue
 
@@ -220,8 +221,8 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
 
 
 class GebiedengroepHasGiosRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
         for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values():
             if not gebiedengroep.gio_key:
@@ -240,13 +241,13 @@ class GebiedengroepHasGiosRule(ValidatePublicationRule):
 
 
 class GioDuplicateFilenameRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
-        gios: Dict[str, PublicationGio] = {}
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
+        gios: dict[str, PublicationGio] = {}
 
         for publication_gio in request.input_data.Publication_Data.gios.values():
             dso_name: str = generate_dso_gio_name(publication_gio.title)
-            if dso_name in gios.keys():
+            if dso_name in gios:
                 duplicate_gio: PublicationGio = gios.get(dso_name)
                 errors.append(
                     ValidatePublicationError(
@@ -263,13 +264,13 @@ class GioDuplicateFilenameRule(ValidatePublicationRule):
 
 
 class GioUniqueRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
-        gios: Dict[str, PublicationGio] = {}
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
+        gios: dict[str, PublicationGio] = {}
 
         for publication_gio in request.input_data.Publication_Data.gios.values():
             dso_name: str = generate_dso_gio_name(publication_gio.title)
-            if dso_name in gios.keys():
+            if dso_name in gios:
                 existing_gio = gios.get(dso_name)
                 if publication_gio.source_codes == existing_gio.source_codes:
                     errors.append(
@@ -287,10 +288,10 @@ class GioUniqueRule(ValidatePublicationRule):
 
 
 class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
-        koop_subjects: List[str] = [subject for subject in OnderwerpType.__members__.keys()]
+        koop_subjects: list[str] = [subject for subject in OnderwerpType.__members__]
         for subject in request.input_data.Publication_Version.Bill_Metadata["Subjects"]:
             if subject not in koop_subjects:
                 errors.append(
@@ -303,7 +304,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
                     )
                 )
 
-        koop_jurisdictions: List[str] = [subject for subject in RechtsgebiedType.__members__.keys()]
+        koop_jurisdictions: list[str] = [subject for subject in RechtsgebiedType.__members__]
         for jurisdiction in request.input_data.Publication_Version.Bill_Metadata["Jurisdictions"]:
             if jurisdiction not in koop_jurisdictions:
                 errors.append(
@@ -322,16 +323,16 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
     def __init__(self, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
         self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
         dso_document_type: DocumentType = DOCUMENT_TYPE_MAP[request.document_type]
-        gebiedsaanwijzingen: Optional[Gebiedsaanwijzingen] = self._dso_gebiedsaanwijzingen_factory.get_for_document(
+        gebiedsaanwijzingen: Gebiedsaanwijzingen | None = self._dso_gebiedsaanwijzingen_factory.get_for_document(
             dso_document_type
         )
 
         for gebiedsaanwijzing in request.input_data.Publication_Data.gebiedsaanwijzingen.values():
             object_type, object_id = gebiedsaanwijzing.code.split("-", 1)
-            ref_type: Optional[Gebiedsaanwijzing] = gebiedsaanwijzingen.get_by_type_label(
+            ref_type: Gebiedsaanwijzing | None = gebiedsaanwijzingen.get_by_type_label(
                 gebiedsaanwijzing.aanwijzing_type
             )
 
@@ -368,9 +369,7 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
                 )
                 continue
 
-            ref_group: Optional[GebiedsaanwijzingWaarde] = ref_type.get_value_by_label(
-                gebiedsaanwijzing.aanwijzing_group
-            )
+            ref_group: GebiedsaanwijzingWaarde | None = ref_type.get_value_by_label(gebiedsaanwijzing.aanwijzing_group)
             if ref_group is None:
                 errors.append(
                     ValidatePublicationError(
@@ -407,8 +406,8 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
 
 
 class ForbiddenHtmlTagsRuleConfig(BaseModel):
-    fields: List[str]
-    forbidden_html_tags: List[str]
+    fields: list[str]
+    forbidden_html_tags: list[str]
 
 
 class ForbiddenHtmlTagsRule(ValidatePublicationRule):
@@ -418,8 +417,8 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
             ForbiddenHtmlTagsRuleConfig,
         )
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
         for used_object in request.input_data.Publication_Data.used_objects:
             for field_name in self._config.fields:
@@ -441,7 +440,7 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
 
         return errors
 
-    def _has_forbidden_tags(self, text: str) -> Optional[str]:
+    def _has_forbidden_tags(self, text: str) -> str | None:
         soup = BeautifulSoup(text, "html.parser")
         for tag in self._config.forbidden_html_tags:
             elements = soup.find_all(tag)
@@ -451,8 +450,8 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
 
 
 class BillCompactForbiddenTagsRuleConfig(BaseModel):
-    fields: List[str]
-    forbidden_tags: List[str]
+    fields: list[str]
+    forbidden_tags: list[str]
 
 
 class BillCompactForbiddenTagsRule(ValidatePublicationRule):
@@ -462,12 +461,12 @@ class BillCompactForbiddenTagsRule(ValidatePublicationRule):
             BillCompactForbiddenTagsRuleConfig,
         )
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
-        bill_compact: Dict[str, Any] = request.input_data.Publication_Version.Bill_Compact or {}
+        bill_compact: dict[str, Any] = request.input_data.Publication_Version.Bill_Compact or {}
         for article_field in self._config.fields:
-            article: Optional[str] = bill_compact.get(article_field, None)
+            article: str | None = bill_compact.get(article_field, None)
             if not article:
                 continue
 
@@ -489,20 +488,20 @@ class BillCompactForbiddenTagsRule(ValidatePublicationRule):
 
 
 class AttachmentInBillReferenceRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> List[ValidatePublicationError]:
-        errors: List[ValidatePublicationError] = []
+    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+        errors: list[ValidatePublicationError] = []
 
-        bill_compact: Dict[str, Any] = request.input_data.Publication_Version.Bill_Compact or {}
-        referenced_ids: Set[int] = self._extract_ref_ids(bill_compact)
+        bill_compact: dict[str, Any] = request.input_data.Publication_Version.Bill_Compact or {}
+        referenced_ids: set[int] = self._extract_ref_ids(bill_compact)
 
-        attachment_ids: Set[int] = set()
-        attachment_title_map: Dict[int, str] = {}
+        attachment_ids: set[int] = set()
+        attachment_title_map: dict[int, str] = {}
 
         for attachment in request.input_data.Publication_Data.bill_attachments:
             attachment_ids.add(attachment["id"])
             attachment_title_map[attachment["id"]] = attachment.get("title", attachment.get("filename", ""))
 
-        unreferenced_attachments: Set[int] = attachment_ids - referenced_ids
+        unreferenced_attachments: set[int] = attachment_ids - referenced_ids
         for unreferenced_attachment_id in unreferenced_attachments:
             errors.append(
                 ValidatePublicationError(
@@ -515,7 +514,7 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
                 )
             )
 
-        not_found_referenced_ids: Set[int] = referenced_ids - attachment_ids
+        not_found_referenced_ids: set[int] = referenced_ids - attachment_ids
 
         for not_found_id in not_found_referenced_ids:
             errors.append(
@@ -531,8 +530,8 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
             )
         return errors
 
-    def _extract_ref_ids(self, bill_compact: dict) -> Set[int]:
-        ref_ids: Set[int] = set()
+    def _extract_ref_ids(self, bill_compact: dict) -> set[int]:
+        ref_ids: set[int] = set()
         pattern = re.compile(r"\[REF_BILL_PDF:(\d+)\]")
 
         for appendix in bill_compact.get("Appendices", []):
@@ -540,7 +539,7 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
             for match in matches:
                 ref_ids.add(int(match))
 
-        motivation: Optional[dict] = bill_compact.get("Motivation")
+        motivation: dict | None = bill_compact.get("Motivation")
         if motivation:
             for appendix in motivation.get("Appendices", []):
                 matches = pattern.findall(appendix.get("Content", ""))
@@ -556,7 +555,7 @@ def generate_dso_gio_name(gio_title: str) -> str:
     return s
 
 
-def validation_exception(errors: List[ValidatePublicationError]):
+def validation_exception(errors: list[ValidatePublicationError]):
     return ValidatePublicationException(
         "Error(s) found while validating publication",
         publication_errors=errors,

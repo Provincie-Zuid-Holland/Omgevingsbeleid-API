@@ -1,7 +1,7 @@
 import json
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, List, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 import validators
 from dependency_injector.wiring import Provide, inject
@@ -22,14 +22,14 @@ from app.core.tables.users import IS_ACTIVE, UsersTable
 
 
 class EditUser(BaseModel):
-    Gebruikersnaam: Optional[str] = Field(None)
-    Email: Optional[str] = Field(None)
-    Rol: Optional[str] = Field(None)
-    IsActive: Optional[bool] = Field(None)
+    Gebruikersnaam: str | None = Field(None)
+    Email: str | None = Field(None)
+    Rol: str | None = Field(None)
+    IsActive: bool | None = Field(None)
 
 
 class EditUserEndpointContext(BaseEndpointContext):
-    allowed_roles: List[str] = Field(default_factory=list)
+    allowed_roles: list[str] = Field(default_factory=list)
 
 
 @inject
@@ -48,12 +48,12 @@ def post_edit_user_endpoint(
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
-    user: Optional[UsersTable] = repository.get_by_uuid(session, user_uuid)
+    user: UsersTable | None = repository.get_by_uuid(session, user_uuid)
     if not user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "User does not exist")
 
     if object_in.Email:
-        same_email_user: Optional[UsersTable] = repository.get_by_email(session, object_in.Email)
+        same_email_user: UsersTable | None = repository.get_by_email(session, object_in.Email)
         if same_email_user and same_email_user.UUID != user.UUID:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already in use")
 
@@ -61,7 +61,7 @@ def post_edit_user_endpoint(
     log_before: str = json.dumps(user_before_dict)
 
     # We handle IsActive separately as that is not really a column
-    handle_is_active: Optional[bool] = changes.pop("IsActive", user.IsActive)
+    handle_is_active: bool | None = changes.pop("IsActive", user.IsActive)
     if handle_is_active:
         user.Status = IS_ACTIVE
     else:
@@ -78,7 +78,7 @@ def post_edit_user_endpoint(
     user_after_dict: dict = user.to_dict_safe()
 
     change_log: ChangeLogTable = ChangeLogTable(
-        Created_Date=datetime.now(timezone.utc),
+        Created_Date=datetime.now(UTC),
         Created_By_UUID=logged_in_user.UUID,
         Action_Type="edit_user",
         Action_Data=object_in.model_dump_json(),

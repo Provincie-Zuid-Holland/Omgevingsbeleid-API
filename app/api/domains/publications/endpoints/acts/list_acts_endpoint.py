@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -29,10 +29,10 @@ def get_list_acts_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
     act_repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
-    is_active: Optional[bool] = None,
-    environment_uuid: Optional[uuid.UUID] = None,
-    document_type: Optional[DocumentType] = None,
-    procedure_type: Optional[ProcedureType] = None,
+    is_active: bool | None = None,
+    environment_uuid: uuid.UUID | None = None,
+    document_type: DocumentType | None = None,
+    procedure_type: ProcedureType | None = None,
 ) -> PagedResponse[PublicationActShort]:
     paginated_result = act_repository.get_with_filters(
         session=session,
@@ -44,7 +44,7 @@ def get_list_acts_endpoint(
         limit=pagination.limit,
     )
 
-    results: List[PublicationActShort] = [PublicationActShort.model_validate(r) for r in paginated_result.items]
+    results: list[PublicationActShort] = [PublicationActShort.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[PublicationActShort](
         total=paginated_result.total_count,

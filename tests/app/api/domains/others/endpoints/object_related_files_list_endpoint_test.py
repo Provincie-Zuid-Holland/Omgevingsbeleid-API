@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi.testclient import TestClient
 
 from app.api.domains.others.types import ObjectRelatedFileResponse
@@ -8,7 +6,7 @@ from tests.fixtures.internal.spec.object_related_file_spec import ObjectRelatedF
 from tests.fixtures.internal.types import Ref
 
 
-def _uuids(ctx: Context, keys: List[str]) -> List[str]:
+def _uuids(ctx: Context, keys: list[str]) -> list[str]:
     return [str(ctx.f.primary_key_uuid(Ref(ObjectRelatedFileSpec, key))) for key in keys]
 
 

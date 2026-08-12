@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -16,11 +15,11 @@ class ObjectRelatedFileSortColumn(str, Enum):
 
 
 class ObjectRelatedFileRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> Optional[ObjectRelatedFileTable]:
+    def get_by_uuid(self, session: Session, uuidx: UUID) -> ObjectRelatedFileTable | None:
         stmt = select(ObjectRelatedFileTable).filter(ObjectRelatedFileTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_by_object_code(self, session: Session, object_code: str) -> List[ObjectRelatedFileTable]:
+    def get_by_object_code(self, session: Session, object_code: str) -> list[ObjectRelatedFileTable]:
         stmt = (
             select(ObjectRelatedFileTable)
             .filter(ObjectRelatedFileTable.Code == object_code)
@@ -32,7 +31,7 @@ class ObjectRelatedFileRepository(BaseRepository):
         self,
         session: Session,
         pagination: SortedPagination,
-        object_code: Optional[str] = None,
+        object_code: str | None = None,
     ) -> PaginatedQueryResult:
         filters = []
         if object_code is not None:

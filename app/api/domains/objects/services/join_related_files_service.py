@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import Dict, List
 
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -11,7 +10,7 @@ from app.core.tables.others import ObjectRelatedFileTable
 
 class JoinRelatedFilesConfig(BaseModel):
     to_field: str
-    object_codes: List[str]
+    object_codes: list[str]
 
 
 class JoinRelatedFilesService:
@@ -19,22 +18,22 @@ class JoinRelatedFilesService:
         self,
         session: Session,
         config: JoinRelatedFilesConfig,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
     ):
         self._session: Session = session
         self._config: JoinRelatedFilesConfig = config
-        self._rows: List[BaseModel] = rows
+        self._rows: list[BaseModel] = rows
 
-    def join_related_files(self) -> List[BaseModel]:
-        files_map: Dict[str, List[ObjectRelatedFileResponse]] = self._fetch()
+    def join_related_files(self) -> list[BaseModel]:
+        files_map: dict[str, list[ObjectRelatedFileResponse]] = self._fetch()
 
         for row in self._rows:
-            code: str = getattr(row, "Code")
+            code: str = row.Code
             setattr(row, self._config.to_field, files_map.get(code, []))
 
         return self._rows
 
-    def _fetch(self) -> Dict[str, List[ObjectRelatedFileResponse]]:
+    def _fetch(self) -> dict[str, list[ObjectRelatedFileResponse]]:
         stmt = (
             select(ObjectRelatedFileTable)
             .filter(ObjectRelatedFileTable.Code.in_(self._config.object_codes))
@@ -43,7 +42,7 @@ class JoinRelatedFilesService:
 
         db_rows = self._session.execute(stmt).scalars().all()
 
-        files_map: Dict[str, List[ObjectRelatedFileResponse]] = defaultdict(list)
+        files_map: dict[str, list[ObjectRelatedFileResponse]] = defaultdict(list)
         for db_row in db_rows:
             response = ObjectRelatedFileResponse.model_validate(db_row)
             files_map[db_row.Code].append(response)
@@ -56,7 +55,7 @@ class JoinRelatedFilesServiceFactory:
         self,
         session: Session,
         config: JoinRelatedFilesConfig,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
     ) -> JoinRelatedFilesService:
         return JoinRelatedFilesService(
             session=session,

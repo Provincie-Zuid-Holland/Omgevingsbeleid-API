@@ -1,7 +1,7 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
-from dependency_injector.wiring import inject, Provide
-from dso import GebiedsaanwijzingenFactory, Gebiedsaanwijzingen
+from dependency_injector.wiring import Provide, inject
+from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
 from dso.models import DocumentType
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing
 from fastapi import Depends
@@ -11,7 +11,7 @@ from app.api.api_container import ApiContainer
 
 
 class ListAreaDesignationResponse(BaseModel):
-    gebiedsaanwijzingen: List[Gebiedsaanwijzing]
+    gebiedsaanwijzingen: list[Gebiedsaanwijzing]
 
     model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
 
@@ -22,10 +22,10 @@ def get_area_designation_endpoint(
         GebiedsaanwijzingenFactory, Depends(Provide[ApiContainer.dso_gebiedsaanwijzingen_factory])
     ],
 ) -> ListAreaDesignationResponse:
-    gebiedsaanwijzingen_programma: Optional[Gebiedsaanwijzingen] = dso_gebiedsaanwijzingen_factory.get_for_document(
+    gebiedsaanwijzingen_programma: Gebiedsaanwijzingen | None = dso_gebiedsaanwijzingen_factory.get_for_document(
         DocumentType.PROGRAMMA
     )
-    gebiedsaanwijzingen_list: List[Gebiedsaanwijzing] = []
+    gebiedsaanwijzingen_list: list[Gebiedsaanwijzing] = []
     if gebiedsaanwijzingen_programma is not None:
         gebiedsaanwijzingen_list = gebiedsaanwijzingen_programma.get_list()
     return ListAreaDesignationResponse(gebiedsaanwijzingen=gebiedsaanwijzingen_list)

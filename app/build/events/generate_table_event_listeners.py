@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy import ForeignKey, Unicode, Uuid
 from sqlalchemy.orm import mapped_column, relationship
 
@@ -10,17 +8,16 @@ from app.core.tables.users import UsersTable
 
 
 class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "object_code":
             return
 
         # Add the column itself
-        additional_args = [ForeignKey("object_statics.Code")]
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Unicode(35), nullable=column.nullable, *additional_args),
+            mapped_column(column.name, Unicode(35), ForeignKey("object_statics.Code"), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -38,17 +35,16 @@ class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
 
 
 class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "area_uuid":
             return
 
         # Add the column itself
-        additional_args = [ForeignKey(AreasTable.UUID)]
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, nullable=column.nullable, *additional_args),
+            mapped_column(column.name, Uuid, ForeignKey(AreasTable.UUID), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -66,17 +62,16 @@ class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
 
 
 class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "user_uuid":
             return
 
         # Add the column itself
-        additional_args = [ForeignKey("Gebruikers.UUID")]
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, nullable=column.nullable, *additional_args),
+            mapped_column(column.name, Uuid, ForeignKey("Gebruikers.UUID"), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -94,17 +89,16 @@ class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
 
 
 class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "werkingsgebied_uuid":
             return
 
         # Add the column itself
-        additional_args = [ForeignKey("Werkingsgebieden.UUID")]
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, nullable=column.nullable, *additional_args),
+            mapped_column(column.name, Uuid, ForeignKey("Werkingsgebieden.UUID"), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -122,18 +116,17 @@ class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent])
 
 
 class AddStoreageFileRelationshipListener(BuildListener[GenerateTableEvent]):
-    def handle_event(self, event: GenerateTableEvent) -> Optional[GenerateTableEvent]:
+    def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
         if column.type != "file_uuid":
             return
 
         # Add the column itself
         fk_name = f"fk_{event.table_name}_{column.name}_to_storagefile_uuid"
-        additional_args = [ForeignKey(StorageFileTable.UUID, name=fk_name)]
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, nullable=column.nullable, *additional_args),
+            mapped_column(column.name, Uuid, ForeignKey(StorageFileTable.UUID, name=fk_name), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access

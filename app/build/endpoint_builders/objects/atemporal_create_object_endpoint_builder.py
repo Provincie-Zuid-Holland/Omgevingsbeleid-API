@@ -1,6 +1,5 @@
-from typing import Type
-
 from pydantic import BaseModel
+
 from app.api.domains.objects.endpoints import AtemporalCreateObjectEndpointContext, atemporal_create_object_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
@@ -21,8 +20,8 @@ class AtemporalCreateObjectEndpointBuilder(EndpointBuilder):
     ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
 
-        request_type: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["request_model"])
-        response_type: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["response_model"])
+        request_type: type[BaseModel] = models_provider.get_pydantic_model(resolver_config["request_model"])
+        response_type: type[BaseModel] = models_provider.get_pydantic_model(resolver_config["response_model"])
 
         context = AtemporalCreateObjectEndpointContext(
             object_type=api.object_type,

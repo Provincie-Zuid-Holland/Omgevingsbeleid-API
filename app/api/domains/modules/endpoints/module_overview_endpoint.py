@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel
@@ -15,7 +15,7 @@ from app.core.tables.users import UsersTable
 
 class ModuleOverviewResponse(BaseModel):
     Module: ModuleClass
-    StatusHistory: List[ModuleStatus]
+    StatusHistory: list[ModuleStatus]
 
 
 def view_module_overview_endpoint(
@@ -23,7 +23,7 @@ def view_module_overview_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> ModuleOverviewResponse:
-    status_history: List[ModuleStatus] = [ModuleStatus.model_validate(s) for s in module.status_history]
+    status_history: list[ModuleStatus] = [ModuleStatus.model_validate(s) for s in module.status_history]
 
     response = ModuleOverviewResponse(
         Module=ModuleClass.model_validate(module),

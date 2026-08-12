@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query
@@ -19,11 +19,10 @@ from app.api.utils.pagination import (
     PagedResponse,
     PaginatedQueryResult,
     Sort,
-    SortOrder,
     SortedPagination,
+    SortOrder,
 )
 from app.core.tables.users import UsersTable
-
 
 module_order_config = OrderConfig(
     default_column=ModuleSortColumn.Created_Date.value,
@@ -34,21 +33,21 @@ module_order_config = OrderConfig(
 
 @inject
 def get_list_modules_endpoint(
-    filter_object_code: Annotated[Optional[FilterObjectCode], Depends(depends_filter_object_code)],
+    filter_object_code: Annotated[FilterObjectCode | None, Depends(depends_filter_object_code)],
     module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_module_sorted_pagination)],
     session: Annotated[Session, Depends(depends_db_session)],
     only_mine: Annotated[bool, Query] = False,
-    filter_activated: Optional[bool] = None,
-    filter_closed: Optional[bool] = None,
-    filter_successful: Optional[bool] = None,
-    filter_title: Optional[str] = None,
+    filter_activated: bool | None = None,
+    filter_closed: bool | None = None,
+    filter_successful: bool | None = None,
+    filter_title: str | None = None,
 ) -> PagedResponse[Module]:
     sort: Sort = module_order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    filter_on_me: Optional[uuid.UUID] = None
+    filter_on_me: uuid.UUID | None = None
     if only_mine:
         filter_on_me = user.UUID
 
@@ -63,7 +62,7 @@ def get_list_modules_endpoint(
         object_code=filter_object_code,
     )
 
-    modules: List[Module] = [Module.model_validate(r) for r in paginated_result.items]
+    modules: list[Module] = [Module.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[Module](
         total=paginated_result.total_count,

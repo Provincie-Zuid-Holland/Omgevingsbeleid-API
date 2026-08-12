@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -21,7 +21,7 @@ class ModuleCreate(BaseModel):
     Title: str = Field(..., min_length=3)
     Description: str = Field(..., min_length=3)
     Module_Manager_1_UUID: uuid.UUID
-    Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None)
+    Module_Manager_2_UUID: uuid.UUID | None = Field(None)
 
     @field_validator("Module_Manager_2_UUID", mode="after")
     def duplicate_manager(cls, v, info):
@@ -47,7 +47,7 @@ def post_create_module_endpoint(
 ) -> ModuleCreatedResponse:
     permission_service.guard_valid_user(Permissions.module_can_create_module, user)
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     module: ModuleTable = ModuleTable(
         Title=object_in.Title,

@@ -1,11 +1,11 @@
 from copy import deepcopy
 from os import listdir
 from os.path import isfile, join
-from typing import Dict, List
+
 import yaml
 
-from app.build.objects.types import BuildData, IntermediateObject
 from app.build.objects.columns import BASE_COLUMNS
+from app.build.objects.types import BuildData, IntermediateObject
 from app.build.services.object_intermediate_builder import ObjectIntermediateBuilder
 from app.core.services.main_config import MainConfig
 from app.core.types import Column
@@ -24,9 +24,9 @@ class ConfigParser:
 
     def parse(self):
         main_config: dict = self._main_config.get_main_config()
-        object_configs: List[dict] = self._load_object_configs(self._object_config_path)
-        columns: Dict[str, Column] = self._gather_columns(main_config)
-        object_intermediates: List[IntermediateObject] = self._object_intermediate_builder.build(
+        object_configs: list[dict] = self._load_object_configs(self._object_config_path)
+        columns: dict[str, Column] = self._gather_columns(main_config)
+        object_intermediates: list[IntermediateObject] = self._object_intermediate_builder.build(
             columns,
             object_configs,
         )
@@ -42,10 +42,10 @@ class ConfigParser:
         with open(file_path, "r") as stream:
             return yaml.safe_load(stream)
 
-    def _load_object_configs(self, object_config_path: str) -> List[dict]:
-        object_configs: List[dict] = []
+    def _load_object_configs(self, object_config_path: str) -> list[dict]:
+        object_configs: list[dict] = []
 
-        file_paths: List[str] = [
+        file_paths: list[str] = [
             join(object_config_path, f)
             for f in listdir(object_config_path)
             if isfile(join(object_config_path, f)) and f[0:1] != "_"
@@ -57,8 +57,8 @@ class ConfigParser:
 
         return object_configs
 
-    def _gather_columns(self, main_config: dict) -> Dict[str, Column]:
-        columns: Dict[str, Column] = {c.id: c for c in deepcopy(BASE_COLUMNS)}
+    def _gather_columns(self, main_config: dict) -> dict[str, Column]:
+        columns: dict[str, Column] = {c.id: c for c in deepcopy(BASE_COLUMNS)}
 
         config_columns = main_config.get("columns", [])
         for column_id, data in config_columns.items():

@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, desc, func, or_, select
@@ -13,18 +12,18 @@ from app.core.tables.objects import ObjectStaticsTable
 
 
 class ModuleRepository(BaseRepository):
-    def get_by_id(self, session: Session, id: int) -> Optional[ModuleTable]:
+    def get_by_id(self, session: Session, id: int) -> ModuleTable | None:
         stmt = select(ModuleTable).where(ModuleTable.Module_ID == id)
         return self.fetch_first(session, stmt)
 
     def get_filtered_query(
         self,
-        filter_activated: Optional[bool],
-        filter_closed: Optional[bool],
-        filter_successful: Optional[bool],
-        filter_title: Optional[str],
-        mine: Optional[UUID],
-        object_code: Optional[FilterObjectCode],
+        filter_activated: bool | None,
+        filter_closed: bool | None,
+        filter_successful: bool | None,
+        filter_title: str | None,
+        mine: UUID | None,
+        object_code: FilterObjectCode | None,
     ):
         filters = []
         if filter_activated is not None:
@@ -74,12 +73,12 @@ class ModuleRepository(BaseRepository):
         self,
         session: Session,
         pagination: SortedPagination,
-        filter_activated: Optional[bool] = None,
-        filter_closed: Optional[bool] = None,
-        filter_successful: Optional[bool] = None,
-        filter_title: Optional[str] = None,
-        mine: Optional[UUID] = None,
-        object_code: Optional[FilterObjectCode] = None,
+        filter_activated: bool | None = None,
+        filter_closed: bool | None = None,
+        filter_successful: bool | None = None,
+        filter_title: str | None = None,
+        mine: UUID | None = None,
+        object_code: FilterObjectCode | None = None,
     ) -> PaginatedQueryResult:
         stmt = self.get_filtered_query(
             filter_activated,

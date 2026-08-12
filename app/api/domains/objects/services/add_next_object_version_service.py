@@ -1,5 +1,4 @@
 import uuid
-from typing import Dict, List
 
 from pydantic import BaseModel
 from sqlalchemy import func, select
@@ -11,7 +10,7 @@ from app.core.tables.objects import ObjectsTable
 
 class AddNextObjectVersionConfig(BaseModel):
     to_field: str
-    object_uuids: List[uuid.UUID]
+    object_uuids: list[uuid.UUID]
 
 
 class AddNextObjectVersionService:
@@ -19,23 +18,23 @@ class AddNextObjectVersionService:
         self,
         session: Session,
         config: AddNextObjectVersionConfig,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
     ):
         self._session: Session = session
         self._config: AddNextObjectVersionConfig = config
-        self._rows: List[BaseModel] = rows
+        self._rows: list[BaseModel] = rows
 
-    def add_next_versions(self) -> List[BaseModel]:
-        next_version_map: Dict[uuid.UUID, NextObjectVersion] = self._fetch()
+    def add_next_versions(self) -> list[BaseModel]:
+        next_version_map: dict[uuid.UUID, NextObjectVersion] = self._fetch()
 
         for row in self._rows:
-            object_uuid: uuid.UUID = getattr(row, "UUID")
+            object_uuid: uuid.UUID = row.UUID
             if object_uuid in next_version_map:
                 setattr(row, self._config.to_field, next_version_map[object_uuid])
 
         return self._rows
 
-    def _fetch(self) -> Dict[uuid.UUID, NextObjectVersion]:
+    def _fetch(self) -> dict[uuid.UUID, NextObjectVersion]:
         # acts as context to match new versions against
         reference_subq = (
             select(
@@ -74,7 +73,7 @@ class AddNextObjectVersionService:
         stmt = select(next_obj_subq).where(next_obj_subq.c._RowNumber == 1)
 
         db_result = self._session.execute(stmt).all()
-        next_version_map: Dict[uuid.UUID, NextObjectVersion] = {}
+        next_version_map: dict[uuid.UUID, NextObjectVersion] = {}
         for db_row in db_result:
             next_version: NextObjectVersion = NextObjectVersion.model_validate(db_row)
             next_version_map[next_version.Previous_UUID] = next_version
@@ -87,7 +86,7 @@ class AddNextObjectVersionServiceFactory:
         self,
         session: Session,
         config: AddNextObjectVersionConfig,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
     ) -> AddNextObjectVersionService:
         return AddNextObjectVersionService(
             session=session,

@@ -1,4 +1,3 @@
-from typing import List
 from app.api.domains.objects.endpoints.acknowledged_relation_request_endpoint import (
     AcknowledgedRelationRequestEndpointContext,
     get_acknowledged_relation_request_endpoint,
@@ -22,7 +21,7 @@ class AcknowledgedRelationRequestEndpointBuilder(EndpointBuilder):
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
-        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
+        allowed_object_types: list[str] = resolver_config.get("allowed_object_types", [])
         if not allowed_object_types:
             raise RuntimeError("Missing required config allowed_object_types")
 

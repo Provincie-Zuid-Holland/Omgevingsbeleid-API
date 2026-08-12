@@ -1,6 +1,5 @@
-from typing import Type
-
 from pydantic import BaseModel
+
 from app.api.domains.objects.endpoints import EditObjectStaticEndpointContext, edit_object_static_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
@@ -25,8 +24,8 @@ class EditObjectStaticEndpointBuilder(EndpointBuilder):
 
         resolver_config: dict = endpoint_config.resolver_data
 
-        request_type: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["request_model"])
-        result_type: Type[BaseModel] = models_provider.get_pydantic_model(resolver_config["result_model"])
+        request_type: type[BaseModel] = models_provider.get_pydantic_model(resolver_config["request_model"])
+        result_type: type[BaseModel] = models_provider.get_pydantic_model(resolver_config["result_model"])
 
         context = EditObjectStaticEndpointContext(
             object_type=api.object_type,

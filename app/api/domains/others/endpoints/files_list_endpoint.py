@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
@@ -28,7 +28,7 @@ def get_files_list_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     storage_file_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
     only_mine: bool = False,
-    filter_filename: Optional[str] = None,
+    filter_filename: str | None = None,
 ) -> PagedResponse[StorageFileBasic]:
     pagination: SortedPagination = optional_pagination.with_sort(
         Sort(
@@ -37,7 +37,7 @@ def get_files_list_endpoint(
         )
     )
 
-    filter_on_me: Optional[UUID] = None
+    filter_on_me: UUID | None = None
     if only_mine:
         filter_on_me = user.UUID
 

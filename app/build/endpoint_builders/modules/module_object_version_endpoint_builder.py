@@ -1,4 +1,3 @@
-from typing import Optional
 from app.api.domains.modules.endpoints.module_object_version_endpoint import (
     ModuleObjectVersionEndpointContext,
     view_module_object_version_endpoint,
@@ -31,8 +30,8 @@ class ModuleObjectVersionEndpointBuilder(EndpointBuilder):
         response_model: Model = models_provider.get_model(resolver_config["response_model"])
         require_auth: bool = resolver_config.get("require_auth", True)
 
-        minimum_status: Optional[ModuleStatusCode] = None
-        requested_minimum_status: Optional[str] = resolver_config.get("minimum_status", None)
+        minimum_status: ModuleStatusCode | None = None
+        requested_minimum_status: str | None = resolver_config.get("minimum_status", None)
         if requested_minimum_status:
             try:
                 minimum_status = ModuleStatusCode(requested_minimum_status)

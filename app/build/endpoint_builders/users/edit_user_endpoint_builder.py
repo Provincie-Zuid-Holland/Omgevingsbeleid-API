@@ -1,4 +1,3 @@
-from typing import List
 from app.api.domains.users.endpoints.edit_user_endpoint import EditUserEndpointContext, post_edit_user_endpoint
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
@@ -22,7 +21,7 @@ class EditUserEndpointBuilder(EndpointBuilder):
             raise RuntimeError("Missing {user_uuid} argument in path")
 
         resolver_config: dict = endpoint_config.resolver_data
-        allowed_roles: List[str] = resolver_config.get("allowed_roles", [])
+        allowed_roles: list[str] = resolver_config.get("allowed_roles", [])
 
         context = EditUserEndpointContext(
             allowed_roles=allowed_roles,

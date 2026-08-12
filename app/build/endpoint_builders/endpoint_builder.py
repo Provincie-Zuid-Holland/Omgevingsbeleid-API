@@ -1,9 +1,10 @@
-from abc import ABC, abstractmethod
-from enum import Enum
 import functools
 import inspect
 import re
-from typing import Any, Callable, List, Optional, Type, Union
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -20,11 +21,11 @@ class ConfiguredFastapiEndpoint(BaseModel):
     endpoint: Callable
     methods: list[str]
     response_model: Any
-    summary: Optional[str] = None
-    description: Optional[str] = None
-    tags: List[Union[str, Enum]] = Field(default_factory=list)
-    operation_id: Optional[str] = None
-    openapi_extra: Optional[dict] = None
+    summary: str | None = None
+    description: str | None = None
+    tags: list[str | Enum] = Field(default_factory=list)
+    operation_id: str | None = None
+    openapi_extra: dict | None = None
 
 
 class EndpointBuilder(ABC):
@@ -74,7 +75,7 @@ class EndpointBuilder(ABC):
 
         return partial_func
 
-    def _overwrite_argument_type(self, endpoint: Callable, name: str, value_type: Type[Any]) -> Callable:
+    def _overwrite_argument_type(self, endpoint: Callable, name: str, value_type: type[Any]) -> Callable:
         """
         Dynamically replaces the type annotation of a specific parameter in a function's signature.
 

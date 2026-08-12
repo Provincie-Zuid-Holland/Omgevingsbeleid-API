@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from sqlalchemy import Select
 
@@ -14,8 +14,8 @@ class BeforeSelectExecutionEventPayload:
 
 @dataclass
 class BeforeSelectExecutionEventContext:
-    response_model: Optional[Model]
-    objects_table_ref: Optional[Any]
+    response_model: Model | None
+    objects_table_ref: Any | None
 
 
 class BeforeSelectExecutionEvent(ApiEvent):
@@ -31,8 +31,8 @@ class BeforeSelectExecutionEvent(ApiEvent):
     @staticmethod
     def create(
         query: Select,
-        response_model: Optional[Model] = None,
-        objects_table_ref: Optional[Any] = None,
+        response_model: Model | None = None,
+        objects_table_ref: Any | None = None,
     ):
         return BeforeSelectExecutionEvent(
             payload=BeforeSelectExecutionEventPayload(query),

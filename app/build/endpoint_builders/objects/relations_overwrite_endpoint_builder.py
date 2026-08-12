@@ -1,4 +1,3 @@
-from typing import List
 from app.api.domains.objects.endpoints.relations_overwrite_endpoint import (
     RelationsOverwriteEndpointContext,
     post_relations_overwrite_endpoint,
@@ -25,7 +24,7 @@ class RelationsOverwriteEndpointBuilder(EndpointBuilder):
             raise RuntimeError("Missing {lineage_id} argument in path")
 
         resolver_config: dict = endpoint_config.resolver_data
-        allowed_object_types_relations: List[str] = resolver_config.get("allowed_object_types_relations", [])
+        allowed_object_types_relations: list[str] = resolver_config.get("allowed_object_types_relations", [])
         if not allowed_object_types_relations:
             raise RuntimeError("Missing required config allowed_object_types_relations")
 

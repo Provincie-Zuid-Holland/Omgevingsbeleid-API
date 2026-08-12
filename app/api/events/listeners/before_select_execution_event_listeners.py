@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql.base import ExecutableOption
 
@@ -24,7 +22,7 @@ class OptimizeSelectQueryListener(ApiListener[BeforeSelectExecutionEvent]):
     This will make sure that sqlalchemy is not going to run seperate queries for each row
     """
 
-    def handle_event(self, session: Session, event: BeforeSelectExecutionEvent) -> Optional[BeforeSelectExecutionEvent]:
+    def handle_event(self, session: Session, event: BeforeSelectExecutionEvent) -> BeforeSelectExecutionEvent | None:
         if not event.context.response_model:
             return event
 
@@ -37,7 +35,7 @@ class OptimizeSelectQueryListener(ApiListener[BeforeSelectExecutionEvent]):
         model_config: dict = event.context.response_model.service_config
         objects_table_reference = event.context.objects_table_ref
 
-        load_options: List[ExecutableOption] = []
+        load_options: list[ExecutableOption] = []
         for field_map in model_config.get("foreign_keys_extender", {}).get("fields_map", []):
             load_options.append(selectinload(getattr(objects_table_reference, field_map["to_field"])))
         for field_map in model_config.get("static_foreign_keys_extender", {}).get("fields_map", []):

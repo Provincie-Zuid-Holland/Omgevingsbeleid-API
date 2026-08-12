@@ -1,6 +1,5 @@
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Dict, List, Set
+from datetime import UTC, datetime
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
@@ -19,7 +18,7 @@ from app.core.types import (
 
 class AddWerkingsgebiedRelatedObjectsConfig(BaseModel):
     to_field: str
-    werkingsgebied_codes: List[str]
+    werkingsgebied_codes: list[str]
 
 
 class AddWerkingsgebiedRelatedObjectsService:
@@ -27,31 +26,31 @@ class AddWerkingsgebiedRelatedObjectsService:
         self,
         session: Session,
         config: AddWerkingsgebiedRelatedObjectsConfig,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
     ):
         self._session: Session = session
         self._config: AddWerkingsgebiedRelatedObjectsConfig = config
-        self._rows: List[BaseModel] = rows
+        self._rows: list[BaseModel] = rows
 
-    def add_related_objects(self) -> List[BaseModel]:
-        related_objects_map: Dict[str, WerkingsgebiedRelatedObjects] = self._fetch()
+    def add_related_objects(self) -> list[BaseModel]:
+        related_objects_map: dict[str, WerkingsgebiedRelatedObjects] = self._fetch()
 
         for row in self._rows:
-            werkingsgebied_code: str = getattr(row, "Code")
+            werkingsgebied_code: str = row.Code
             if werkingsgebied_code in related_objects_map:
                 setattr(row, self._config.to_field, related_objects_map[werkingsgebied_code])
 
         return self._rows
 
-    def _fetch(self) -> Dict[str, WerkingsgebiedRelatedObjects]:
-        valid_objects: Dict[str, List[WerkingsgebiedRelatedObjectShort]] = self._fetch_valid_objects()
-        module_objects: Dict[str, List[WerkingsgebiedRelatedModuleObjectShort]] = self._fetch_module_objects()
+    def _fetch(self) -> dict[str, WerkingsgebiedRelatedObjects]:
+        valid_objects: dict[str, list[WerkingsgebiedRelatedObjectShort]] = self._fetch_valid_objects()
+        module_objects: dict[str, list[WerkingsgebiedRelatedModuleObjectShort]] = self._fetch_module_objects()
 
-        result: Dict[str, WerkingsgebiedRelatedObjects] = {}
-        found_werkingsgebieden_codes: Set[str] = set(list(valid_objects.keys()) + list(module_objects.keys()))
+        result: dict[str, WerkingsgebiedRelatedObjects] = {}
+        found_werkingsgebieden_codes: set[str] = set(list(valid_objects.keys()) + list(module_objects.keys()))
         for werkingsgebied_code in found_werkingsgebieden_codes:
-            found_valid_objects: List[WerkingsgebiedRelatedObjectShort] = valid_objects.get(werkingsgebied_code, [])
-            found_module_objects: List[WerkingsgebiedRelatedModuleObjectShort] = module_objects.get(
+            found_valid_objects: list[WerkingsgebiedRelatedObjectShort] = valid_objects.get(werkingsgebied_code, [])
+            found_module_objects: list[WerkingsgebiedRelatedModuleObjectShort] = module_objects.get(
                 werkingsgebied_code, []
             )
 
@@ -62,7 +61,7 @@ class AddWerkingsgebiedRelatedObjectsService:
 
         return result
 
-    def _fetch_valid_objects(self) -> Dict[str, List[WerkingsgebiedRelatedObjectShort]]:
+    def _fetch_valid_objects(self) -> dict[str, list[WerkingsgebiedRelatedObjectShort]]:
         row_number = (
             func.row_number()
             .over(
@@ -85,7 +84,7 @@ class AddWerkingsgebiedRelatedObjectsService:
                 ObjectsTable.Start_Validity,
                 ObjectsTable.End_Validity,
             )
-            .filter(ObjectsTable.Start_Validity <= datetime.now(timezone.utc))
+            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
             .subquery()
         )
 
@@ -95,21 +94,21 @@ class AddWerkingsgebiedRelatedObjectsService:
             .filter(subq.c.Werkingsgebied_Code.in_(self._config.werkingsgebied_codes))
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(timezone.utc),
+                    subq.c.End_Validity > datetime.now(UTC),
                     subq.c.End_Validity.is_(None),
                 )
             )
         )
 
         db_result = self._session.execute(stmt).mappings().all()
-        valid_objects_map: Dict[str, List[WerkingsgebiedRelatedObjectShort]] = defaultdict(list)
+        valid_objects_map: dict[str, list[WerkingsgebiedRelatedObjectShort]] = defaultdict(list)
         for db_row in db_result:
             valid_object: WerkingsgebiedRelatedObjectShort = WerkingsgebiedRelatedObjectShort.model_validate(db_row)
             valid_objects_map[valid_object.Werkingsgebied_Code].append(valid_object)
 
         return valid_objects_map
 
-    def _fetch_module_objects(self) -> Dict[str, List[WerkingsgebiedRelatedModuleObjectShort]]:
+    def _fetch_module_objects(self) -> dict[str, list[WerkingsgebiedRelatedModuleObjectShort]]:
         subq = (
             select(
                 ModuleObjectsTable.UUID.label("UUID"),
@@ -160,7 +159,7 @@ class AddWerkingsgebiedRelatedObjectsService:
         )
 
         db_result = self._session.execute(stmt).mappings().all()
-        module_objects_map: Dict[str, List[WerkingsgebiedRelatedModuleObjectShort]] = defaultdict(list)
+        module_objects_map: dict[str, list[WerkingsgebiedRelatedModuleObjectShort]] = defaultdict(list)
         for db_row in db_result:
             module_object: WerkingsgebiedRelatedModuleObjectShort = (
                 WerkingsgebiedRelatedModuleObjectShort.model_validate(db_row)
@@ -175,7 +174,7 @@ class AddWerkingsgebiedRelatedObjectsServiceFactory:
         self,
         session: Session,
         config: AddWerkingsgebiedRelatedObjectsConfig,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
     ) -> AddWerkingsgebiedRelatedObjectsService:
         return AddWerkingsgebiedRelatedObjectsService(
             session=session,

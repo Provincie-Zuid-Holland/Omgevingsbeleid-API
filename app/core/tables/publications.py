@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pydantic import TypeAdapter
 from sqlalchemy import Column, Date, DateTime, ForeignKey, LargeBinary, String, Unicode, UnicodeText, UniqueConstraint
@@ -30,7 +30,7 @@ class PublicationStorageFileTable(Base):
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
-ObjectFieldMapTypeAdapter = TypeAdapter(Dict[str, List[str]])
+ObjectFieldMapTypeAdapter = TypeAdapter(dict[str, list[str]])
 
 
 class PublicationTemplateTable(Base, UserMetaData):
@@ -59,7 +59,7 @@ class PublicationEnvironmentTable(Base, UserMetaData):
     Title: Mapped[str] = mapped_column(Unicode)
 
     # Used to map secret data to the environment like API Keys
-    Code: Mapped[Optional[str]] = mapped_column(Unicode(32), nullable=True)
+    Code: Mapped[str | None] = mapped_column(Unicode(32), nullable=True)
     Description: Mapped[str] = mapped_column(Unicode)
 
     Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
@@ -76,7 +76,7 @@ class PublicationEnvironmentTable(Base, UserMetaData):
 
     Is_Locked: Mapped[bool]
 
-    Active_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Active_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
     Active_State: Mapped[Optional["PublicationEnvironmentStateTable"]] = relationship(
@@ -93,14 +93,14 @@ class PublicationEnvironmentStateTable(Base):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
-    Adjust_On_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Adjust_On_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
 
     State = Column(JSON)
 
     Is_Activated: Mapped[bool]
-    Activated_Datetime: Mapped[Optional[datetime]]
+    Activated_Datetime: Mapped[datetime | None]
 
     Created_Date: Mapped[datetime]
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
@@ -129,7 +129,7 @@ class PublicationPurposeTable(Base):
     Purpose_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
 
     # "Ontwerp" does not have a time
-    Effective_Date: Mapped[Optional[date]]
+    Effective_Date: Mapped[date | None]
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_niet-tekst.html#doel
     Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
@@ -158,7 +158,7 @@ class PublicationActTable(Base, UserMetaData):
     Document_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
 
     # @deprecated
-    Procedure_Type: Mapped[Optional[str]] = mapped_column(Unicode(50), nullable=True)
+    Procedure_Type: Mapped[str | None] = mapped_column(Unicode(50), nullable=True)
 
     Title: Mapped[str] = mapped_column(Unicode)
     Is_Active: Mapped[bool] = mapped_column(default=False)
@@ -173,7 +173,7 @@ class PublicationActTable(Base, UserMetaData):
     Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
-    Withdrawal_Purpose_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Withdrawal_Purpose_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_purposes.UUID"), nullable=True
     )
 
@@ -181,7 +181,7 @@ class PublicationActTable(Base, UserMetaData):
     Modified_Date: Mapped[datetime]
 
     Environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
-    Withdrawal_Purpose: Mapped[Optional[PublicationPurposeTable]] = relationship(
+    Withdrawal_Purpose: Mapped[PublicationPurposeTable | None] = relationship(
         "PublicationPurposeTable",
         primaryjoin="PublicationActTable.Withdrawal_Purpose_UUID == PublicationPurposeTable.UUID",
     )
@@ -253,12 +253,12 @@ class PublicationVersionTable(Base, UserMetaData):
     Procedural = Column(JSON)
 
     # ConsolidatieInformatie.Tijdstempels.juridischWerkendVanaf
-    Effective_Date: Mapped[Optional[date]]
+    Effective_Date: Mapped[date | None]
     # opdracht-xml.datumBekendmaking
-    Announcement_Date: Mapped[Optional[date]]
+    Announcement_Date: Mapped[date | None]
 
     Is_Locked: Mapped[bool] = mapped_column(default=False)
-    Deleted_At: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    Deleted_At: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
@@ -268,11 +268,11 @@ class PublicationVersionTable(Base, UserMetaData):
 
     Publication: Mapped[PublicationTable] = relationship("PublicationTable")
     Module_Status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")
-    Attachments: Mapped[List["PublicationVersionAttachmentTable"]] = relationship(
+    Attachments: Mapped[list["PublicationVersionAttachmentTable"]] = relationship(
         back_populates="Publication_Version", order_by="asc(PublicationVersionAttachmentTable.ID)"
     )
 
-    Act_Packages: Mapped[List["PublicationActPackageTable"]] = relationship(
+    Act_Packages: Mapped[list["PublicationActPackageTable"]] = relationship(
         back_populates="Publication_Version", order_by="asc(PublicationActPackageTable.Created_Date)"
     )
 
@@ -343,8 +343,8 @@ class PublicationPackageZipTable(Base):
     Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
     Checksum: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    Latest_Download_Date: Mapped[Optional[datetime]]
-    Latest_Download_By_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
+    Latest_Download_Date: Mapped[datetime | None]
+    Latest_Download_By_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
 
     Created_Date: Mapped[datetime]
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
@@ -355,10 +355,10 @@ class PublicationActPackageTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Publication_Version_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_versions.UUID"), nullable=False)
-    Bill_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Bill_Version_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_bill_versions.UUID"), nullable=True
     )
-    Act_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Act_Version_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_act_versions.UUID"), nullable=True
     )
     Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
@@ -368,14 +368,14 @@ class PublicationActPackageTable(Base, UserMetaData):
 
     Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
 
-    Used_Environment_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Used_Environment_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
-    Created_Environment_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Created_Environment_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
-    Module_ID: Mapped[Optional[int]] = mapped_column(ForeignKey("modules.Module_ID"), nullable=True)
-    Module_Status_ID: Mapped[Optional[int]] = mapped_column(ForeignKey("module_status_history.ID"), nullable=True)
+    Module_ID: Mapped[int | None] = mapped_column(ForeignKey("modules.Module_ID"), nullable=True)
+    Module_Status_ID: Mapped[int | None] = mapped_column(ForeignKey("module_status_history.ID"), nullable=True)
 
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
@@ -388,8 +388,8 @@ class PublicationActPackageTable(Base, UserMetaData):
         "PublicationEnvironmentStateTable",
         primaryjoin="PublicationActPackageTable.Created_Environment_State_UUID == PublicationEnvironmentStateTable.UUID",
     )
-    Module: Mapped[Optional[ModuleTable]] = relationship("ModuleTable")
-    Module_Status: Mapped[Optional[ModuleStatusHistoryTable]] = relationship("ModuleStatusHistoryTable")
+    Module: Mapped[ModuleTable | None] = relationship("ModuleTable")
+    Module_Status: Mapped[ModuleStatusHistoryTable | None] = relationship("ModuleStatusHistoryTable")
 
 
 class PublicationActPackageReportTable(Base):
@@ -462,7 +462,7 @@ class PublicationAnnouncementTable(Base, UserMetaData):
     Procedural = Column(JSON)
     Content = Column(JSON)
 
-    Announcement_Date: Mapped[Optional[date]]
+    Announcement_Date: Mapped[date | None]
     Is_Locked: Mapped[bool] = mapped_column(default=False)
 
     Created_Date: Mapped[datetime]
@@ -477,7 +477,7 @@ class PublicationAnnouncementPackageTable(Base, UserMetaData):
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Announcement_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_announcements.UUID"), nullable=False)
-    Doc_Version_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Doc_Version_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_doc_versions.UUID"), nullable=True
     )
     Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
@@ -487,10 +487,10 @@ class PublicationAnnouncementPackageTable(Base, UserMetaData):
 
     Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
 
-    Used_Environment_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Used_Environment_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
-    Created_Environment_State_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(
+    Created_Environment_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
 

@@ -1,15 +1,15 @@
+from collections.abc import Sequence
 from datetime import datetime
-from typing import ClassVar, Optional, Sequence, Set
-
+from typing import ClassVar
 
 from app.core.db.base import Base
 from app.core.tables.modules import ModuleTable
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
-from tests.fixtures.internal.types import Spec, Record, PrimaryKey, PersistContext, BasePersistHandler, Link
+from tests.fixtures.internal.types import BasePersistHandler, Link, PersistContext, PrimaryKey, Record, Spec
 
 
 class ModuleSpec(Spec):
-    __link_fields__: ClassVar[Set[str]] = {
+    __link_fields__: ClassVar[set[str]] = {
         "Created_By_UUID",
         "Modified_By_UUID",
         "Module_Manager_1_UUID",
@@ -26,13 +26,13 @@ class ModuleSpec(Spec):
 
     Title: str
     Description: str
-    Module_Manager_1_UUID: Optional[Link] = None
-    Module_Manager_2_UUID: Optional[Link] = None
+    Module_Manager_1_UUID: Link | None = None
+    Module_Manager_2_UUID: Link | None = None
 
-    Created_Date: Optional[datetime] = None
-    Created_By_UUID: Optional[Link] = None
-    Modified_Date: Optional[datetime] = None
-    Modified_By_UUID: Optional[Link] = None
+    Created_Date: datetime | None = None
+    Created_By_UUID: Link | None = None
+    Modified_Date: datetime | None = None
+    Modified_By_UUID: Link | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
         return self.Module_ID

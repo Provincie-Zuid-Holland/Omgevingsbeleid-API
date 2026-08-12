@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
@@ -47,7 +47,7 @@ def post_module_remove_object_endpoint(
     )
     guard_module_not_locked(module)
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     object_context.Hidden = True
     object_context.Modified_By_UUID = user.UUID
     object_context.Modified_Date = timepoint

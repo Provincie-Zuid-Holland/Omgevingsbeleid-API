@@ -1,4 +1,3 @@
-from typing import List, Optional, Set
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -9,7 +8,7 @@ from app.core.tables.others import AssetsTable
 
 
 class GetImagesConfig(BaseModel):
-    fields: Set[str]
+    fields: set[str]
 
 
 class ColumnImageInserter:
@@ -17,15 +16,15 @@ class ColumnImageInserter:
         self,
         session: Session,
         asset_repository: AssetRepository,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         config: GetImagesConfig,
     ):
         self._session: Session = session
         self._config: GetImagesConfig = config
-        self._rows: List[BaseModel] = rows
+        self._rows: list[BaseModel] = rows
         self._asset_repository: AssetRepository = asset_repository
 
-    def process(self) -> List[BaseModel]:
+    def process(self) -> list[BaseModel]:
         for index, row in enumerate(self._rows):
             for field_name in self._config.fields:
                 if not hasattr(row, field_name):
@@ -40,7 +39,7 @@ class ColumnImageInserter:
                 except ValueError:
                     continue
 
-                asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(self._session, image_uuid)
+                asset: AssetsTable | None = self._asset_repository.get_by_uuid(self._session, image_uuid)
                 if not asset:
                     continue
 
@@ -56,7 +55,7 @@ class ColumnImageInserterFactory:
     def create_service(
         self,
         session: Session,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         config: GetImagesConfig,
     ) -> ColumnImageInserter:
         return ColumnImageInserter(

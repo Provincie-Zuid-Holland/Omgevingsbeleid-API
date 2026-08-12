@@ -2,8 +2,8 @@ import hashlib
 import uuid
 from datetime import date, datetime
 from typing import Any
-from shapely import wkt
 
+from shapely import wkt
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
@@ -41,9 +41,7 @@ def serialize_data(obj) -> Any:
         return {key: serialize_data(value) for key, value in obj.items()}
     elif isinstance(obj, list):
         return [serialize_data(element) for element in obj]
-    elif isinstance(obj, datetime):
-        return obj.isoformat()
-    elif isinstance(obj, date):
+    elif isinstance(obj, (datetime, date)):
         return obj.isoformat()
     elif isinstance(obj, uuid.UUID):
         return str(obj)

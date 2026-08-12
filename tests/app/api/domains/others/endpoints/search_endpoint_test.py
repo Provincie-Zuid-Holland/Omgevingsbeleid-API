@@ -1,30 +1,30 @@
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from uuid import UUID
-import pytest
 
-from pydantic import BaseModel
+import pytest
 from fastapi.testclient import TestClient
+from pydantic import BaseModel
+from pytest import FixtureRequest
 
 from tests.conftest import Context
-from pytest import FixtureRequest
-from tests.fixtures.internal.types import Ref
-from tests.fixtures.internal.spec.objects import BeleidsdoelSpec
 from tests.fixtures.internal.spec.modules import ModuleBeleidsdoelSpec
+from tests.fixtures.internal.spec.objects import BeleidsdoelSpec
+from tests.fixtures.internal.types import Ref
 
 
 class Result(BaseModel):
-    Module_ID: Optional[int]
+    Module_ID: int | None
     Object_Type: str
     Title: str
     Description: str
-    Model: Dict[str, Any]
+    Model: dict[str, Any]
 
 
 class Response(BaseModel):
     total: int
     offset: int
     limit: int
-    results: List[Result]
+    results: list[Result]
 
 
 @pytest.mark.parametrize(
@@ -148,9 +148,9 @@ def test_search(
     request: FixtureRequest,
     ctx: Context,
     client_fixture: str,
-    request_body: Dict[str, Any],
-    expected_refs: List[Ref],
-    total: Optional[int],
+    request_body: dict[str, Any],
+    expected_refs: list[Ref],
+    total: int | None,
 ):
     client: TestClient = request.getfixturevalue(client_fixture)
     body = client.post(
@@ -162,8 +162,8 @@ def test_search(
     if total is not None:
         assert response.total == total
 
-    result_uuids: Set[UUID] = {UUID(result.Model["UUID"]) for result in response.results}
-    expected_uuids: Set[UUID] = set(ctx.f.find_uuids(expected_refs))
+    result_uuids: set[UUID] = {UUID(result.Model["UUID"]) for result in response.results}
+    expected_uuids: set[UUID] = set(ctx.f.find_uuids(expected_refs))
 
     assert expected_uuids == result_uuids
 
@@ -234,11 +234,11 @@ def test_search(
 )
 def test_search_request_validation(
     client: TestClient,
-    query_params: Dict[str, Any],
-    request_body: Dict[str, Any],
+    query_params: dict[str, Any],
+    request_body: dict[str, Any],
     expected_status: int,
-    expected_message: Optional[str],
-    expected_limit: Optional[int],
+    expected_message: str | None,
+    expected_limit: int | None,
 ):
     response = client.post(
         "/search",

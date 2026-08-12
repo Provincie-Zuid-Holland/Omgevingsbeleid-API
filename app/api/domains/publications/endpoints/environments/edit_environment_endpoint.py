@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
@@ -15,19 +15,19 @@ from app.core.tables.users import UsersTable
 
 
 class EnvironmentEdit(BaseModel):
-    Title: Optional[str] = None
-    Description: Optional[str] = None
+    Title: str | None = None
+    Description: str | None = None
 
-    Province_ID: Optional[str] = None
-    Authority_ID: Optional[str] = None
-    Submitter_ID: Optional[str] = None
+    Province_ID: str | None = None
+    Authority_ID: str | None = None
+    Submitter_ID: str | None = None
 
-    Frbr_Country: Optional[str] = None
-    Frbr_Language: Optional[str] = None
+    Frbr_Country: str | None = None
+    Frbr_Language: str | None = None
 
-    Is_Active: Optional[bool] = None
-    Can_Validate: Optional[bool] = None
-    Can_Publicate: Optional[bool] = None
+    Is_Active: bool | None = None
+    Can_Validate: bool | None = None
+    Can_Publicate: bool | None = None
 
 
 def post_edit_environment_endpoint(
@@ -43,7 +43,7 @@ def post_edit_environment_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: EnvironmentEdit,
 ) -> ResponseOK:
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
@@ -51,7 +51,7 @@ def post_edit_environment_endpoint(
         setattr(environment, key, value)
 
     environment.Modified_By_UUID = user.UUID
-    environment.Modified_Date = datetime.now(timezone.utc)
+    environment.Modified_Date = datetime.now(UTC)
 
     session.add(environment)
     session.flush()

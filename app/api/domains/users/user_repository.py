@@ -1,4 +1,3 @@
-from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import asc, or_, select
@@ -14,11 +13,11 @@ class UserRepository(BaseRepository):
     def __init__(self, security: Security):
         self._security: Security = security
 
-    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[UsersTable]:
+    def get_by_uuid(self, session: Session, uuid: UUID) -> UsersTable | None:
         stmt = select(UsersTable).where(UsersTable.UUID == uuid)
         return self.fetch_first(session, stmt)
 
-    def get_by_email(self, session: Session, email: str) -> Optional[UsersTable]:
+    def get_by_email(self, session: Session, email: str) -> UsersTable | None:
         stmt = select(UsersTable).where(UsersTable.Email == email)
         return self.fetch_first(session, stmt)
 
@@ -26,9 +25,9 @@ class UserRepository(BaseRepository):
         self,
         session: Session,
         pagination: SortedPagination,
-        role: Optional[str],
-        query: Optional[str],
-        active: Optional[bool],
+        role: str | None,
+        query: str | None,
+        active: bool | None,
     ) -> PaginatedQueryResult:
         stmt = select(UsersTable)
 
@@ -62,16 +61,16 @@ class UserRepository(BaseRepository):
             sort=(getattr(UsersTable, pagination.sort.column), pagination.sort.order),
         )
 
-    def get_all(self, session: Session) -> List[UsersTable]:
+    def get_all(self, session: Session) -> list[UsersTable]:
         stmt = select(UsersTable).order_by(asc(UsersTable.Gebruikersnaam))
         return self.fetch_all(session, stmt)
 
-    def authenticate(self, session: Session, username: str, password: str) -> Optional[UsersTable]:
+    def authenticate(self, session: Session, username: str, password: str) -> UsersTable | None:
         if not username:
             return None
 
         stmt = select(UsersTable).filter(UsersTable.Email == username).filter(UsersTable.Status == IS_ACTIVE)
-        maybe_user: Optional[UsersTable] = self.fetch_first(session, stmt)
+        maybe_user: UsersTable | None = self.fetch_first(session, stmt)
 
         if not maybe_user:
             return None

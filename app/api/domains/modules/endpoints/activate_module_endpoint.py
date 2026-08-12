@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
@@ -32,7 +32,7 @@ def post_activate_module_endpoint(
     if module.Activated:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "The module is already activated")
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     module.Activated = True
     module.Modified_By_UUID = user.UUID

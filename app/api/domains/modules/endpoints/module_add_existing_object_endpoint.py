@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, List, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -39,7 +39,7 @@ class ModuleAddExistingObject(BaseModel):
 
 class ModuleAddExistingObjectEndpointContext(BaseEndpointContext):
     object_type: str
-    allowed_object_types: List[str]
+    allowed_object_types: list[str]
 
 
 class ModuleAddExistingObjectService:
@@ -60,10 +60,10 @@ class ModuleAddExistingObjectService:
         self._user: UsersTable = user
         self._object_in: ModuleAddExistingObject = object_in
         self._context: ModuleAddExistingObjectEndpointContext = context
-        self._timepoint: datetime = datetime.now(timezone.utc)
+        self._timepoint: datetime = datetime.now(UTC)
 
     def process(self):
-        object_data: Optional[dict] = self._object_provider.get_by_uuid(self._session, self._object_in.Object_UUID)
+        object_data: dict | None = self._object_provider.get_by_uuid(self._session, self._object_in.Object_UUID)
         if object_data is None:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unknown object for uuid")
 
@@ -76,7 +76,7 @@ class ModuleAddExistingObjectService:
                 f"Invalid Object_Type, accepted object_type are: {self._context.allowed_object_types}",
             )
 
-        maybe_object_context: Optional[ModuleObjectContextTable] = self._object_context_repository.get_by_ids(
+        maybe_object_context: ModuleObjectContextTable | None = self._object_context_repository.get_by_ids(
             self._session,
             self._module.Module_ID,
             object_type,

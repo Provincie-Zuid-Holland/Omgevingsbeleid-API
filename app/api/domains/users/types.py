@@ -1,11 +1,10 @@
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class TokenPayload(BaseModel):
-    sub: Optional[str] = None
+    sub: str | None = None
 
 
 class UserShort(BaseModel):

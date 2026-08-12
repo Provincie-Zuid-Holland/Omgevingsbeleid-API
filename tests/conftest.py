@@ -1,35 +1,34 @@
-from dataclasses import dataclass
-from typing import Generator
 import uuid
+from collections.abc import Generator
+from dataclasses import dataclass
 
-from fastapi import FastAPI
 import pytest
 from dependency_injector import providers
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 from freezegun import freeze_time
 from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
-from fastapi.testclient import TestClient
 
+import app.main as _app_module
 
 # Importing app.main triggers the full YAML -> tables -> models -> routes build.
 from app.api.api_container import ApiContainer
-import app.main as _app_module  # noqa: F401
 from app.api.domains.users.services.security import Security
-from app.core.services.models_provider import ModelsProvider
 from app.core.db.base import Base
 from app.core.db.session import _enable_sqlite_load_extension
+from app.core.services.models_provider import ModelsProvider
 from tests.fixtures.internal.fixtures_service import FixturesService
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import FixtureData, Ref
-
 
 # Fixtures live in 2025; the suite runs as if it were this moment.
 FROZEN_NOW = "2026-01-01"
 
 
 @pytest.fixture(autouse=True)
-def _frozen_time() -> Generator[None, None, None]:
+def _frozen_time() -> Generator[None]:
     with freeze_time(FROZEN_NOW):
         yield
 
@@ -114,7 +113,7 @@ def seed_data(engine) -> FixtureData:
 
 
 @pytest.fixture()
-def _test_env(engine, seed_data) -> Generator[Context, None, None]:
+def _test_env(engine, seed_data) -> Generator[Context]:
     connection = engine.connect()
     transaction = connection.begin()
 
@@ -181,13 +180,13 @@ def models_provider(_test_env: Context) -> ModelsProvider:
 
 
 @pytest.fixture()
-def client(_test_env) -> Generator[TestClient, None, None]:
+def client(_test_env) -> Generator[TestClient]:
     # Depends on _test_env so the overrides are active before any request runs.
     with TestClient(_app_module.app) as test_client:
         yield test_client
 
 
-def _client_logged_in_as(security: Security, user_uuid: uuid.UUID) -> Generator[TestClient, None, None]:
+def _client_logged_in_as(security: Security, user_uuid: uuid.UUID) -> Generator[TestClient]:
     """A TestClient pre-authenticated as the given user.
 
     Mints a JWT with the container's Security service (same SECRET_KEY the app
@@ -201,25 +200,25 @@ def _client_logged_in_as(security: Security, user_uuid: uuid.UUID) -> Generator[
 
 
 @pytest.fixture()
-def admin(_test_env: Context, security: Security) -> Generator[TestClient, None, None]:
+def admin(_test_env: Context, security: Security) -> Generator[TestClient]:
     """A TestClient logged in as the seeded 'admin' user."""
     admin_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "admin"))
     yield from _client_logged_in_as(security, admin_uuid)
 
 
 @pytest.fixture()
-def ambtenaar(_test_env: Context, security: Security) -> Generator[TestClient, None, None]:
+def ambtenaar(_test_env: Context, security: Security) -> Generator[TestClient]:
     ambtenaar_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "ambtenaar"))
     yield from _client_logged_in_as(security, ambtenaar_uuid)
 
 
 @pytest.fixture()
-def owner_1(_test_env: Context, security: Security) -> Generator[TestClient, None, None]:
+def owner_1(_test_env: Context, security: Security) -> Generator[TestClient]:
     owner_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "owner-1"))
     yield from _client_logged_in_as(security, owner_uuid)
 
 
 @pytest.fixture()
-def viewer(_test_env: Context, security: Security) -> Generator[TestClient, None, None]:
+def viewer(_test_env: Context, security: Security) -> Generator[TestClient]:
     viewer_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "viewer"))
     yield from _client_logged_in_as(security, viewer_uuid)

@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Dict, List
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -16,7 +16,7 @@ from app.core.utils.utils import table_to_dict
 
 
 class ModuleSnapshot(BaseModel):
-    Objects: List[Dict[str, Any]]
+    Objects: list[dict[str, Any]]
 
 
 @inject
@@ -29,12 +29,12 @@ def get_module_snapshot_endpoint(
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
 ) -> ModuleSnapshot:
-    module_objects: List[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
+    module_objects: list[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
         session,
         module.Module_ID,
         status.Created_Date,
     )
-    dict_objects: List[dict] = [table_to_dict(t) for t in module_objects]
+    dict_objects: list[dict] = [table_to_dict(t) for t in module_objects]
 
     response = ModuleSnapshot(
         Objects=dict_objects,

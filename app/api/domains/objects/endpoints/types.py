@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -18,8 +17,8 @@ class AcknowledgedRelation(BaseModel):
     Modified_Date: datetime
     Modified_By_UUID: uuid.UUID
 
-    Denied: Optional[datetime] = None
-    Deleted_At: Optional[datetime] = None
+    Denied: datetime | None = None
+    Deleted_At: datetime | None = None
 
     @property
     def Is_Acknowledged(self) -> bool:

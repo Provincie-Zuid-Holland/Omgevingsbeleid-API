@@ -1,7 +1,6 @@
 import uuid
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
-from typing import Dict, List, Optional
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -28,7 +27,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
     def _calculate_hex(self, column: str) -> str:
         pass
 
-    def get_shape_hash(self, session: Session, uuidx: uuid.UUID) -> Optional[str]:
+    def get_shape_hash(self, session: Session, uuidx: uuid.UUID) -> str | None:
         params = {
             "uuid": self._format_uuid(uuidx),
         }
@@ -97,7 +96,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             raise RuntimeError(f"Area with UUID {uuidx} does not exist")
         return row
 
-    def get_area_optional(self, session: Session, uuidx: uuid.UUID) -> Optional[dict]:
+    def get_area_optional(self, session: Session, uuidx: uuid.UUID) -> dict | None:
         params = {
             "uuid": self._format_uuid(uuidx),
         }
@@ -119,7 +118,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         return row_dict
 
     # TODO: WIP - not used yet. combine query for multiple areas for performance
-    def get_areas(self, session: Session, uuids: List[uuid.UUID]) -> Dict[uuid.UUID, dict]:
+    def get_areas(self, session: Session, uuids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
         placeholders = ", ".join(f":uuid{i}" for i in range(len(uuids)))
         params = {f"uuid{i}": uuid for i, uuid in enumerate(uuids)}
         sql = f"""

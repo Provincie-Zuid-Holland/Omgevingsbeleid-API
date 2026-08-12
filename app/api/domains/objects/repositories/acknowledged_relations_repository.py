@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
@@ -7,7 +5,7 @@ from app.core.tables.acknowledged_relations import AcknowledgedRelationsTable
 
 
 class AcknowledgedRelationsRepository:
-    def get_by_codes(self, session: Session, code_a: str, code_b: str) -> Optional[AcknowledgedRelationsTable]:
+    def get_by_codes(self, session: Session, code_a: str, code_b: str) -> AcknowledgedRelationsTable | None:
         from_code, to_code = sorted([code_a, code_b])
         stmt = select(AcknowledgedRelationsTable).filter(
             and_(
@@ -24,9 +22,9 @@ class AcknowledgedRelationsRepository:
         session: Session,
         code: str,
         requested_by_me: bool,
-        acknowledged: Optional[bool],
+        acknowledged: bool | None,
         show_inactive: bool = True,
-    ) -> List[AcknowledgedRelationsTable]:
+    ) -> list[AcknowledgedRelationsTable]:
         filters = []
 
         if requested_by_me:
@@ -59,5 +57,5 @@ class AcknowledgedRelationsRepository:
             )
 
         stmt = select(AcknowledgedRelationsTable).filter(*filters)
-        rows: List[AcknowledgedRelationsTable] = list(session.scalars(stmt).all())
+        rows: list[AcknowledgedRelationsTable] = list(session.scalars(stmt).all())
         return rows

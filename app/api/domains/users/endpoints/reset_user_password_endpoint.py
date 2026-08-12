@@ -1,7 +1,7 @@
 import json
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -35,7 +35,7 @@ def post_reset_user_password_endpoint(
 ) -> ResetPasswordResponse:
     permission_service.guard_valid_user(Permissions.user_can_reset_user_password, logged_in_user)
 
-    user: Optional[UsersTable] = repository.get_by_uuid(session, user_uuid)
+    user: UsersTable | None = repository.get_by_uuid(session, user_uuid)
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "User does not exist")
     if not user.IsActive:
@@ -47,7 +47,7 @@ def post_reset_user_password_endpoint(
     user.Wachtwoord = password_hash
 
     change_log = ChangeLogTable(
-        Created_Date=datetime.now(timezone.utc),
+        Created_Date=datetime.now(UTC),
         Created_By_UUID=logged_in_user.UUID,
         Action_Type="reset_user_password",
         Action_Data=json.dumps({"UUID": str(user.UUID)}),

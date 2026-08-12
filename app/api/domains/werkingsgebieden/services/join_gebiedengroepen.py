@@ -1,5 +1,3 @@
-from typing import Dict, List, Optional, Set
-
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -10,7 +8,7 @@ from app.core.tables.objects import ObjectStaticsTable
 
 
 class JoinGebiedenGroepenConfig(BaseModel):
-    gebiedengroepen_codes: Set[str]
+    gebiedengroepen_codes: set[str]
     from_field: str
     to_field: str
 
@@ -26,14 +24,14 @@ class JoinGebiedenGroepenService:
         self._session: Session = session
         self._config: JoinGebiedenGroepenConfig = config
 
-    def join_gebiedengroepen(self, rows: List[BaseModel]) -> List[BaseModel]:
+    def join_gebiedengroepen(self, rows: list[BaseModel]) -> list[BaseModel]:
         if len(self._config.gebiedengroepen_codes) == 0:
             return rows
 
-        gebiedengroepen: Dict[str, BaseModel] = self._fetch_gebiedengroepen()
+        gebiedengroepen: dict[str, BaseModel] = self._fetch_gebiedengroepen()
 
         for row in rows:
-            requested_code: Optional[str] = getattr(row, self._config.from_field)
+            requested_code: str | None = getattr(row, self._config.from_field)
             if requested_code is None:
                 continue
 
@@ -45,7 +43,7 @@ class JoinGebiedenGroepenService:
 
         return rows
 
-    def _fetch_gebiedengroepen(self) -> Dict[str, BaseModel]:
+    def _fetch_gebiedengroepen(self) -> dict[str, BaseModel]:
         stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(self._config.gebiedengroepen_codes))
         rows = self._session.execute(stmt).scalars().all()
 

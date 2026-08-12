@@ -3,13 +3,10 @@ import re
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Any, Generic
-from typing import TypeVar
+from typing import Any
 
 from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, field_validator
-
-TModel = TypeVar("TModel", bound=BaseModel)
 
 
 class StorageFileBasic(BaseModel):
@@ -60,17 +57,17 @@ class GraphVertice(BaseModel):
 
 
 class GraphResponse(BaseModel):
-    Vertices: List[GraphVertice]
-    Edges: List[GraphEdge]
+    Vertices: list[GraphVertice]
+    Edges: list[GraphEdge]
 
 
 class ValidSearchConfig(BaseModel):
-    searchable_columns_high: List[str]
-    searchable_columns_low: List[str]
-    allowed_object_types: List[str]
+    searchable_columns_high: list[str]
+    searchable_columns_low: list[str]
+    allowed_object_types: list[str]
 
 
-class ValidSearchObject(BaseModel, Generic[TModel]):
+class ValidSearchObject[TModel: BaseModel](BaseModel):
     Object_Type: str
     Description: str
     Score: float
@@ -88,7 +85,7 @@ class SearchConfig(ValidSearchConfig):
 
 
 class SearchRequestData(BaseModel):
-    Object_Types: Optional[List[str]] = None
+    Object_Types: list[str] | None = None
 
 
 class ObjectRelatedFileResponse(BaseModel):
@@ -116,7 +113,7 @@ class FileData(BaseModel):
     def get_checksum(self) -> str:
         return self._checksum
 
-    def get_content_type(self) -> Optional[str]:
+    def get_content_type(self) -> str | None:
         return self.File.content_type
 
     def get_size(self) -> int:

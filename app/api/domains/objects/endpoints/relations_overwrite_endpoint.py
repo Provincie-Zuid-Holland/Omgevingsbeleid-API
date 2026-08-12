@@ -1,6 +1,7 @@
 import json
-from datetime import datetime, timezone
-from typing import Annotated, List, Sequence
+from collections.abc import Sequence
+from datetime import UTC, datetime
+from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import delete, or_, select
@@ -20,18 +21,18 @@ class EndpointHandler:
         self,
         session: Session,
         user: UsersTable,
-        allowed_object_types_relations: List[str],
+        allowed_object_types_relations: list[str],
         object_type: str,
         object_id: int,
-        overwrite_list: List[WriteRelation],
+        overwrite_list: list[WriteRelation],
     ):
         self._session: Session = session
         self._user: UsersTable = user
         self._object_type: str = object_type
         self._object_id: int = object_id
         self._object_code: str = f"{object_type}-{object_id}"
-        self._overwrite_list: List[WriteRelation] = overwrite_list
-        self._allowed_object_types_relations: List[str] = allowed_object_types_relations
+        self._overwrite_list: list[WriteRelation] = overwrite_list
+        self._allowed_object_types_relations: list[str] = allowed_object_types_relations
 
     def handle(self) -> ResponseOK:
         self._guard_invalid_relations()
@@ -43,9 +44,9 @@ class EndpointHandler:
             self._session.commit()
 
             return ResponseOK(message="OK")
-        except Exception as e:
+        except Exception:
             self._session.rollback()
-            raise e
+            raise
 
     def _guard_invalid_relations(self):
         for relation in self._overwrite_list:
@@ -56,10 +57,10 @@ class EndpointHandler:
 
     def _log_action(self):
         action_data: str = json.dumps([write_relation.model_dump() for write_relation in self._overwrite_list])
-        current_relations: List[dict] = self._fetch_current_relations()
+        current_relations: list[dict] = self._fetch_current_relations()
         before_data: str = json.dumps(current_relations)
 
-        after: List[dict] = [
+        after: list[dict] = [
             RelationsTable.create(
                 data.Description,
                 self._object_code,
@@ -72,7 +73,7 @@ class EndpointHandler:
         change_log = ChangeLogTable(
             Object_Type=self._object_type,
             Object_ID=self._object_id,
-            Created_Date=datetime.now(timezone.utc),
+            Created_Date=datetime.now(UTC),
             Created_By_UUID=self._user.UUID,
             Action_Type="overwrite_relations",
             Action_Data=action_data,
@@ -89,7 +90,7 @@ class EndpointHandler:
             )
         )
         rows: Sequence[RelationsTable] = self._session.scalars(stmt).all()
-        dict_rows: List[dict] = [r.to_dict() for r in rows]
+        dict_rows: list[dict] = [r.to_dict() for r in rows]
         return dict_rows
 
     def _remove_current_relations(self):
@@ -116,12 +117,12 @@ class EndpointHandler:
 
 class RelationsOverwriteEndpointContext(BaseEndpointContext):
     object_type: str
-    allowed_object_types_relations: List[str]
+    allowed_object_types_relations: list[str]
 
 
 def post_relations_overwrite_endpoint(
     lineage_id: int,
-    overwrite_list: List[WriteRelation],
+    overwrite_list: list[WriteRelation],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[RelationsOverwriteEndpointContext, Depends()],

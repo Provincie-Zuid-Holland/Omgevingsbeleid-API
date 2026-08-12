@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -53,7 +53,7 @@ def post_abort_act_package_endpoint(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="We do not know what to do if we do not have state uuids",
         )
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     since_creation: timedelta = timepoint.date() - act_package.Created_Date.date()
     if since_creation.days > 30:
         raise HTTPException(
