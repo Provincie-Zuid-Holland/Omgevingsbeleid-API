@@ -178,8 +178,8 @@ class StateV5Upgrader(StateUpgrader):
                                     )
                                 )
 
-                    except Exception as e:
-                        raise e
+                    except Exception:
+                        raise
                     tekstdelen.add(
                         models_v5.OwTekstdeel(
                             object_status=models_v5.OwObjectStatus.unchanged,
