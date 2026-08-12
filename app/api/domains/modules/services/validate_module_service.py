@@ -487,7 +487,8 @@ class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
                 value: str = str(getattr(object_table, field_name, ""))
                 soup = BeautifulSoup(value, "html.parser")
                 for gebiedsaanwijzing in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
-                    if not gebiedsaanwijzing.get_text(strip=True):
+                    inner_text = gebiedsaanwijzing.get_text(strip=True)
+                    if len(inner_text) == 0:
                         errors.append(
                             ValidateModuleError(
                                 rule="check_empty_area_designation_text_rule",
