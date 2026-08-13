@@ -55,6 +55,7 @@ reset-test-database: drop-database init-database load-fixtures
 
 check: ## Check without fixing via Ruff Lint
 	python -m ruff check ./app/ ./tests/
+	python -m ruff format --check ./app/ ./tests/
 
 check-fix: ## Fix issues found by Ruff Lint
 	python -m ruff check --fix ./app/ ./tests/
