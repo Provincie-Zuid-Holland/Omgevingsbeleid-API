@@ -35,7 +35,7 @@ def post_upload_attachment_endpoint(
         UsersTable,
         Depends(
             depends_current_user_with_permission_curried(
-                Permissions.publication_can_edit_publication_version,
+                Permissions.publication_can_upload_publication_version_attachment,
             )
         ),
     ],
