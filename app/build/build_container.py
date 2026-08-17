@@ -277,6 +277,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.versions.attachments.ListPublicationVersionAttachmentEndpointBuilder
             ),
+            providers.Factory(
+                endpoint_builders_publications.publications.versions.attachments.DownloadPublicationVersionAttachmentEndpointBuilder
+            ),
             # Users domain
             providers.Factory(endpoint_builders_users.AuthLoginAccessTokenEndpointBuilder),
             providers.Factory(endpoint_builders_users.AuthResetPasswordEndpointBuilder),
