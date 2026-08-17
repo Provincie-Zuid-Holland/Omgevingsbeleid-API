@@ -868,16 +868,71 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
-    # Publicatie Act
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
+  "Portefeuillehouder": []
+  "Functioneel beheerder":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - module_can_create_module
+    - module_can_close_module
+    - module_can_edit_module
+    - module_can_activate_module
+    - module_can_patch_module_status
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+    - module_can_remove_object_from_module
+    - module_can_patch_object_in_module
+    - user_can_create_user
+    - user_can_edit_user
+    - user_can_reset_user_password
+    - can_patch_object_static
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    - publication_can_create_publication_environment
+    - publication_can_edit_publication_environment
+    - publication_can_view_publication_environment
+    - publication_can_create_publication_aoj
+    - publication_can_view_publication_aoj
     - publication_can_create_publication_act
     - publication_can_close_publication_act
     - publication_can_edit_publication_act
     - publication_can_view_publication_act
-    # Publicatie Act Package
-    - publication_can_create_publication_announcement_package
-    - publication_can_view_publication_announcement_package
-    - publication_can_download_publication_announcement_package
-    # Publicatie Act Package Rapport
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    - publication_can_create_publication_act_package
+    - publication_can_abort_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
+    - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
     # Publicatie Kennisgeving
@@ -910,17 +965,73 @@ users_permissions:
     # Publicatieversie
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
-    - publication_can_view_publication_version 
-    # Publicatie Act
+    - publication_can_view_publication_version
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    - publication_can_create_publication_act_package
+    - publication_can_abort_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
+    - publication_can_upload_publication_act_package_report
+    - publication_can_view_publication_act_package_report
+    - publication_can_download_publication_act_package_report
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report
+    - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
+  "Superuser":
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    - module_can_create_module
+    - module_can_close_module
+    - module_can_edit_module
+    - module_can_activate_module
+    - module_can_patch_module_status
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+    - module_can_remove_object_from_module
+    - module_can_patch_object_in_module
+    - user_can_create_user
+    - user_can_edit_user
+    - user_can_reset_user_password
+    - can_patch_object_static
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    - publication_can_create_publication_environment
+    - publication_can_edit_publication_environment
+    - publication_can_view_publication_environment
+    - publication_can_create_publication_aoj
+    - publication_can_view_publication_aoj
     - publication_can_create_publication_act
     - publication_can_close_publication_act
     - publication_can_edit_publication_act
     - publication_can_view_publication_act
-    # Publicatie Act Package
-    - publication_can_create_publication_announcement_package
-    - publication_can_view_publication_announcement_package
-    - publication_can_download_publication_announcement_package
-    # Publicatie Act Package Rapport
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
@@ -978,16 +1089,13 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
-    # Publicatie Act
-    - publication_can_create_publication_act
-    - publication_can_close_publication_act
-    - publication_can_edit_publication_act
-    - publication_can_view_publication_act
-    # Publicatie Act Package
-    - publication_can_create_publication_announcement_package
-    - publication_can_view_publication_announcement_package
-    - publication_can_download_publication_announcement_package
-    # Publicatie Act Package Rapport
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
@@ -1055,16 +1163,13 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
-    # Publicatie Act
-    - publication_can_create_publication_act
-    - publication_can_close_publication_act
-    - publication_can_edit_publication_act
-    - publication_can_view_publication_act
-    # Publicatie Act Package
-    - publication_can_create_publication_announcement_package
-    - publication_can_view_publication_announcement_package
-    - publication_can_download_publication_announcement_package
-    # Publicatie Act Package Rapport
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_view_unified_packages
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
