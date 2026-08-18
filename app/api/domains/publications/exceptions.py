@@ -21,6 +21,8 @@ def dso_exception_mapper(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+        except dso_exceptions.RenvooiConnectionError as e:
+            raise DSORenvooiException("Renvooi connection error", e.msg) from e
         except dso_exceptions.RenvooiXmlError as e:
             raise DSORenvooiException(e.msg, e.msg) from e
         except dso_exceptions.RenvooiUnauthorizedError as e:
