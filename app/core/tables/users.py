@@ -1,7 +1,8 @@
 import uuid
 
-from sqlalchemy import Unicode
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey, Unicode
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin
@@ -18,6 +19,11 @@ class UsersTable(Base, SerializerMixin):
     Rol: Mapped[str | None]
     Status: Mapped[str | None]
 
+    user_roles: Mapped[list["UserRoleTable"]] = relationship(
+        back_populates="User",
+    )
+    Roles = association_proxy("user_roles", "Role", creator=lambda role: UserRoleTable(Role=role))
+    
     # @todo: move to separate table
     Wachtwoord: Mapped[str | None]  # = mapped_column(deferred=True)
 
@@ -32,3 +38,12 @@ class UsersTable(Base, SerializerMixin):
         data: dict = self.to_dict()
         del data["Wachtwoord"]
         return data
+
+
+class UserRoleTable(Base):
+    __tablename__ = "user_roles"
+
+    User_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"), primary_key=True)
+    Role: Mapped[str] = mapped_column(primary_key=True)
+
+    User: Mapped["UsersTable"] = relationship(back_populates="user_roles")
