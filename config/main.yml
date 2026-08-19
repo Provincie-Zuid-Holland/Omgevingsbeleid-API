@@ -277,6 +277,9 @@ api:
     - prefix: /storage-files/{file_uuid}/download
       endpoints:
         - resolver: download_storage_file
+    - prefix: /hoofdlijnen
+      endpoints:
+        - resolver: list_hoofdlijnen
     - prefix: /modules
       endpoints:
         - resolver: create_module

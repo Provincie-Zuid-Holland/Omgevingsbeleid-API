@@ -129,3 +129,11 @@ class FileData(BaseModel):
         normalized_filename = re.sub(r"-+", "-", normalized_filename)
         normalized_filename = normalized_filename.strip("-")
         return normalized_filename
+
+
+class Hoofdlijn(BaseModel):
+    UUID: uuid.UUID
+    Name: str
+    Type: str
+
+    model_config = ConfigDict(from_attributes=True)

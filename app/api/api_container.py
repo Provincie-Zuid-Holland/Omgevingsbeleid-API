@@ -13,7 +13,11 @@ import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_reposit
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
-from app.api.domains.others.repositories import object_related_file_repository, storage_file_repository
+from app.api.domains.others.repositories import (
+    hoofdlijn_repository,
+    object_related_file_repository,
+    storage_file_repository,
+)
 from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.events import event_manager
@@ -62,6 +66,7 @@ class ApiContainer(containers.DeclarativeContainer):
     mssql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlGeometryRepository)
     mssql_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlAreaGeometryRepository)
     area_repository = providers.Singleton(werkingsgebieden_repositories.AreaRepository)
+    hoofdlijn_repository = providers.Singleton(hoofdlijn_repository.HoofdlijnRepository)
 
     input_geo_onderverdeling_repository_base = providers.Singleton(
         werkingsgebieden_repositories.InputGeoOnderverdelingRepository
