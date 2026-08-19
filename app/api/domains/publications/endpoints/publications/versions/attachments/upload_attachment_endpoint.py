@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, Form, HTTPException, UploadFile, status
@@ -35,7 +35,7 @@ def post_upload_attachment_endpoint(
         UsersTable,
         Depends(
             depends_current_user_with_permission_curried(
-                Permissions.publication_can_edit_publication_version,
+                Permissions.publication_can_upload_publication_version_attachment,
             )
         ),
     ],
@@ -44,9 +44,9 @@ def post_upload_attachment_endpoint(
     ],
     pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
     session: Annotated[Session, Depends(depends_db_session)],
-    title: str = Form(...),
-    uploaded_file: UploadFile = File(...),
-    ignore_report: bool = Form(...),
+    title: Annotated[str, Form()],
+    uploaded_file: Annotated[UploadFile, File()],
+    ignore_report: Annotated[bool, Form()],
 ) -> UploadAttachmentResponse:
     _guard_upload(version, uploaded_file)
 
@@ -59,7 +59,7 @@ def post_upload_attachment_endpoint(
         if len(pdf_meta_report) > 0:
             raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     file_table: PublicationStorageFileTable = _store_file(
         session,
@@ -82,8 +82,8 @@ def post_upload_attachment_endpoint(
         Modified_By_UUID=user.UUID,
     )
     session.add(attachment)
-    session.commit()
     session.flush()
+    session.commit()
 
     response: UploadAttachmentResponse = UploadAttachmentResponse(ID=attachment.ID)
     return response
@@ -107,7 +107,7 @@ def _store_file(
     user_uuid: uuid.UUID,
     file_data: FileData,
 ) -> PublicationStorageFileTable:
-    existing_file_table: Optional[PublicationStorageFileTable] = repository.get_by_checksum_uuid(
+    existing_file_table: PublicationStorageFileTable | None = repository.get_by_checksum_uuid(
         session,
         file_data.get_checksum(),
     )

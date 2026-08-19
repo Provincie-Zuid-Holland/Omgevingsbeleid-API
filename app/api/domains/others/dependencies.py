@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -19,7 +19,7 @@ def depends_object_by_uuid(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
 ):
-    maybe_object: Optional[ObjectsTable] = repository.get_by_uuid(session, uuid)
+    maybe_object: ObjectsTable | None = repository.get_by_uuid(session, uuid)
     if not maybe_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object niet gevonden")
     return maybe_object
@@ -31,7 +31,7 @@ def depends_storage_file(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
 ):
-    maybe_file: Optional[StorageFileTable] = repository.get_by_uuid(session, file_uuid)
+    maybe_file: StorageFileTable | None = repository.get_by_uuid(session, file_uuid)
     if not maybe_file:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Storage file niet gevonden")
     return maybe_file

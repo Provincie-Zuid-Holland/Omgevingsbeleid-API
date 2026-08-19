@@ -1,6 +1,6 @@
-from datetime import datetime
-from typing import Annotated, Optional
 import uuid
+from datetime import datetime
+from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict
@@ -22,21 +22,21 @@ class PublicationActPackageDetailResponse(BaseModel):
     Document_Type: str
 
     Publication_Version_UUID: uuid.UUID
-    Bill_Version_UUID: Optional[uuid.UUID]
-    Act_Version_UUID: Optional[uuid.UUID]
+    Bill_Version_UUID: uuid.UUID | None
+    Act_Version_UUID: uuid.UUID | None
     Zip: PackageZipShort
-    Created_Environment_State_UUID: Optional[uuid.UUID]
-    Used_Environment_State_UUID: Optional[uuid.UUID]
+    Created_Environment_State_UUID: uuid.UUID | None
+    Used_Environment_State_UUID: uuid.UUID | None
 
     Created_Date: datetime
     Modified_Date: datetime
     Created_By_UUID: uuid.UUID
     Modified_By_UUID: uuid.UUID
 
-    Module_ID: int
-    Module_Title: str
-    Module_Status_ID: int
-    Module_Status_Status: str
+    Module_ID: int | None
+    Module_Title: str | None
+    Module_Status_ID: int | None
+    Module_Status_Status: str | None
     Environment_UUID: uuid.UUID
     Environment_Title: str
 
@@ -55,8 +55,8 @@ def get_detail_act_package_endpoint(
     ],
 ) -> PublicationActPackageDetailResponse:
     publication: PublicationTable = act_package.Publication_Version.Publication
-    module: ModuleTable = publication.Module
-    module_status: ModuleStatusHistoryTable = act_package.Publication_Version.Module_Status
+    module: ModuleTable | None = act_package.Module
+    module_status: ModuleStatusHistoryTable | None = act_package.Module_Status
     environment: PublicationEnvironmentTable = publication.Environment
     zip: PackageZipShort = PackageZipShort.model_validate(act_package.Zip)
 
@@ -76,10 +76,10 @@ def get_detail_act_package_endpoint(
         Modified_Date=act_package.Modified_Date,
         Created_By_UUID=act_package.Created_By_UUID,
         Modified_By_UUID=act_package.Modified_By_UUID,
-        Module_ID=module.Module_ID,
-        Module_Title=module.Title,
-        Module_Status_ID=module_status.ID,
-        Module_Status_Status=module_status.Status,
+        Module_ID=module.Module_ID if module else None,
+        Module_Title=module.Title if module else None,
+        Module_Status_ID=module_status.ID if module_status else None,
+        Module_Status_Status=module_status.Status if module_status else None,
         Environment_UUID=environment.UUID,
         Environment_Title=environment.Title,
     )

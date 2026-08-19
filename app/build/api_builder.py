@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Type
+
 from pydantic import BaseModel
 
 from app.api.endpoint import EndpointContextBuilderData
@@ -17,9 +17,9 @@ from app.core.services.object_field_mapping_provider import ObjectFieldMappingPr
 @dataclass
 class ApiBuilderResult:
     object_field_mapping_provider: ObjectFieldMappingProvider
-    routes: List[ConfiguredFastapiEndpoint]
-    required_object_fields_rule_mapping: Dict[str, Type[BaseModel]]
-    publication_required_object_fields_rule_mapping: Dict[str, Dict[str, Type[BaseModel]]]
+    routes: list[ConfiguredFastapiEndpoint]
+    required_object_fields_rule_mapping: dict[str, type[BaseModel]]
+    publication_required_object_fields_rule_mapping: dict[str, dict[str, type[BaseModel]]]
 
 
 class ApiBuilder:
@@ -49,16 +49,16 @@ class ApiBuilder:
             build_data
         )
 
-        object_routes: List[ConfiguredFastapiEndpoint] = self._build_object_routes(build_data)
+        object_routes: list[ConfiguredFastapiEndpoint] = self._build_object_routes(build_data)
         object_routes = object_routes + self._build_main_routes(build_data)
         object_routes.sort(key=lambda o: o.tags)
 
-        required_object_fields_rule_mapping: Dict[str, Type[BaseModel]] = self._build_object_fields_rule_mapping(
+        required_object_fields_rule_mapping: dict[str, type[BaseModel]] = self._build_object_fields_rule_mapping(
             build_data,
             self._models_provider,
         )
 
-        publication_required_object_fields_rule_mapping: Dict[str, Dict[str, Type[BaseModel]]] = (
+        publication_required_object_fields_rule_mapping: dict[str, dict[str, type[BaseModel]]] = (
             self._build_publication_object_fields_rule_mapping(
                 build_data,
                 self._models_provider,
@@ -76,11 +76,11 @@ class ApiBuilder:
         self,
         build_data: BuildData,
         models_provider: ModelsProvider,
-    ) -> Dict[str, Type[BaseModel]]:
-        rule_mapping: Dict[str, Type[BaseModel]] = {}
-        rule_config: Dict[str, str] = build_data.main_config["required_object_fields_rule"]
+    ) -> dict[str, type[BaseModel]]:
+        rule_mapping: dict[str, type[BaseModel]] = {}
+        rule_config: dict[str, str] = build_data.main_config["required_object_fields_rule"]
         for object_type, model_name in rule_config.items():
-            model_type: Type[BaseModel] = models_provider.get_pydantic_model(model_name)
+            model_type: type[BaseModel] = models_provider.get_pydantic_model(model_name)
             rule_mapping[object_type] = model_type
         return rule_mapping
 
@@ -88,12 +88,12 @@ class ApiBuilder:
         self,
         build_data: BuildData,
         models_provider: ModelsProvider,
-    ) -> Dict[str, Dict[str, Type[BaseModel]]]:
-        rule_mapping: Dict[str, Dict[str, Type[BaseModel]]] = {}
-        rule_config: Dict[Dict[str, str]] = build_data.main_config["publication_required_object_fields_rule"]
+    ) -> dict[str, dict[str, type[BaseModel]]]:
+        rule_mapping: dict[str, dict[str, type[BaseModel]]] = {}
+        rule_config: dict[dict[str, str]] = build_data.main_config["publication_required_object_fields_rule"]
         for publication_type, object_and_model in rule_config.items():
             for object_type, model_name in object_and_model.items():
-                model_type: Type[BaseModel] = models_provider.get_pydantic_model(model_name)
+                model_type: type[BaseModel] = models_provider.get_pydantic_model(model_name)
                 object_type_data = {}
                 if publication_type in rule_mapping:
                     object_type_data = rule_mapping[publication_type]
@@ -102,18 +102,18 @@ class ApiBuilder:
         return rule_mapping
 
     def _build_object_field_mapping_provider(self, build_data: BuildData) -> ObjectFieldMappingProvider:
-        object_field_mappings: Dict[str, Set[str]] = {}
+        object_field_mappings: dict[str, set[str]] = {}
         for object_intermediate in build_data.object_intermediates:
-            field_names: Set[str] = {field.name for field in object_intermediate.fields.values()}
+            field_names: set[str] = {field.name for field in object_intermediate.fields.values()}
             object_field_mappings[object_intermediate.object_type] = field_names
         return ObjectFieldMappingProvider(object_field_mappings)
 
-    def _build_object_routes(self, build_data: BuildData) -> List[ConfiguredFastapiEndpoint]:
-        result: List[ConfiguredFastapiEndpoint] = []
+    def _build_object_routes(self, build_data: BuildData) -> list[ConfiguredFastapiEndpoint]:
+        result: list[ConfiguredFastapiEndpoint] = []
 
         for object_intermediate in build_data.object_intermediates:
             for endpoint_config in object_intermediate.api.endpoint_configs:
-                endpoint_builder: Optional[EndpointBuilder] = self._endpoint_builder_provider.get_optional(
+                endpoint_builder: EndpointBuilder | None = self._endpoint_builder_provider.get_optional(
                     endpoint_config.resolver_id
                 )
                 if endpoint_builder is None:
@@ -137,10 +137,10 @@ class ApiBuilder:
 
         return result
 
-    def _build_main_routes(self, build_data: BuildData) -> List[ConfiguredFastapiEndpoint]:
-        result: List[ConfiguredFastapiEndpoint] = []
+    def _build_main_routes(self, build_data: BuildData) -> list[ConfiguredFastapiEndpoint]:
+        result: list[ConfiguredFastapiEndpoint] = []
 
-        main_endpoint_configs: List[EndpointConfig] = self._parse_main_api_endpoint_configs(
+        main_endpoint_configs: list[EndpointConfig] = self._parse_main_api_endpoint_configs(
             build_data.main_config.get("api", {})
         )
         # @todo: Its a bit weird that its called Object here
@@ -152,7 +152,7 @@ class ApiBuilder:
         )
 
         for endpoint_config in main_endpoint_configs:
-            endpoint_builder: Optional[EndpointBuilder] = self._endpoint_builder_provider.get_optional(
+            endpoint_builder: EndpointBuilder | None = self._endpoint_builder_provider.get_optional(
                 endpoint_config.resolver_id
             )
             if endpoint_builder is None:
@@ -176,8 +176,8 @@ class ApiBuilder:
 
         return result
 
-    def _parse_main_api_endpoint_configs(self, api_config: dict) -> List[EndpointConfig]:
-        endpoints: List[EndpointConfig] = []
+    def _parse_main_api_endpoint_configs(self, api_config: dict) -> list[EndpointConfig]:
+        endpoints: list[EndpointConfig] = []
 
         for router_config in api_config.get("routers", []):
             prefix: str = router_config.get("prefix", "")

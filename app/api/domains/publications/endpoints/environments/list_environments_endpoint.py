@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -29,7 +29,7 @@ def get_list_environments_endpoint(
     environment_repository: Annotated[
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
-    is_active: Optional[bool] = None,
+    is_active: bool | None = None,
 ) -> PagedResponse[PublicationEnvironment]:
     paginated_result = environment_repository.get_with_filters(
         session=session,
@@ -38,7 +38,7 @@ def get_list_environments_endpoint(
         limit=pagination.limit,
     )
 
-    results: List[PublicationEnvironment] = [PublicationEnvironment.model_validate(r) for r in paginated_result.items]
+    results: list[PublicationEnvironment] = [PublicationEnvironment.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[PublicationEnvironment](
         total=paginated_result.total_count,

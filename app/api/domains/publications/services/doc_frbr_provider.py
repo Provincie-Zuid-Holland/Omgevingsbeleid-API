@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -44,7 +44,7 @@ class DocFrbrProvider:
 
         work_other: str = f"kennisgeving-{act_version.Act.Work_Other}-{id_suffix}"
 
-        timepoint: datetime = datetime.now(timezone.utc)
+        timepoint: datetime = datetime.now(UTC)
         frbr: DocFrbr = DocFrbr(
             Work_Province_ID=environment.Province_ID,
             Work_Country=environment.Frbr_Country,

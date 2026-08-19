@@ -1,5 +1,4 @@
 import uuid
-from typing import List, Optional
 
 from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -28,9 +27,9 @@ class ObjectStaticsTable(Base, SerializerMixin):
     Object_Type: Mapped[str] = mapped_column(Unicode(25))
     Object_ID: Mapped[int]
     Code: Mapped[str] = mapped_column(Unicode(35), primary_key=True)
-    Source_Identifier: Mapped[Optional[str]] = mapped_column(Unicode(255), nullable=True)
+    Source_Identifier: Mapped[str | None] = mapped_column(Unicode(255), nullable=True)
 
-    Objects: Mapped[List[ObjectsTable]] = relationship(
+    Objects: Mapped[list[ObjectsTable]] = relationship(
         "ObjectsTable",
         primaryjoin="ObjectStaticsTable.Code == ObjectsTable.Code",
         back_populates="ObjectStatics",

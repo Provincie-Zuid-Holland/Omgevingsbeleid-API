@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from sqlalchemy.orm import Session
 
@@ -46,8 +46,8 @@ class StateV2Upgrader(StateUpgrader):
 
         return new_state
 
-    def _mutate_purposes(self, old_state: state_v1.StateV1) -> Dict[str, models_v2.Purpose]:
-        purposes: Dict[str, models_v2.Purpose] = {}
+    def _mutate_purposes(self, old_state: state_v1.StateV1) -> dict[str, models_v2.Purpose]:
+        purposes: dict[str, models_v2.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
             new_purpose: models_v2.Purpose = models_v2.Purpose.model_validate(old_purpose.model_dump())
@@ -57,8 +57,8 @@ class StateV2Upgrader(StateUpgrader):
 
     def _mutate_acts(
         self, session: Session, environment_uuid: uuid.UUID, old_state: state_v1.StateV1
-    ) -> Dict[str, models_v2.ActiveAct]:
-        acts: Dict[str, models_v2.ActiveAct] = {}
+    ) -> dict[str, models_v2.ActiveAct]:
+        acts: dict[str, models_v2.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
             new_act: models_v2.ActiveAct = self._mutate_act(session, environment_uuid, old_act)
@@ -71,7 +71,7 @@ class StateV2Upgrader(StateUpgrader):
     ) -> models_v2.ActiveAct:
         original_data, publication_version_uuid = self._get_original_input_data(session, environment_uuid, old_act)
 
-        werkingsgebieden: Dict[int, models_v2.Werkingsgebied] = self._get_act_werkingsgebieden(
+        werkingsgebieden: dict[int, models_v2.Werkingsgebied] = self._get_act_werkingsgebieden(
             original_data,
             old_act,
         )
@@ -94,11 +94,11 @@ class StateV2Upgrader(StateUpgrader):
 
     def _get_act_werkingsgebieden(
         self, original_data: models_v2.PublicationData, old_act: state_v1.ActiveAct
-    ) -> Dict[int, models_v2.Werkingsgebied]:
-        new_werkingsgebieden: Dict[int, models_v2.Werkingsgebied] = {}
+    ) -> dict[int, models_v2.Werkingsgebied]:
+        new_werkingsgebieden: dict[int, models_v2.Werkingsgebied] = {}
 
         for key, old_werkingsgebied in old_act.Werkingsgebieden.items():
-            original_werkingsgebied: Optional[dict] = next(
+            original_werkingsgebied: dict | None = next(
                 (w for w in original_data.werkingsgebieden if w["Object_ID"] == old_werkingsgebied.Object_ID),
                 {
                     "Title": "",
@@ -120,8 +120,8 @@ class StateV2Upgrader(StateUpgrader):
         session: Session,
         environment_uuid: uuid.UUID,
         old_act: state_v1.ActiveAct,
-    ) -> Tuple[models_v2.PublicationData, uuid.UUID]:
-        act_version: Optional[PublicationActVersionTable] = self._act_version_repository.get_by_work_expression(
+    ) -> tuple[models_v2.PublicationData, uuid.UUID]:
+        act_version: PublicationActVersionTable | None = self._act_version_repository.get_by_work_expression(
             session,
             environment_uuid,
             old_act.Document_Type,
@@ -137,7 +137,7 @@ class StateV2Upgrader(StateUpgrader):
         if act_version is None:
             raise RuntimeError("PublicationActVersionTable not found while upgrading state1 to state2")
 
-        act_package: Optional[PublicationActPackageTable] = self._act_package_repository.get_by_act_version(
+        act_package: PublicationActPackageTable | None = self._act_package_repository.get_by_act_version(
             session,
             act_version.UUID,
         )
@@ -175,8 +175,8 @@ class StateV2Upgrader(StateUpgrader):
         # )
         # return publication_data, act_package.Publication_Version.UUID
 
-    def _mutate_announcements(self, old_state: state_v1.StateV1) -> Dict[str, models_v2.ActiveAnnouncement]:
-        announcements: Dict[str, models_v2.ActiveAnnouncement] = {}
+    def _mutate_announcements(self, old_state: state_v1.StateV1) -> dict[str, models_v2.ActiveAnnouncement]:
+        announcements: dict[str, models_v2.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
             new_announcement: models_v2.ActiveAnnouncement = models_v2.ActiveAnnouncement.model_validate(
@@ -189,8 +189,8 @@ class StateV2Upgrader(StateUpgrader):
     def _get_act_ow_data(
         self, original_data: models_v2.PublicationData, old_act: state_v1.ActiveAct
     ) -> models_v2.OwData:
-        old_id_mapping: Dict[str, Dict[str, str]] = old_act.Ow_Data.Object_Map.id_mapping
-        old_tekstdeel_mapping: Dict[str, Dict[str, str]] = old_act.Ow_Data.Object_Map.tekstdeel_mapping
+        old_id_mapping: dict[str, dict[str, str]] = old_act.Ow_Data.Object_Map.id_mapping
+        old_tekstdeel_mapping: dict[str, dict[str, str]] = old_act.Ow_Data.Object_Map.tekstdeel_mapping
 
         unknown_werkingsgebied = {
             "UUID": None,
@@ -198,7 +198,7 @@ class StateV2Upgrader(StateUpgrader):
             "Hash": None,
         }
 
-        new_ow_objects: Dict[str, Any] = {}
+        new_ow_objects: dict[str, Any] = {}
 
         # Ambtsgebied / Area of Jurisdiction
         for uuidx_str, ow_id in old_id_mapping.get("ambtsgebied", {}).items():
@@ -232,7 +232,7 @@ class StateV2Upgrader(StateUpgrader):
 
         # Gebieden
         for werkingsgebied_code, ow_id in old_id_mapping.get("gebieden", {}).items():
-            original_werkingsgebied: Optional[dict] = next(
+            original_werkingsgebied: dict | None = next(
                 (w for w in original_data.werkingsgebieden if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
             )
 
@@ -249,10 +249,10 @@ class StateV2Upgrader(StateUpgrader):
 
         # Gebiedengroep
         for werkingsgebied_code, ow_id in old_id_mapping.get("gebiedengroep", {}).items():
-            original_werkingsgebied: Optional[dict] = next(
+            original_werkingsgebied: dict | None = next(
                 (w for w in original_data.werkingsgebieden if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
             )
-            gebied_ow_id: Optional[str] = old_id_mapping.get("gebieden", {}).get(werkingsgebied_code)
+            gebied_ow_id: str | None = old_id_mapping.get("gebieden", {}).get(werkingsgebied_code)
             gebieden_ow_ids = [gebied_ow_id] if gebied_ow_id else []
             ow = {
                 "OW_ID": ow_id,

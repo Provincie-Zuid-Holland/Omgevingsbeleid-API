@@ -1,7 +1,8 @@
 import hashlib
-from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from datetime import UTC, datetime
 
+import dso.models as dso_models
+from sqlalchemy.orm import Session
 
 from app.api.domains.publications.services.act_package.publication_gebieden_provider import (
     GebiedenData,
@@ -11,9 +12,6 @@ from app.api.domains.publications.services.act_package.publication_gebieden_prov
 from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
     GebiedsaanwijzingData,
 )
-import dso.models as dso_models
-from sqlalchemy.orm import Session
-
 from app.api.domains.publications.services.validate_publication_service import (
     ValidatePublicationError,
     ValidatePublicationObject,
@@ -42,7 +40,7 @@ class PublicationGiosProvider:
     def resolve_geo(
         self,
         gebieden_data: GebiedenData,
-        gebiedsaanwijzingen: Dict[str, GebiedsaanwijzingData],
+        gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData],
     ) -> PublicationGeoData:
         self._resolve_gebiedengroepen(gebieden_data)
         self._resolve_gebiedsaanwijzingen(gebieden_data, gebiedsaanwijzingen)
@@ -68,7 +66,7 @@ class PublicationGiosProvider:
             self._result.gebiedengroepen[groep.code] = groep
 
     def _resolve_gebiedengroep_gio(self, gebieden_data: GebiedenData, input_groep: InputGebiedengroep) -> str:
-        locations: List[PublicationGioLocatie] = []
+        locations: list[PublicationGioLocatie] = []
         for gebied_code in input_groep.gebied_codes:
             input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_groep.code)
             location: PublicationGioLocatie = self._as_location(input_gebied)
@@ -103,7 +101,7 @@ class PublicationGiosProvider:
             Work_Date=work_date,
             Work_Other=work_identifier,
             Expression_Language=self._act_frbr.Expression_Language,
-            Expression_Date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
             Expression_Version=1,
         )
 
@@ -112,7 +110,7 @@ class PublicationGiosProvider:
     #
 
     def _resolve_gebiedsaanwijzingen(
-        self, gebieden_data: GebiedenData, gebiedsaanwijzingen: Dict[str, GebiedsaanwijzingData]
+        self, gebieden_data: GebiedenData, gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData]
     ):
         for input_aanwijzing in gebiedsaanwijzingen.values():
             gio_key: str = self._resolve_gebiedsaanwijzing_gio(gebieden_data, input_aanwijzing)
@@ -133,7 +131,7 @@ class PublicationGiosProvider:
     def _resolve_gebiedsaanwijzing_gio(
         self, gebieden_data: GebiedenData, input_aanwijzing: GebiedsaanwijzingData
     ) -> str:
-        locations: List[PublicationGioLocatie] = []
+        locations: list[PublicationGioLocatie] = []
         for gebied_code in input_aanwijzing.resolved_gebied_codes:
             input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_aanwijzing.code)
             location: PublicationGioLocatie = self._as_location(input_gebied)
@@ -166,7 +164,7 @@ class PublicationGiosProvider:
             Work_Date=work_date,
             Work_Other=work_identifier,
             Expression_Language=self._act_frbr.Expression_Language,
-            Expression_Date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
             Expression_Version=1,
         )
 
@@ -175,7 +173,7 @@ class PublicationGiosProvider:
     #
 
     def _find_input_gebied(self, gebieden_data: GebiedenData, gebied_code: str, parent_code: str) -> InputGebied:
-        gebied: Optional[InputGebied] = gebieden_data.all_gebieden.get(gebied_code)
+        gebied: InputGebied | None = gebieden_data.all_gebieden.get(gebied_code)
         if gebied is None:
             raise validation_exception(
                 [
@@ -189,7 +187,7 @@ class PublicationGiosProvider:
         return gebied
 
     def _fetch_area(self, input_gebied: InputGebied) -> AreasTable:
-        area: Optional[AreasTable] = self._area_repository.get_with_gml(self._session, input_gebied.area_uuid)
+        area: AreasTable | None = self._area_repository.get_with_gml(self._session, input_gebied.area_uuid)
         if area is None:
             raise validation_exception(
                 [
@@ -240,7 +238,7 @@ class PublicationGiosProviderFactory:
         session: Session,
         act_frbr: ActFrbr,
         gebieden_data: GebiedenData,
-        gebiedsaanwijzingen: Dict[str, GebiedsaanwijzingData],
+        gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData],
     ) -> PublicationGeoData:
         service: PublicationGiosProvider = PublicationGiosProvider(
             session,

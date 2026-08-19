@@ -58,6 +58,15 @@ publication_required_object_fields_rule:
     beleidsdoel: beleidsdoel_module_validate
     hoofdlijn: hoofdlijn_module_validate
 
+check_empty_area_designation_text_rule:
+  fields:
+    - Description
+    - Cause
+    - Provincial_Interest
+    - Explanation
+    - Role
+    - Effect
+
 forbid_empty_html_nodes_rule:
   fields:
     - Description
@@ -98,6 +107,16 @@ forbidden_html_tags_rule:
   forbidden_html_tags:
   - h1
   - h2
+
+bill_compact_forbidden_tags_rule:
+  fields:
+    - Preamble
+    - Closing
+    - Signed
+    - Amendment_Article
+    - Time_Article
+  forbidden_tags:
+    - al
 
 model_map: &model_map
   ambitie: ambitie_basic
@@ -185,47 +204,17 @@ api:
                 - ID
                 - Created_Date
                 - Modified_Date
-    - prefix: /search/by-areas
-      endpoints:
-        - resolver: areas_list_objects_by_areas
-          resolver_data:
-            sort: *sort_default_title
-            area_object_type: werkingsgebied
-            allowed_result_object_types:
-              - beleidskeuze
-              - maatregel
-    - prefix: /search/by-geometry
-      endpoints:
-        - resolver: areas_list_objects_by_geometry
-          resolver_data:
-            sort: *sort_default_title
-            area_object_type: werkingsgebied
-            allowed_result_object_types:
-              - beleidskeuze
-              - maatregel
     - prefix: /search
       endpoints:
-        - resolver: mssql_search
+        - resolver: search
           resolver_data:
-            <<: *searchable_config
-            allowed_object_types:
-              - ambitie
-              - beleidsdoel
-              - beleidskeuze
-              - document
-              - maatregel
-              - beleidsregel
-              - gebiedsprogramma
-              - wettelijke_taak
-              - nationaal_belang
-              - verplicht_programma
-              - visie_algemeen
-              - programma_algemeen
-              - werkingsgebied
-              - gebiedengroep
-              - gebied
-              - gebiedsaanwijzing
-              - hoofdlijn
+            search_columns:
+              - Title
+              - Description
+              # @note: These were not used in the previous setup. Should discuss if they should be used
+              # - Effect
+              # - Provincial_Interest
+              # - Cause
             model_map: *model_map
             response_model_name: PagedSearchObjectResponse
     - prefix: /search/valid
@@ -295,9 +284,6 @@ api:
     - prefix: /modules/{module_id}
       endpoints:
         - resolver: module_overview
-          resolver_data:
-            model_map: *model_map
-            response_model_name: ModuleOverviewResponse
         - resolver: edit_module
         - resolver: validate_module
           resolver_data:
@@ -367,7 +353,16 @@ api:
       endpoints:
         - resolver: list_module_objects
           resolver_data:
-            sort: *sort_default_modified_date
+            sort:
+              default:
+                column: Modified_Date
+                order: desc
+              allowed_columns:
+                - Object_ID
+                - Title
+                - Modified_Date
+                - Object_Type
+                - Action
             model_map: *model_map
             response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
@@ -462,6 +457,7 @@ api:
     - prefix: /publication-versions/{version_uuid}/attachments/{attachment_id}
       endpoints:
         - resolver: delete_publication_version_attachment
+        - resolver: download_publication_version_attachment
     - prefix: /publication-versions/{version_uuid}/pdf_export
       endpoints:
         - resolver: create_publication_version_pdf
@@ -569,6 +565,9 @@ api:
         - resolver: list_area_designation
           resolver_data:
             path: /area-designation
+        - resolver: list_thema
+          resolver_data:
+            path: /thema
     # Input GEO
     - prefix: /input-geo/werkingsgebieden
       endpoints:
@@ -843,6 +842,13 @@ columns:
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
+  # Thema's
+  themas:
+    name: Themas
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
 
 users_permissions:
   "Ambtelijk opdrachtgever": []
@@ -880,6 +886,9 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
@@ -894,6 +903,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -932,6 +943,8 @@ users_permissions:
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
     - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
     - publication_can_create_publication_act_package
     - publication_can_abort_publication_act_package
     - publication_can_view_publication_act_package
@@ -950,6 +963,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -986,6 +1001,9 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
     - publication_can_create_publication_act_package
     - publication_can_abort_publication_act_package
     - publication_can_view_publication_act_package
@@ -1004,6 +1022,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1040,6 +1060,9 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
@@ -1057,6 +1080,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1093,6 +1118,9 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
@@ -1110,6 +1138,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1146,6 +1176,9 @@ users_permissions:
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
+    - publication_can_delete_publication_version_attachment
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
@@ -1163,6 +1196,8 @@ users_permissions:
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
     - storage_file_can_upload_files
+    - can_create_object_related_file
+    - can_delete_object_related_file
 
 mssql_search:
   - table_name: objects
@@ -1286,7 +1321,7 @@ publication:
         Amendment_Article: |
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
-          <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
+          <p>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     final_omgevingsvisie:
       # @see: class BillMetadata
@@ -1333,7 +1368,7 @@ publication:
         Amendment_Article: |
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
-          <Al>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</Al>
+          <p>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     draft_programma:
       bill_metadata:
@@ -1378,7 +1413,7 @@ publication:
         Amendment_Article: |
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
-          <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
+          <p>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     final_programma:
       bill_metadata:
@@ -1423,7 +1458,7 @@ publication:
         Amendment_Article: |
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
         Time_Article: |
-          <Al>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</Al>
+          <p>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</p>
 
   announcement_defaults:
     draft_omgevingsvisie:

@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -18,6 +18,6 @@ def view_object_counts_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
 ) -> ObjectCountResponse:
-    rows: List[ObjectCount] = object_repository.get_valid_counts(session, user.UUID)
+    rows: list[ObjectCount] = object_repository.get_valid_counts(session, user.UUID)
     response = ObjectCountResponse(rows)
     return response

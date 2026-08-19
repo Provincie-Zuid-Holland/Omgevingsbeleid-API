@@ -56,6 +56,9 @@ api:
               - verplicht_programma
     - prefix: /wettelijke-taak/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: wettelijke_taak_static
         - resolver: edit_object_static
           resolver_data:
             request_model: wettelijke_taak_static_post
@@ -211,6 +214,19 @@ models:
         optional: true
         validators:
           - id: plain_text
+  wettelijke_taak_static:
+    name: WettelijkeTaakStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
   wettelijke_taak_static_post:
     name: WettelijkeTaakStaticPost
     static_only: true

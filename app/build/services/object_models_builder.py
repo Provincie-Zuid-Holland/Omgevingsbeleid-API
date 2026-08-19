@@ -1,5 +1,6 @@
+from collections import OrderedDict
 from graphlib import TopologicalSorter
-from typing import Any, Dict, List, Optional, OrderedDict, Tuple
+from typing import Any
 
 import pydantic
 
@@ -9,7 +10,7 @@ from app.build.objects.fields import FIELD_TYPES
 from app.build.objects.types import Field, IntermediateModel, IntermediateObject
 from app.build.services.validator_provider import ValidatorProvider
 from app.core.services.models_provider import ModelsProvider
-from app.core.types import Model, DynamicObjectModel
+from app.core.types import DynamicObjectModel, Model
 
 
 class ObjectModelsBuilder:
@@ -21,16 +22,16 @@ class ObjectModelsBuilder:
         self._validator_provider: ValidatorProvider = validator_provider
         self._event_manager: BuildEventManager = event_manager
 
-        self._field_defaults: Dict[str, Any] = {
+        self._field_defaults: dict[str, Any] = {
             "none": None,
         }
 
     def build_models(
         self,
         models_provider: ModelsProvider,
-        intermediate_objects: List[IntermediateObject],
+        intermediate_objects: list[IntermediateObject],
     ):
-        intermediate_models: List[IntermediateModel] = [
+        intermediate_models: list[IntermediateModel] = [
             i_model for i_object in intermediate_objects for i_model in i_object.intermediate_models
         ]
         intermediate_models = self._sort_intermediate_objects(intermediate_models)
@@ -39,7 +40,7 @@ class ObjectModelsBuilder:
             model: Model = self._build_model(models_provider, intermediate_model)
             models_provider.add(model)
 
-    def _sort_intermediate_objects(self, intermediate_objects: List[IntermediateModel]) -> List[IntermediateModel]:
+    def _sort_intermediate_objects(self, intermediate_objects: list[IntermediateModel]) -> list[IntermediateModel]:
         """
         Sorts intermediate objects based on their dependencies using topological sort.
         Ensures each object appears after its dependencies.
@@ -55,7 +56,7 @@ class ObjectModelsBuilder:
         ts = TopologicalSorter(dependency_map)
         sorted_model_ids = list(ts.static_order())
 
-        sorted_models: List[IntermediateModel] = [
+        sorted_models: list[IntermediateModel] = [
             intermediate_objects_lookup[model_id] for model_id in sorted_model_ids
         ]
 
@@ -69,8 +70,6 @@ class ObjectModelsBuilder:
         # If we requested a static object and we have lineage fields then we have a configuration error
         if intermediate_model.static_only and intermediate_model.fields:
             raise RuntimeError(f"Can not configure lineage fields for static only model '{intermediate_model.name}")
-        if intermediate_model.static_only and not intermediate_model.static_fields:
-            raise RuntimeError(f"Must configure static fields for static only model '{intermediate_model.name}")
 
         pydantic_fields, pydantic_validators = self._get_pydantic_fields(
             intermediate_model.fields,
@@ -131,10 +130,10 @@ class ObjectModelsBuilder:
             name=intermediate_model.name,
             pydantic_model=pydantic_model,
             service_config=intermediate_model.service_config,
-            columns=[],
+            columns=intermediate_model.columns,
         )
 
-    def _get_pydantic_fields(self, fields: List[Field], validator_prefix: str) -> Tuple[OrderedDict, dict]:
+    def _get_pydantic_fields(self, fields: list[Field], validator_prefix: str) -> tuple[OrderedDict, dict]:
         pydantic_fields = OrderedDict()
         pydantic_validators = {}
 
@@ -144,7 +143,7 @@ class ObjectModelsBuilder:
                 field_type = FIELD_TYPES[field_type].field_type
 
             if field.optional:
-                field_type = Optional[field_type]
+                field_type = field_type | None
 
             default_value = field.default
             if not isinstance(default_value, list) and default_value in self._field_defaults:

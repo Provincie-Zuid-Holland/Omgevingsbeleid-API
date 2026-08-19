@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict
@@ -25,10 +25,10 @@ class ModuleObjectContext(BaseModel):
     Explanation: str
     Conclusion: str
 
-    Original_Adjust_On: Optional[uuid.UUID] = None
+    Original_Adjust_On: uuid.UUID | None = None
 
-    Created_By: Optional[UserShort] = None
-    Modified_By: Optional[UserShort] = None
+    Created_By: UserShort | None = None
+    Modified_By: UserShort | None = None
     model_config = ConfigDict(from_attributes=True)
 
 

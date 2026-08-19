@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, Response
@@ -24,7 +24,7 @@ def get_download_act_package_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> Response:
-    package_zip.Latest_Download_Date = datetime.now(timezone.utc)
+    package_zip.Latest_Download_Date = datetime.now(UTC)
     package_zip.Latest_Download_By_UUID = user.UUID
 
     filename = package_zip.Filename

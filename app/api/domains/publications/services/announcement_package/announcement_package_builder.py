@@ -1,7 +1,6 @@
 import hashlib
 import io
 import uuid
-from typing import Optional
 
 from dso.announcement_builder.builder import Builder
 from dso.announcement_builder.state_manager.models import InputData
@@ -19,11 +18,11 @@ class AnnouncementPackageBuilder:
     def __init__(
         self,
         api_input_data: ApiAnnouncementInputData,
-        state: Optional[State],
+        state: State | None,
         input_data: InputData,
     ):
         self._api_input_data: ApiAnnouncementInputData = api_input_data
-        self._state: Optional[State] = state
+        self._state: State | None = state
         self._input_data: InputData = input_data
         self._dso_builder: Builder = Builder(input_data)
 

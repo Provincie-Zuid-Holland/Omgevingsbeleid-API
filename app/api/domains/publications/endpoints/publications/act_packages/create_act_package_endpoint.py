@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, List
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -18,7 +18,6 @@ from app.api.domains.publications.services.publication_version_validator import 
 from app.api.domains.publications.services.validate_publication_service import ValidatePublicationException
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, Purpose
 from app.api.domains.publications.types.enums import (
-    MutationStrategy,
     PackageType,
     PublicationVersionStatus,
     ReportStatusType,
@@ -71,7 +70,7 @@ class EndpointHandler:
         self._publication: PublicationTable = publication_version.Publication
         self._environment: PublicationEnvironmentTable = publication_version.Publication.Environment
         self._act: PublicationActTable = publication_version.Publication.Act
-        self._timepoint: datetime = datetime.now(timezone.utc)
+        self._timepoint: datetime = datetime.now(UTC)
 
     def handle(self) -> PublicationPackageCreatedResponse:
         self._guard_validate_package_type()
@@ -83,7 +82,6 @@ class EndpointHandler:
                 self._session,
                 self._publication_version,
                 self._object_in.Package_Type,
-                MutationStrategy.RENVOOI,
             )
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()
@@ -116,6 +114,8 @@ class EndpointHandler:
                 Modified_Date=self._timepoint,
                 Created_By_UUID=self._user.UUID,
                 Modified_By_UUID=self._user.UUID,
+                Module_ID=self._publication.Module_ID,
+                Module_Status_ID=self._publication_version.Module_Status_ID,
             )
             self._session.add(package)
             self._session.flush()
@@ -140,9 +140,9 @@ class EndpointHandler:
             )
             return response
 
-        except HTTPException as e:
+        except HTTPException:
             # This is already correctly formatted
-            raise e
+            raise
         except ValidationError as e:
             raise HTTPException(441, e.errors())
         except DSOConfigurationException as e:
@@ -151,10 +151,10 @@ class EndpointHandler:
             raise LoggedHttpException(status_code=443, detail=e.message, log_message=e.internal_error)
         except ValidatePublicationException as e:
             raise LoggedHttpException(status_code=444, detail=e.dump_errors(), log_message=e.dump_errors())
-        except Exception as e:
+        except Exception:
             # We do not know what to except here
             # This will result in a 500 server error
-            raise e
+            raise
 
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:
@@ -177,7 +177,7 @@ class EndpointHandler:
             raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
 
     def _guard_valid_publication_version(self):
-        errors: List[ErrorDetails] = self._validator.get_errors(self._publication_version)
+        errors: list[ErrorDetails] = self._validator.get_errors(self._publication_version)
         if len(errors) != 0:
             raise HTTPException(status.HTTP_409_CONFLICT, errors)
 

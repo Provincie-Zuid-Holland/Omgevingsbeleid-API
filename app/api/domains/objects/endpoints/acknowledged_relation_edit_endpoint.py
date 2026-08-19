@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -18,9 +18,9 @@ from app.core.types import AcknowledgedRelationBase, AcknowledgedRelationSide
 
 
 class EditAcknowledgedRelation(AcknowledgedRelationBase):
-    Acknowledged: Optional[bool] = Field(None)
-    Denied: Optional[bool] = Field(None)
-    Deleted: Optional[bool] = Field(None)
+    Acknowledged: bool | None = Field(None)
+    Denied: bool | None = Field(None)
+    Deleted: bool | None = Field(None)
 
     @model_validator(mode="after")
     def validate_denied_acknowledged_deleted(self):
@@ -45,9 +45,9 @@ def post_acknowledged_relation_edit_endpoint(
     context: Annotated[AcknowledgedRelationEditEndpointContext, Depends()],
 ) -> ResponseOK:
     object_code: str = f"{context.object_type}-{lineage_id}"
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
-    relation: Optional[AcknowledgedRelationsTable] = repository.get_by_codes(
+    relation: AcknowledgedRelationsTable | None = repository.get_by_codes(
         session,
         object_code,
         object_in.Code,

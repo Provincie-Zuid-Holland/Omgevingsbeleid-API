@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -14,7 +14,7 @@ from app.api.domains.publications.dependencies import depends_publication
 from app.api.domains.publications.services.publication_version_defaults_provider import (
     PublicationVersionDefaultsProvider,
 )
-from app.api.domains.publications.types.enums import PublicationVersionStatus
+from app.api.domains.publications.types.enums import MutationStrategy, PublicationVersionStatus
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
 from app.core.tables.modules import ModuleStatusHistoryTable
@@ -24,6 +24,7 @@ from app.core.tables.users import UsersTable
 
 class PublicationVersionCreate(BaseModel):
     Module_Status_ID: int
+    Mutation_Strategy: MutationStrategy = MutationStrategy.RENVOOI
 
 
 class PublicationVersionCreatedResponse(BaseModel):
@@ -68,7 +69,7 @@ def post_create_version_endpoint(
     if publication.Environment.Has_State:
         status = PublicationVersionStatus.ACTIVE
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     version: PublicationVersionTable = PublicationVersionTable(
         UUID=uuid.uuid4(),
         Publication_UUID=publication.UUID,
@@ -80,6 +81,7 @@ def post_create_version_endpoint(
         Announcement_Date=None,
         Is_Locked=False,
         Status=status,
+        Mutation_Strategy=object_in.Mutation_Strategy,
         Created_Date=timepoint,
         Modified_Date=timepoint,
         Created_By_UUID=user.UUID,
@@ -87,8 +89,8 @@ def post_create_version_endpoint(
     )
 
     session.add(version)
-    session.commit()
     session.flush()
+    session.commit()
 
     return PublicationVersionCreatedResponse(
         UUID=version.UUID,
@@ -105,7 +107,7 @@ def _guard_locked(publication: PublicationTable):
 def _get_module_status(
     session: Session, module_status_repository: ModuleStatusRepository, module_id: int, status_id: int
 ) -> ModuleStatusHistoryTable:
-    module_status: Optional[ModuleStatusHistoryTable] = module_status_repository.get_by_id(
+    module_status: ModuleStatusHistoryTable | None = module_status_repository.get_by_id(
         session,
         module_id,
         status_id,

@@ -1,13 +1,12 @@
 import base64
 import re
 from io import BytesIO
-from typing import Tuple
 
 from PIL import Image
 
 
 class AssetRemoveTransparency:
-    def fix(self, content: str, meta: dict) -> Tuple[str, dict]:
+    def fix(self, content: str, meta: dict) -> tuple[str, dict]:
         if meta["ext"] != "png":
             return content, meta
 
@@ -40,5 +39,5 @@ class AssetRemoveTransparency:
             meta["size"] = len(rgb_image_arr)
 
             return new_content, meta
-        except Exception as e:
-            raise e
+        except Exception:
+            raise

@@ -1,0 +1,28 @@
+name: Check code lint and format via Ruff
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    env:
+      RUFF_OUTPUT_FORMAT: github
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Ruff
+        run: |
+          RUFF_PIN="$(grep -m1 -E '^ruff==' requirements-dev.txt)"
+          echo "Installing $RUFF_PIN"
+          python -m pip install "$RUFF_PIN"
+
+      - name: Ruff check
+        run: make check

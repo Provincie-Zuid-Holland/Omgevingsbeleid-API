@@ -1,6 +1,8 @@
+from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Generic, List, Optional, Sequence, Tuple, TypeVar
+from typing import Any
 
+from fastapi import HTTPException, status
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import asc, desc, func, select
 from sqlalchemy.orm import Session
@@ -29,26 +31,26 @@ class OptionalSort(BaseModel):
     with default values.
     """
 
-    column: Optional[str] = None
-    order: Optional[SortOrder] = None
+    column: str | None = None
+    order: SortOrder | None = None
 
 
 class OrderConfig(BaseModel):
     default_column: str
     default_order: SortOrder
-    allowed_columns: List[str]
+    allowed_columns: list[str]
 
     def get_sort(self, given_sort: OptionalSort) -> Sort:
         sort_column = self._validate_column(given_sort.column)
         sort_order = given_sort.order or self.default_order
         return Sort(column=sort_column, order=sort_order)
 
-    def _validate_column(self, column: Optional[str]) -> str:
+    def _validate_column(self, column: str | None) -> str:
         if column is None:
             return self.default_column
         if column in self.allowed_columns:
             return column
-        raise ValueError("Invalid sort column")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid sort column")
 
     @staticmethod
     def from_dict(data: dict) -> "OrderConfig":
@@ -59,7 +61,7 @@ class OrderConfig(BaseModel):
         if "order" in default_data:
             default_order = SortOrder[default_data["order"].upper()]
 
-        allowed_columns: List[str] = data.get("allowed_columns", [])
+        allowed_columns: list[str] = data.get("allowed_columns", [])
 
         return OrderConfig(
             default_column=default_column,
@@ -104,14 +106,11 @@ class OptionalSortedPagination(SimplePagination):
         )
 
 
-T = TypeVar("T", bound=BaseModel)
-
-
-class PagedResponse(BaseModel, Generic[T]):
+class PagedResponse[T: BaseModel](BaseModel):
     total: int
     offset: int = 0
     limit: int = -1
-    results: List[T]
+    results: list[T]
 
 
 class PaginatedQueryResult(BaseModel):
@@ -124,7 +123,7 @@ def query_paginated(
     session: Session,
     limit: int = -1,
     offset: int = 0,
-    sort: Optional[Tuple] = None,
+    sort: tuple | None = None,
 ) -> PaginatedQueryResult:
     """
     Extend a query with pagination and wrap the query results
@@ -148,7 +147,7 @@ def query_paginated_no_scalars(
     session: Session,
     limit: int = -1,
     offset: int = 0,
-    sort: Optional[Tuple] = None,
+    sort: tuple | None = None,
 ) -> PaginatedQueryResult:
     """
     Same as fetch_paginated without calling scalars() on results
@@ -164,7 +163,7 @@ def add_pagination(
     query: Select,
     limit: int = -1,
     offset: int = 0,
-    sort: Optional[Tuple] = None,
+    sort: tuple | None = None,
 ) -> Select:
     if sort is not None:
         column, sort_direction = sort

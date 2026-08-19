@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -20,8 +20,8 @@ def view_module_list_statuses_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     module: Annotated[ModuleTable, Depends(depends_module)],
     status_repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],
-) -> List[ModuleStatus]:
-    statuses: List[ModuleStatusHistoryTable] = status_repository.get_all_by_module_id(session, module.Module_ID)
+) -> list[ModuleStatus]:
+    statuses: list[ModuleStatusHistoryTable] = status_repository.get_all_by_module_id(session, module.Module_ID)
 
-    response: List[ModuleStatus] = [ModuleStatus.model_validate(r) for r in statuses]
+    response: list[ModuleStatus] = [ModuleStatus.model_validate(r) for r in statuses]
     return response

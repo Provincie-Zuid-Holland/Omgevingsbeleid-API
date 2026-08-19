@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
@@ -11,7 +10,7 @@ from app.core.tables.publications import PublicationAreaOfJurisdictionTable
 
 
 class PublicationAOJRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> Optional[PublicationAreaOfJurisdictionTable]:
+    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationAreaOfJurisdictionTable | None:
         stmt = select(PublicationAreaOfJurisdictionTable).where(PublicationAreaOfJurisdictionTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
@@ -33,8 +32,8 @@ class PublicationAOJRepository(BaseRepository):
         return paged_result
 
     def get_latest(
-        self, session: Session, before_datetime: Optional[datetime] = None
-    ) -> Optional[PublicationAreaOfJurisdictionTable]:
+        self, session: Session, before_datetime: datetime | None = None
+    ) -> PublicationAreaOfJurisdictionTable | None:
         stmt = (
             select(PublicationAreaOfJurisdictionTable)
             .order_by(desc(PublicationAreaOfJurisdictionTable.Created_Date))

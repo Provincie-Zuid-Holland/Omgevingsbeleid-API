@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
@@ -10,8 +10,8 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.endpoint import BaseEndpointContext
-from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
 from app.api.events.event_manager import ApiEventManager
+from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
 from app.core.tables.objects import ObjectsTable
 from app.core.types import Model
 
@@ -29,7 +29,7 @@ def view_object_version_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ObjectVersionEndpointContext, Depends()],
 ) -> BaseModel:
-    maybe_object: Optional[ObjectsTable] = object_repository.get_by_object_type_and_uuid(
+    maybe_object: ObjectsTable | None = object_repository.get_by_object_type_and_uuid(
         session,
         context.object_type,
         object_uuid,

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, Response
@@ -24,15 +24,15 @@ def get_download_announcement_package_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> Response:
-    package_zip.Latest_Download_Date = datetime.now(timezone.utc)
+    package_zip.Latest_Download_Date = datetime.now(UTC)
     package_zip.Latest_Download_By_UUID = user.UUID
 
     content = package_zip.Binary
     filename = package_zip.Filename
 
     session.add(package_zip)
-    session.commit()
     session.flush()
+    session.commit()
 
     return Response(
         content=content,

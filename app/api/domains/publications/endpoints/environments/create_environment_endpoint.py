@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends
@@ -43,7 +43,7 @@ def post_create_environment_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: EnvironmentCreate,
 ) -> EnvironmentCreatedResponse:
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     environment: PublicationEnvironmentTable = PublicationEnvironmentTable(
         UUID=uuid.uuid4(),

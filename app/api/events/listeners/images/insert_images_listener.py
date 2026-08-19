@@ -1,6 +1,5 @@
 import json
 import re
-from typing import Dict, Generic, List, Optional, Set, TypeVar
 from uuid import UUID
 
 from bs4 import BeautifulSoup
@@ -16,7 +15,7 @@ from app.core.types import DynamicObjectModel, Model
 
 
 class InsertHtmlImagesConfig(BaseModel):
-    fields: Set[str]
+    fields: set[str]
 
 
 class HtmlImagesInserter:
@@ -24,15 +23,15 @@ class HtmlImagesInserter:
         self,
         session: Session,
         asset_repository: AssetRepository,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         config: InsertHtmlImagesConfig,
     ):
         self._session: Session = session
         self._config: InsertHtmlImagesConfig = config
-        self._rows: List[BaseModel] = rows
+        self._rows: list[BaseModel] = rows
         self._asset_repository: AssetRepository = asset_repository
 
-    def process(self) -> List[BaseModel]:
+    def process(self) -> list[BaseModel]:
         for index, row in enumerate(self._rows):
             for field_name in self._config.fields:
                 if not hasattr(row, field_name):
@@ -50,14 +49,14 @@ class HtmlImagesInserter:
                     except ValueError:
                         continue
 
-                    asset: Optional[AssetsTable] = self._asset_repository.get_by_uuid(self._session, asset_uuid)
+                    asset: AssetsTable | None = self._asset_repository.get_by_uuid(self._session, asset_uuid)
                     if not asset:
                         continue
 
                     content: str = asset.Content
                     # @note: We have some invalid entries in the database where the data:image prefix is not present
                     if content[0:10] != "data:image":
-                        meta: Dict[str, str] = json.loads(asset.Meta)
+                        meta: dict[str, str] = json.loads(asset.Meta)
                         mime_type = meta.get("ext", "png").lower()
                         content = f"data:image/{mime_type};base64,{content}"
 
@@ -75,7 +74,7 @@ class HtmlImagesInserterFactory:
     def create(
         self,
         session: Session,
-        rows: List[BaseModel],
+        rows: list[BaseModel],
         config: InsertHtmlImagesConfig,
     ) -> HtmlImagesInserter:
         return HtmlImagesInserter(
@@ -86,15 +85,12 @@ class HtmlImagesInserterFactory:
         )
 
 
-EventT = TypeVar("EventT", bound=ApiEvent)
-
-
-class InsertHtmlImagesListenerBase(ApiListener[EventT], Generic[EventT]):
+class InsertHtmlImagesListenerBase[EventT: ApiEvent](ApiListener[EventT]):
     def __init__(self, service_factory: HtmlImagesInserterFactory):
         self._service_factory: HtmlImagesInserterFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventT) -> Optional[EventT]:
-        config: Optional[InsertHtmlImagesConfig] = self._collect_config(event.context.response_model)
+    def handle_event(self, session: Session, event: EventT) -> EventT | None:
+        config: InsertHtmlImagesConfig | None = self._collect_config(event.context.response_model)
         if not config or not config.fields:
             return event
 
@@ -104,14 +100,14 @@ class InsertHtmlImagesListenerBase(ApiListener[EventT], Generic[EventT]):
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, request_model: Model) -> Optional[InsertHtmlImagesConfig]:
+    def _collect_config(self, request_model: Model) -> InsertHtmlImagesConfig | None:
         if not isinstance(request_model, DynamicObjectModel):
             return None
         if "insert_assets" not in request_model.service_config:
             return None
 
         config_dict: dict = request_model.service_config.get("insert_assets", {})
-        fields: List[str] = []
+        fields: list[str] = []
         for field in config_dict.get("fields", []):
             if not isinstance(field, str):
                 raise RuntimeError("Invalid insert_assets config, expect `fields` to be a list of strings")

@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import ForeignKey, Index, Integer, LargeBinary, String, Unicode
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
@@ -17,19 +16,19 @@ class AreasTable(Base):
     Created_Date: Mapped[datetime]
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Shape: Mapped[Optional[bytes]] = deferred(mapped_column(LargeBinary(), nullable=True))
+    Shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
     Gml: Mapped[str] = deferred(mapped_column(String))
 
     Source_UUID: Mapped[uuid.UUID] = mapped_column(unique=True)
-    Source_ID: Mapped[Optional[int]]
+    Source_ID: Mapped[int | None]
     Source_Title: Mapped[str]
-    Source_Symbol: Mapped[Optional[str]]
-    Source_Start_Validity: Mapped[Optional[datetime]]
-    Source_End_Validity: Mapped[Optional[datetime]]
+    Source_Symbol: Mapped[str | None]
+    Source_Start_Validity: Mapped[datetime | None]
+    Source_End_Validity: Mapped[datetime | None]
     Source_Created_Date: Mapped[datetime]
-    Source_Modified_Date: Mapped[Optional[datetime]]
-    Source_Geometry_Index: Mapped[Optional[str]] = mapped_column(Unicode(10), index=True, nullable=True)
-    Source_Geometry_Hash: Mapped[Optional[str]] = mapped_column(Unicode(64), nullable=True)
+    Source_Modified_Date: Mapped[datetime | None]
+    Source_Geometry_Index: Mapped[str | None] = mapped_column(Unicode(10), index=True, nullable=True)
+    Source_Geometry_Hash: Mapped[str | None] = mapped_column(Unicode(64), nullable=True)
 
     def __repr__(self) -> str:
         return f"AreasTable(UUID={self.UUID!r}, Title={self.Source_Title!r})"
@@ -97,16 +96,16 @@ class ChangeLogTable(Base):
 
     ID: Mapped[int] = mapped_column(primary_key=True)
 
-    Object_Type: Mapped[Optional[str]] = mapped_column(Unicode(25))
-    Object_ID: Mapped[Optional[int]]
+    Object_Type: Mapped[str | None] = mapped_column(Unicode(25))
+    Object_ID: Mapped[int | None]
 
     Created_Date: Mapped[datetime]
     Created_By_UUID: Mapped[uuid.UUID]  # Explicit NO foreign key here, this is just a log
 
     Action_Type: Mapped[str] = mapped_column(Unicode)
-    Action_Data: Mapped[Optional[str]] = mapped_column(Unicode)
-    Before: Mapped[Optional[str]] = mapped_column(Unicode)
-    After: Mapped[Optional[str]] = mapped_column(Unicode)
+    Action_Data: Mapped[str | None] = mapped_column(Unicode)
+    Before: Mapped[str | None] = mapped_column(Unicode)
+    After: Mapped[str | None] = mapped_column(Unicode)
 
     change_log_object_type_id = Index("change_log_action_type_id", "Action_Type", "Object_Type", "Object_ID")
 
@@ -133,3 +132,23 @@ class StorageFileTable(Base):
 
     def __repr__(self) -> str:
         return f"StorageFileTable(UUID={self.UUID!r}, Filename={self.Filename!r})"
+
+
+class ObjectRelatedFileTable(Base):
+    __tablename__ = "object_related_files"
+
+    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"), index=True)
+
+    File_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("storage_files.UUID"))
+
+    Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    Created_Date: Mapped[datetime]
+    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+
+    # Relationships
+    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship()
+    File: Mapped["StorageFileTable"] = relationship()
+
+    def __repr__(self) -> str:
+        return f"ObjectRelatedFileTable(UUID={self.UUID!r}, Code={self.Code!r})"

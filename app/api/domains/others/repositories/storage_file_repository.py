@@ -1,5 +1,5 @@
+from collections.abc import Sequence
 from enum import Enum
-from typing import Optional, Sequence
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -17,11 +17,11 @@ class StorageFileSortColumn(str, Enum):
 
 
 class StorageFileRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> Optional[StorageFileTable]:
+    def get_by_uuid(self, session: Session, uuidx: UUID) -> StorageFileTable | None:
         stmt = select(StorageFileTable).filter(StorageFileTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_by_checksum_uuid(self, session: Session, checksum: str) -> Optional[StorageFileTable]:
+    def get_by_checksum_uuid(self, session: Session, checksum: str) -> StorageFileTable | None:
         lookup: str = checksum[0:10]
         stmt = (
             select(StorageFileTable)
@@ -34,8 +34,8 @@ class StorageFileRepository(BaseRepository):
         self,
         session: Session,
         pagination: SortedPagination,
-        filter_filename: Optional[str] = None,
-        mine: Optional[UUID] = None,
+        filter_filename: str | None = None,
+        mine: UUID | None = None,
     ) -> PaginatedQueryResult:
         filters = []
         if filter_filename is not None:

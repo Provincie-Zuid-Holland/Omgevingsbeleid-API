@@ -1,41 +1,39 @@
 import uuid
-from typing import Annotated, List, Optional, Generic, Dict
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends, Query, HTTPException
+from fastapi import Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
-from starlette import status
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.modules.types import ObjectStaticShort
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
-from app.api.domains.others.types import TModel
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import (
     OptionalSortedPagination,
     OrderConfig,
     PagedResponse,
+    PaginatedQueryResult,
     Sort,
     SortedPagination,
-    PaginatedQueryResult,
 )
 
 
-class ObjectListAllLatestResponse(BaseModel, Generic[TModel]):
+class ObjectListAllLatestResponse[TModel: BaseModel](BaseModel):
     Object_Type: str
     ObjectStatics: ObjectStaticShort
     Model: TModel
 
-    model_config = ConfigDict(from_attributes=True, title="ModuleObjectsResponse")
+    model_config = ConfigDict(from_attributes=True, title="ObjectListAllLatestResponse")
 
 
 class ObjectListAllLatestEndpointContext(BaseEndpointContext):
-    allowed_object_types: List[str]
+    allowed_object_types: list[str]
     order_config: OrderConfig
-    model_map: Dict[str, str]
+    model_map: dict[str, str]
 
 
 @inject
@@ -47,8 +45,8 @@ def do_list_all_latest_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
-    object_types: Annotated[List[str], Query(alias="object_types")] = [],
-    owner_uuid: Optional[uuid.UUID] = None,
+    object_types: Annotated[list[str], Query(alias="object_types")] = [],  # noqa: B006
+    owner_uuid: uuid.UUID | None = None,
 ) -> PagedResponse[ObjectListAllLatestResponse[BaseModel]]:
     for object_type in object_types:
         if object_type not in context.allowed_object_types:
@@ -63,7 +61,7 @@ def do_list_all_latest_endpoint(
     paginated_result: PaginatedQueryResult = object_repository.get_latest_filtered(
         session=session, pagination=pagination, owner_uuid=owner_uuid, object_types=object_types
     )
-    objects: List[ObjectListAllLatestResponse[BaseModel]] = []
+    objects: list[ObjectListAllLatestResponse[BaseModel]] = []
     for object_current in paginated_result.items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_current, context.model_map)
         object_response = ObjectListAllLatestResponse(

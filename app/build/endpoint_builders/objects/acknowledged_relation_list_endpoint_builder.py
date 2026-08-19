@@ -1,4 +1,3 @@
-from typing import List
 from app.api.domains.objects.endpoints.acknowledged_relation_list_endpoint import (
     AcknowledgedRelationListEndpointContext,
     get_acknowledged_relation_list_endpoint,
@@ -34,7 +33,7 @@ class AcknowledgedRelationListEndpointBuilder(EndpointBuilder):
             path=builder_data.path,
             endpoint=endpoint,
             methods=["GET"],
-            response_model=List[AcknowledgedRelation],
+            response_model=list[AcknowledgedRelation],
             summary=f"Get all acknowledged relations of the given {api.object_type} lineage",
             description=None,
             tags=[api.object_type],

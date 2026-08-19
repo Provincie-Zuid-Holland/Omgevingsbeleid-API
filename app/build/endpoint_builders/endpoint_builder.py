@@ -1,15 +1,17 @@
-from abc import ABC, abstractmethod
-from enum import Enum
 import functools
 import inspect
 import re
-from typing import Any, Callable, List, Optional, Type, Union
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
+from app.core.types import Model
 
 
 # Used to give data to fastapi.add_api_route
@@ -19,10 +21,11 @@ class ConfiguredFastapiEndpoint(BaseModel):
     endpoint: Callable
     methods: list[str]
     response_model: Any
-    summary: Optional[str] = None
-    description: Optional[str] = None
-    tags: List[Union[str, Enum]] = Field(default_factory=list)
-    operation_id: Optional[str] = None
+    summary: str | None = None
+    description: str | None = None
+    tags: list[str | Enum] = Field(default_factory=list)
+    operation_id: str | None = None
+    openapi_extra: dict | None = None
 
 
 class EndpointBuilder(ABC):
@@ -72,7 +75,7 @@ class EndpointBuilder(ABC):
 
         return partial_func
 
-    def _overwrite_argument_type(self, endpoint: Callable, name: str, value_type: Type[Any]) -> Callable:
+    def _overwrite_argument_type(self, endpoint: Callable, name: str, value_type: type[Any]) -> Callable:
         """
         Dynamically replaces the type annotation of a specific parameter in a function's signature.
 
@@ -104,3 +107,13 @@ class EndpointBuilder(ABC):
         # Remove duplicate underscores
         operation_id = re.sub(r"_+", "_", operation_id).strip("_")
         return operation_id
+
+    def _hint_request_model(self, request_model: Model) -> dict:
+        schema = request_model.pydantic_model.model_json_schema(ref_template="#/components/schemas/{model}")
+        schema["additionalProperties"] = False
+        return {
+            "requestBody": {
+                "required": True,
+                "content": {"application/json": {"schema": schema}},
+            }
+        }

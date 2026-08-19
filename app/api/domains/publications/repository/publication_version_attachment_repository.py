@@ -1,4 +1,3 @@
-from typing import List, Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -9,11 +8,11 @@ from app.core.tables.publications import PublicationVersionAttachmentTable
 
 
 class PublicationVersionAttachmentRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: int) -> Optional[PublicationVersionAttachmentTable]:
+    def get_by_id(self, session: Session, idx: int) -> PublicationVersionAttachmentTable | None:
         stmt = select(PublicationVersionAttachmentTable).filter(PublicationVersionAttachmentTable.ID == idx)
         return self.fetch_first(session, stmt)
 
-    def get_by_version_uuid(self, session: Session, version_uuid: UUID) -> List[PublicationVersionAttachmentTable]:
+    def get_by_version_uuid(self, session: Session, version_uuid: UUID) -> list[PublicationVersionAttachmentTable]:
         stmt = select(PublicationVersionAttachmentTable).filter(
             PublicationVersionAttachmentTable.Publication_Version_UUID == version_uuid
         )

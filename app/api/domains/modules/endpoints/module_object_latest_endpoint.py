@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -11,8 +11,8 @@ from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
-from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.events.event_manager import ApiEventManager
+from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
@@ -35,7 +35,7 @@ def view_module_object_latest_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ModuleObjectLatestEndpointContext, Depends()],
 ) -> BaseModel:
-    module_object: Optional[ModuleObjectsTable] = module_object_repository.get_latest_by_id(
+    module_object: ModuleObjectsTable | None = module_object_repository.get_latest_by_id(
         session,
         module.Module_ID,
         context.object_type,

@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -16,8 +16,8 @@ from app.core.tables.users import UsersTable
 
 
 class ActEdit(BaseModel):
-    Title: Optional[str] = Field(None)
-    Metadata: Optional[ActMetadata] = None
+    Title: str | None = Field(None)
+    Metadata: ActMetadata | None = None
 
 
 def post_edit_act_endpoint(
@@ -33,7 +33,7 @@ def post_edit_act_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: ActEdit,
 ) -> ResponseOK:
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
@@ -43,10 +43,10 @@ def post_edit_act_endpoint(
         setattr(act, key, value)
 
     act.Modified_By_UUID = user.UUID
-    act.Modified_Date = datetime.now(timezone.utc)
+    act.Modified_Date = datetime.now(UTC)
 
     session.add(act)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

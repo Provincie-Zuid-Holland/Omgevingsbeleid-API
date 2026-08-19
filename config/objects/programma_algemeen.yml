@@ -46,6 +46,9 @@ api:
             response_model: programma_algemeen_full
     - prefix: /programma-algemeen/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: programma_algemeen_static
         - resolver: edit_object_static
           resolver_data:
             request_model: programma_algemeen_static_post
@@ -242,6 +245,19 @@ models:
       extract_assets:
         fields:
           - Description
+  programma_algemeen_static:
+    name: ProgrammaAlgemeenStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
   programma_algemeen_static_post:
     name: ProgrammaAlgemeenStaticPost
     static_only: true

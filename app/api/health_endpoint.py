@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 import sqlalchemy
@@ -8,7 +8,7 @@ from fastapi import Depends, HTTPException, status
 from app.api.api_container import ApiContainer
 from app.core.db.session import SessionFactoryType, session_scope_with_context
 
-build_datetime: datetime = datetime.now(timezone.utc)
+build_datetime: datetime = datetime.now(UTC)
 
 
 @inject

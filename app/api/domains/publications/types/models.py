@@ -1,13 +1,13 @@
 import uuid
 from datetime import date, datetime
-from typing import Any, List, Optional
+from typing import Any
 
-from dso.services.koop.waardelijsten.gen import RechtsgebiedType, OnderwerpType, BestuursorgaanType
+from dso.services.koop.waardelijsten.gen import BestuursorgaanType, OnderwerpType, RechtsgebiedType
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic_core import ErrorDetails
 
 from app.api.domains.modules.types import ModuleStatus
-from app.api.domains.publications.types.enums import PublicationVersionStatus
+from app.api.domains.publications.types.enums import MutationStrategy, PublicationVersionStatus
 
 
 # This model is meant for frontend
@@ -104,9 +104,9 @@ class Publication(BaseModel):
     Is_Locked: bool
     Document_Type: str
     Procedure_Type: str
-    Template_UUID: Optional[uuid.UUID] = None
-    Environment_UUID: Optional[uuid.UUID] = None
-    Act_UUID: Optional[uuid.UUID] = None
+    Template_UUID: uuid.UUID | None = None
+    Environment_UUID: uuid.UUID | None = None
+    Act_UUID: uuid.UUID | None = None
 
     Created_Date: datetime
     Modified_Date: datetime
@@ -120,9 +120,9 @@ class PublicationShort(BaseModel):
     Is_Locked: bool
     Document_Type: str
     Procedure_Type: str
-    Template_UUID: Optional[uuid.UUID] = None
-    Environment_UUID: Optional[uuid.UUID] = None
-    Act_UUID: Optional[uuid.UUID] = None
+    Template_UUID: uuid.UUID | None = None
+    Environment_UUID: uuid.UUID | None = None
+    Act_UUID: uuid.UUID | None = None
 
     Created_Date: datetime
     Modified_Date: datetime
@@ -138,8 +138,8 @@ class Article(BaseModel):
 class BillMetadata(BaseModel):
     Official_Title: str = Field("")
     Quote_Title: str = Field("")
-    Subjects: List[str] = Field([])
-    Jurisdictions: List[str] = Field([])
+    Subjects: list[str] = Field([])
+    Jurisdictions: list[str] = Field([])
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -158,10 +158,10 @@ ParagraphClass = Paragraph
 
 
 class Motivation(BaseModel):
-    Number: Optional[str] = Field(None)
+    Number: str | None = Field(None)
     Title: str
     Content: str
-    Appendices: List[Appendix] = Field(default_factory=list)
+    Appendices: list[Appendix] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -186,17 +186,17 @@ class BillCompact(BaseModel):
         )
     )
     Time_Article: str = Field("")
-    Custom_Articles: List[Article] = Field([])
+    Custom_Articles: list[Article] = Field([])
 
-    Appendices: List[Appendix] = Field([])
-    Motivation: Optional[MotivationClass] = Field(None)
+    Appendices: list[Appendix] = Field([])
+    Motivation: MotivationClass | None = Field(None)
     model_config = ConfigDict(from_attributes=True)
 
 
 class Procedural(BaseModel):
-    Enactment_Date: Optional[str] = Field(None)
-    Signed_Date: Optional[str] = Field(None)
-    Procedural_Announcement_Date: Optional[str] = Field(None)
+    Enactment_Date: str | None = Field(None)
+    Signed_Date: str | None = Field(None)
+    Procedural_Announcement_Date: str | None = Field(None)
 
     @field_validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
     def validate_date(cls, value):
@@ -210,8 +210,11 @@ class Procedural(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+ProceduralClass = Procedural
+
+
 class ProceduralValidated(BaseModel):
-    Enactment_Date: Optional[str] = Field(None)
+    Enactment_Date: str | None = Field(None)
     Signed_Date: str
     Procedural_Announcement_Date: str
 
@@ -230,8 +233,8 @@ class ProceduralValidated(BaseModel):
 class ActMetadata(BaseModel):
     Official_Title: str = Field("")
     Quote_Title: str = Field("")
-    Subjects: List[str] = Field([])
-    Jurisdictions: List[str] = Field([])
+    Subjects: list[str] = Field([])
+    Jurisdictions: list[str] = Field([])
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -277,17 +280,18 @@ class PublicationVersion(BaseModel):
     Bill_Metadata: dict
     Bill_Compact: dict
     Procedural: dict
-    Effective_Date: Optional[date] = None
-    Announcement_Date: Optional[date] = None
+    Effective_Date: date | None = None
+    Announcement_Date: date | None = None
     Is_Locked: bool
     Status: PublicationVersionStatus
+    Mutation_Strategy: MutationStrategy
 
     Created_Date: datetime
     Modified_Date: datetime
 
-    Attachments: List[AttachmentShort]
+    Attachments: list[AttachmentShort]
 
-    Errors: List[ErrorDetails] = Field([])
+    Errors: list[ErrorDetails] = Field([])
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -313,15 +317,16 @@ class PublicationVersionShort(BaseModel):
 
     Bill_Metadata: dict
 
-    Effective_Date: Optional[date] = None
-    Announcement_Date: Optional[date] = None
+    Effective_Date: date | None = None
+    Announcement_Date: date | None = None
     Is_Locked: bool
     Status: PublicationVersionStatus
+    Procedural: ProceduralClass | None = None
 
     Created_Date: datetime
     Modified_Date: datetime
 
-    Act_Packages: List[PublicationPackageShort]
+    Act_Packages: list[PublicationPackageShort]
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -356,8 +361,8 @@ class PublicationActPackageReport(BaseModel):
 class PackageZipShort(BaseModel):
     UUID: uuid.UUID
     Filename: str
-    Latest_Download_Date: Optional[datetime] = None
-    Latest_Download_By_UUID: Optional[uuid.UUID] = None
+    Latest_Download_Date: datetime | None = None
+    Latest_Download_By_UUID: uuid.UUID | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -377,16 +382,21 @@ class PublicationPackage(BaseModel):
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
+class PublicationActPackage(PublicationPackage):
+    Module_ID: int | None = None
+    Module_Status: ModuleStatus | None = None
+
+
 class AnnouncementMetadata(BaseModel):
     Official_Title: str = Field("")
-    Subjects: List[str] = Field([])
+    Subjects: list[str] = Field([])
     model_config = ConfigDict(from_attributes=True)
 
 
 class AnnouncementProcedural(BaseModel):
-    Procedural_Announcement_Date: Optional[str] = Field(None)
-    Begin_Inspection_Period_Date: Optional[str] = Field(None)
-    End_Inspection_Period_Date: Optional[str] = Field(None)
+    Procedural_Announcement_Date: str | None = Field(None)
+    Begin_Inspection_Period_Date: str | None = Field(None)
+    End_Inspection_Period_Date: str | None = Field(None)
 
     @field_validator("Procedural_Announcement_Date", "Begin_Inspection_Period_Date", "End_Inspection_Period_Date")
     def validate_date(cls, value):
@@ -401,12 +411,12 @@ class AnnouncementProcedural(BaseModel):
 
 
 class AnnouncementText(BaseModel):
-    Title: Optional[str]
+    Title: str | None
     Description: str
 
 
 class AnnouncementContent(BaseModel):
-    Texts: List[AnnouncementText]
+    Texts: list[AnnouncementText]
 
 
 class PublicationAnnouncement(BaseModel):
@@ -419,7 +429,7 @@ class PublicationAnnouncement(BaseModel):
     Procedural: dict
     Content: dict
 
-    Announcement_Date: Optional[date] = None
+    Announcement_Date: date | None = None
     Is_Locked: bool
 
     Created_Date: datetime
@@ -432,7 +442,7 @@ class PublicationAnnouncementShort(BaseModel):
 
     Metadata: dict
 
-    Announcement_Date: Optional[date] = None
+    Announcement_Date: date | None = None
     Is_Locked: bool
 
     Created_Date: datetime

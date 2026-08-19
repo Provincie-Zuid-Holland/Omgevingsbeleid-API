@@ -1,8 +1,8 @@
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Set
+from datetime import UTC, datetime
+from typing import Any
 
-from pydantic import BaseModel
 from bs4 import BeautifulSoup
+from pydantic import BaseModel
 
 from app.api.domains.publications.services.validate_publication_service import (
     ValidatePublicationError,
@@ -19,49 +19,49 @@ class GebiedsaanwijzingData(BaseModel):
     aanwijzing_group: str
     title: str
     # This is what the gebiedsaanwijzing in the html actually targets
-    source_target_codes: Set[str]
+    source_target_codes: set[str]
     # This is all the targets resolved to gebied-codes
-    resolved_gebied_codes: Set[str]
+    resolved_gebied_codes: set[str]
     # This is used in the GIO as for `achtergrond_actualiteit`
     achtergrond_actualiteit: str
 
 
 class PublicationGebiedsaanwijzingProcessor:
-    def __init__(self, all_objects: List[dict]):
+    def __init__(self, all_objects: list[dict]):
         # Used to convert gebiedengroep-x to its used gebied-x list
-        self._gebiedengroep_map: Dict[str, Set[str]] = {
+        self._gebiedengroep_map: dict[str, set[str]] = {
             obj["Code"]: set(obj["Gebieden"])
             for obj in all_objects
             if obj.get("Object_Type") == "gebiedengroep" and isinstance(obj.get("Gebieden"), list)
         }
 
         # Lookup map to find the aanwijzing object by code
-        self._gebiedsaanwijzing_map: Dict[str, dict] = {
+        self._gebiedsaanwijzing_map: dict[str, dict] = {
             obj["Code"]: obj for obj in all_objects if obj.get("Object_Type") == "gebiedsaanwijzing"
         }
 
-    def process(self, used_objects: List[dict]) -> Dict[str, GebiedsaanwijzingData]:
+    def process(self, used_objects: list[dict]) -> dict[str, GebiedsaanwijzingData]:
         # Accumulated aanwijzingen used by the text objects
-        used_gebiedsaanwijzingen_codes: Set[str] = set()
+        used_gebiedsaanwijzingen_codes: set[str] = set()
         for obj in used_objects:
             object_code: str = obj["Code"]
             for field_value in obj.values():
                 if not isinstance(field_value, str):
                     continue
 
-                used_codes: Set[str] = self._find_gebiedsaanwijzingen(object_code, field_value)
+                used_codes: set[str] = self._find_gebiedsaanwijzingen(object_code, field_value)
                 used_gebiedsaanwijzingen_codes = used_gebiedsaanwijzingen_codes.union(used_codes)
 
-        result: Dict[str, Any] = self._resolve_data(used_gebiedsaanwijzingen_codes)
+        result: dict[str, Any] = self._resolve_data(used_gebiedsaanwijzingen_codes)
         return result
 
-    def _find_gebiedsaanwijzingen(self, object_code: str, html: str) -> Set[str]:
+    def _find_gebiedsaanwijzingen(self, object_code: str, html: str) -> set[str]:
         """
         Here we are searching the html for gebiedsaanwijzingen.
 
         <a data-hint-type="gebiedsaanwijzing" data-code="gebiedsaanwijzing-1" href="#">het Malieveld</a>
         """
-        used_gebiedsaanwijzingen_codes: Set[str] = set()
+        used_gebiedsaanwijzingen_codes: set[str] = set()
 
         soup = BeautifulSoup(html, "html.parser")
         for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
@@ -79,7 +79,7 @@ class PublicationGebiedsaanwijzingProcessor:
                     ]
                 )
 
-            aanwijzing_obj: Optional[dict] = self._gebiedsaanwijzing_map.get(aanwijzing_code)
+            aanwijzing_obj: dict | None = self._gebiedsaanwijzing_map.get(aanwijzing_code)
             if aanwijzing_obj is None:
                 raise validation_exception(
                     [
@@ -94,7 +94,7 @@ class PublicationGebiedsaanwijzingProcessor:
                 )
 
             for deprecated_attr in ["data-aanwijzing-type", "data-aanwijzing-group", "data-target-codes"]:
-                for aanwijzing_attr in aanwijzing_html.attrs.keys():
+                for aanwijzing_attr in aanwijzing_html.attrs:
                     if deprecated_attr == aanwijzing_attr:
                         raise validation_exception(
                             [
@@ -114,12 +114,12 @@ class PublicationGebiedsaanwijzingProcessor:
 
     def _resolve_data(
         self,
-        aanwijzing_codes: Set[str],
-    ) -> Dict[str, GebiedsaanwijzingData]:
-        result: Dict[str, GebiedsaanwijzingData] = {}
+        aanwijzing_codes: set[str],
+    ) -> dict[str, GebiedsaanwijzingData]:
+        result: dict[str, GebiedsaanwijzingData] = {}
 
         for aanwijzing_code in aanwijzing_codes:
-            aanwijzing_obj: Optional[dict] = self._gebiedsaanwijzing_map.get(aanwijzing_code)
+            aanwijzing_obj: dict | None = self._gebiedsaanwijzing_map.get(aanwijzing_code)
             if aanwijzing_obj is None:
                 # This should never be triggered and has already been raised previously before when the object code that uses this was identified
                 raise validation_exception(
@@ -148,8 +148,8 @@ class PublicationGebiedsaanwijzingProcessor:
                     ]
                 )
 
-            source_target_codes: Set[str] = set(aanwijzing_obj["Target_Codes"])
-            gebied_codes: Set[str] = self._resolve_gebied_codes(aanwijzing_code, source_target_codes)
+            source_target_codes: set[str] = set(aanwijzing_obj["Target_Codes"])
+            gebied_codes: set[str] = self._resolve_gebied_codes(aanwijzing_code, source_target_codes)
 
             # We transform it to a plain dict, because the state system can then freely use it
             aanwijzing = GebiedsaanwijzingData(
@@ -161,14 +161,14 @@ class PublicationGebiedsaanwijzingProcessor:
                 title=str(aanwijzing_obj["Title"]),
                 source_target_codes=source_target_codes,
                 resolved_gebied_codes=gebied_codes,
-                achtergrond_actualiteit=str(datetime.now(timezone.utc))[:10],
+                achtergrond_actualiteit=str(datetime.now(UTC))[:10],
             )
 
             result[aanwijzing_code] = aanwijzing
 
         return result
 
-    def _resolve_gebied_codes(self, aanwijzing_code: str, target_codes: Set[str]) -> Set[str]:
+    def _resolve_gebied_codes(self, aanwijzing_code: str, target_codes: set[str]) -> set[str]:
         """
         Resolved the target codes to gebied codes.
         As the target code can be a gebiedengroep.
@@ -179,7 +179,7 @@ class PublicationGebiedsaanwijzingProcessor:
 
             if gebiedengroep-1 has the following gebieden: ['gebied-1', 'gebied-2']
         """
-        result: Set[str] = set()
+        result: set[str] = set()
 
         for target_code in target_codes:
             if target_code.startswith("gebiedengroep-"):
@@ -193,7 +193,7 @@ class PublicationGebiedsaanwijzingProcessor:
                             )
                         ]
                     )
-                gebied_codes: Set[str] = self._gebiedengroep_map[target_code]
+                gebied_codes: set[str] = self._gebiedengroep_map[target_code]
                 if len(gebied_codes) == 0:
                     raise validation_exception(
                         [
@@ -225,8 +225,8 @@ class PublicationGebiedsaanwijzingProcessor:
 class PublicationGebiedsaanwijzingProvider:
     def get_gebiedsaanwijzingen(
         self,
-        all_objects: List[dict],
-        used_objects: List[dict],
-    ) -> Dict[str, GebiedsaanwijzingData]:
+        all_objects: list[dict],
+        used_objects: list[dict],
+    ) -> dict[str, GebiedsaanwijzingData]:
         processor: PublicationGebiedsaanwijzingProcessor = PublicationGebiedsaanwijzingProcessor(all_objects)
         return processor.process(used_objects)

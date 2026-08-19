@@ -1,6 +1,6 @@
 from app.api.domains.publications.endpoints.publications.announcement_packages.detail_announcement_package_endpoint import (
-    get_detail_announcement_package_endpoint,
     PublicationAnnouncementPackageDetailResponse,
+    get_detail_announcement_package_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder

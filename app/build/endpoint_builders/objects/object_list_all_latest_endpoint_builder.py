@@ -1,5 +1,3 @@
-from typing import Dict, Union, List
-
 from pydantic import BaseModel
 
 from app.api.domains.objects.endpoints import (
@@ -30,11 +28,11 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
         resolver_config: dict = endpoint_config.resolver_data
-        allowed_object_types: List[str] = resolver_config.get("allowed_object_types", [])
+        allowed_object_types: list[str] = resolver_config.get("allowed_object_types", [])
         if not allowed_object_types:
             raise RuntimeError("Missing allowed_object_types")
         order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
-        model_map: Dict[str, str] = resolver_config["model_map"]
+        model_map: dict[str, str] = resolver_config["model_map"]
         response_model_name: str = resolver_config["response_model_name"]
 
         context = ObjectListAllLatestEndpointContext(
@@ -45,7 +43,7 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
         )
         endpoint = self._inject_context(do_list_all_latest_endpoint, context)
 
-        union_object_type: Union[BaseModel] = self._model_dynamic_type_builder.build_object_union_type(model_map)
+        union_object_type: BaseModel = self._model_dynamic_type_builder.build_object_union_type(model_map)
         response_type = PagedResponse[ObjectListAllLatestResponse[union_object_type]]
         response_type.__name__ = response_model_name
 

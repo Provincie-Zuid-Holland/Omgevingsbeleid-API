@@ -1,5 +1,4 @@
 import uuid
-from typing import Dict, List, Set
 
 from sqlalchemy.orm import Session
 
@@ -40,8 +39,8 @@ class StateV5Upgrader(StateUpgrader):
 
         return new_state
 
-    def _mutate_purposes(self, old_state: state_v4.StateV4) -> Dict[str, models_v5.Purpose]:
-        purposes: Dict[str, models_v5.Purpose] = {}
+    def _mutate_purposes(self, old_state: state_v4.StateV4) -> dict[str, models_v5.Purpose]:
+        purposes: dict[str, models_v5.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
             new_purpose: models_v5.Purpose = models_v5.Purpose.model_validate(old_purpose.model_dump())
@@ -49,8 +48,8 @@ class StateV5Upgrader(StateUpgrader):
 
         return purposes
 
-    def _mutate_announcements(self, old_state: state_v4.StateV4) -> Dict[str, models_v5.ActiveAnnouncement]:
-        announcements: Dict[str, models_v5.ActiveAnnouncement] = {}
+    def _mutate_announcements(self, old_state: state_v4.StateV4) -> dict[str, models_v5.ActiveAnnouncement]:
+        announcements: dict[str, models_v5.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
             new_announcement: models_v5.ActiveAnnouncement = models_v5.ActiveAnnouncement.model_validate(
@@ -60,8 +59,8 @@ class StateV5Upgrader(StateUpgrader):
 
         return announcements
 
-    def _mutate_acts(self, old_state: state_v4.StateV4) -> Dict[str, models_v5.ActiveAct]:
-        acts: Dict[str, models_v5.ActiveAct] = {}
+    def _mutate_acts(self, old_state: state_v4.StateV4) -> dict[str, models_v5.ActiveAct]:
+        acts: dict[str, models_v5.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
             new_act: models_v5.ActiveAct = self._mutate_act(old_act)
@@ -77,17 +76,17 @@ class StateV5Upgrader(StateUpgrader):
         return act
 
     def _resolve_ow_state(self, old_act: models_v4.ActiveAct) -> models_v5.OwState:
-        ambtsgebieden: Set[models_v5.OwAmbtsgebied] = set()
-        regelingsgebieden: Set[models_v5.OwRegelingsgebied] = set()
-        gebieden: Set[models_v5.OwGebied] = set()
-        gebiedengroepen: Set[models_v5.OwGebiedengroep] = set()
-        gebiedsaanwijzingen: Set[models_v5.OwGebiedsaanwijzing] = set()
-        divisies: Set[models_v5.OwDivisie] = set()
-        divisieteksten: Set[models_v5.OwDivisietekst] = set()
-        tekstdelen: Set[models_v5.OwTekstdeel] = set()
+        ambtsgebieden: set[models_v5.OwAmbtsgebied] = set()
+        regelingsgebieden: set[models_v5.OwRegelingsgebied] = set()
+        gebieden: set[models_v5.OwGebied] = set()
+        gebiedengroepen: set[models_v5.OwGebiedengroep] = set()
+        gebiedsaanwijzingen: set[models_v5.OwGebiedsaanwijzing] = set()
+        divisies: set[models_v5.OwDivisie] = set()
+        divisieteksten: set[models_v5.OwDivisietekst] = set()
+        tekstdelen: set[models_v5.OwTekstdeel] = set()
 
         ow_objects = old_act.Ow_Data.Ow_Objects
-        for ow_id, ow_object in ow_objects.items():
+        for ow_object in ow_objects.values():
             ow_type: str = ow_object.get("ow_type", "")
             match ow_type:
                 case "OWAmbtsgebied":
@@ -163,7 +162,7 @@ class StateV5Upgrader(StateUpgrader):
                         ref=ow_object["divisie"],
                     )
                     try:
-                        location_refs: List[models_v5.LocationRefUnion] = []
+                        location_refs: list[models_v5.LocationRefUnion] = []
                         for l_ref in ow_object["locaties"]:
                             if "ambtsgebied" in l_ref:
                                 location_refs.append(
@@ -179,8 +178,8 @@ class StateV5Upgrader(StateUpgrader):
                                     )
                                 )
 
-                    except Exception as e:
-                        raise e
+                    except Exception:
+                        raise
                     tekstdelen.add(
                         models_v5.OwTekstdeel(
                             object_status=models_v5.OwObjectStatus.unchanged,

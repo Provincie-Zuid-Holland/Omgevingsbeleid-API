@@ -2,15 +2,12 @@ from typing import Annotated
 
 import click
 from dependency_injector.wiring import Provide, inject
-from sqlalchemy import Engine
+from sqlalchemy import Engine, event
+from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
-from app.api.domains.users.services.security import Security
-from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
-from app.api.domains.werkingsgebieden.repositories.geometry_repository import GeometryRepository
 from app.core.db import table_metadata
-from app.core.db.session import SessionFactoryType, session_scope_with_context
-from app.tests.fixtures.database_fixtures import DatabaseFixtures
+from tests.fixtures.internal.fixtures_service import FixturesService
 
 
 @click.command()
@@ -44,26 +41,21 @@ def dropdb(
 @click.command()
 @inject
 def load_fixtures(
-    db_session_factory: Annotated[SessionFactoryType, Provide[ApiContainer.db_session_factory]],
-    geometry_repository: Annotated[GeometryRepository, Provide[ApiContainer.geometry_repository]],
-    area_geometry_repository: Annotated[AreaGeometryRepository, Provide[ApiContainer.area_geometry_repository]],
-    security: Annotated[Security, Provide[ApiContainer.security]],
+    db_engine: Annotated[Engine, Provide[ApiContainer.db_engine]],
     database_uri: Annotated[str, Provide[ApiContainer.config.SQLALCHEMY_DATABASE_URI]],
 ):
     click.echo("Loading fixtures")
     if database_uri[0:6] != "sqlite":
         raise RuntimeError("Can only run `load_fixtures` for sqlite")
 
-    with session_scope_with_context(db_session_factory) as session:
-        loader: DatabaseFixtures = DatabaseFixtures(
-            session,
-            geometry_repository,
-            area_geometry_repository,
-            security,
-        )
-        loader.truncate_all()
-        loader.create_all()
+    def _disable_foreign_keys(dbapi_connection, _record) -> None:
+        dbapi_connection.execute("PRAGMA foreign_keys = OFF")
 
-        session.flush()
-        session.commit()
-        click.echo("Done")
+    event.listen(db_engine, "connect", _disable_foreign_keys)
+    try:
+        with Session(db_engine) as session:
+            FixturesService().load(session)
+            session.commit()
+    finally:
+        event.remove(db_engine, "connect", _disable_foreign_keys)
+    click.echo("Done")

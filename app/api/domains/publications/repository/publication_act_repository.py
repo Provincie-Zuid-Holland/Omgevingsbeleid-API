@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
@@ -11,17 +10,17 @@ from app.core.tables.publications import PublicationActTable
 
 
 class PublicationActRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> Optional[PublicationActTable]:
+    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationActTable | None:
         stmt = select(PublicationActTable).where(PublicationActTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
         self,
         session: Session,
-        is_active: Optional[bool] = None,
-        environment_uuid: Optional[uuid.UUID] = None,
-        document_type: Optional[DocumentType] = None,
-        procedure_type: Optional[ProcedureType] = None,
+        is_active: bool | None = None,
+        environment_uuid: uuid.UUID | None = None,
+        document_type: DocumentType | None = None,
+        procedure_type: ProcedureType | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:

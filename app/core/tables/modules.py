@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import ForeignKey, ForeignKeyConstraint, Unicode
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
@@ -25,15 +25,15 @@ class ModuleTable(Base, TimeStamped, UserMetaData):
 
     Title: Mapped[str] = mapped_column(default="")
     Description: Mapped[str] = mapped_column(default="")
-    Module_Manager_1_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
-    Module_Manager_2_UUID: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    Module_Manager_1_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    Module_Manager_2_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     @property
     def Status(self) -> Optional["ModuleStatusHistoryTable"]:
         return None if not self.status_history else self.status_history[-1]
 
     @hybrid_property
-    def Current_Status(self) -> Optional[str]:
+    def Current_Status(self) -> str | None:
         if not self.status_history:
             return None
         return self.status_history[-1].Status
@@ -67,18 +67,18 @@ class ModuleTable(Base, TimeStamped, UserMetaData):
     def is_active(cls):
         return (cls.Activated == True) & (cls.Closed == False)  # type: ignore
 
-    status_history: Mapped[List["ModuleStatusHistoryTable"]] = relationship(
+    status_history: Mapped[list["ModuleStatusHistoryTable"]] = relationship(
         back_populates="Module", order_by="asc(ModuleStatusHistoryTable.ID)"
     )
 
-    Created_By: Mapped[List["UsersTable"]] = relationship(primaryjoin="ModuleTable.Created_By_UUID == UsersTable.UUID")
-    Modified_By: Mapped[List["UsersTable"]] = relationship(
+    Created_By: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.Created_By_UUID == UsersTable.UUID")
+    Modified_By: Mapped[list["UsersTable"]] = relationship(
         primaryjoin="ModuleTable.Modified_By_UUID == UsersTable.UUID"
     )
-    Module_Manager_1: Mapped[List["UsersTable"]] = relationship(
+    Module_Manager_1: Mapped[list["UsersTable"]] = relationship(
         primaryjoin="ModuleTable.Module_Manager_1_UUID == UsersTable.UUID"
     )
-    Module_Manager_2: Mapped[List["UsersTable"]] = relationship(
+    Module_Manager_2: Mapped[list["UsersTable"]] = relationship(
         primaryjoin="ModuleTable.Module_Manager_2_UUID == UsersTable.UUID"
     )
 
@@ -100,7 +100,7 @@ class ModuleStatusHistoryTable(Base):
     Module: Mapped[ModuleTable] = relationship(back_populates="status_history")
 
     def __repr__(self) -> str:
-        return f"ModuleStatusHistory(ID={self.ID!r}), Module_ID={self.Module_ID!r}"
+        return f"ModuleStatusHistory(ID={self.ID!r}, Module_ID={self.Module_ID!r}, Status={self.Status!r})"
 
 
 class ModuleObjectsTable(Base):
@@ -137,16 +137,19 @@ class ModuleObjectContextTable(Base, TimeStamped, UserMetaData, SerializerMixin)
     Object_ID: Mapped[int]
     Code: Mapped[str] = mapped_column(Unicode(35), primary_key=True)
 
-    Original_Adjust_On: Mapped[Optional[uuid.UUID]]
+    Original_Adjust_On: Mapped[uuid.UUID | None]
 
     Hidden: Mapped[bool] = mapped_column(default=False)
     Action: Mapped[str]
     Explanation: Mapped[str]
     Conclusion: Mapped[str]
 
-    Created_By: Mapped[List["UsersTable"]] = relationship(
+    Created_By: Mapped[list["UsersTable"]] = relationship(
         primaryjoin="ModuleObjectContextTable.Created_By_UUID == UsersTable.UUID"
     )
-    Modified_By: Mapped[List["UsersTable"]] = relationship(
+    Modified_By: Mapped[list["UsersTable"]] = relationship(
         primaryjoin="ModuleObjectContextTable.Modified_By_UUID == UsersTable.UUID"
     )
+
+    def __repr__(self) -> str:
+        return f"ModuleObjectContextTable(Module_ID={self.Module_ID!r}, Code={self.Code!r}, Action={self.Action!r})"

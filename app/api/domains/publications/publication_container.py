@@ -1,27 +1,28 @@
 from dependency_injector import containers, providers
 
 import app.api.domains.publications.repository as repositories
-import app.api.domains.publications.services as services
 import app.api.domains.publications.services.act_package as act_package_services
 import app.api.domains.publications.services.announcement_package as announcement_package_services
 import app.api.domains.publications.services.assets as assets_services
 import app.api.domains.publications.services.assets as publication_asset_services
 import app.api.domains.publications.services.state as state_services
 import app.api.domains.publications.services.state.versions as state_versions
+from app.api.domains.publications import services
 from app.api.domains.publications.services.validate_publication_service import (
-    ReferencedGebiedengroepCodeExistsRule,
-    ValidatePublicationService,
-    RequiredObjectFieldsRule,
-    UsedObjectsInPublicationExistInTemplateRule,
-    UsedObjectTypeExistsRule,
-    UsedObjectInPublicationExistsRule,
+    AreaDesignationRefCheckRule,
+    AttachmentInBillReferenceRule,
+    BillCompactForbiddenTagsRule,
+    ForbiddenHtmlTagsRule,
     GebiedengroepHasGiosRule,
     GioDuplicateFilenameRule,
     GioUniqueRule,
+    ReferencedGebiedengroepCodeExistsRule,
+    RequiredObjectFieldsRule,
+    UsedObjectInPublicationExistsRule,
+    UsedObjectsInPublicationExistInTemplateRule,
+    UsedObjectTypeExistsRule,
+    ValidatePublicationService,
     WaardelijstenValuesUsedCheckRule,
-    AreaDesignationRefCheckRule,
-    ForbiddenHtmlTagsRule,
-    AttachmentInBillReferenceRule,
 )
 
 
@@ -185,6 +186,10 @@ class PublicationContainer(containers.DeclarativeContainer):
                 main_config=main_config,
             ),
             providers.Singleton(AttachmentInBillReferenceRule),
+            providers.Singleton(
+                BillCompactForbiddenTagsRule,
+                main_config=main_config,
+            ),
         ),
     )
 

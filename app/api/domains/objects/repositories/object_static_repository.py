@@ -1,4 +1,3 @@
-from typing import List, Optional, Set, Tuple
 from uuid import UUID
 
 from sqlalchemy import or_, select
@@ -11,7 +10,7 @@ from app.core.tables.objects import ObjectStaticsTable
 class ObjectStaticRepository(BaseRepository):
     def get_by_object_type_and_id(
         self, session: Session, object_type: str, object_id: int
-    ) -> Optional[ObjectStaticsTable]:
+    ) -> ObjectStaticsTable | None:
         stmt = (
             select(ObjectStaticsTable)
             .filter(ObjectStaticsTable.Object_Type == object_type)
@@ -20,8 +19,8 @@ class ObjectStaticRepository(BaseRepository):
         return self.fetch_first(session, stmt)
 
     def get_by_type_and_owner(
-        self, session: Session, object_type: Optional[str] = None, owner_uuid: Optional[UUID] = None
-    ) -> List[ObjectStaticsTable]:
+        self, session: Session, object_type: str | None = None, owner_uuid: UUID | None = None
+    ) -> list[ObjectStaticsTable]:
         stmt = select(ObjectStaticsTable)
 
         if owner_uuid:
@@ -36,16 +35,16 @@ class ObjectStaticRepository(BaseRepository):
 
         return self.fetch_all(session, stmt)
 
-    def get_by_source(self, session: Session, source_key: str) -> Optional[ObjectStaticsTable]:
+    def get_by_source(self, session: Session, source_key: str) -> ObjectStaticsTable | None:
         stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Source_Identifier == source_key)
         return self.fetch_first(session, stmt)
 
-    def does_codes_exists(self, session: Session, codes: Set[str]) -> Tuple[bool, Set[str]]:
+    def does_codes_exists(self, session: Session, codes: set[str]) -> tuple[bool, set[str]]:
         if not len(codes):
             return True, set()
 
         stmt = select(ObjectStaticsTable.Code).where(ObjectStaticsTable.Code.in_(codes))
-        existing: Set[str] = set(session.execute(stmt).scalars())
-        missing: Set[str] = set(codes) - existing
+        existing: set[str] = set(session.execute(stmt).scalars())
+        missing: set[str] = set(codes) - existing
 
         return len(missing) == 0, missing

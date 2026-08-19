@@ -1,33 +1,32 @@
-from typing import List, Set
+import logging
+
+import sqlalchemy
+import sqlalchemy.exc
 from fastapi import APIRouter, FastAPI, Request
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
-import sqlalchemy
-import sqlalchemy.exc
 
-import logging
-from fastapi.exception_handlers import http_exception_handler
 from app.api.api_container import ApiContainer
 from app.api.exceptions import LoggedHttpException
 from app.api.health_endpoint import health_check
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint
-
-
-logger = logging.getLogger(__name__)
+from app.core.logging import init_logging, log_message
 
 
 def _generate_unique_id_function(route: APIRoute) -> str:
     operation_id = route.name
-    if operation_id.endswith("_endpoint"):
-        operation_id = operation_id[:-9]
+    operation_id = operation_id.removesuffix("_endpoint")
     if len(route.tags) == 1:
         operation_id = f"{route.tags[0].lower()}_{operation_id}"
     return operation_id
 
 
 class FastAPIBuilder:
-    def build(self, container: ApiContainer, routes: List[ConfiguredFastapiEndpoint]) -> FastAPI:
+    def build(self, container: ApiContainer, routes: list[ConfiguredFastapiEndpoint]) -> FastAPI:
+        init_logging()
+
         app: FastAPI = FastAPI(
             generate_unique_id_function=_generate_unique_id_function,
         )
@@ -50,7 +49,7 @@ class FastAPIBuilder:
 
         return app
 
-    def _add_routes(self, app: FastAPI, routes: List[ConfiguredFastapiEndpoint]):
+    def _add_routes(self, app: FastAPI, routes: list[ConfiguredFastapiEndpoint]):
         router = APIRouter()
         for endpoint_config in routes:
             route_kwargs = {
@@ -64,6 +63,8 @@ class FastAPIBuilder:
             }
             if endpoint_config.operation_id:
                 route_kwargs["operation_id"] = endpoint_config.operation_id
+            if endpoint_config.openapi_extra:
+                route_kwargs["openapi_extra"] = endpoint_config.openapi_extra
 
             router.add_api_route(**route_kwargs)
 
@@ -102,18 +103,27 @@ class FastAPIBuilder:
                 status_code=400,
             )
 
-        @app.exception_handler(LoggedHttpException)
-        async def _logged_http(request: Request, exc: LoggedHttpException):
-            logger.error(
-                "Unhandled HTTPException: %s, Path: %s",
-                exc.get_log_message(),
-                request.url.path,
-                exc_info=True,
+        @app.exception_handler(Exception)  # Catch all
+        async def _log_all_exceptions(request: Request, exception: Exception):
+            log_message(
+                message=f"Unhandled Exception: {exception}",
+                severity=logging.ERROR,
+                exception=exception,
+                request=request,
             )
-            return await http_exception_handler(request, exc)
+
+        @app.exception_handler(LoggedHttpException)
+        async def _logged_http(request: Request, exception: LoggedHttpException):
+            log_message(
+                message=f"Unhandled HTTPException: {exception.get_log_message()}",
+                severity=logging.ERROR,
+                exception=exception,
+                request=request,
+            )
+            return await http_exception_handler(request, exception)
 
     def _configure_operation_ids(self, app: FastAPI) -> None:
-        used_operation_ids: Set[str] = set()
+        used_operation_ids: set[str] = set()
 
         for route in app.routes:
             if isinstance(route, APIRoute):

@@ -1,12 +1,10 @@
-from typing import Annotated, Optional
 import uuid
+from typing import Annotated
 
-from dependency_injector.wiring import Provide
-
+from dependency_injector.wiring import Provide, inject
+from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from dependency_injector.wiring import inject
-from fastapi import Depends, HTTPException, status
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -58,7 +56,7 @@ def patch_input_geo_use_werkingsgebied_endpoint(
     ],
     input_geo_werkingsgebied: Annotated[InputGeoWerkingsgebiedenTable, Depends(depends_input_geo_werkingsgebied)],
 ) -> PatchResponse:
-    object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
         session,
         context.object_type,
         lineage_id,
@@ -73,7 +71,7 @@ def patch_input_geo_use_werkingsgebied_endpoint(
     )
     guard_module_not_locked(module)
 
-    old_record: Optional[ModuleObjectsTable] = module_object_repository.get_latest_by_id(
+    old_record: ModuleObjectsTable | None = module_object_repository.get_latest_by_id(
         session,
         module.Module_ID,
         context.object_type,

@@ -1,7 +1,7 @@
 import json
 import re
 import uuid
-from typing import List, Sequence, Set
+from collections.abc import Sequence
 
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
@@ -22,20 +22,20 @@ class PublicationAssetProvider:
         self._asset_repository: AssetRepository = asset_repository
         self._asset_remove_transparency: AssetRemoveTransparency = asset_remove_transparency
 
-    def get_assets(self, session: Session, objects: List[dict]) -> List[dict]:
-        asset_uuids: List[uuid.UUID] = self._calculate_asset_uuids(objects)
-        dso_assets: List[dict] = self.get_assets_by_uuids(session, asset_uuids)
+    def get_assets(self, session: Session, objects: list[dict]) -> list[dict]:
+        asset_uuids: list[uuid.UUID] = self._calculate_asset_uuids(objects)
+        dso_assets: list[dict] = self.get_assets_by_uuids(session, asset_uuids)
 
         return dso_assets
 
-    def get_assets_by_uuids(self, session: Session, uuids: List[uuid.UUID]) -> List[dict]:
+    def get_assets_by_uuids(self, session: Session, uuids: list[uuid.UUID]) -> list[dict]:
         assets: Sequence[AssetsTable] = self._asset_repository.get_by_uuids(session, uuids)
-        dso_assets: List[dict] = self._as_dso_assets(assets)
+        dso_assets: list[dict] = self._as_dso_assets(assets)
 
         return dso_assets
 
-    def _calculate_asset_uuids(self, objects: List[dict]) -> List[uuid.UUID]:
-        asset_uuids: Set[uuid.UUID] = set()
+    def _calculate_asset_uuids(self, objects: list[dict]) -> list[uuid.UUID]:
+        asset_uuids: set[uuid.UUID] = set()
 
         # @todo: should be provided somewhere
         asset_fields = [
@@ -62,8 +62,8 @@ class PublicationAssetProvider:
 
         return list(asset_uuids)
 
-    def _as_dso_assets(self, assets: Sequence[AssetsTable]) -> List[dict]:
-        dso_assets: List[dict] = []
+    def _as_dso_assets(self, assets: Sequence[AssetsTable]) -> list[dict]:
+        dso_assets: list[dict] = []
 
         for asset in assets:
             content = asset.Content

@@ -1,9 +1,10 @@
-from datetime import datetime
-from typing import Optional
 import uuid
+from datetime import datetime
+from enum import Enum
+
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
-from enum import Enum
+
 from app.api.domains.modules.repositories.module_object_context_repository import ModuleObjectContextRepository
 from app.api.domains.modules.types import ModuleObjectActionFull
 from app.core.tables.modules import ModuleObjectContextTable
@@ -14,7 +15,7 @@ class ExistRequest(BaseModel):
     object_type: str
     object_id: int
     timepoint: datetime
-    original_adjust_on: Optional[uuid.UUID]
+    original_adjust_on: uuid.UUID | None
     explanation: str = Field("")
     conclusion: str = Field("")
     user_uuid: uuid.UUID
@@ -45,7 +46,7 @@ class ManageObjectContextService:
         session: Session,
         request: ExistRequest,
     ) -> Result:
-        existing_object_context: Optional[ModuleObjectContextTable] = self._context_repository.get_by_ids(
+        existing_object_context: ModuleObjectContextTable | None = self._context_repository.get_by_ids(
             session,
             request.module_id,
             request.object_type,

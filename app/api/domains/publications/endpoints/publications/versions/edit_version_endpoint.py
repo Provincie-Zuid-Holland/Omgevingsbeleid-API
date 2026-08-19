@@ -1,5 +1,5 @@
-from datetime import date, datetime, timezone
-from typing import Annotated, Any, Dict, List, Optional
+from datetime import UTC, date, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -11,27 +11,27 @@ from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
 from app.api.domains.publications.services.publication_version_validator import PublicationVersionValidator
-from app.api.domains.publications.types.models import BillCompact, BillMetadata, Procedural
+from app.api.domains.publications.types.enums import MutationStrategy
+from app.api.domains.publications.types.models import BillCompact, BillMetadata, ProceduralClass
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.permissions import Permissions
 from app.core.tables.publications import PublicationVersionTable
 from app.core.tables.users import UsersTable
 
-ProceduralClass = Procedural
-
 
 class PublicationVersionEdit(BaseModel):
-    Module_Status_ID: Optional[int] = None
-    Effective_Date: Optional[date] = None
-    Announcement_Date: Optional[date] = None
+    Module_Status_ID: int | None = None
+    Effective_Date: date | None = None
+    Announcement_Date: date | None = None
+    Mutation_Strategy: MutationStrategy | None = None
 
-    Bill_Metadata: Optional[BillMetadata] = None
-    Bill_Compact: Optional[BillCompact] = None
-    Procedural: Optional[ProceduralClass] = None
+    Bill_Metadata: BillMetadata | None = None
+    Bill_Compact: BillCompact | None = None
+    Procedural: ProceduralClass | None = None
 
 
 class PublicationVersionEditResponse(BaseModel):
-    Errors: List[ErrorDetails]
+    Errors: list[ErrorDetails]
     Is_Valid: bool
 
 
@@ -52,7 +52,7 @@ def post_edit_version_endpoint(
 ) -> PublicationVersionEditResponse:
     _guard_locked(version)
 
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
@@ -62,13 +62,13 @@ def post_edit_version_endpoint(
         setattr(version, key, value)
 
     version.Modified_By_UUID = user.UUID
-    version.Modified_Date = datetime.now(timezone.utc)
+    version.Modified_Date = datetime.now(UTC)
 
     session.add(version)
-    session.commit()
     session.flush()
+    session.commit()
 
-    errors: List[ErrorDetails] = validator.get_errors(version)
+    errors: list[ErrorDetails] = validator.get_errors(version)
     is_valid: bool = len(errors) == 0
 
     return PublicationVersionEditResponse(

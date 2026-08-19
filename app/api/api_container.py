@@ -13,12 +13,12 @@ import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_reposit
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
-from app.api.domains.others.repositories import storage_file_repository
+from app.api.domains.others.repositories import object_related_file_repository, storage_file_repository
 from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
+from app.api.events import event_manager
 from app.api.services import permission_service
 from app.core.db.session import create_db_engine
-from app.api.events import event_manager
 from app.core.services.main_config import MainConfig
 from app.core.settings import Settings
 
@@ -52,6 +52,7 @@ class ApiContainer(containers.DeclarativeContainer):
         werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
     )
     storage_file_repository = providers.Singleton(storage_file_repository.StorageFileRepository)
+    object_related_file_repository = providers.Singleton(object_related_file_repository.ObjectRelatedFileRepository)
     object_repository = providers.Singleton(object_repositories.ObjectRepository)
     object_static_repository = providers.Singleton(object_repositories.ObjectStaticRepository)
     asset_repository = providers.Singleton(object_repositories.AssetRepository)
@@ -62,9 +63,6 @@ class ApiContainer(containers.DeclarativeContainer):
     mssql_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlAreaGeometryRepository)
     area_repository = providers.Singleton(werkingsgebieden_repositories.AreaRepository)
 
-    input_geo_werkingsgebieden_repository = providers.Singleton(
-        werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
-    )
     input_geo_onderverdeling_repository_base = providers.Singleton(
         werkingsgebieden_repositories.InputGeoOnderverdelingRepository
     )
@@ -99,6 +97,9 @@ class ApiContainer(containers.DeclarativeContainer):
 
     dso_gebiedsaanwijzingen_factory = providers.Factory(
         dso.GebiedsaanwijzingenFactory,
+    )
+    dso_thema_factory = providers.Factory(
+        dso.ThemaFactory,
     )
 
     publication = providers.Container(
@@ -171,6 +172,7 @@ class ApiContainer(containers.DeclarativeContainer):
         object_services.AddWerkingsgebiedRelatedObjectsServiceFactory
     )
     join_documents_service_factory = providers.Singleton(object_services.JoinDocumentsServiceFactory)
+    join_related_files_service_factory = providers.Singleton(object_services.JoinRelatedFilesServiceFactory)
     resolve_child_objects_via_hierarchy_service_factory = providers.Singleton(
         object_services.ResolveChildObjectsViaHierarchyServiceFactory
     )
@@ -218,6 +220,11 @@ class ApiContainer(containers.DeclarativeContainer):
                 module_services.AreaDesignationRefCheckRule,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
+            providers.Singleton(
+                module_services.ThemasCheckRule,
+                dso_thema_factory=dso_thema_factory,
+            ),
+            providers.Singleton(module_services.CheckEmptyAreaDesignationTextRule, main_config=main_config),
         ),
     )
 
@@ -297,6 +304,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.ObjectResolveChildObjectsViaHierarchyListener,
                 service_factory=resolve_child_objects_via_hierarchy_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinRelatedFilesToObjectsListener,
+                service_factory=join_related_files_service_factory,
             ),
             # RetrievedModuleObjectsEvent
             providers.Factory(

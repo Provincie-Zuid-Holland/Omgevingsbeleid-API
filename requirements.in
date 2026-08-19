@@ -2,6 +2,7 @@
 fastapi
 uvicorn[standard]
 pydantic
+pydantic-core
 pydantic-settings
 pyodbc
 SQLAlchemy
@@ -27,8 +28,8 @@ python-slugify
 # Command
 Click
 
-# Async requests
-httpx
+# Async requests / Starlette TestClient
+httpx2
 
 # Validators
 beautifulsoup4
@@ -40,11 +41,12 @@ Pillow
 pikepdf
 
 # Exporting xml and pdf
-fs
-pdfkit
 jinja2
-dicttoxml
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.11.1
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.12.1
+
+# Azure
+azure-monitor-opentelemetry
+opentelemetry-instrumentation-fastapi

@@ -1,10 +1,10 @@
-from typing import Annotated, List
+from typing import Annotated
 
 import requests
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ValidationError
 from pydantic_core import ErrorDetails
 from sqlalchemy.orm import Session
 
@@ -31,7 +31,7 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationPackagePdf(BaseModel):
-    Mutation: MutationStrategy = Field(MutationStrategy.RENVOOI)
+    Mutation: MutationStrategy | None = None
 
 
 @inject
@@ -65,7 +65,7 @@ def post_create_version_pdf_endpoint(
             session,
             version,
             PackageType.VALIDATION,
-            object_in.Mutation,
+            overwrite_mutation_strategy=object_in.Mutation,
         )
         package_builder.build_publication_files()
         zip_data: ZipData = package_builder.zip_files()
@@ -75,7 +75,8 @@ def post_create_version_pdf_endpoint(
             zip_data,
         )
 
-        filename: str = f"{zip_data.Filename.removesuffix('.zip')}-{object_in.Mutation.value}.pdf"
+        mutation_strategy: MutationStrategy = object_in.Mutation or MutationStrategy(version.Mutation_Strategy)
+        filename: str = f"{zip_data.Filename.removesuffix('.zip')}-{mutation_strategy.value}.pdf"
         response = StreamingResponse(
             pdf_response.iter_content(chunk_size=1024),
             media_type="application/pdf",
@@ -87,9 +88,9 @@ def post_create_version_pdf_endpoint(
 
         return response
 
-    except HTTPException as e:
+    except HTTPException:
         # This is already correctly formatted
-        raise e
+        raise
     except ValidationError as e:
         raise HTTPException(441, e.errors())
     except DSOConfigurationException as e:
@@ -100,10 +101,10 @@ def post_create_version_pdf_endpoint(
         raise LoggedHttpException(status_code=444, detail=e.dump_errors(), log_message=e.dump_errors())
     except PdfExportError as e:
         raise LoggedHttpException(status_code=444, detail=e.msg)
-    except Exception as e:
+    except Exception:
         # We do not know what to except here
         # This will result in a 500 server error
-        raise e
+        raise
 
 
 def _guard_publication(
@@ -113,6 +114,6 @@ def _guard_publication(
     if not version.Publication.Module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
-    errors: List[ErrorDetails] = validator.get_errors(version)
+    errors: list[ErrorDetails] = validator.get_errors(version)
     if len(errors) != 0:
         raise HTTPException(status.HTTP_409_CONFLICT, errors)

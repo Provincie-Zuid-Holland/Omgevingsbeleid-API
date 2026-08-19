@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pydantic import Field
 
@@ -13,9 +13,9 @@ from app.api.domains.publications.services.state.versions.v7.actions import (
 
 
 class StateV7(State):
-    Purposes: Dict[str, models.Purpose] = Field({})
-    Acts: Dict[str, models.ActiveAct] = Field({})
-    Announcements: Dict[str, models.ActiveAnnouncement] = Field({})
+    Purposes: dict[str, models.Purpose] = Field({})
+    Acts: dict[str, models.ActiveAct] = Field({})
+    Announcements: dict[str, models.ActiveAnnouncement] = Field({})
 
     @staticmethod
     def get_schema_version() -> int:
@@ -25,9 +25,9 @@ class StateV7(State):
         data: dict = self.model_dump()
         return data
 
-    def get_act(self, document_type: str, procedure_type: str) -> Optional[Any]:
+    def get_act(self, document_type: str, procedure_type: str) -> Any | None:
         key: str = f"{document_type}-{procedure_type}"
-        result: Optional[models.ActiveAct] = self.Acts.get(key)
+        result: models.ActiveAct | None = self.Acts.get(key)
         return result
 
     def handle_action(self, action: Action):

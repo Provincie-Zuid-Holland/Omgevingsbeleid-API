@@ -1,20 +1,19 @@
-from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import select, union_all, literal
+from sqlalchemy import literal, select, union_all
 from sqlalchemy.orm import Session
 
+from app.api.domains.publications.types.enums import DocumentType, PackageType, PublicationType, ReportStatusType
 from app.api.utils.pagination import PaginatedQueryResult, SortedPagination, query_paginated_no_scalars
-from app.api.domains.publications.types.enums import PublicationType, ReportStatusType, PackageType, DocumentType
+from app.core.tables.modules import ModuleTable
 from app.core.tables.publications import (
     PublicationActPackageTable,
     PublicationAnnouncementPackageTable,
-    PublicationVersionTable,
-    PublicationTable,
     PublicationAnnouncementTable,
     PublicationEnvironmentTable,
+    PublicationTable,
+    PublicationVersionTable,
 )
-from app.core.tables.modules import ModuleTable
 
 
 class UnifiedPackagesProvider:
@@ -66,12 +65,12 @@ class UnifiedPackagesProvider:
         self,
         session: Session,
         pagination: SortedPagination,
-        environment_uuid: Optional[UUID] = None,
-        module_id: Optional[int] = None,
-        report_status: Optional[ReportStatusType] = None,
-        package_type: Optional[PackageType] = None,
-        document_type: Optional[DocumentType] = None,
-        publication_type: Optional[PublicationType] = None,
+        environment_uuid: UUID | None = None,
+        module_id: int | None = None,
+        report_status: ReportStatusType | None = None,
+        package_type: PackageType | None = None,
+        document_type: DocumentType | None = None,
+        publication_type: PublicationType | None = None,
     ) -> PaginatedQueryResult:
         combined = union_all(
             # alias().select() is a cheat to force parentheses

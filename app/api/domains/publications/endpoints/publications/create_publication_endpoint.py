@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -60,7 +60,7 @@ def post_create_publication_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: PublicationCreate,
 ) -> PublicationCreatedResponse:
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
 
     module: ModuleTable = _get_module(session, module_repository, object_in.Module_ID)
     if not module.is_active:
@@ -90,8 +90,8 @@ def post_create_publication_endpoint(
     )
 
     session.add(publication)
-    session.commit()
     session.flush()
+    session.commit()
 
     return PublicationCreatedResponse(
         UUID=publication.UUID,
@@ -99,7 +99,7 @@ def post_create_publication_endpoint(
 
 
 def _get_module(session: Session, repository: ModuleRepository, module_id: int) -> ModuleTable:
-    module: Optional[ModuleTable] = repository.get_by_id(session, module_id)
+    module: ModuleTable | None = repository.get_by_id(session, module_id)
     if module is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module niet gevonden")
     if module.Closed:
@@ -114,7 +114,7 @@ def _get_template(
     template_uuid: uuid.UUID,
     document_type: DocumentType,
 ) -> PublicationTemplateTable:
-    template: Optional[PublicationTemplateTable] = repository.get_by_uuid(session, template_uuid)
+    template: PublicationTemplateTable | None = repository.get_by_uuid(session, template_uuid)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
     if not template.Is_Active:
@@ -127,7 +127,7 @@ def _get_template(
 def _get_environment(
     session: Session, repository: PublicationEnvironmentRepository, environment_uuid: uuid.UUID
 ) -> PublicationEnvironmentTable:
-    environment: Optional[PublicationEnvironmentTable] = repository.get_by_uuid(
+    environment: PublicationEnvironmentTable | None = repository.get_by_uuid(
         session,
         environment_uuid,
     )
@@ -141,7 +141,7 @@ def _get_environment(
 def _get_act(
     session: Session, repository: PublicationActRepository, object_in: PublicationCreate
 ) -> PublicationActTable:
-    act: Optional[PublicationActTable] = repository.get_by_uuid(session, object_in.Act_UUID)
+    act: PublicationActTable | None = repository.get_by_uuid(session, object_in.Act_UUID)
     if act is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act niet gevonden")
     if not act.Is_Active:

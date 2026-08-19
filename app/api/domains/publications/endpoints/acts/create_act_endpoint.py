@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Optional
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -23,7 +23,7 @@ class ActCreate(BaseModel):
     Environment_UUID: uuid.UUID
     Document_Type: DocumentType
     Title: str
-    Work_Other: Optional[str] = None
+    Work_Other: str | None = None
 
 
 class ActCreatedResponse(BaseModel):
@@ -54,7 +54,7 @@ def post_create_act_endpoint(
     metadata = defaults_provider.get_metadata(object_in.Document_Type.value)
     work_other: str = object_in.Work_Other or _get_work_other(session, object_in)
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     act: PublicationActTable = PublicationActTable(
         UUID=uuid.uuid4(),
         Environment_UUID=environment.UUID,
@@ -75,8 +75,8 @@ def post_create_act_endpoint(
     )
 
     session.add(act)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ActCreatedResponse(
         UUID=act.UUID,
@@ -88,7 +88,7 @@ def _get_environment(
     repository: PublicationEnvironmentRepository,
     environment_uuid: uuid.UUID,
 ) -> PublicationEnvironmentTable:
-    environment: Optional[PublicationEnvironmentTable] = repository.get_by_uuid(
+    environment: PublicationEnvironmentTable | None = repository.get_by_uuid(
         session,
         environment_uuid,
     )

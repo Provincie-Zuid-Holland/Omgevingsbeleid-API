@@ -1,5 +1,4 @@
 import uuid
-from typing import Dict
 
 from sqlalchemy.orm import Session
 
@@ -36,8 +35,8 @@ class StateV4Upgrader(StateUpgrader):
 
         return new_state
 
-    def _mutate_purposes(self, old_state: state_v3.StateV3) -> Dict[str, models_v4.Purpose]:
-        purposes: Dict[str, models_v4.Purpose] = {}
+    def _mutate_purposes(self, old_state: state_v3.StateV3) -> dict[str, models_v4.Purpose]:
+        purposes: dict[str, models_v4.Purpose] = {}
 
         for key, old_purpose in old_state.Purposes.items():
             new_purpose: models_v4.Purpose = models_v4.Purpose.model_validate(old_purpose.model_dump())
@@ -45,8 +44,8 @@ class StateV4Upgrader(StateUpgrader):
 
         return purposes
 
-    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v3.StateV3) -> Dict[str, models_v4.ActiveAct]:
-        acts: Dict[str, models_v4.ActiveAct] = {}
+    def _mutate_acts(self, environment_uuid: uuid.UUID, old_state: state_v3.StateV3) -> dict[str, models_v4.ActiveAct]:
+        acts: dict[str, models_v4.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
             new_act: models_v4.ActiveAct = self._mutate_act(environment_uuid, old_act)
@@ -62,9 +61,9 @@ class StateV4Upgrader(StateUpgrader):
         return act
 
     def _resolve_werkingsgebieden(
-        self, old_werkingsgebieden: Dict[int, models_v3.Werkingsgebied]
-    ) -> Dict[int, models_v4.Werkingsgebied]:
-        result: Dict[int, models_v4.Werkingsgebied] = {}
+        self, old_werkingsgebieden: dict[int, models_v3.Werkingsgebied]
+    ) -> dict[int, models_v4.Werkingsgebied]:
+        result: dict[int, models_v4.Werkingsgebied] = {}
 
         for object_id, old_werkingsgebied in old_werkingsgebieden.items():
             # The old style have one location which is itself
@@ -93,8 +92,8 @@ class StateV4Upgrader(StateUpgrader):
 
         return result
 
-    def _mutate_announcements(self, old_state: state_v3.StateV3) -> Dict[str, models_v4.ActiveAnnouncement]:
-        announcements: Dict[str, models_v4.ActiveAnnouncement] = {}
+    def _mutate_announcements(self, old_state: state_v3.StateV3) -> dict[str, models_v4.ActiveAnnouncement]:
+        announcements: dict[str, models_v4.ActiveAnnouncement] = {}
 
         for key, old_announcement in old_state.Announcements.items():
             new_announcement: models_v4.ActiveAnnouncement = models_v4.ActiveAnnouncement.model_validate(

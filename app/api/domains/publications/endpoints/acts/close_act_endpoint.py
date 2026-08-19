@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends
@@ -26,11 +26,11 @@ def post_close_act_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
     act.Modified_By_UUID = user.UUID
-    act.Modified_Date = datetime.now(timezone.utc)
+    act.Modified_Date = datetime.now(UTC)
     act.Is_Active = False
 
     session.add(act)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")

@@ -1,6 +1,6 @@
 from app.api.domains.publications.endpoints.dso_value_lists.area_designation_endpoint import (
-    get_area_designation_endpoint,
     ListAreaDesignationResponse,
+    get_area_designation_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder

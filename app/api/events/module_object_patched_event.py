@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict
 
 from app.api.events.types import ApiEvent
 from app.core.tables.modules import ModuleObjectsTable
@@ -11,7 +10,7 @@ from app.core.types import Model
 @dataclass
 class ModuleObjectPatchedEventContext:
     user: UsersTable
-    changes: Dict[str, str]
+    changes: dict[str, str]
     timepoint: datetime
     request_model: Model
     old_record: ModuleObjectsTable
@@ -35,7 +34,7 @@ class ModuleObjectPatchedEvent(ApiEvent):
     @staticmethod
     def create(
         user: UsersTable,
-        changes: Dict[str, str],
+        changes: dict[str, str],
         timepoint: datetime,
         request_model: Model,
         old_record: ModuleObjectsTable,

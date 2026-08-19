@@ -26,18 +26,18 @@ from .announcements import (
     EditPublicationAnnouncementEndpointBuilder,
     ListPublicationAnnouncementsEndpointBuilder,
 )
-from .versions import (
-    DeletePublicationVersionAttachmentEndpointBuilder,
-    UploadPublicationVersionAttachmentEndpointBuilder,
-    ListPublicationVersionAttachmentEndpointBuilder,
-    CreatePublicationVersionEndpointBuilder,
-    CreatePublicationVersionPdfEndpointBuilder,
-    DeletePublicationVersionEndpointBuilder,
-    DetailPublicationVersionEndpointBuilder,
-    EditPublicationVersionEndpointBuilder,
-    ListPublicationVersionsEndpointBuilder,
-)
 from .create_publication_endpoint_builder import CreatePublicationEndpointBuilder
 from .detail_publication_endpoint_builder import DetailPublicationEndpointBuilder
 from .edit_publication_endpoint_builder import EditPublicationEndpointBuilder
 from .list_publications_endpoint_builder import ListPublicationsEndpointBuilder
+from .versions import (
+    CreatePublicationVersionEndpointBuilder,
+    CreatePublicationVersionPdfEndpointBuilder,
+    DeletePublicationVersionAttachmentEndpointBuilder,
+    DeletePublicationVersionEndpointBuilder,
+    DetailPublicationVersionEndpointBuilder,
+    EditPublicationVersionEndpointBuilder,
+    ListPublicationVersionAttachmentEndpointBuilder,
+    ListPublicationVersionsEndpointBuilder,
+    UploadPublicationVersionAttachmentEndpointBuilder,
+)

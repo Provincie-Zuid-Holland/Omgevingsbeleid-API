@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Dict, List
+from datetime import UTC, datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, HTTPException, UploadFile, status
@@ -49,7 +49,7 @@ class FileParser:
         self._announcement_package: PublicationAnnouncementPackageTable = announcement_package
         self._created_by_uuid: uuid.UUID = created_by_uuid
         self._timepoint: datetime = timepoint
-        self._namespaces: Dict[str, str] = {
+        self._namespaces: dict[str, str] = {
             "lvbb": "http://www.overheid.nl/2017/lvbb",
             "stop": "http://www.overheid.nl/2017/stop",
         }
@@ -118,15 +118,15 @@ class EndpointHandler:
         debug: bool,
         report_repository: PublicationAnnouncementReportRepository,
         user: UsersTable,
-        uploaded_files: List[UploadFile],
+        uploaded_files: list[UploadFile],
         announcement_package: PublicationAnnouncementPackageTable,
     ):
         self._session: Session = session
         self._report_repository: PublicationAnnouncementReportRepository = report_repository
         self._user: UsersTable = user
-        self._uploaded_files: List[UploadFile] = uploaded_files
+        self._uploaded_files: list[UploadFile] = uploaded_files
         self._announcement_package: PublicationAnnouncementPackageTable = announcement_package
-        self._timepoint: datetime = datetime.now(timezone.utc)
+        self._timepoint: datetime = datetime.now(UTC)
         self._starting_status: ReportStatusType = ReportStatusType(self._announcement_package.Report_Status)
         self._file_parser: FileParser = FileParser(
             debug=debug,
@@ -287,7 +287,7 @@ def post_upload_announcement_package_report_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
     debug: Annotated[bool, Depends(Provide[ApiContainer.config.DEBUG_MODE])],
-    uploaded_files: Annotated[List[UploadFile], File(...)],
+    uploaded_files: Annotated[list[UploadFile], File(...)],
 ) -> UploadPackageReportResponse:
     handler = EndpointHandler(
         session=session,

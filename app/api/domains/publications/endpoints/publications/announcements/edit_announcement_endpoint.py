@@ -1,5 +1,5 @@
-from datetime import date, datetime, timezone
-from typing import Annotated, Any, Dict, Optional
+from datetime import UTC, date, datetime
+from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
@@ -16,11 +16,11 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationAnnouncementEdit(BaseModel):
-    Announcement_Date: Optional[date] = None
+    Announcement_Date: date | None = None
 
-    Metadata: Optional[AnnouncementMetadata] = None
-    Procedural: Optional[AnnouncementProcedural] = None
-    Content: Optional[AnnouncementContent] = None
+    Metadata: AnnouncementMetadata | None = None
+    Procedural: AnnouncementProcedural | None = None
+    Content: AnnouncementContent | None = None
 
 
 def post_edit_announcement_endpoint(
@@ -38,7 +38,7 @@ def post_edit_announcement_endpoint(
 ) -> ResponseOK:
     _guard_locked(announcement)
 
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
@@ -48,11 +48,11 @@ def post_edit_announcement_endpoint(
         setattr(announcement, key, value)
 
     announcement.Modified_By_UUID = user.UUID
-    announcement.Modified_Date = datetime.now(timezone.utc)
+    announcement.Modified_Date = datetime.now(UTC)
 
     session.add(announcement)
-    session.commit()
     session.flush()
+    session.commit()
 
     return ResponseOK(message="OK")
 

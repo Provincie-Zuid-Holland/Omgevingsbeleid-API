@@ -1,6 +1,6 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -19,12 +19,12 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleEdit(BaseModel):
-    Temporary_Locked: Optional[bool] = Field(None)
+    Temporary_Locked: bool | None = Field(None)
 
-    Title: Optional[str] = Field(None, min_length=3)
-    Description: Optional[str] = Field(None, min_length=3)
-    Module_Manager_1_UUID: Optional[uuid.UUID] = Field(None)
-    Module_Manager_2_UUID: Optional[uuid.UUID] = Field(None)
+    Title: str | None = Field(None, min_length=3)
+    Description: str | None = Field(None, min_length=3)
+    Module_Manager_1_UUID: uuid.UUID | None = Field(None)
+    Module_Manager_2_UUID: uuid.UUID | None = Field(None)
 
     @field_validator("Module_Manager_2_UUID", mode="after")
     def duplicate_manager(cls, v, info):
@@ -51,7 +51,7 @@ def post_edit_module_endpoint(
         [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
     )
 
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
@@ -59,7 +59,7 @@ def post_edit_module_endpoint(
         setattr(module, key, value)
 
     module.Modified_By_UUID = user.UUID
-    module.Modified_Date = datetime.now(timezone.utc)
+    module.Modified_Date = datetime.now(UTC)
 
     session.add(module)
     session.flush()

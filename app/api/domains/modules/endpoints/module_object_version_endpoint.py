@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
@@ -13,8 +13,8 @@ from app.api.domains.modules.repositories.module_object_repository import Module
 from app.api.domains.modules.types import ModuleStatusCode
 from app.api.domains.users.dependencies import depends_optional_current_user
 from app.api.endpoint import BaseEndpointContext
-from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.events.event_manager import ApiEventManager
+from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
@@ -22,7 +22,7 @@ from app.core.types import Model
 
 class ModuleObjectVersionEndpointContext(BaseEndpointContext):
     object_type: str
-    minimum_status: Optional[ModuleStatusCode] = None
+    minimum_status: ModuleStatusCode | None = None
     response_config_model: Model
     require_auth: bool
 
@@ -34,7 +34,7 @@ def view_module_object_version_endpoint(
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
-    user: Annotated[Optional[UsersTable], Depends(depends_optional_current_user)],
+    user: Annotated[UsersTable | None, Depends(depends_optional_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ModuleObjectVersionEndpointContext, Depends()],
     object_uuid: uuid.UUID,
@@ -47,7 +47,7 @@ def view_module_object_version_endpoint(
         if module.Current_Status not in ModuleStatusCode.after(context.minimum_status):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "module objects lacks the minimum status for view.")
 
-    module_object: Optional[ModuleObjectsTable] = module_object_repository.get_by_module_id_object_type_and_uuid(
+    module_object: ModuleObjectsTable | None = module_object_repository.get_by_module_id_object_type_and_uuid(
         session,
         module.Module_ID,
         context.object_type,
@@ -61,7 +61,7 @@ def view_module_object_version_endpoint(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module Object Context is verwijderd")
 
     row: BaseModel = context.response_config_model.pydantic_model.model_validate(module_object)
-    rows: List[BaseModel] = [row]
+    rows: list[BaseModel] = [row]
 
     # Ask extensions for more information
     event: RetrievedModuleObjectsEvent = event_manager.dispatch(

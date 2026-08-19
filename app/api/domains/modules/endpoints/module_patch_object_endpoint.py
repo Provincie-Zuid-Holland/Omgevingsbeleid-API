@@ -1,10 +1,11 @@
 # from datetime import datetime, timezone
-from datetime import datetime, timezone
-from typing import Annotated, Any, Dict, Optional
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends, HTTPException, status
-from pydantic import BaseModel
+from fastapi import Body, Depends, HTTPException, status
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -15,10 +16,10 @@ from app.api.domains.modules.utils import guard_module_not_locked
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.endpoint import BaseEndpointContext
+from app.api.events.event_manager import ApiEventManager
 from app.api.events.module_object_patched_event import ModuleObjectPatchedEvent
 from app.api.permissions import Permissions
 from app.api.services.permission_service import PermissionService
-from app.api.events.event_manager import ApiEventManager
 from app.core.tables.modules import ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 from app.core.tables.users import UsersTable
@@ -46,9 +47,9 @@ def post_module_patch_object_endpoint(
     ],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    object_in: BaseModel,
+    object_in_raw: Annotated[dict, Body()],
 ) -> BaseModel:
-    object_static: Optional[ObjectStaticsTable] = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
         session,
         context.object_type,
         lineage_id,
@@ -63,20 +64,34 @@ def post_module_patch_object_endpoint(
     )
     guard_module_not_locked(module)
 
-    changes: Dict[str, Any] = object_in.model_dump(exclude_unset=True)
-    if not changes:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
+    # Validated by hand so that we can give context
+    try:
+        object_in: BaseModel = context.request_config_model.pydantic_model.model_validate(
+            object_in_raw,
+            context={
+                "module_id": module.Module_ID,
+            },
+        )
+    except ValidationError as e:
+        raise RequestValidationError(e.errors()) from e
 
-    timepoint: datetime = datetime.now(timezone.utc)
-    old_record, new_record = module_object_repository.patch_latest_module_object(
-        session,
-        module.Module_ID,
-        context.object_type,
-        lineage_id,
-        changes,
-        timepoint,
-        user.UUID,
-    )
+    changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
+    if not changes:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Niets om aan te passen")
+
+    timepoint: datetime = datetime.now(UTC)
+    try:
+        old_record, new_record = module_object_repository.patch_latest_module_object(
+            session,
+            module.Module_ID,
+            context.object_type,
+            lineage_id,
+            changes,
+            timepoint,
+            user.UUID,
+        )
+    except ValueError as e:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Module object niet gevonden") from e
 
     event: ModuleObjectPatchedEvent = event_manager.dispatch(
         session,

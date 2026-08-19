@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
@@ -30,8 +30,8 @@ def get_list_publications_endpoint(
     publication_repository: Annotated[
         PublicationRepository, Depends(Provide[ApiContainer.publication.publication_repository])
     ],
-    document_type: Optional[DocumentType] = None,
-    module_id: Optional[int] = None,
+    document_type: DocumentType | None = None,
+    module_id: int | None = None,
 ) -> PagedResponse[Publication]:
     paginated_result: PaginatedQueryResult = publication_repository.get_with_filters(
         session=session,
@@ -40,7 +40,7 @@ def get_list_publications_endpoint(
         offset=pagination.offset,
         limit=pagination.limit,
     )
-    results: List[Publication] = [Publication.model_validate(r) for r in paginated_result.items]
+    results: list[Publication] = [Publication.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[Publication](
         total=paginated_result.total_count,

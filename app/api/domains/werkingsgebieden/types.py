@@ -1,7 +1,6 @@
-from enum import Enum
 import uuid
 from datetime import datetime
-from typing import List, Optional
+from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -32,32 +31,15 @@ class WerkingsgebiedStatics(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class GeoSearchResult(BaseModel):
-    UUID: str
-    Area_UUID: Optional[str] = None
-    Object_Type: str
-    Titel: Optional[str] = None
-    Omschrijving: Optional[str] = None
-
-    @field_validator("UUID", "Area_UUID", mode="before")
-    def convert_uuid_to_str(cls, v):
-        return str(v)
-
-
-class SearchResultWrapper(BaseModel):
-    Total: int = 0
-    Results: List[GeoSearchResult] = Field(default_factory=list)
-
-
 class Werkingsgebied(BaseModel):
-    ID: Optional[int] = None
+    ID: int | None = None
     UUID: uuid.UUID
     Created_Date: datetime
     Modified_Date: datetime
     Title: str
-    Start_Validity: Optional[datetime] = Field(None)
-    End_Validity: Optional[datetime] = Field(None)
-    Geometry_Hash: Optional[str] = Field(None)
+    Start_Validity: datetime | None = Field(None)
+    End_Validity: datetime | None = Field(None)
+    Geometry_Hash: str | None = Field(None)
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
@@ -95,5 +77,5 @@ class InputGeoWerkingsgebiedDetailed(BaseModel):
     Created_Date: datetime
     Title: str
     Description: str
-    Onderverdelingen: List[InputGeoOnderverdeling]
+    Onderverdelingen: list[InputGeoOnderverdeling]
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

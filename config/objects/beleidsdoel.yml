@@ -55,10 +55,20 @@ api:
               - beleidskeuze
     - prefix: /beleidsdoel/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: beleidsdoel_static
         - resolver: edit_object_static
           resolver_data:
             request_model: beleidsdoel_static_post
             result_model: beleidsdoel_static_post_validated
+    - prefix: /beleidsdoel/{lineage_id}/object-related-files
+      endpoints:
+        - resolver: object_related_files_list
+        - resolver: object_related_files_upload
+        - resolver: object_related_files_delete
+          resolver_data:
+            path: /delete
     - prefix: /modules/{module_id}/object/beleidsdoel
       endpoints:
         - resolver: module_patch_object
@@ -129,6 +139,10 @@ fields:
     name: Hoofdlijnen
     type: list_str
     column: hoofdlijnen
+  themas:
+    name: Themas
+    type: list_str
+    column: themas
     validators:
       - id: none_to_default_value
 
@@ -177,7 +191,6 @@ models:
       created_date:
       modified_date:
       title:
-      description:
       start_validity:
       end_validity:
     services:
@@ -197,6 +210,7 @@ models:
       start_validity:
       end_validity:
       hierarchy_code:
+      themas:
     dependency_model_ids:
       - user_short
     services:
@@ -232,6 +246,7 @@ models:
       start_validity:
       end_validity:
       hierarchy_code:
+      themas:
     dependency_model_ids:
       - user_short
       - ambitie_minimal
@@ -247,6 +262,8 @@ models:
           - Description
       resolve_child_objects_via_hierarchy_listener:
         to_field: Hierarchy_Children
+      related_files:
+        to_field: Related_Files
       relations:
         objects:
           - object_type: ambitie
@@ -318,10 +335,31 @@ models:
               allowed_object_types:
                 - ambitie
           - id: object_code_exists
+      themas:
+        optional: true
     services:
       extract_assets:
         fields:
           - Description
+  beleidsdoel_static:
+    name: BeleidsdoelStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
+          - to_field: Portfolio_Holder_1
+            model_id: user_short
+          - to_field: Portfolio_Holder_2
+            model_id: user_short
+          - to_field: Client_1
+            model_id: user_short
   beleidsdoel_static_post:
     name: BeleidsdoelStaticPost
     static_only: true

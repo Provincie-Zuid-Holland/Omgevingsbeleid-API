@@ -55,6 +55,9 @@ api:
               - wettelijke_taak
     - prefix: /verplicht-programma/static/{lineage_id}
       endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: verplicht_programma_static
         - resolver: edit_object_static
           resolver_data:
             request_model: verplicht_programma_static_post
@@ -225,6 +228,19 @@ models:
       extract_assets:
         fields:
           - Description
+  verplicht_programma_static:
+    name: VerplichtProgrammaStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: Owner_1
+            model_id: user_short
+          - to_field: Owner_2
+            model_id: user_short
   verplicht_programma_static_post:
     name: VerplichtProgrammaStaticPost
     static_only: true

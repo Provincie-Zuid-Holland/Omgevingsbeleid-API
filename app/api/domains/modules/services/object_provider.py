@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -18,8 +17,8 @@ class ObjectProvider:
         self._object_repository: ObjectRepository = object_repository
         self._module_object_repository: ModuleObjectRepository = module_object_repository
 
-    def get_by_uuid(self, session: Session, uuid: UUID) -> Optional[dict]:
-        maybe_object: Optional[ObjectsTable] = self._object_repository.get_by_uuid(session, uuid)
+    def get_by_uuid(self, session: Session, uuid: UUID) -> dict | None:
+        maybe_object: ObjectsTable | None = self._object_repository.get_by_uuid(session, uuid)
         if maybe_object:
             return table_to_dict(maybe_object)
 

@@ -55,6 +55,8 @@ class Permissions(str, Enum):
     publication_can_edit_publication_version = "publication_can_edit_publication_version"
     publication_can_view_publication_version = "publication_can_view_publication_version"
     publication_can_delete_publication_version_attachment = "publication_can_delete_publication_version_attachment"
+    publication_can_upload_publication_version_attachment = "publication_can_upload_publication_version_attachment"
+    publication_can_download_publication_version_attachment = "publication_can_download_publication_version_attachment"
 
     publication_can_create_publication_act_package = "publication_can_create_publication_act_package"
     publication_can_view_publication_act_package = "publication_can_view_publication_act_package"
@@ -88,3 +90,7 @@ class Permissions(str, Enum):
 
     # Storage files
     storage_file_can_upload_files = "storage_file_can_upload_files"
+
+    # Object Related Files
+    can_create_object_related_file = "can_create_object_related_file"
+    can_delete_object_related_file = "can_delete_object_related_file"

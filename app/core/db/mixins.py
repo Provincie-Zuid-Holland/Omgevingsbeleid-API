@@ -1,6 +1,5 @@
 import uuid
 from datetime import date, datetime
-from typing import Optional
 
 from sqlalchemy import ForeignKey, Unicode
 from sqlalchemy.inspection import inspect
@@ -8,8 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class TimeStamped:
-    Created_Date: Mapped[Optional[datetime]]
-    Modified_Date: Mapped[Optional[datetime]]
+    Created_Date: Mapped[datetime | None]
+    Modified_Date: Mapped[datetime | None]
 
 
 class UserMetaData:
@@ -35,3 +34,10 @@ class SerializerMixin:
 
     def to_dict(self):
         return {c.key: self.serialize(getattr(self, c.key)) for c in inspect(self).mapper.column_attrs}
+
+    def to_dict_clean(self):
+        return {
+            c.key: self.serialize(getattr(self, c.key))
+            for c in inspect(self).mapper.column_attrs
+            if getattr(self, c.key) is not None
+        }

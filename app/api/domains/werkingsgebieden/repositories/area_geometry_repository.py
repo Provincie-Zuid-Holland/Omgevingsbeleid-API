@@ -1,17 +1,11 @@
 import uuid
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
-from typing import Dict, List, Optional
 
-from shapely import wkt
-from sqlalchemy import select, text
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.api.domains.werkingsgebieden.repositories.area_repository import (
-    VALID_GEOMETRIES,
-    AreaRepository,
-    GeometryFunctions,
-)
+from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
 from app.core.tables.others import AreasTable
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
@@ -30,14 +24,10 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_spatial_function(self, func: GeometryFunctions) -> str:
-        pass
-
-    @abstractmethod
     def _calculate_hex(self, column: str) -> str:
         pass
 
-    def get_shape_hash(self, session: Session, uuidx: uuid.UUID) -> Optional[str]:
+    def get_shape_hash(self, session: Session, uuidx: uuid.UUID) -> str | None:
         params = {
             "uuid": self._format_uuid(uuidx),
         }
@@ -54,35 +44,6 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         if row is None:
             return None
         return row[0]
-
-    def get_area_uuids_by_geometry(
-        self, session: Session, geometry: str, geometry_func: GeometryFunctions
-    ) -> List[uuid.UUID]:
-        # Validating the geometry should have been done already
-        # But I do it again here because we insert it as plain text into sql.
-        # Better be safe
-        try:
-            geom = wkt.loads(geometry)
-            if geom.geom_type not in VALID_GEOMETRIES:
-                raise RuntimeError("Geometry is not a valid shape")
-        except Exception:
-            raise RuntimeError("Geometry is not a valid shape")
-
-        spatial_function = self.get_spatial_function(geometry_func)
-        text_to_shape_func = self._text_to_shape("polygon")
-        geometry_filter = f"Shape.{spatial_function}({text_to_shape_func}) = 1"
-
-        areas_stmt = (
-            select(AreasTable.UUID)
-            .select_from(AreasTable)
-            .filter(text(geometry_filter))
-            .params(
-                polygon=geometry,
-            )
-        )
-        rows = session.execute(areas_stmt).fetchall()
-
-        return [row.UUID for row in rows]
 
     def create_area(
         self,
@@ -135,7 +96,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             raise RuntimeError(f"Area with UUID {uuidx} does not exist")
         return row
 
-    def get_area_optional(self, session: Session, uuidx: uuid.UUID) -> Optional[dict]:
+    def get_area_optional(self, session: Session, uuidx: uuid.UUID) -> dict | None:
         params = {
             "uuid": self._format_uuid(uuidx),
         }
@@ -157,7 +118,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         return row_dict
 
     # TODO: WIP - not used yet. combine query for multiple areas for performance
-    def get_areas(self, session: Session, uuids: List[uuid.UUID]) -> Dict[uuid.UUID, dict]:
+    def get_areas(self, session: Session, uuids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
         placeholders = ", ".join(f":uuid{i}" for i in range(len(uuids)))
         params = {f"uuid{i}": uuid for i, uuid in enumerate(uuids)}
         sql = f"""

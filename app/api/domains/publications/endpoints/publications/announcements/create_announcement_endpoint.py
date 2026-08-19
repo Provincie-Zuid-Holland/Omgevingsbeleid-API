@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
@@ -48,7 +48,7 @@ def post_create_announcement_endpoint(
     procedural = defaults_provider.get_procedural()
     content = defaults_provider.get_content(publication.Document_Type, publication.Procedure_Type)
 
-    timepoint: datetime = datetime.now(timezone.utc)
+    timepoint: datetime = datetime.now(UTC)
     announcement = PublicationAnnouncementTable(
         UUID=uuid.uuid4(),
         Act_Package_UUID=act_package.UUID,
@@ -65,8 +65,8 @@ def post_create_announcement_endpoint(
     )
 
     session.add(announcement)
-    session.commit()
     session.flush()
+    session.commit()
 
     return AnnouncementCreatedResponse(
         UUID=announcement.UUID,

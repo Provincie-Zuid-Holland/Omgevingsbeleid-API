@@ -1,14 +1,14 @@
+import dso
 from dependency_injector import containers, providers
 from sqlalchemy.orm import sessionmaker
 
-import dso
 import app.build.endpoint_builders.modules as endpoint_builders_modules
 import app.build.endpoint_builders.objects as endpoint_builders_objects
 import app.build.endpoint_builders.others as endpoint_builders_others
 import app.build.endpoint_builders.publications as endpoint_builders_publications
 import app.build.endpoint_builders.users as endpoint_builders_users
 import app.build.endpoint_builders.werkingsgebieden as endpoint_builders_werkingsgebieden
-import app.build.services.validators.validators as validators
+from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.build import api_builder
 from app.build.endpoint_builders import endpoint_builder_provider
@@ -16,11 +16,12 @@ from app.build.events import create_model_event_listeners, event_manager, genera
 from app.build.services import (
     config_parser,
     object_intermediate_builder,
+    object_models_builder,
     tables_builder,
     validator_provider,
-    object_models_builder,
 )
 from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
+from app.build.services.validators import validators
 from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.settings import Settings
@@ -43,6 +44,7 @@ class BuildContainer(containers.DeclarativeContainer):
     )
 
     object_static_repository = providers.Singleton(ObjectStaticRepository)
+    module_object_repository = providers.Singleton(ModuleObjectRepository)
 
     dso_gebiedsaanwijzingen_factory = providers.Factory(
         dso.GebiedsaanwijzingenFactory,
@@ -68,6 +70,11 @@ class BuildContainer(containers.DeclarativeContainer):
                 validators.ObjectCodesExistsValidator,
                 session_factory=db_session_factory,
                 object_static_repository=object_static_repository,
+            ),
+            providers.Factory(
+                validators.ObjectCodesValidForModuleValidator,
+                session_factory=db_session_factory,
+                module_object_repository=module_object_repository,
             ),
             providers.Factory(validators.ObjectCodesAllowedTypeValidator),
             providers.Factory(
@@ -102,6 +109,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(create_model_event_listeners.AddPublicRevisionsToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddNextObjectVersionToObjectModelListener),
             providers.Factory(create_model_event_listeners.AddRelatedObjectsToWerkingsgebiedObjectModelListener),
+            providers.Factory(create_model_event_listeners.AddJoinRelatedFilesToObjectModelListener),
         ),
     )
     build_event_manager = providers.Singleton(
@@ -118,7 +126,6 @@ class BuildContainer(containers.DeclarativeContainer):
     endpoint_builder_provider = providers.Singleton(
         endpoint_builder_provider.EndpointBuilderProvider,
         endpoint_builders=providers.List(
-            # fmt: off
             # Objects domain
             providers.Factory(endpoint_builders_objects.ObjectLatestEndpointBuilder),
             providers.Factory(endpoint_builders_objects.ObjectVersionEndpointBuilder),
@@ -130,6 +137,7 @@ class BuildContainer(containers.DeclarativeContainer):
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
             providers.Factory(endpoint_builders_objects.EditObjectStaticEndpointBuilder),
+            providers.Factory(endpoint_builders_objects.GetObjectStaticEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalCreateObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalEditObjectEndpointBuilder),
             providers.Factory(endpoint_builders_objects.AtemporalDeleteObjectEndpointBuilder),
@@ -151,6 +159,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_publications.area_of_jurisdictions.ListPublicationAOJEndpointBuilder),
             #   DSO values
             providers.Factory(endpoint_builders_publications.dso_values.ListAreaDesignationEndpointBuilder),
+            providers.Factory(endpoint_builders_publications.dso_values.ListThemaEndpointBuilder),
             #   Templates
             providers.Factory(endpoint_builders_publications.templates.CreatePublicationTemplateEndpointBuilder),
             providers.Factory(endpoint_builders_publications.templates.DetailPublicationTemplateEndpointBuilder),
@@ -268,6 +277,9 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(
                 endpoint_builders_publications.publications.versions.attachments.ListPublicationVersionAttachmentEndpointBuilder
             ),
+            providers.Factory(
+                endpoint_builders_publications.publications.versions.attachments.DownloadPublicationVersionAttachmentEndpointBuilder
+            ),
             # Users domain
             providers.Factory(endpoint_builders_users.AuthLoginAccessTokenEndpointBuilder),
             providers.Factory(endpoint_builders_users.AuthResetPasswordEndpointBuilder),
@@ -298,10 +310,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.ModuleListStatusesEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleObjectLatestEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleObjectVersionEndpointBuilder),
-            providers.Factory(
-                endpoint_builders_modules.ModuleOverviewEndpointBuilder,
-                model_dynamic_type_builder=model_dynamic_type_builder,
-            ),
+            providers.Factory(endpoint_builders_modules.ModuleOverviewEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModulePatchObjectEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModulePatchStatusEndpointBuilder),
             providers.Factory(endpoint_builders_modules.ModuleRemoveObjectEndpointBuilder),
@@ -309,8 +318,6 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_modules.PublicListModulesEndpointBuilder),
             providers.Factory(endpoint_builders_modules.PublicModuleOverviewEndpointBuilder),
             # Werkingsgebieden domain
-            providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByAreasEndpointBuilder),
-            providers.Factory(endpoint_builders_werkingsgebieden.ListObjectsByGeometryEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.ListWerkingsgebiedenEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoListLatestWerkingsgebiedenEndpointBuilder),
             providers.Factory(endpoint_builders_werkingsgebieden.InputGeoUseWerkingsgebiedenEndpointBuilder),
@@ -324,14 +331,17 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_others.FullGraphEndpointBuilder),
             providers.Factory(endpoint_builders_others.ObjectGraphEndpointBuilder),
             providers.Factory(
-                endpoint_builders_others.MssqlSearchEndpointBuilder,
+                endpoint_builders_others.SearchEndpointBuilder,
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
             providers.Factory(
                 endpoint_builders_others.MssqlValidSearchEndpointBuilder,
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
-            # fmt: on
+            # Object Related Files
+            providers.Factory(endpoint_builders_others.ObjectRelatedFilesUploadEndpointBuilder),
+            providers.Factory(endpoint_builders_others.ObjectRelatedFilesListEndpointBuilder),
+            providers.Factory(endpoint_builders_others.ObjectRelatedFilesDeleteEndpointBuilder),
         ),
     )
 
