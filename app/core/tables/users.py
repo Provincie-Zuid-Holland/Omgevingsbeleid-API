@@ -39,7 +39,7 @@ class UsersTable(Base, SerializerMixin):
         del data["Wachtwoord"]
         return data
 
-
+# The only doubt I have is the language of the table name and column names. Since the Gebruikers table is in Dutch but the rest is English
 class UserRoleTable(Base):
     __tablename__ = "user_roles"
 

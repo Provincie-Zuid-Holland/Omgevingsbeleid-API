@@ -17,7 +17,7 @@ class User(BaseModel):
     UUID: UUID
     Gebruikersnaam: str
     Email: str
-    Rol: str
+    Roles: list[str]
     Status: str
     IsActive: bool
 
@@ -30,7 +30,7 @@ class User(BaseModel):
 
 class UserLoginDetail(BaseModel):
     UUID: UUID
-    Rol: str
+    Roles: list[str]
     Gebruikersnaam: str
 
     model_config = ConfigDict(from_attributes=True)
