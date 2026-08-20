@@ -34,6 +34,8 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("User_UUID", "Role"),
     )
+
+    # Query to change the existing roles to the new roles table. (Doubt if this is the place to do it or just once via the terminal)
     op.execute("""
             INSERT INTO user_roles (User_UUID, Role)
             SELECT UUID,
