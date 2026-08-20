@@ -56,6 +56,9 @@ def post_create_user_endpoint(
 ) -> UserCreateResponse:
     permission_service.guard_valid_user(Permissions.user_can_create_user, logged_in_user)
 
+    if not object_in.Roles:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "At least one role is required")
+
     if not set(object_in.Roles) <= set(context.allowed_roles):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Roles")
 
