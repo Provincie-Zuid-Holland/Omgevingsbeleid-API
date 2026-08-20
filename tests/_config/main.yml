@@ -17,7 +17,6 @@ api:
               - "Ambtelijk opdrachtgever"
               - "Basic"
               - "Behandelend Ambtenaar"
-              - "Functioneel beheerder"
               - "Portefeuillehouder"
               - "Regisseur Omgevingsbeleid"
     - prefix: /users/{user_uuid}
@@ -29,7 +28,6 @@ api:
               - "Ambtelijk opdrachtgever"
               - "Basic"
               - "Behandelend Ambtenaar"
-              - "Functioneel beheerder"
               - "Portefeuillehouder"
               - "Regisseur Omgevingsbeleid"
     - prefix: /storage-files
