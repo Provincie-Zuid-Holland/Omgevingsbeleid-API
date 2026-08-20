@@ -158,7 +158,6 @@ api:
               - "Ambtelijk opdrachtgever"
               - "Basic"
               - "Behandelend Ambtenaar"
-              - "Functioneel beheerder"
               - "Portefeuillehouder"
               - "Regisseur Omgevingsbeleid"
 
@@ -182,7 +181,6 @@ api:
               - "Ambtelijk opdrachtgever"
               - "Basic"
               - "Behandelend Ambtenaar"
-              - "Functioneel beheerder"
               - "Portefeuillehouder"
               - "Regisseur Omgevingsbeleid"
         - resolver: reset_user_password
