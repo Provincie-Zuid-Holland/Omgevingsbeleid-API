@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import ForeignKey, Unicode
-from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.base import Base
@@ -23,7 +23,9 @@ class UsersTable(Base, SerializerMixin):
         back_populates="User",
         cascade="all, delete-orphan",
     )
-    Roles = association_proxy("user_roles", "Role", creator=lambda role: UserRoleTable(Role=role))
+    Roles: AssociationProxy[list[str]] = association_proxy(
+        "user_roles", "Role", creator=lambda role: UserRoleTable(Role=role)
+    )
 
     # @todo: move to separate table
     Wachtwoord: Mapped[str | None]  # = mapped_column(deferred=True)
