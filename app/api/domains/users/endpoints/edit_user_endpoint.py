@@ -70,6 +70,9 @@ def post_edit_user_endpoint(
     for key, value in changes.items():
         setattr(user, key, value)
 
+    if not user.Roles:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "At least one role is required")
+
     if not validators.email(user.Email):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid email")
     if not set(user.Roles) <= set(context.allowed_roles):
