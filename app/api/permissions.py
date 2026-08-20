@@ -94,3 +94,7 @@ class Permissions(str, Enum):
     # Object Related Files
     can_create_object_related_file = "can_create_object_related_file"
     can_delete_object_related_file = "can_delete_object_related_file"
+
+    # Hoofdlijnen
+    can_create_hoofdlijn = "can_create_hoofdlijn"
+    can_edit_hoofdlijn = "can_edit_hoofdlijn"

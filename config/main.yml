@@ -279,7 +279,12 @@ api:
         - resolver: download_storage_file
     - prefix: /hoofdlijnen
       endpoints:
+        - resolver: create_hoofdlijn
         - resolver: list_hoofdlijnen
+    - prefix: /hoofdlijnen/{hoofdlijn_uuid}
+      endpoints:
+        - resolver: detail_hoofdlijn
+        - resolver: edit_hoofdlijn
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -908,6 +913,8 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
+    - can_create_hoofdlijn
+    - can_edit_hoofdlijn
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -968,6 +975,8 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
+    - can_create_hoofdlijn
+    - can_edit_hoofdlijn
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1027,6 +1036,8 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
+    - can_create_hoofdlijn
+    - can_edit_hoofdlijn
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1085,6 +1096,8 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
+    - can_create_hoofdlijn
+    - can_edit_hoofdlijn
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1143,6 +1156,8 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
+    - can_create_hoofdlijn
+    - can_edit_hoofdlijn
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1201,6 +1216,8 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
+    - can_create_hoofdlijn
+    - can_edit_hoofdlijn
 
 mssql_search:
   - table_name: objects

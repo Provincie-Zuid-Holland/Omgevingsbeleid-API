@@ -1,4 +1,5 @@
 from enum import Enum
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -15,6 +16,10 @@ class HoofdlijnSortColumn(str, Enum):
 
 
 class HoofdlijnRepository(BaseRepository):
+    def get_by_uuid(self, session: Session, uuidx: UUID) -> HoofdlijnTable | None:
+        stmt = select(HoofdlijnTable).filter(HoofdlijnTable.UUID == uuidx)
+        return self.fetch_first(session, stmt)
+
     def get_paginated(
         self,
         session: Session,
