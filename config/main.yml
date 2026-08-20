@@ -151,7 +151,6 @@ api:
                 order: asc
               allowed_columns:
                 - Gebruikersnaam
-                - Rol
                 - Email
         - resolver: create_user
           resolver_data:
@@ -161,6 +160,8 @@ api:
               - "Behandelend Ambtenaar"
               - "Functioneel beheerder"
               - "Portefeuillehouder"
+              - "Regisseur Omgevingsbeleid"
+
     - prefix: /users/search
       endpoints:
         - resolver: search_users
@@ -171,7 +172,6 @@ api:
                 order: asc
               allowed_columns:
                 - Gebruikersnaam
-                - Rol
                 - Email
     - prefix: /users/{user_uuid}
       endpoints:
@@ -184,6 +184,7 @@ api:
               - "Behandelend Ambtenaar"
               - "Functioneel beheerder"
               - "Portefeuillehouder"
+              - "Regisseur Omgevingsbeleid"
         - resolver: reset_user_password
           resolver_data:
             path: /reset-password

@@ -14,18 +14,24 @@ api:
         - resolver: create_user
           resolver_data:
             allowed_roles:
+              - "Ambtelijk opdrachtgever"
+              - "Basic"
               - "Behandelend Ambtenaar"
+              - "Functioneel beheerder"
               - "Portefeuillehouder"
-              - "Beheerder"
+              - "Regisseur Omgevingsbeleid"
     - prefix: /users/{user_uuid}
       endpoints:
         - resolver: get_user
         - resolver: edit_user
           resolver_data:
             allowed_roles:
+              - "Ambtelijk opdrachtgever"
+              - "Basic"
               - "Behandelend Ambtenaar"
+              - "Functioneel beheerder"
               - "Portefeuillehouder"
-              - "Beheerder"
+              - "Regisseur Omgevingsbeleid"
     - prefix: /storage-files
       endpoints:
         - resolver: list_storage_files

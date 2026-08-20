@@ -21,9 +21,10 @@ class UsersTable(Base, SerializerMixin):
 
     user_roles: Mapped[list["UserRoleTable"]] = relationship(
         back_populates="User",
+        cascade="all, delete-orphan",
     )
     Roles = association_proxy("user_roles", "Role", creator=lambda role: UserRoleTable(Role=role))
-    
+
     # @todo: move to separate table
     Wachtwoord: Mapped[str | None]  # = mapped_column(deferred=True)
 
@@ -38,6 +39,7 @@ class UsersTable(Base, SerializerMixin):
         data: dict = self.to_dict()
         del data["Wachtwoord"]
         return data
+
 
 # The only doubt I have is the language of the table name and column names. Since the Gebruikers table is in Dutch but the rest is English
 class UserRoleTable(Base):

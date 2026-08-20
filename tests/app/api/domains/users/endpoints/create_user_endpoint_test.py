@@ -14,14 +14,14 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
 # allowed_roles for the create_user resolver in tests/_config/main.yml
-ALLOWED_ROL = "Behandelend Ambtenaar"
+[ALLOWED_ROL] = ["Regisseur Omgevingsbeleid"]
 
 
 def _payload(**overrides) -> dict:
     payload = {
         "Gebruikersnaam": "Newbie",
         "Email": "newbie@pzh.nl",
-        "Rol": ALLOWED_ROL,
+        "Roles": [ALLOWED_ROL],
     }
     payload.update(overrides)
     return payload
@@ -33,7 +33,7 @@ def test_create_user_success(admin: TestClient, session: Session, security: Secu
 
     body = response.json()
     assert body["Email"] == "newbie@pzh.nl"
-    assert body["Rol"] == ALLOWED_ROL
+    assert body["Roles"] == [ALLOWED_ROL]
     assert body["Password"].startswith("change-me-")
     created_uuid = uuid.UUID(body["UUID"])
 
@@ -41,7 +41,7 @@ def test_create_user_success(admin: TestClient, session: Session, security: Secu
     row: UsersTable | None = session.get(UsersTable, created_uuid)
     assert row is not None
     assert row.Email == "newbie@pzh.nl"
-    assert row.Rol == ALLOWED_ROL
+    assert row.Roles == [ALLOWED_ROL]
     assert row.Status == IS_ACTIVE
 
     # The stored password is a hash of the returned plaintext, not the plaintext.
@@ -86,7 +86,7 @@ def test_create_user_duplicate_email(admin: TestClient, session: Session):
         pytest.param("ambtenaar", _payload(Email="forbidden@pzh.nl"), 401, "Invalid user role", id="no_permission"),
         # "Superuser" is not in the resolver's allowed_roles.
         pytest.param(
-            "admin", _payload(Email="wrongrole@pzh.nl", Rol="Superuser"), 400, "Invalid Rol", id="disallowed_rol"
+            "admin", _payload(Email="wrongrole@pzh.nl", Roles=["Superuser"]), 400, "Invalid Roles", id="disallowed_role"
         ),
         # Body validation
         pytest.param("admin", _payload(Email="not-an-email"), 422, None, id="invalid_email"),
