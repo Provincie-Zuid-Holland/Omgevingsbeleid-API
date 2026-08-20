@@ -91,6 +91,6 @@ def post_create_user_endpoint(
     return UserCreateResponse(
         UUID=user.UUID,
         Email=user.Email,
-        Roles=user.Roles,
+        Roles=list(user.Roles),
         Password=password,
     )
