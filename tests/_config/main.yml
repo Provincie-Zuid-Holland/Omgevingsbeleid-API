@@ -351,7 +351,7 @@ users_permissions:
     - publication_can_upload_publication_version_attachment
     - publication_can_download_publication_version_attachment
     # Publicatie unified Package
-    - publication_can_view_unified_package
+    - publication_can_view_unified_packages
     # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
@@ -471,7 +471,7 @@ users_permissions:
     - publication_can_upload_publication_version_attachment
     - publication_can_download_publication_version_attachment
     # Publicatie unified Package
-    - publication_can_view_unified_package
+    - publication_can_view_unified_packages
     # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
@@ -554,7 +554,7 @@ users_permissions:
     - publication_can_download_publication_version_attachment
     - publication_can_delete_publication_version_attachment
     # Publicatie unified Package
-    - publication_can_view_unified_package
+    - publication_can_view_unified_packages
     # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
