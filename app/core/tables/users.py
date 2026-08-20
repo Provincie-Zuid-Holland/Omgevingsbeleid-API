@@ -1,8 +1,8 @@
 import uuid
 
 from sqlalchemy import ForeignKey, Unicode
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin
