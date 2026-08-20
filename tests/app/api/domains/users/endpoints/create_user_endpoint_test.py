@@ -14,7 +14,7 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
 # allowed_roles for the create_user resolver in tests/_config/main.yml
-[ALLOWED_ROL] = ["Regisseur Omgevingsbeleid"]
+ALLOWED_ROL = "Regisseur Omgevingsbeleid"
 
 
 def _payload(**overrides) -> dict:

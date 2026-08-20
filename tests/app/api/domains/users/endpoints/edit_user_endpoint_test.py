@@ -13,7 +13,7 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
 # allowed_roles for the edit_user resolver
-[ALLOWED_ROL] = ["Regisseur Omgevingsbeleid"]
+ALLOWED_ROL = "Regisseur Omgevingsbeleid"
 
 # A uuid that is guaranteed not to match any seeded user.
 NONEXISTENT_UUID = uuid.UUID("00000000-0000-0000-0000-00000000dead")
