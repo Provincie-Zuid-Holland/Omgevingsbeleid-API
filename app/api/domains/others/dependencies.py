@@ -37,6 +37,7 @@ def depends_storage_file(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Storage file niet gevonden")
     return maybe_file
 
+
 @inject
 def depends_hoofdlijn(
     hoofdlijn_uuid: uuid.UUID,

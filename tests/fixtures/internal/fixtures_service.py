@@ -15,6 +15,7 @@ from tests.fixtures.data import (
     d070_objects_march,
     d080_objects_2099,
     d101_object_related_files,
+    d102_hoofdlijnen,
     d201_module_1_basic,
     d202_module_2_inactive,
     d203_module_3_closed,
@@ -26,8 +27,6 @@ from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.services.linker_service import LinkerService
 from tests.fixtures.internal.services.persist_service import PersistService
 from tests.fixtures.internal.services.prefill_service import PrefillService
-
-# import tests.fixtures.data.d050_basic_demo as d050_basic_demo
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import DATETIME_T0, FixtureData
 
@@ -47,6 +46,7 @@ class FixturesService:
             d070_objects_march.load,
             d080_objects_2099.load,
             d101_object_related_files.load,
+            d102_hoofdlijnen.load,
             d201_module_1_basic.load,
             d202_module_2_inactive.load,
             d203_module_3_closed.load,

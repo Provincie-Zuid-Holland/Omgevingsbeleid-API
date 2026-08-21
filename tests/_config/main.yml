@@ -35,6 +35,14 @@ api:
     - prefix: /storage-files/{file_uuid}/download
       endpoints:
         - resolver: download_storage_file
+    - prefix: /hoofdlijnen
+      endpoints:
+        - resolver: create_hoofdlijn
+        - resolver: list_hoofdlijnen
+    - prefix: /hoofdlijnen/{hoofdlijn_uuid}
+      endpoints:
+        - resolver: detail_hoofdlijn
+        - resolver: edit_hoofdlijn
     - prefix: /search
       endpoints:
         - resolver: search
@@ -130,6 +138,13 @@ columns:
   # Target codes (gebied, gebieden for gebiedsaanwijzingen)
   target_codes:
     name: Target_Codes
+    type: json
+    serializers: []
+    deserializers: []
+    nullable: true
+  # Hoofdlijnen references
+  hoofdlijnen:
+    name: Hoofdlijnen
     type: json
     serializers: []
     deserializers: []
@@ -358,6 +373,8 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
+    - can_create_hoofdlijn
+    - can_edit_hoofdlijn
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -416,3 +433,5 @@ users_permissions:
     - storage_file_can_upload_files
     - can_create_object_related_file
     - can_delete_object_related_file
+    - can_create_hoofdlijn
+    - can_edit_hoofdlijn

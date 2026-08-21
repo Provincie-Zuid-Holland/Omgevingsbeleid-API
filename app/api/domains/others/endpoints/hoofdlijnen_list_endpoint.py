@@ -39,11 +39,7 @@ def get_hoofdlijnen_list_endpoint(
         pagination=pagination,
     )
 
-    # hoofdlijnen = [Hoofdlijn.model_validate(r) for r in paginated_result.items]
-    hoofdlijnen = []
-    for r in paginated_result.items:
-        validated = Hoofdlijn.model_validate(r)
-        hoofdlijnen.append(validated)
+    hoofdlijnen = [Hoofdlijn.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[Hoofdlijn](
         total=paginated_result.total_count,

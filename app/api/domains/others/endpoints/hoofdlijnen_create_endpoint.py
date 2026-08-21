@@ -22,6 +22,7 @@ class CreateHoofdlijn(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class HoofdlijnCreatedResponse(BaseModel):
     UUID: uuid.UUID
 
