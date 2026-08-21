@@ -7,6 +7,7 @@ import tests.fixtures.internal.spec.objects as objects_types
 from app.core.db.base import Base
 from tests.fixtures.internal.spec.area_spec import AreaPersistHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPersistHandler, AssetSpec
+from tests.fixtures.internal.spec.hoofdlijn_spec import HoofdlijnPersistHandler, HoofdlijnSpec
 from tests.fixtures.internal.spec.input_geo_onderverdeling_spec import (
     InputGeoOnderverdelingPersistHandler,
     InputGeoOnderverdelingSpec,
@@ -37,6 +38,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             AssetSpec: AssetPersistHandler(),
             StorageFileSpec: StorageFilePersistHandler(),
             ObjectRelatedFileSpec: ObjectRelatedFilePersistHandler(),
+            HoofdlijnSpec: HoofdlijnPersistHandler(),
             # Geo
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPersistHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPersistHandler(),
