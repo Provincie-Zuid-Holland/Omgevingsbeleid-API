@@ -32,7 +32,7 @@ def delete_object_related_files_delete_endpoint(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Bestand niet gevonden")
 
     permission_service.guard_valid_user(
-        Permissions.can_delete_object_related_file,
+        Permissions.object_related_files_can_delete_object_related_file,
         user,
         [
             maybe_file.ObjectStatics.Owner_1_UUID,

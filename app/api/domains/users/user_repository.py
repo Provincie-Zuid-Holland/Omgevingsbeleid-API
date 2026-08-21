@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.api.base_repository import BaseRepository
 from app.api.domains.users.services.security import Security
 from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
-from app.core.tables.users import IS_ACTIVE, UsersTable
+from app.core.tables.users import IS_ACTIVE, UserRoleTable, UsersTable
 
 
 class UserRepository(BaseRepository):
@@ -32,7 +32,7 @@ class UserRepository(BaseRepository):
         stmt = select(UsersTable)
 
         if role is not None:
-            stmt = stmt.filter(UsersTable.Rol == role)
+            stmt = stmt.filter(UsersTable.user_roles.any(UserRoleTable.Role == role))
 
         if query is not None:
             stmt = stmt.filter(or_(UsersTable.Gebruikersnaam.like(f"%{query}%"), UsersTable.Email.like(f"%{query}%")))

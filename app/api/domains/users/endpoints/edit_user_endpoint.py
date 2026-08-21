@@ -24,7 +24,7 @@ from app.core.tables.users import IS_ACTIVE, UsersTable
 class EditUser(BaseModel):
     Gebruikersnaam: str | None = Field(None)
     Email: str | None = Field(None)
-    Rol: str | None = Field(None)
+    Roles: list[str] | None = Field(None)
     IsActive: bool | None = Field(None)
 
 
@@ -70,10 +70,13 @@ def post_edit_user_endpoint(
     for key, value in changes.items():
         setattr(user, key, value)
 
+    if not user.Roles:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "At least one role is required")
+
     if not validators.email(user.Email):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid email")
-    if user.Rol not in context.allowed_roles:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Rol")
+    if not set(user.Roles) <= set(context.allowed_roles):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Roles")
 
     user_after_dict: dict = user.to_dict_safe()
 

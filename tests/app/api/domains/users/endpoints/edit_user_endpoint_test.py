@@ -13,7 +13,7 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
 # allowed_roles for the edit_user resolver
-ALLOWED_ROL = "Behandelend Ambtenaar"
+ALLOWED_ROL = "Regisseur Omgevingsbeleid"
 
 # A uuid that is guaranteed not to match any seeded user.
 NONEXISTENT_UUID = uuid.UUID("00000000-0000-0000-0000-00000000dead")
@@ -28,7 +28,7 @@ def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: S
     payload = {
         "Gebruikersnaam": "Edited Name",
         "Email": "edited@pzh.nl",
-        "Rol": ALLOWED_ROL,
+        "Roles": [ALLOWED_ROL],
     }
 
     response = admin.post(f"/users/{target_uuid}", json=payload)
@@ -39,7 +39,7 @@ def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: S
     assert row is not None
     assert row.Gebruikersnaam == "Edited Name"
     assert row.Email == "edited@pzh.nl"
-    assert row.Rol == ALLOWED_ROL
+    assert row.Roles == [ALLOWED_ROL]
     assert row.Status == IS_ACTIVE
 
 
@@ -112,7 +112,9 @@ def test_edit_user_same_email_is_allowed(admin: TestClient, target_uuid: uuid.UU
         # The resulting email must be valid (EditUser has no field validator, so this is a 400, not 422).
         pytest.param("admin", True, {"Email": "not-an-email"}, 400, "Invalid email", id="invalid_email"),
         # "Superuser" is not in the resolver's allowed_roles.
-        pytest.param("admin", True, {"Rol": "Superuser"}, 400, "Invalid Rol", id="disallowed_rol"),
+        pytest.param("admin", True, {"Roles": ["Superuser"]}, 400, "Invalid Roles", id="disallowed_role"),
+        # Roles must not be empty.
+        pytest.param("admin", True, {"Roles": []}, 400, "At least one role is required", id="no_roles"),
     ],
 )
 def test_edit_user_rejected(
