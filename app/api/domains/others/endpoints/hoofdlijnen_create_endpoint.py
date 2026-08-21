@@ -17,8 +17,8 @@ from app.core.tables.users import UsersTable
 
 
 class CreateHoofdlijn(BaseModel):
-    Name: str | None = Field(None)
-    Type: str | None = Field(None)
+    Name: str = Field(..., min_length=3, max_length=255)
+    Type: str = Field(..., min_length=3, max_length=255)
 
     model_config = ConfigDict(from_attributes=True)
 
