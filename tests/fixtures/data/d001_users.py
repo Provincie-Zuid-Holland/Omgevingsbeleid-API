@@ -35,5 +35,11 @@ def load(col: Collector) -> None:
                 Email="frozen@pzh.nl",
                 Rol="Behandelend Ambtenaar",
             ),
+            UserSpec(
+                key="beheerder",
+                Gebruikersnaam="beheerder",
+                Email="beheerder@pzh.nl",
+                Rol="Beheerder",
+            ),
         ]
     )
