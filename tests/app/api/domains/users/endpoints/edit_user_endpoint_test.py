@@ -113,6 +113,8 @@ def test_edit_user_same_email_is_allowed(admin: TestClient, target_uuid: uuid.UU
         pytest.param("admin", True, {"Email": "not-an-email"}, 400, "Invalid email", id="invalid_email"),
         # "Superuser" is not in the resolver's allowed_roles.
         pytest.param("admin", True, {"Roles": ["Superuser"]}, 400, "Invalid Roles", id="disallowed_role"),
+        # Roles must not be empty.
+        pytest.param("admin", True, {"Roles": []}, 400, "At least one role is required", id="no_roles"),
     ],
 )
 def test_edit_user_rejected(

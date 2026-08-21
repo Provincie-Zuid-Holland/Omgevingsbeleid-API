@@ -88,6 +88,10 @@ def test_create_user_duplicate_email(admin: TestClient, session: Session):
         pytest.param(
             "admin", _payload(Email="wrongrole@pzh.nl", Roles=["Superuser"]), 400, "Invalid Roles", id="disallowed_role"
         ),
+        # Roles must not be empty.
+        pytest.param(
+            "admin", _payload(Email="noroles@pzh.nl", Roles=[]), 400, "At least one role is required", id="no_roles"
+        ),
         # Body validation
         pytest.param("admin", _payload(Email="not-an-email"), 422, None, id="invalid_email"),
         pytest.param("admin", _payload(Gebruikersnaam="ab", Email="short@pzh.nl"), 422, None, id="short_username"),
