@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
 from dso.act_builder.services.ow.state.ow_state import OwState as DsoOwState
@@ -74,7 +75,7 @@ class ActStatePatcher:
         if act_text is None:
             raise RuntimeError("Regeling vrijetekst bestaat niet")
 
-        used_asset_uuids: set[str] = self._dso_builder.get_used_asset_uuids()
+        used_asset_uuids: set[str] = self._dso_builder.get_asset_uuids_wordt()
         assets: dict[str, models.Asset] = {uuidx: models.Asset(UUID=uuidx) for uuidx in used_asset_uuids}
 
         action = AddPublicationAction(

@@ -1,4 +1,7 @@
+import re
 from uuid import UUID
+
+from lxml import etree
 
 from sqlalchemy.orm import Session
 
@@ -83,8 +86,17 @@ class StateV7Upgrader(StateUpgrader):
 
         act_dict["Ow_State"] = models_v7.OwState.model_validate(old_act.Ow_State.model_dump())
 
+        # We did not store all active assets therefor we will find them again in the act text
+        act_dict["Assets"] = self._resolve_assets(act_dict["Act_Text"])
+
         act: models_v7.ActiveAct = models_v7.ActiveAct.model_validate(act_dict)
         return act
+
+    def _resolve_assets(self, old_act_text: str) -> dict[str, models_v7.Asset]:
+        parser: ActTextAssetParser = ActTextAssetParser()
+        asset_uuids: set[str] = parser.get_asset_uuids(old_act_text)
+        assets: dict[str, models_v7.Asset] = {uuidx: models_v7.Asset(UUID=uuidx) for uuidx in asset_uuids}
+        return assets
 
     def _resolve_gios(self, old_act: models_v6.ActiveAct) -> dict[str, models_v7.Gio]:
         result_gios: dict[str, models_v7.Gio] = {}
@@ -109,3 +121,29 @@ class StateV7Upgrader(StateUpgrader):
             result_gios[new_gio.key] = new_gio
 
         return result_gios
+
+
+# This service is copied from DSO's code this way we know that we use the same method as was used before
+class ActTextAssetParser:
+    def __init__(self):
+        self._uuid_regex = r"img_([a-f0-9\-]+)\.(png|jpg|jpeg|gif|bmp|tiff|webp)"
+
+    def get_asset_uuids(self, act_text: str) -> Set[str]:
+        parser = etree.XMLParser(ns_clean=True)
+        tree = etree.fromstring(act_text, parser)
+        namespaces = {"ns": "https://standaarden.overheid.nl/stop/imop/tekst/"}
+        illustraties = tree.xpath("//ns:Illustratie", namespaces=namespaces)
+
+        asset_uuids: Set[str] = set()
+        for illustratie in illustraties:
+            uuidx = self._extract_uuid(illustratie.attrib.get("naam", ""))
+            asset_uuids.add(uuidx)
+
+        return asset_uuids
+
+    def _extract_uuid(self, name: str) -> str:
+        match = re.search(self._uuid_regex, name)
+        if match:
+            return match.group(1)
+
+        raise RuntimeError("Unable to find asset uuid in the name: '{name}'")
