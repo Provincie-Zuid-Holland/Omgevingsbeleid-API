@@ -313,8 +313,6 @@ users_permissions:
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module
     - module_can_edit_module_object_context
-    # Statische Data
-    - can_patch_object_static
   "Regisseur Omgevingsbeleid" : 
     # Atemporal Object
     - atemporal_can_create_object
@@ -326,6 +324,7 @@ users_permissions:
     - module_can_edit_module
     - module_can_activate_module
     - module_can_patch_module_status
+    - module_can_complete_module
     # Module Object
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module
@@ -336,22 +335,19 @@ users_permissions:
     - user_can_create_user
     - user_can_edit_user
     - user_can_reset_user_password
-    # Statische Data
-    - can_patch_object_static
     # Publicatie
     - publication_can_create_publication
     - publication_can_edit_publication
     - publication_can_view_publication
+    # Publicatie Unified Package
+    - publication_can_view_unified_packages
     # Publicatieversie
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
     # Publicatieversie Bijlage
-    - publication_can_delete_publication_version_attachment
     - publication_can_upload_publication_version_attachment
     - publication_can_download_publication_version_attachment
-    # Publicatie unified Package
-    - publication_can_view_unified_packages
     # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
@@ -361,6 +357,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
     # Publicatie Act Package Rapport
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
@@ -378,6 +375,13 @@ users_permissions:
     - publication_can_download_publication_announcement_package_report
     # Publicatieomgeving
     - publication_can_view_publication_environment
+    # Statische Data
+    - can_patch_object_static
+    # Storage File
+    - storage_file_can_upload_files
+    # Object related files 
+    - object_related_files_can_create_object_related_file
+    - object_related_files_can_delete_object_related_file
 
   "Publiceerder" : 
     # Publicatietemplate
@@ -391,14 +395,15 @@ users_permissions:
     - publication_can_create_publication
     - publication_can_edit_publication
     - publication_can_view_publication
+    # Publicatie Unified Package
+    - publication_can_view_unified_packages
     # Publicatieversie
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
     # Publicatieversie Bijlage
-    - publication_can_delete_publication_version_attachment
     - publication_can_upload_publication_version_attachment
-    - publication_can_download_publication_version_attachment 
+    - publication_can_download_publication_version_attachment
     # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
@@ -408,6 +413,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
     # Publicatie Act Package Rapport
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
@@ -423,13 +429,13 @@ users_permissions:
     # Publicatie Kennisgeving Levering Rapport
     - publication_can_upload_publication_announcement_package_report
     - publication_can_view_publication_announcement_package_report
-    - publication_can_download_publication_announcement_package_report   
+    - publication_can_download_publication_announcement_package_report
     # Publicatieomgeving
-    - publication_can_create_publication_environment
-    - publication_can_edit_publication_environment
     - publication_can_view_publication_environment
+    # Storage File
+    - storage_file_can_upload_files
   "Technisch Beheerder" : 
-  # Atemporal Object
+    # Atemporal Object
     - atemporal_can_create_object
     - atemporal_can_edit_object
     - atemporal_can_delete_object
@@ -439,6 +445,7 @@ users_permissions:
     - module_can_edit_module
     - module_can_activate_module
     - module_can_patch_module_status
+    - module_can_complete_module
     # Module Object
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module
@@ -449,8 +456,6 @@ users_permissions:
     - user_can_create_user
     - user_can_edit_user
     - user_can_reset_user_password
-    # Statische Data
-    - can_patch_object_static
     # Publicatietemplate
     - publication_can_create_publication_template
     - publication_can_edit_publication_template
@@ -462,16 +467,16 @@ users_permissions:
     - publication_can_create_publication
     - publication_can_edit_publication
     - publication_can_view_publication
+    # Publicatie Unified Package
+    - publication_can_view_unified_packages
     # Publicatieversie
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
     # Publicatieversie Bijlage
-    - publication_can_delete_publication_version_attachment
     - publication_can_upload_publication_version_attachment
     - publication_can_download_publication_version_attachment
-    # Publicatie unified Package
-    - publication_can_view_unified_packages
+    - publication_can_delete_publication_version_attachment
     # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
@@ -481,6 +486,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
     # Publicatie Act Package Rapport
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
@@ -501,18 +507,20 @@ users_permissions:
     - publication_can_create_publication_environment
     - publication_can_edit_publication_environment
     - publication_can_view_publication_environment
+    # Statische Data
+    - can_patch_object_static
     # Storage File
     - storage_file_can_upload_files
     # Object related files 
     - object_related_files_can_create_object_related_file
     - object_related_files_can_delete_object_related_file
-  "Ambtelijk opdrachtgever": 
+  "Ambtelijk opdrachtgever" : 
     # Statische Data
     - can_patch_object_static
   "Portefeuillehouder" : []
-  "Basic": []
-  "Superuser":
-  # Atemporal Object
+  "Basic" : []
+  "Superuser" :
+    # Atemporal Object
     - atemporal_can_create_object
     - atemporal_can_edit_object
     - atemporal_can_delete_object
@@ -522,6 +530,7 @@ users_permissions:
     - module_can_edit_module
     - module_can_activate_module
     - module_can_patch_module_status
+    - module_can_complete_module
     # Module Object
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module
@@ -532,8 +541,6 @@ users_permissions:
     - user_can_create_user
     - user_can_edit_user
     - user_can_reset_user_password
-    # Statische Data
-    - can_patch_object_static
     # Publicatietemplate
     - publication_can_create_publication_template
     - publication_can_edit_publication_template
@@ -545,6 +552,8 @@ users_permissions:
     - publication_can_create_publication
     - publication_can_edit_publication
     - publication_can_view_publication
+    # Publicatie unified packages
+    - publication_can_view_unified_packages
     # Publicatieversie
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
@@ -553,8 +562,6 @@ users_permissions:
     - publication_can_upload_publication_version_attachment
     - publication_can_download_publication_version_attachment
     - publication_can_delete_publication_version_attachment
-    # Publicatie unified Package
-    - publication_can_view_unified_packages
     # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
@@ -564,6 +571,7 @@ users_permissions:
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
     # Publicatie Act Package Rapport
     - publication_can_upload_publication_act_package_report
     - publication_can_view_publication_act_package_report
@@ -584,6 +592,8 @@ users_permissions:
     - publication_can_create_publication_environment
     - publication_can_edit_publication_environment
     - publication_can_view_publication_environment
+    # Statische Data
+    - can_patch_object_static
     # Storage File
     - storage_file_can_upload_files
     # Object related files 

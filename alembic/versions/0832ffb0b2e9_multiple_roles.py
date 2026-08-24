@@ -34,22 +34,6 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("User_UUID", "Role"),
     )
-
-    # Query to change the existing roles to the new roles table. (Doubt if this is the place to do it or just once via the terminal)
-    op.execute("""
-            INSERT INTO user_roles (User_UUID, Role)
-            SELECT UUID,
-                CASE Rol
-                    WHEN 'Beheerder' THEN 'Superuser'
-                    WHEN 'Functioneel beheerder' THEN 'Regisseur Omgevingsbeleid'
-                    WHEN 'Technisch beheerder' THEN 'Technisch Beheerder'
-                    WHEN 'Tester' THEN 'Superuser'
-                    WHEN 'Test runner' THEN 'Superuser'
-                    ELSE Rol
-                END
-            FROM Gebruikers
-            WHERE Rol IS NOT NULL
-        """)
     # ### end Alembic commands ###
 
 
