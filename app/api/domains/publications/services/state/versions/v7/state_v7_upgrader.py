@@ -146,4 +146,4 @@ class ActTextAssetParser:
         if match:
             return match.group(1)
 
-        raise RuntimeError("Unable to find asset uuid in the name: '{name}'")
+        raise RuntimeError(f"Unable to find asset uuid in the name: '{name}'")
