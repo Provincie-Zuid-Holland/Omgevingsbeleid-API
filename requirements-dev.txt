@@ -14,7 +14,7 @@ asttokens==2.4.1
     #   stack-data
 certifi==2026.7.22
     # via requests
-charset-normalizer==3.4.9
+charset-normalizer==3.5.1
     # via requests
 coverage[toml]==7.15.4
     # via
@@ -31,21 +31,21 @@ executing==2.2.1
     # via
     #   devtools
     #   stack-data
-faker==40.36.0
+faker==40.37.0
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via
     #   -r requirements-dev.in
     #   pytest-freezer
-greenlet==3.5.4
+greenlet==3.5.5
     # via sqlalchemy
 h11==0.16.0
     # via httpcore2
-httpcore2==2.10.0
+httpcore2==2.12.0
     # via httpx2
-httpx2==2.10.0
+httpx2==2.12.0
     # via -r requirements-dev.in
-idna==3.18
+idna==3.19
     # via
     #   anyio
     #   httpx2
@@ -86,7 +86,7 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   devtools
     #   ipython
@@ -110,7 +110,7 @@ pytest-mock==3.15.1
     # via -r requirements-dev.in
 python-dateutil==2.9.0.post0
     # via freezegun
-python-dotenv==1.2.2
+python-dotenv==1.2.3
     # via pytest-env
 requests==2.34.2
     # via requests-mock
@@ -118,13 +118,13 @@ requests-mock==1.12.1
     # via -r requirements-dev.in
 rich==15.0.0
     # via -r requirements-dev.in
-ruff==0.16.2
+ruff==0.16.4
     # via -r requirements-dev.in
 six==1.17.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy==2.0.51
+sqlalchemy==2.0.52
     # via alembic
 stack-data==0.6.3
     # via ipython
