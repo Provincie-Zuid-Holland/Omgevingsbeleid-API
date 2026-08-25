@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-
 import dso.models as dso_models
 from dso.act_builder.builder import Builder
 from dso.act_builder.services.ow.state.ow_state import OwState as DsoOwState

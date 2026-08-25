@@ -2,7 +2,6 @@ import re
 from uuid import UUID
 
 from lxml import etree
-
 from sqlalchemy.orm import Session
 
 import app.api.domains.publications.services.state.versions.v6.models as models_v6
@@ -128,13 +127,13 @@ class ActTextAssetParser:
     def __init__(self):
         self._uuid_regex = r"img_([a-f0-9\-]+)\.(png|jpg|jpeg|gif|bmp|tiff|webp)"
 
-    def get_asset_uuids(self, act_text: str) -> Set[str]:
+    def get_asset_uuids(self, act_text: str) -> set[str]:
         parser = etree.XMLParser(ns_clean=True)
         tree = etree.fromstring(act_text, parser)
         namespaces = {"ns": "https://standaarden.overheid.nl/stop/imop/tekst/"}
         illustraties = tree.xpath("//ns:Illustratie", namespaces=namespaces)
 
-        asset_uuids: Set[str] = set()
+        asset_uuids: set[str] = set()
         for illustratie in illustraties:
             uuidx = self._extract_uuid(illustratie.attrib.get("naam", ""))
             asset_uuids.add(uuidx)
