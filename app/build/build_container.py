@@ -348,6 +348,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_others.DetailHoofdlijnenEndpointBuilder),
             providers.Factory(endpoint_builders_others.EditHoofdlijnenEndpointBuilder),
             providers.Factory(endpoint_builders_others.ListHoofdlijnenEndpointBuilder),
+            providers.Factory(endpoint_builders_others.SearchHoofdlijnenEndpointBuilder),
         ),
     )
 

@@ -276,6 +276,9 @@ api:
       endpoints:
         - resolver: create_hoofdlijn
         - resolver: list_hoofdlijnen
+    - prefix: /hoofdlijnen/search
+      endpoints:
+        - resolver: search_hoofdlijn
     - prefix: /hoofdlijnen/{hoofdlijn_uuid}
       endpoints:
         - resolver: delete_hoofdlijn

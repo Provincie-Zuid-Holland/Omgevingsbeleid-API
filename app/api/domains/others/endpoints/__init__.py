@@ -7,6 +7,7 @@ from .hoofdlijnen_delete_endpoint import delete_hoofdlijnen_endpoint
 from .hoofdlijnen_detail_endpoint import get_hoofdlijnen_detail_endpoint
 from .hoofdlijnen_edit_endpoint import post_hoofdlijnen_edit_endpoint
 from .hoofdlijnen_list_endpoint import get_hoofdlijnen_list_endpoint
+from .hoofdlijnen_search_endpoint import post_hoofdlijnen_search_endpoint
 from .mssql_valid_search_endpoint import get_mssql_valid_search_endpoint
 from .object_graph_endpoint import get_object_graph_endpoint
 from .search_endpoint import get_search_endpoint
