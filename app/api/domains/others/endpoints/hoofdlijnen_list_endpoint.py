@@ -26,7 +26,7 @@ def get_hoofdlijnen_list_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     hoofdlijn_repository: Annotated[HoofdlijnRepository, Depends(Provide[ApiContainer.hoofdlijn_repository])],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
-    filter_deleted: bool | None = None,
+    filter_deleted: bool = True,
 ) -> PagedResponse[Hoofdlijn]:
     pagination: SortedPagination = optional_pagination.with_sort(
         Sort(

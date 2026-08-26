@@ -13,9 +13,7 @@ def test_lists_the_hoofdlijnen_newest_first(admin: TestClient, ctx: Context):
     response = admin.get("/hoofdlijnen")
 
     assert response.status_code == 200
-    assert [r["UUID"] for r in response.json().get("results")] == _uuids(
-        ctx, ["hoofdlijn-3", "hoofdlijn-2", "hoofdlijn-1"]
-    )
+    assert [r["UUID"] for r in response.json().get("results")] == _uuids(ctx, ["hoofdlijn-3", "hoofdlijn-2"])
 
 
 def test_lists_the_hoofdlijnen_newest_first_non_deprecated(admin: TestClient, ctx: Context):
