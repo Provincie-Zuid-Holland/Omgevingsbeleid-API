@@ -116,10 +116,17 @@ fields:
       - id: none_to_default_value
   role:
     name: Role
-    type: str
+    type: list_str
     column: role
     validators:
       - id: none_to_default_value
+      - id: roles_valid_for_maatregel
+        data:
+          allowed_roles:
+            - "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."
+            - "Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken."
+            - "Rechtmatige provincie: waar normerend optreden noodzakelijk is, wettelijke bevoegdheden inzetten."
+            - "Responsieve provincie: zoveel mogelijk overlaten aan initiatieven uit de samenleving."
   effect:
     name: Effect
     type: str

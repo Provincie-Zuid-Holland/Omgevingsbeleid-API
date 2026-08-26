@@ -669,9 +669,7 @@ columns:
   # Rol
   role:
     name: Role
-    type: str
-    serializers: []
-    deserializers: ["str"]
+    type: json
     nullable: true
   # Provinciaal Belang
   provincial_interest:
