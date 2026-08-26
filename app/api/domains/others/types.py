@@ -135,5 +135,6 @@ class Hoofdlijn(BaseModel):
     UUID: uuid.UUID
     Name: str
     Type: str
+    Deleted_Date: datetime | None
 
     model_config = ConfigDict(from_attributes=True)

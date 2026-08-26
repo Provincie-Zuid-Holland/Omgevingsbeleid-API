@@ -3,6 +3,7 @@ from .files_list_endpoint import get_files_list_endpoint
 from .files_upload_endpoint import post_files_upload_endpoint
 from .full_graph_endpoint import get_full_graph_endpoint
 from .hoofdlijnen_create_endpoint import post_hoofdlijnen_create_endpoint
+from .hoofdlijnen_delete_endpoint import delete_hoofdlijnen_endpoint
 from .hoofdlijnen_detail_endpoint import get_hoofdlijnen_detail_endpoint
 from .hoofdlijnen_edit_endpoint import post_hoofdlijnen_edit_endpoint
 from .hoofdlijnen_list_endpoint import get_hoofdlijnen_list_endpoint

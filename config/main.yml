@@ -278,6 +278,7 @@ api:
         - resolver: list_hoofdlijnen
     - prefix: /hoofdlijnen/{hoofdlijn_uuid}
       endpoints:
+        - resolver: delete_hoofdlijn
         - resolver: detail_hoofdlijn
         - resolver: edit_hoofdlijn
     - prefix: /modules
@@ -901,6 +902,7 @@ users_permissions:
     - can_delete_object_related_file
     - can_create_hoofdlijn
     - can_edit_hoofdlijn
+    - can_delete_hoofdlijn
   "Portefeuillehouder": []
   "Functioneel beheerder":
     - atemporal_can_create_object
@@ -963,6 +965,7 @@ users_permissions:
     - can_delete_object_related_file
     - can_create_hoofdlijn
     - can_edit_hoofdlijn
+    - can_delete_hoofdlijn
   "Technisch beheerder":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1024,6 +1027,7 @@ users_permissions:
     - can_delete_object_related_file
     - can_create_hoofdlijn
     - can_edit_hoofdlijn
+    - can_delete_hoofdlijn
   "Superuser":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1084,6 +1088,7 @@ users_permissions:
     - can_delete_object_related_file
     - can_create_hoofdlijn
     - can_edit_hoofdlijn
+    - can_delete_hoofdlijn
   "Test runner":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1144,6 +1149,7 @@ users_permissions:
     - can_delete_object_related_file
     - can_create_hoofdlijn
     - can_edit_hoofdlijn
+    - can_delete_hoofdlijn
   "Tester":
     - atemporal_can_create_object
     - atemporal_can_edit_object
@@ -1204,6 +1210,7 @@ users_permissions:
     - can_delete_object_related_file
     - can_create_hoofdlijn
     - can_edit_hoofdlijn
+    - can_delete_hoofdlijn
 
 mssql_search:
   - table_name: objects

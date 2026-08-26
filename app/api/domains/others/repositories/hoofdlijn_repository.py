@@ -20,12 +20,17 @@ class HoofdlijnRepository(BaseRepository):
         stmt = select(HoofdlijnTable).filter(HoofdlijnTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_paginated(
+    def get_with_filters(
         self,
         session: Session,
         pagination: SortedPagination,
+        filter_deleted: bool | None = True,
     ) -> PaginatedQueryResult:
         stmt = select(HoofdlijnTable)
+        if filter_deleted:
+            stmt = stmt.where(HoofdlijnTable.Deleted_Date.is_(None))
+        elif filter_deleted is False:
+            stmt = stmt.where(HoofdlijnTable.Deleted_Date.is_not(None))
 
         paged_result = self.fetch_paginated(
             session=session,

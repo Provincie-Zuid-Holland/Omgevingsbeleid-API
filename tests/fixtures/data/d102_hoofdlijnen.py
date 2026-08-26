@@ -15,15 +15,23 @@ def load(col: Collector) -> None:
             [
                 HoofdlijnSpec(
                     key="hoofdlijn-1",
-                    Name="Provinciaal economische groei",
-                    Type="Gebiedsprogramma",
+                    Name="Stroomgebiedbeheerplannen",
+                    Type="Verplicht programma",
                     Created_Date=datetime(2025, 1, 1, tzinfo=UTC),
+                    Deleted_Date=datetime(2025, 1, 4, tzinfo=UTC),
+                    Deleted_By_UUID=col.ref(UserSpec, "ambtenaar"),
                 ),
                 HoofdlijnSpec(
                     key="hoofdlijn-2",
+                    Name="Provinciaal economische groei",
+                    Type="Gebiedsprogramma",
+                    Created_Date=datetime(2025, 1, 2, tzinfo=UTC),
+                ),
+                HoofdlijnSpec(
+                    key="hoofdlijn-3",
                     Name="Regionaal Waterprogramma",
                     Type="Verplicht programma",
-                    Created_Date=datetime(2025, 1, 2, tzinfo=UTC),
+                    Created_Date=datetime(2025, 1, 3, tzinfo=UTC),
                 ),
             ]
         )

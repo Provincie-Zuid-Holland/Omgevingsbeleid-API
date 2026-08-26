@@ -26,6 +26,7 @@ def get_hoofdlijnen_list_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     hoofdlijn_repository: Annotated[HoofdlijnRepository, Depends(Provide[ApiContainer.hoofdlijn_repository])],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
+    filter_deleted: bool | None = None,
 ) -> PagedResponse[Hoofdlijn]:
     pagination: SortedPagination = optional_pagination.with_sort(
         Sort(
@@ -34,9 +35,10 @@ def get_hoofdlijnen_list_endpoint(
         )
     )
 
-    paginated_result: PaginatedQueryResult = hoofdlijn_repository.get_paginated(
+    paginated_result: PaginatedQueryResult = hoofdlijn_repository.get_with_filters(
         session=session,
         pagination=pagination,
+        filter_deleted=filter_deleted,
     )
 
     hoofdlijnen = [Hoofdlijn.model_validate(r) for r in paginated_result.items]

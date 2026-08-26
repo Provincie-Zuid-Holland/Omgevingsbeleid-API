@@ -98,3 +98,4 @@ class Permissions(str, Enum):
     # Hoofdlijnen
     can_create_hoofdlijn = "can_create_hoofdlijn"
     can_edit_hoofdlijn = "can_edit_hoofdlijn"
+    can_delete_hoofdlijn = "can_delete_hoofdlijn"

@@ -344,6 +344,7 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_others.ObjectRelatedFilesDeleteEndpointBuilder),
             # Hoofdlijnen
             providers.Factory(endpoint_builders_others.CreateHoofdlijnEndpointBuilder),
+            providers.Factory(endpoint_builders_others.DeleteHoofdlijnenEndpointBuilder),
             providers.Factory(endpoint_builders_others.DetailHoofdlijnenEndpointBuilder),
             providers.Factory(endpoint_builders_others.EditHoofdlijnenEndpointBuilder),
             providers.Factory(endpoint_builders_others.ListHoofdlijnenEndpointBuilder),

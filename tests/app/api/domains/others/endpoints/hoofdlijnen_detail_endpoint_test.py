@@ -7,7 +7,7 @@ from tests.fixtures.internal.types import Ref
 
 
 @pytest.mark.parametrize("client_fixture", ["admin", "ambtenaar"])
-@pytest.mark.parametrize("hoofdlijn_key", ["hoofdlijn-1", "hoofdlijn-2"])
+@pytest.mark.parametrize("hoofdlijn_key", ["hoofdlijn-2", "hoofdlijn-3"])
 def test_returns_the_requested_hoofdlijn(
     request: pytest.FixtureRequest, ctx: Context, client_fixture: str, hoofdlijn_key: str
 ):
@@ -21,3 +21,24 @@ def test_returns_the_requested_hoofdlijn(
     assert body["UUID"] == str(expected.UUID)
     assert body["Name"] == expected.Name
     assert body["Type"] == expected.Type
+    assert body["Deleted_Date"] is None
+
+
+@pytest.mark.parametrize("client_fixture", ["admin", "ambtenaar"])
+def test_raises_404_when_hoofdlijn_does_not_exist(request: pytest.FixtureRequest, ctx: Context, client_fixture: str):
+    client: TestClient = request.getfixturevalue(client_fixture)
+    unknown_uuid = "00000000-0000-0000-0000-000000000000"
+
+    response = client.get(f"/hoofdlijnen/{unknown_uuid}")
+
+    assert response.status_code == 404, response.text
+
+
+@pytest.mark.parametrize("client_fixture", ["admin", "ambtenaar"])
+def test_raises_404_when_hoofdlijn_is_deleted(request: pytest.FixtureRequest, ctx: Context, client_fixture: str):
+    client: TestClient = request.getfixturevalue(client_fixture)
+    expected: HoofdlijnSpec = ctx.f.find(Ref(HoofdlijnSpec, "hoofdlijn-1")).spec
+
+    response = client.get(f"/hoofdlijnen/{expected.UUID}")
+
+    assert response.status_code == 404, response.text
