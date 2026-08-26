@@ -2,7 +2,6 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -20,6 +19,7 @@ from app.api.utils.pagination import (
 )
 from app.core.tables.users import UsersTable
 
+
 @inject
 def post_hoofdlijnen_search_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
@@ -34,13 +34,13 @@ def post_hoofdlijnen_search_endpoint(
             order=SortOrder.DESC,
         )
     )
-    
+
     paginated_result: PaginatedQueryResult = repository.search_by_name(
         session=session,
         pagination=pagination,
         query=query,
     )
-    
+
     hoofdlijnen = [Hoofdlijn.model_validate(r) for r in paginated_result.items]
 
     return PagedResponse[Hoofdlijn](

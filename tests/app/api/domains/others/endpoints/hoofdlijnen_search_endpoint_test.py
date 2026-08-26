@@ -10,7 +10,7 @@ def test_search_hoofdlijn(viewer: TestClient, ctx: Context):
     response = viewer.post("/hoofdlijnen/search?query=vin")
 
     assert response.status_code == 200, response.text
-    
+
     response_body = response.json()
 
     assert len(response_body.get("results")) == 1

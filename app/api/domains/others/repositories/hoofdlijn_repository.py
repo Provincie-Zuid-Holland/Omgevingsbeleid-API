@@ -40,7 +40,7 @@ class HoofdlijnRepository(BaseRepository):
             sort=(getattr(HoofdlijnTable, pagination.sort.column), pagination.sort.order),
         )
         return paged_result
-    
+
     def search_by_name(
         self,
         session: Session,
