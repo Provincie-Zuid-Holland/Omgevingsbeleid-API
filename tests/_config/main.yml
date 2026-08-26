@@ -185,9 +185,7 @@ columns:
   # Rol
   role:
     name: Role
-    type: str
-    serializers: []
-    deserializers: ["str"]
+    type: json
     nullable: true
   # Toelichting
   explanation:
