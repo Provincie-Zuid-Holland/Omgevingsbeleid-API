@@ -1,7 +1,7 @@
 """add hoofdlijnen
 
 Revision ID: 80143fa75c0b
-Revises: c704f8f17f09
+Revises: 0832ffb0b2e9
 Create Date: 2026-06-15 12:57:20.097495
 
 """
@@ -20,7 +20,7 @@ settings = Settings()
 
 # revision identifiers, used by Alembic.
 revision = "80143fa75c0b"
-down_revision = "c704f8f17f09"
+down_revision = "0832ffb0b2e9"
 branch_labels = None
 depends_on = None
 
