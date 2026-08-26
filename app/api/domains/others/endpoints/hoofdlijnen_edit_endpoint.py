@@ -11,7 +11,7 @@ from app.api.dependencies import depends_db_session
 from app.api.domains.others.dependencies import depends_hoofdlijn
 from app.api.domains.users.dependencies import depends_current_user
 from app.api.permissions import Permissions
-from app.api.services import PermissionService
+from app.api.services.permission_service import PermissionService
 from app.api.types import ResponseOK
 from app.core.tables.others import HoofdlijnTable
 from app.core.tables.users import UsersTable
