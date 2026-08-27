@@ -15,7 +15,7 @@ def test_returns_the_requested_user(admin: TestClient, ctx: Context, user_key: s
 
     assert body["UUID"] == str(expected.UUID)
     assert body["Email"] == expected.Email
-    assert body["Rol"] == expected.Rol
+    assert body["Roles"] == expected.Roles
     assert body["Gebruikersnaam"] == expected.Gebruikersnaam
 
 

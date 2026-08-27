@@ -9,31 +9,31 @@ def load(col: Collector) -> None:
                 key="admin",
                 Gebruikersnaam="Admin",
                 Email="admin@pzh.nl",
-                Rol="Superuser",
+                Roles=["Superuser"],
             ),
             UserSpec(
                 key="ambtenaar",
                 Gebruikersnaam="Ambtenaar Alice",
                 Email="alice@pzh.nl",
-                Rol="Behandelend Ambtenaar",
+                Roles=["Behandelend Ambtenaar"],
             ),
             UserSpec(
                 key="viewer",
                 Gebruikersnaam="Viewer",
                 Email="viewer@pzh.nl",
-                Rol="Portefeuillehouder",
+                Roles=["Portefeuillehouder"],
             ),
             UserSpec(
                 key="owner-1",
                 Gebruikersnaam="Owner of a few objects",
                 Email="owner-1@pzh.nl",
-                Rol="Behandelend Ambtenaar",
+                Roles=["Behandelend Ambtenaar"],
             ),
             UserSpec(
                 key="frozen",
                 Gebruikersnaam="Frozen",
                 Email="frozen@pzh.nl",
-                Rol="Behandelend Ambtenaar",
+                Roles=["Behandelend Ambtenaar"],
             ),
         ]
     )

@@ -24,7 +24,7 @@ from app.core.tables.users import IS_ACTIVE, UsersTable
 class UserCreate(BaseModel):
     Gebruikersnaam: str = Field(..., min_length=3)
     Email: str
-    Rol: str
+    Roles: list[str]
 
     @field_validator("Email", mode="before")
     def valid_email(cls, v):
@@ -36,7 +36,7 @@ class UserCreate(BaseModel):
 class UserCreateResponse(BaseModel):
     UUID: uuid.UUID
     Email: str
-    Rol: str
+    Roles: list[str]
     Password: str
 
 
@@ -56,8 +56,11 @@ def post_create_user_endpoint(
 ) -> UserCreateResponse:
     permission_service.guard_valid_user(Permissions.user_can_create_user, logged_in_user)
 
-    if object_in.Rol not in context.allowed_roles:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Rol")
+    if not object_in.Roles:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "At least one role is required")
+
+    if not set(object_in.Roles) <= set(context.allowed_roles):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Roles")
 
     same_email_user: UsersTable | None = repository.get_by_email(session, object_in.Email)
     if same_email_user:
@@ -70,7 +73,7 @@ def post_create_user_endpoint(
         UUID=uuid.uuid4(),
         Gebruikersnaam=object_in.Gebruikersnaam,
         Email=object_in.Email,
-        Rol=object_in.Rol,
+        Roles=object_in.Roles,
         Status=IS_ACTIVE,
         Wachtwoord=password_hash,
     )
@@ -91,6 +94,6 @@ def post_create_user_endpoint(
     return UserCreateResponse(
         UUID=user.UUID,
         Email=user.Email,
-        Rol=user.Rol or "",
+        Roles=list(user.Roles),
         Password=password,
     )

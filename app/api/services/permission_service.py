@@ -16,12 +16,10 @@ class PermissionService:
             self._permissions_per_role[role] = set(permissions)
 
     def has_permission(self, permission: str, user: UsersTable) -> bool:
-        role: str | None = user.Rol
-        if role is None:
+        roles: list[str] = list(user.Roles)
+        if not roles:
             return False
-
-        permissions: set[str] = self._permissions_per_role.get(role, set())
-        return permission in permissions
+        return any(permission in self._permissions_per_role.get(role, set()) for role in roles)
 
     def guard_valid_user(
         self,
