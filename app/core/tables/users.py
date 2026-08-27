@@ -48,6 +48,6 @@ class UserRoleTable(Base):
     __tablename__ = "user_roles"
 
     User_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"), primary_key=True)
-    Role: Mapped[str] = mapped_column(primary_key=True)
+    Role: Mapped[str] = mapped_column(Unicode(64), primary_key=True)
 
     User: Mapped["UsersTable"] = relationship(back_populates="user_roles")
