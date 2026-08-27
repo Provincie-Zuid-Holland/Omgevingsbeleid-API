@@ -39,7 +39,7 @@ def load(col: Collector) -> None:
                 key="beheerder",
                 Gebruikersnaam="beheerder",
                 Email="beheerder@pzh.nl",
-                Rol="Beheerder",
+                Roles=["Technisch Beheerder"],
             ),
         ]
     )

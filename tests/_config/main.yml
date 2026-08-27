@@ -39,6 +39,18 @@ api:
     - prefix: /storage-files/{file_uuid}/download
       endpoints:
         - resolver: download_storage_file
+    - prefix: /hoofdlijnen
+      endpoints:
+        - resolver: create_hoofdlijn
+        - resolver: list_hoofdlijnen
+    - prefix: /hoofdlijnen/search
+      endpoints:
+        - resolver: search_hoofdlijn
+    - prefix: /hoofdlijnen/{hoofdlijn_uuid}
+      endpoints:
+        - resolver: delete_hoofdlijn
+        - resolver: detail_hoofdlijn
+        - resolver: edit_hoofdlijn
     - prefix: /search
       endpoints:
         - resolver: search
@@ -138,6 +150,13 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
+  # Hoofdlijnen references
+    hoofdlijnen:
+      name: Hoofdlijnen
+      type: json
+      serializers: [ ]
+      deserializers: [ ]
+      nullable: true
   # Area_UUID used to store reference to the shape
   area_uuid:
     name: Area_UUID
@@ -386,7 +405,6 @@ users_permissions:
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn
-
   "Publiceerder":
     # Publicatietemplate
     - publication_can_create_publication_template

@@ -927,7 +927,6 @@ users_permissions:
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn
-
   "Publiceerder":
     # Publicatietemplate
     - publication_can_create_publication_template
