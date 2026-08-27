@@ -47,6 +47,4 @@ def depends_hoofdlijn(
     maybe_hoofdlijn: HoofdlijnTable | None = repository.get_by_uuid(session, hoofdlijn_uuid)
     if not maybe_hoofdlijn:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Hoofdlijn niet gevonden")
-    if maybe_hoofdlijn.Deleted_Date is not None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Hoofdlijn niet gevonden")
     return maybe_hoofdlijn

@@ -33,13 +33,10 @@ def upgrade() -> None:
         sa.Column("Type", sa.Unicode(length=255), nullable=False),
         sa.Column("Created_Date", sa.DateTime(), nullable=False),
         sa.Column("Modified_Date", sa.DateTime(), nullable=False),
-        sa.Column("Deleted_Date", sa.DateTime(), nullable=True),
         sa.Column("Created_By_UUID", sa.Uuid(), nullable=False),
         sa.Column("Modified_By_UUID", sa.Uuid(), nullable=False),
-        sa.Column("Deleted_By_UUID", sa.Uuid(), nullable=True),
         sa.ForeignKeyConstraint(["Created_By_UUID"], ["Gebruikers.UUID"], ),
         sa.ForeignKeyConstraint(["Modified_By_UUID"], ["Gebruikers.UUID"], ),
-        sa.ForeignKeyConstraint(["Deleted_By_UUID"], ["Gebruikers.UUID"], ),
         sa.PrimaryKeyConstraint("UUID"),
     )
     op.create_index(op.f("ix_hoofdlijnen_Name_Type"), "hoofdlijnen", ["Name", "Type"], unique=True)

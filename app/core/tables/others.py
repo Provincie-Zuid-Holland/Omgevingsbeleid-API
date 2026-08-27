@@ -161,8 +161,6 @@ class HoofdlijnTable(Base, TimeStamped, UserMetaData):
 
     Name: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Type: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    Deleted_Date: Mapped[datetime | None]
-    Deleted_By_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     __table_args__ = (Index("ix_hoofdlijnen_Name_Type", "Name", "Type", unique=True),)
 

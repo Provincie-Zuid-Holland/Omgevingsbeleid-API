@@ -1,4 +1,3 @@
-from datetime import UTC, datetime
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
@@ -25,11 +24,7 @@ def delete_hoofdlijnen_endpoint(
 ) -> ResponseOK:
     permission_service.guard_valid_user(Permissions.can_delete_hoofdlijn, logged_in_user)
 
-    timepoint: datetime = datetime.now(UTC)
-    hoofdlijn.Deleted_Date = timepoint
-    hoofdlijn.Deleted_By_UUID = logged_in_user.UUID
-
-    session.add(hoofdlijn)
+    session.delete(hoofdlijn)
     session.flush()
     session.commit()
 

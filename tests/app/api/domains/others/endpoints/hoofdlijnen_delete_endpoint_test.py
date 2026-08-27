@@ -9,7 +9,7 @@ from tests.fixtures.internal.types import Ref
 
 
 @pytest.mark.parametrize("client_fixture", ["admin", "beheerder"])
-@pytest.mark.parametrize("hoofdlijn_key", ["hoofdlijn-2", "hoofdlijn-3"])
+@pytest.mark.parametrize("hoofdlijn_key", ["hoofdlijn-1", "hoofdlijn-2"])
 def test_deletes_the_specified_hoofdlijn(
     request: pytest.FixtureRequest, session: Session, ctx: Context, client_fixture: str, hoofdlijn_key: str
 ):
@@ -20,7 +20,6 @@ def test_deletes_the_specified_hoofdlijn(
 
     assert response.status_code == 200, response.text
 
-    # The hoofdlijn changes are persisted
+    # The hoofdlijn is deleted
     row: HoofdlijnTable | None = session.get(HoofdlijnTable, original.UUID)
-    assert row is not None
-    assert row.Deleted_Date is not None
+    assert row is None

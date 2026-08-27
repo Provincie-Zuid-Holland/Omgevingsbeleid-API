@@ -15,6 +15,6 @@ def test_search_hoofdlijn(viewer: TestClient, ctx: Context):
 
     assert len(response_body.get("results")) == 1
     actual: Hoofdlijn = Hoofdlijn.model_validate(response_body.get("results")[0])
-    expected_spec: HoofdlijnSpec = ctx.f.find(Ref(HoofdlijnSpec, "hoofdlijn-2")).spec
+    expected_spec: HoofdlijnSpec = ctx.f.find(Ref(HoofdlijnSpec, "hoofdlijn-1")).spec
     expected = Hoofdlijn.model_validate(expected_spec)
     assert actual == expected
