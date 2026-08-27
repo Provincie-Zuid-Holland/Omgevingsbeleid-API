@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, datetime
 from typing import Annotated
 
@@ -13,7 +14,7 @@ from app.api.domains.users.dependencies import depends_current_user
 from app.api.permissions import Permissions
 from app.api.services.permission_service import PermissionService
 from app.api.types import ResponseOK
-from app.core.tables.others import HoofdlijnTable
+from app.core.tables.others import ChangeLogTable, HoofdlijnTable
 from app.core.tables.users import UsersTable
 
 
@@ -34,6 +35,8 @@ def post_hoofdlijnen_edit_endpoint(
 ) -> ResponseOK:
     permission_service.guard_valid_user(Permissions.can_edit_hoofdlijn, logged_in_user)
 
+    hoofdlijn_before = hoofdlijn.to_dict()
+
     changes: dict = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
@@ -46,6 +49,18 @@ def post_hoofdlijnen_edit_endpoint(
     hoofdlijn.Modified_By_UUID = logged_in_user.UUID
     hoofdlijn.Modified_Date = timepoint
 
+    hoofdlijn_after = hoofdlijn.to_dict()
+
+    change_log = ChangeLogTable(
+        Created_Date=datetime.now(UTC),
+        Created_By_UUID=logged_in_user.UUID,
+        Action_Type="edit_hoofdlijn",
+        Action_Data=json.dumps(changes),
+        Before=json.dumps(hoofdlijn_before),
+        After=json.dumps(hoofdlijn_after),
+    )
+
+    session.add(change_log)
     session.add(hoofdlijn)
     session.flush()
     session.commit()
