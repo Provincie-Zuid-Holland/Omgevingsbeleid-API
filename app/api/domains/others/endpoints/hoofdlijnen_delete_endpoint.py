@@ -24,7 +24,7 @@ def delete_hoofdlijnen_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     hoofdlijn: Annotated[HoofdlijnTable, Depends(depends_hoofdlijn)],
 ) -> ResponseOK:
-    permission_service.guard_valid_user(Permissions.can_delete_hoofdlijn, logged_in_user)
+    permission_service.guard_valid_user(Permissions.hoofdlijnen_can_delete_hoofdlijn, logged_in_user)
 
     change_log = ChangeLogTable(
         Created_Date=datetime.now(UTC),

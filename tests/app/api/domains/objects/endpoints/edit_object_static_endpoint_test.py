@@ -77,7 +77,7 @@ def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context):
     "client_fixture, expected_status, expected_detail",
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
-        pytest.param("ambtenaar", 401, "Invalid user role", id="role-without-permission"),
+        pytest.param("viewer", 401, "Invalid user role", id="role-without-permission"),
         pytest.param("owner_1", 200, None, id="owner-via-whitelist"),
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],

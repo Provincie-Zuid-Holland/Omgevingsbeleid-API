@@ -1,7 +1,8 @@
 import uuid
 
-from sqlalchemy import Unicode
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey, Unicode
+from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.base import Base
 from app.core.db.mixins import SerializerMixin
@@ -18,6 +19,14 @@ class UsersTable(Base, SerializerMixin):
     Rol: Mapped[str | None]
     Status: Mapped[str | None]
 
+    user_roles: Mapped[list["UserRoleTable"]] = relationship(
+        back_populates="User",
+        cascade="all, delete-orphan",
+    )
+    Roles: AssociationProxy[list[str]] = association_proxy(
+        "user_roles", "Role", creator=lambda role: UserRoleTable(Role=role)
+    )
+
     # @todo: move to separate table
     Wachtwoord: Mapped[str | None]  # = mapped_column(deferred=True)
 
@@ -32,3 +41,13 @@ class UsersTable(Base, SerializerMixin):
         data: dict = self.to_dict()
         del data["Wachtwoord"]
         return data
+
+
+# The only doubt I have is the language of the table name and column names. Since the Gebruikers table is in Dutch but the rest is English
+class UserRoleTable(Base):
+    __tablename__ = "user_roles"
+
+    User_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"), primary_key=True)
+    Role: Mapped[str] = mapped_column(primary_key=True)
+
+    User: Mapped["UsersTable"] = relationship(back_populates="user_roles")

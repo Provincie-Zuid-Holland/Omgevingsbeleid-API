@@ -17,7 +17,7 @@ class UserSpec(Spec):
     UUID: uuid.UUID | None = None
     Gebruikersnaam: str
     Email: str
-    Rol: str
+    Roles: list[str]
     Status: str = Field(default=IS_ACTIVE)
     Wachtwoord: str = Field(default=DEFAULT_PASSWORD)
     Wachtwoord_Hash: str = Field(default="")
@@ -50,7 +50,7 @@ class UserPersistHandler(BasePersistHandler[UserSpec]):
                 UUID=spec.UUID,
                 Gebruikersnaam=spec.Gebruikersnaam,
                 Email=spec.Email,
-                Rol=spec.Rol,
+                Roles=spec.Roles,
                 Status=spec.Status,
                 Wachtwoord=spec.Wachtwoord_Hash,
             )

@@ -35,7 +35,7 @@ def post_hoofdlijnen_create_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: CreateHoofdlijn,
 ) -> HoofdlijnCreatedResponse:
-    permission_service.guard_valid_user(Permissions.can_create_hoofdlijn, logged_in_user)
+    permission_service.guard_valid_user(Permissions.hoofdlijnen_can_create_hoofdlijn, logged_in_user)
 
     timepoint: datetime = datetime.now(UTC)
 

@@ -14,18 +14,22 @@ api:
         - resolver: create_user
           resolver_data:
             allowed_roles:
+              - "Ambtelijk opdrachtgever"
+              - "Basic"
               - "Behandelend Ambtenaar"
               - "Portefeuillehouder"
-              - "Beheerder"
+              - "Regisseur Omgevingsbeleid"
     - prefix: /users/{user_uuid}
       endpoints:
         - resolver: get_user
         - resolver: edit_user
           resolver_data:
             allowed_roles:
+              - "Ambtelijk opdrachtgever"
+              - "Basic"
               - "Behandelend Ambtenaar"
               - "Portefeuillehouder"
-              - "Beheerder"
+              - "Regisseur Omgevingsbeleid"
     - prefix: /storage-files
       endpoints:
         - resolver: list_storage_files
@@ -35,18 +39,6 @@ api:
     - prefix: /storage-files/{file_uuid}/download
       endpoints:
         - resolver: download_storage_file
-    - prefix: /hoofdlijnen
-      endpoints:
-        - resolver: create_hoofdlijn
-        - resolver: list_hoofdlijnen
-    - prefix: /hoofdlijnen/search
-      endpoints:
-        - resolver: search_hoofdlijn
-    - prefix: /hoofdlijnen/{hoofdlijn_uuid}
-      endpoints:
-        - resolver: delete_hoofdlijn
-        - resolver: detail_hoofdlijn
-        - resolver: edit_hoofdlijn
     - prefix: /search
       endpoints:
         - resolver: search
@@ -142,13 +134,6 @@ columns:
   # Target codes (gebied, gebieden for gebiedsaanwijzingen)
   target_codes:
     name: Target_Codes
-    type: json
-    serializers: []
-    deserializers: []
-    nullable: true
-  # Hoofdlijnen references
-  hoofdlijnen:
-    name: Hoofdlijnen
     type: json
     serializers: []
     deserializers: []
@@ -323,121 +308,306 @@ publication_required_object_fields_rule: {}
 
 
 users_permissions:
-  "Ambtelijk opdrachtgever": []
-  "Basic": []
   "Behandelend Ambtenaar":
+    # Module Object
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module
     - module_can_edit_module_object_context
-  "Beheerder":
+  "Regisseur Omgevingsbeleid":
+    # Atemporal Object
     - atemporal_can_create_object
     - atemporal_can_edit_object
     - atemporal_can_delete_object
+    # Module
     - module_can_create_module
     - module_can_close_module
     - module_can_edit_module
     - module_can_activate_module
     - module_can_patch_module_status
+    - module_can_complete_module
+    # Module Object
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module
     - module_can_edit_module_object_context
     - module_can_remove_object_from_module
     - module_can_patch_object_in_module
+    # Gebruiker
     - user_can_create_user
     - user_can_edit_user
     - user_can_reset_user_password
-    - can_patch_object_static
-    - publication_can_create_publication_template
-    - publication_can_edit_publication_template
-    - publication_can_view_publication_template
-    - publication_can_view_publication_environment
-    - publication_can_view_publication_aoj
+    # Publicatie
     - publication_can_create_publication
     - publication_can_edit_publication
     - publication_can_view_publication
+    # Publicatie Unified Package
+    - publication_can_view_unified_packages
+    # Publicatieversie
     - publication_can_create_publication_version
     - publication_can_edit_publication_version
     - publication_can_view_publication_version
-    - publication_can_delete_publication_version_attachment
+    # Publicatieversie Bijlage
     - publication_can_upload_publication_version_attachment
     - publication_can_download_publication_version_attachment
-    - publication_can_create_publication_act_package
-    - publication_can_view_publication_act_package
-    - publication_can_download_publication_act_package
-    - publication_can_view_unified_packages
-    - publication_can_create_publication_announcement
-    - publication_can_edit_publication_announcement
-    - publication_can_view_publication_announcement
-    - publication_can_create_publication_announcement_package
-    - publication_can_view_publication_announcement_package
-    - publication_can_download_publication_announcement_package
-    - publication_can_upload_publication_announcement_package_report
-    - publication_can_view_publication_announcement_package_report
-    - publication_can_download_publication_announcement_package_report
-    - storage_file_can_upload_files
-    - can_create_object_related_file
-    - can_delete_object_related_file
-    - can_create_hoofdlijn
-    - can_edit_hoofdlijn
-    - can_delete_hoofdlijn
-  "Superuser":
-    - atemporal_can_create_object
-    - atemporal_can_edit_object
-    - atemporal_can_delete_object
-    - module_can_create_module
-    - module_can_close_module
-    - module_can_edit_module
-    - module_can_activate_module
-    - module_can_patch_module_status
-    - module_can_add_new_object_to_module
-    - module_can_add_existing_object_to_module
-    - module_can_edit_module_object_context
-    - module_can_remove_object_from_module
-    - module_can_patch_object_in_module
-    - user_can_create_user
-    - user_can_edit_user
-    - user_can_reset_user_password
-    - can_patch_object_static
-    - publication_can_create_publication_template
-    - publication_can_edit_publication_template
-    - publication_can_view_publication_template
-    - publication_can_create_publication_environment
-    - publication_can_edit_publication_environment
-    - publication_can_view_publication_environment
-    - publication_can_create_publication_aoj
-    - publication_can_view_publication_aoj
+    # Publicatie Act
     - publication_can_create_publication_act
     - publication_can_close_publication_act
     - publication_can_edit_publication_act
     - publication_can_view_publication_act
-    - publication_can_create_publication
-    - publication_can_edit_publication
-    - publication_can_view_publication
-    - publication_can_create_publication_version
-    - publication_can_edit_publication_version
-    - publication_can_view_publication_version
-    - publication_can_delete_publication_version_attachment
-    - publication_can_upload_publication_version_attachment
-    - publication_can_download_publication_version_attachment
+    # Publicatie Act Package
     - publication_can_create_publication_act_package
     - publication_can_view_publication_act_package
     - publication_can_download_publication_act_package
-    - publication_can_view_unified_packages
-    - publication_can_upload_publication_act_package_report
+    - publication_can_abort_publication_act_package
+    # Publicatie Act Package Rapport
     - publication_can_view_publication_act_package_report
     - publication_can_download_publication_act_package_report
+    # Publicatie Kennisgeving
     - publication_can_create_publication_announcement
     - publication_can_edit_publication_announcement
     - publication_can_view_publication_announcement
+    # Publicatie Kennisgeving Levering
     - publication_can_create_publication_announcement_package
     - publication_can_view_publication_announcement_package
     - publication_can_download_publication_announcement_package
+    # Publicatie Kennisgeving Levering Rapport
     - publication_can_upload_publication_announcement_package_report
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
+    # Publicatieomgeving
+    - publication_can_view_publication_environment
+    # Statische Data
+    - can_patch_object_static
+    # Storage File
     - storage_file_can_upload_files
-    - can_create_object_related_file
-    - can_delete_object_related_file
-    - can_create_hoofdlijn
-    - can_edit_hoofdlijn
-    - can_delete_hoofdlijn
+    # Object related files
+    - object_related_files_can_create_object_related_file
+    - object_related_files_can_delete_object_related_file
+    - # Hoofdlijnen
+    - hoofdlijnen_can_create_hoofdlijn
+    - hoofdlijnen_can_edit_hoofdlijn
+    - hoofdlijnen_can_delete_hoofdlijn
+
+  "Publiceerder":
+    # Publicatietemplate
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    # Publicatie Ambtsgebied
+    - publication_can_create_publication_aoj
+    - publication_can_view_publication_aoj
+    # Publicatie
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    # Publicatie Unified Package
+    - publication_can_view_unified_packages
+    # Publicatieversie
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    # Publicatieversie Bijlage
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    # Publicatie Act
+    - publication_can_create_publication_act
+    - publication_can_close_publication_act
+    - publication_can_edit_publication_act
+    - publication_can_view_publication_act
+    # Publicatie Act Package
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
+    # Publicatie Act Package Rapport
+    - publication_can_upload_publication_act_package_report
+    - publication_can_view_publication_act_package_report
+    - publication_can_download_publication_act_package_report
+    # Publicatie Kennisgeving
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    # Publicatie Kennisgeving Levering
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    # Publicatie Kennisgeving Levering Rapport
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report
+    # Publicatieomgeving
+    - publication_can_view_publication_environment
+    # Storage File
+    - storage_file_can_upload_files
+  "Technisch Beheerder":
+    # Atemporal Object
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    # Module
+    - module_can_create_module
+    - module_can_close_module
+    - module_can_edit_module
+    - module_can_activate_module
+    - module_can_patch_module_status
+    - module_can_complete_module
+    # Module Object
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+    - module_can_remove_object_from_module
+    - module_can_patch_object_in_module
+    # Gebruiker
+    - user_can_create_user
+    - user_can_edit_user
+    - user_can_reset_user_password
+    # Publicatietemplate
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    # Publicatie Ambtsgebied
+    - publication_can_create_publication_aoj
+    - publication_can_view_publication_aoj
+    # Publicatie
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    # Publicatie Unified Package
+    - publication_can_view_unified_packages
+    # Publicatieversie
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    # Publicatieversie Bijlage
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    - publication_can_delete_publication_version_attachment
+    # Publicatie Act
+    - publication_can_create_publication_act
+    - publication_can_close_publication_act
+    - publication_can_edit_publication_act
+    - publication_can_view_publication_act
+    # Publicatie Act Package
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
+    # Publicatie Act Package Rapport
+    - publication_can_upload_publication_act_package_report
+    - publication_can_view_publication_act_package_report
+    - publication_can_download_publication_act_package_report
+    # Publicatie Kennisgeving
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    # Publicatie Kennisgeving Levering
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    # Publicatie Kennisgeving Levering Rapport
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report
+    # Publicatieomgeving
+    - publication_can_create_publication_environment
+    - publication_can_edit_publication_environment
+    - publication_can_view_publication_environment
+    # Statische Data
+    - can_patch_object_static
+    # Storage File
+    - storage_file_can_upload_files
+    # Object related files
+    - object_related_files_can_create_object_related_file
+    - object_related_files_can_delete_object_related_file
+    - # Hoofdlijnen
+    - hoofdlijnen_can_create_hoofdlijn
+    - hoofdlijnen_can_edit_hoofdlijn
+    - hoofdlijnen_can_delete_hoofdlijn
+  "Ambtelijk opdrachtgever":
+    # Statische Data
+    - can_patch_object_static
+  "Portefeuillehouder": []
+  "Basic": []
+  "Superuser":
+    # Atemporal Object
+    - atemporal_can_create_object
+    - atemporal_can_edit_object
+    - atemporal_can_delete_object
+    # Module
+    - module_can_create_module
+    - module_can_close_module
+    - module_can_edit_module
+    - module_can_activate_module
+    - module_can_patch_module_status
+    - module_can_complete_module
+    # Module Object
+    - module_can_add_new_object_to_module
+    - module_can_add_existing_object_to_module
+    - module_can_edit_module_object_context
+    - module_can_remove_object_from_module
+    - module_can_patch_object_in_module
+    # Gebruiker
+    - user_can_create_user
+    - user_can_edit_user
+    - user_can_reset_user_password
+    # Publicatietemplate
+    - publication_can_create_publication_template
+    - publication_can_edit_publication_template
+    - publication_can_view_publication_template
+    # Publicatie Ambtsgebied
+    - publication_can_create_publication_aoj
+    - publication_can_view_publication_aoj
+    # Publicatie
+    - publication_can_create_publication
+    - publication_can_edit_publication
+    - publication_can_view_publication
+    # Publicatie unified packages
+    - publication_can_view_unified_packages
+    # Publicatieversie
+    - publication_can_create_publication_version
+    - publication_can_edit_publication_version
+    - publication_can_view_publication_version
+    # Publicatieversie Bijlage
+    - publication_can_upload_publication_version_attachment
+    - publication_can_download_publication_version_attachment
+    - publication_can_delete_publication_version_attachment
+    # Publicatie Act
+    - publication_can_create_publication_act
+    - publication_can_close_publication_act
+    - publication_can_edit_publication_act
+    - publication_can_view_publication_act
+    # Publicatie Act Package
+    - publication_can_create_publication_act_package
+    - publication_can_view_publication_act_package
+    - publication_can_download_publication_act_package
+    - publication_can_abort_publication_act_package
+    # Publicatie Act Package Rapport
+    - publication_can_upload_publication_act_package_report
+    - publication_can_view_publication_act_package_report
+    - publication_can_download_publication_act_package_report
+    # Publicatie Kennisgeving
+    - publication_can_create_publication_announcement
+    - publication_can_edit_publication_announcement
+    - publication_can_view_publication_announcement
+    # Publicatie Kennisgeving Levering
+    - publication_can_create_publication_announcement_package
+    - publication_can_view_publication_announcement_package
+    - publication_can_download_publication_announcement_package
+    # Publicatie Kennisgeving Levering Rapport
+    - publication_can_upload_publication_announcement_package_report
+    - publication_can_view_publication_announcement_package_report
+    - publication_can_download_publication_announcement_package_report
+    # Publicatieomgeving
+    - publication_can_create_publication_environment
+    - publication_can_edit_publication_environment
+    - publication_can_view_publication_environment
+    # Statische Data
+    - can_patch_object_static
+    # Storage File
+    - storage_file_can_upload_files
+    # Object related files
+    - object_related_files_can_create_object_related_file
+    - object_related_files_can_delete_object_related_file
+    - # Hoofdlijnen
+    - hoofdlijnen_can_create_hoofdlijn
+    - hoofdlijnen_can_edit_hoofdlijn
+    - hoofdlijnen_can_delete_hoofdlijn

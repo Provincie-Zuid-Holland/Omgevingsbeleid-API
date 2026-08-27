@@ -33,7 +33,7 @@ def post_hoofdlijnen_edit_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: EditHoofdlijn,
 ) -> ResponseOK:
-    permission_service.guard_valid_user(Permissions.can_edit_hoofdlijn, logged_in_user)
+    permission_service.guard_valid_user(Permissions.hoofdlijnen_can_edit_hoofdlijn, logged_in_user)
 
     hoofdlijn_before = hoofdlijn.to_dict()
 
