@@ -154,7 +154,7 @@ class ObjectRelatedFileTable(Base):
         return f"ObjectRelatedFileTable(UUID={self.UUID!r}, Code={self.Code!r})"
 
 
-class HoofdlijnTable(Base, TimeStamped, UserMetaData):
+class HoofdlijnTable(Base, TimeStamped, UserMetaData, SerializerMixin):
     __tablename__ = "hoofdlijnen"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
