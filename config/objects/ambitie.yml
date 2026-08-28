@@ -121,6 +121,10 @@ fields:
     column: decision_number
     validators:
       - id: none_to_default_value
+  hoofdlijnen:
+    name: Hoofdlijnen
+    type: list_str
+    column: hoofdlijnen
   themas:
     name: Themas
     type: list_str

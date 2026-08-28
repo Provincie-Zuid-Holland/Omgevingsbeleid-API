@@ -1,5 +1,4 @@
 import uuid
-from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
@@ -11,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.objects import ObjectStaticsTable
+from tests.assert_helpers import assert_same_datetime
 from tests.conftest import Context
 from tests.fixtures.internal.spec.modules import ModuleBeleidskeuzeSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
@@ -21,12 +21,6 @@ def _fetch_draft(session: Session, draft_uuid: uuid.UUID) -> ModuleObjectsTable:
     draft: ModuleObjectsTable | None = session.get(ModuleObjectsTable, draft_uuid)
     assert draft
     return draft
-
-
-def _assert_same_datetime(actual: datetime, expected: datetime | None = None):
-    expected = expected or datetime.now(UTC)
-    difference: timedelta = abs(actual.replace(tzinfo=None) - expected.replace(tzinfo=None))
-    assert difference <= timedelta(milliseconds=1), f"{actual} differs {difference} from {expected}"
 
 
 def test_patch_adds_a_new_draft_to_the_lineage(admin: TestClient, ctx: Context):
@@ -49,7 +43,7 @@ def test_patch_adds_a_new_draft_to_the_lineage(admin: TestClient, ctx: Context):
     assert new_draft.Adjust_On == previous_draft.UUID
     assert new_draft.Title == "Patched via module 5"
     assert new_draft.Modified_By_UUID == admin_uuid
-    _assert_same_datetime(new_draft.Modified_Date)
+    assert_same_datetime(new_draft.Modified_Date)
 
     all_drafts: list[ModuleObjectsTable] = list(
         ctx.session.scalars(
@@ -76,8 +70,8 @@ def test_fields_left_out_are_copied_from_the_previous_draft(admin: TestClient, c
     assert new_draft.Description == previous_draft.Description
     assert new_draft.Explanation == previous_draft.Explanation
     assert new_draft.Hierarchy_Code == previous_draft.Hierarchy_Code
-    _assert_same_datetime(new_draft.Start_Validity, previous_draft.Start_Validity)
-    _assert_same_datetime(new_draft.Created_Date, previous_draft.Created_Date)
+    assert_same_datetime(new_draft.Start_Validity, previous_draft.Start_Validity)
+    assert_same_datetime(new_draft.Created_Date, previous_draft.Created_Date)
     assert new_draft.Created_By_UUID == previous_draft.Created_By_UUID
 
 

@@ -6,6 +6,7 @@ from tests.fixtures.internal.services.base_handler import BasePrefillHandler, Pr
 from tests.fixtures.internal.services.collector import Record
 from tests.fixtures.internal.spec.area_spec import AreaPrefillHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPrefillHandler, AssetSpec
+from tests.fixtures.internal.spec.hoofdlijn_spec import HoofdlijnPrefillHandler, HoofdlijnSpec
 from tests.fixtures.internal.spec.input_geo_onderverdeling_spec import (
     InputGeoOnderverdelingPrefillHandler,
     InputGeoOnderverdelingSpec,
@@ -28,6 +29,7 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             AssetSpec: AssetPrefillHandler(),
             StorageFileSpec: StorageFilePrefillHandler(),
             ObjectRelatedFileSpec: ObjectRelatedFilePrefillHandler(),
+            HoofdlijnSpec: HoofdlijnPrefillHandler(),
             # Geo
             InputGeoWerkingsgebiedenSpec: InputGeoWerkingsgebiedenPrefillHandler(),
             InputGeoOnderverdelingSpec: InputGeoOnderverdelingPrefillHandler(),
@@ -61,14 +63,16 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             current_spec_count = spec_counter[spec_type]
 
             handler: H | None = self._handlers.get(spec_type)
-            if handler:
-                input_record = handler.fill(
-                    input_record,
-                    PrefillContext(
-                        previous_records=output,
-                        spec_count=current_spec_count,
-                    ),
-                )
+            if handler is None:
+                raise RuntimeError(f"No prefill handler for {type(input_record.spec)}")
+
+            input_record = handler.fill(
+                input_record,
+                PrefillContext(
+                    previous_records=output,
+                    spec_count=current_spec_count,
+                ),
+            )
 
             output.append(input_record)
 
