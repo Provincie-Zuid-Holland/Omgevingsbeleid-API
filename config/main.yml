@@ -923,7 +923,7 @@ users_permissions:
     # Object related files
     - object_related_files_can_create_object_related_file
     - object_related_files_can_delete_object_related_file
-    - # Hoofdlijnen
+    # Hoofdlijnen
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn
@@ -1058,7 +1058,7 @@ users_permissions:
     # Object related files
     - object_related_files_can_create_object_related_file
     - object_related_files_can_delete_object_related_file
-    - # Hoofdlijnen
+    # Hoofdlijnen
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn

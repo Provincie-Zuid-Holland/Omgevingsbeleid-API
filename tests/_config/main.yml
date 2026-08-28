@@ -151,12 +151,12 @@ columns:
     deserializers: []
     nullable: true
   # Hoofdlijnen references
-    hoofdlijnen:
-      name: Hoofdlijnen
-      type: json
-      serializers: [ ]
-      deserializers: [ ]
-      nullable: true
+  hoofdlijnen:
+    name: Hoofdlijnen
+    type: json
+    serializers: [ ]
+    deserializers: [ ]
+    nullable: true
   # Area_UUID used to store reference to the shape
   area_uuid:
     name: Area_UUID
@@ -401,7 +401,7 @@ users_permissions:
     # Object related files
     - object_related_files_can_create_object_related_file
     - object_related_files_can_delete_object_related_file
-    - # Hoofdlijnen
+    # Hoofdlijnen
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn
@@ -536,7 +536,7 @@ users_permissions:
     # Object related files
     - object_related_files_can_create_object_related_file
     - object_related_files_can_delete_object_related_file
-    - # Hoofdlijnen
+    # Hoofdlijnen
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn
@@ -625,7 +625,7 @@ users_permissions:
     # Object related files
     - object_related_files_can_create_object_related_file
     - object_related_files_can_delete_object_related_file
-    - # Hoofdlijnen
+    # Hoofdlijnen
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn

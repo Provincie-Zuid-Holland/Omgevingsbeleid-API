@@ -41,7 +41,7 @@ class HoofdlijnRepository(BaseRepository):
         session: Session,
         pagination: SortedPagination,
         query: str,
-    ):
+    ) -> PaginatedQueryResult:
         stmt = select(HoofdlijnTable).where(HoofdlijnTable.Name.like(f"%{query}%"))
 
         paged_result = self.fetch_paginated(
