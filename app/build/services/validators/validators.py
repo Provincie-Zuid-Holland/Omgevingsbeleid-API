@@ -523,12 +523,12 @@ class NotEmptyValidator(Validator):
         )
 
 
-class MaatregelRoleValidator(Validator):
+class AllowedValuesListValidator(Validator):
     def get_id(self) -> str:
-        return "roles_valid_for_maatregel"
+        return "allowed_values_list"
 
     def get_validator_func(self, config: dict) -> PydanticValidator:
-        allowed_roles: list[str] = config.get("allowed_roles", [])
+        allowed_values: list[str] = config.get("allowed_values", [])
 
         def pydantic_validator_maatregel_role(cls, value, info: ValidationInfo):
             if value is None:
@@ -537,9 +537,9 @@ class MaatregelRoleValidator(Validator):
             if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
                 raise ValueError("Value must be a list of strings")
 
-            for role in value:
-                if role not in allowed_roles:
-                    raise ValueError(f"Invalid role: {role}")
+            for v in value:
+                if v not in allowed_values:
+                    raise ValueError(f"Invalid value: {v}")
 
             return value
 

@@ -120,9 +120,9 @@ fields:
     column: role
     validators:
       - id: none_to_default_value
-      - id: roles_valid_for_maatregel
+      - id: allowed_values_list
         data:
-          allowed_roles:
+          allowed_values:
             - "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."
             - "Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken."
             - "Rechtmatige provincie: waar normerend optreden noodzakelijk is, wettelijke bevoegdheden inzetten."

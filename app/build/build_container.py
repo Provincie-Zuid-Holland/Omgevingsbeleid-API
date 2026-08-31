@@ -84,7 +84,7 @@ class BuildContainer(containers.DeclarativeContainer):
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
             providers.Factory(validators.NotEmptyValidator),
-            providers.Factory(validators.MaatregelRoleValidator),
+            providers.Factory(validators.AllowedValuesListValidator),
         ),
     )
 
