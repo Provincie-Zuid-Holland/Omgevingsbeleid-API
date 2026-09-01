@@ -1,7 +1,7 @@
 """empty message
 
 Revision ID: a6bc53da87ff
-Revises: c704f8f17f09
+Revises: 80143fa75c0b
 Create Date: 2026-09-01 07:12:25.391715
 
 """
@@ -20,7 +20,7 @@ settings = Settings()
 
 # revision identifiers, used by Alembic.
 revision = "a6bc53da87ff"
-down_revision = "c704f8f17f09"
+down_revision = "80143fa75c0b"
 branch_labels = None
 depends_on = None
 
