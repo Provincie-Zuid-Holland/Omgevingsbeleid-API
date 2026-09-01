@@ -1,4 +1,4 @@
-"""empty message
+"""Multiple roles for objects and module_objects
 
 Revision ID: a6bc53da87ff
 Revises: 80143fa75c0b
