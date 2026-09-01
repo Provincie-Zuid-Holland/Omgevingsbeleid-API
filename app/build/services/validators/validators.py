@@ -530,7 +530,7 @@ class AllowedValuesListValidator(Validator):
     def get_validator_func(self, config: dict) -> PydanticValidator:
         allowed_values: list[str] = config.get("allowed_values", [])
 
-        def pydantic_validator_maatregel_role(cls, value, info: ValidationInfo):
+        def pydantic_allowed_values_list_validator(cls, value, info: ValidationInfo):
             if value is None:
                 return None
 
@@ -545,5 +545,5 @@ class AllowedValuesListValidator(Validator):
 
         return PydanticValidator(
             mode="after",
-            func=pydantic_validator_maatregel_role,
+            func=pydantic_allowed_values_list_validator,
         )
