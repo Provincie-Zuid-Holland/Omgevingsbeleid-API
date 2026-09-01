@@ -480,7 +480,7 @@ class HoofdlijnenCheckRule(ValidateModuleRule):
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         object_data: list[HoofdlijnenCheckRuleData] = []
-        hoofdlijn_set: set[UUID] = set()
+        hoofdlijnen_set: set[UUID] = set()
 
         errors: list[ValidateModuleError] = []
         for object_table in request.module_objects:
@@ -492,13 +492,13 @@ class HoofdlijnenCheckRule(ValidateModuleRule):
 
             hoofdlijnen_uuids: set[UUID] = {UUID(hoofdlijn_uuid) for hoofdlijn_uuid in object_table.Hoofdlijnen}
             object_data.append(HoofdlijnenCheckRuleData(hoofdlijnen_uuids=hoofdlijnen_uuids, object_table=object_table))
-            hoofdlijn_set.update(hoofdlijnen_uuids)
+            hoofdlijnen_set.update(hoofdlijnen_uuids)
 
-        if not hoofdlijn_set:
+        if not hoofdlijnen_set:
             return errors
 
-        found_hoofdlijnen_uuids: set[UUID] = self._hoofdlijn_repository.get_existing_uuids(db, hoofdlijn_set)
-        missing_uuids = hoofdlijn_set - found_hoofdlijnen_uuids
+        found_hoofdlijnen_uuids: set[UUID] = self._hoofdlijn_repository.get_existing_uuids(db, hoofdlijnen_set)
+        missing_uuids = hoofdlijnen_set - found_hoofdlijnen_uuids
         if not missing_uuids:
             return errors
 
