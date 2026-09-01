@@ -467,10 +467,12 @@ class ThemasCheckRule(ValidateModuleRule):
                     )
         return errors
 
+
 @dataclass
 class HoofdlijnenCheckRuleData:
     hoofdlijnen_uuids: set[UUID]
     object_table: ModuleObjectsTable
+
 
 class HoofdlijnenCheckRule(ValidateModuleRule):
     def __init__(self, hoofdlijn_repository: HoofdlijnRepository):
@@ -487,6 +489,7 @@ class HoofdlijnenCheckRule(ValidateModuleRule):
 
             if not object_table.Hoofdlijnen:
                 continue
+
             hoofdlijnen_uuids: set[UUID] = {UUID(hoofdlijn_uuid) for hoofdlijn_uuid in object_table.Hoofdlijnen}
             object_data.append(HoofdlijnenCheckRuleData(hoofdlijnen_uuids=hoofdlijnen_uuids, object_table=object_table))
             hoofdlijn_set.update(hoofdlijnen_uuids)
