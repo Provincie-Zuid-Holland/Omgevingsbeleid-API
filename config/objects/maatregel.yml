@@ -283,6 +283,7 @@ models:
       title:
       description:
       documents:
+      role:
       roles:
       effect:
       hierarchy_code:
