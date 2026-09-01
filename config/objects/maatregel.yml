@@ -241,6 +241,7 @@ models:
       werkingsgebied_code:
       gebiedengroep_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
     services:
@@ -282,6 +283,7 @@ models:
       werkingsgebied_code:
       gebiedengroep_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
       - hierarchy_statics
@@ -427,6 +429,8 @@ models:
                 - gebiedengroep
           - id: object_code_exists
       themas:
+        optional: true
+      hoofdlijnen:
         optional: true
     services:
       extract_assets:
