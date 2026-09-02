@@ -231,6 +231,7 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Singleton(
                 module_services.HoofdlijnenCheckRule,
+                main_config=main_config,
                 hoofdlijn_repository=hoofdlijn_repository,
             ),
             providers.Singleton(module_services.CheckEmptyAreaDesignationTextRule, main_config=main_config),

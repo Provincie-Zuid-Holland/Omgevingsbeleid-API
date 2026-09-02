@@ -474,8 +474,17 @@ class HoofdlijnenCheckRuleData:
     object_table: ModuleObjectsTable
 
 
+class HoofdlijnenCheckRuleConfig(BaseModel):
+    fields: list[str]
+    allowed_object_types: list[str]
+
+
 class HoofdlijnenCheckRule(ValidateModuleRule):
-    def __init__(self, hoofdlijn_repository: HoofdlijnRepository):
+    def __init__(self, main_config: MainConfig, hoofdlijn_repository: HoofdlijnRepository):
+        self._config: HoofdlijnenCheckRuleConfig = main_config.get_as_model(
+            "hoofdlijnen_check_rule",
+            HoofdlijnenCheckRuleConfig,
+        )
         self._hoofdlijn_repository: HoofdlijnRepository = hoofdlijn_repository
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
@@ -484,15 +493,19 @@ class HoofdlijnenCheckRule(ValidateModuleRule):
 
         errors: list[ValidateModuleError] = []
         for object_table in request.module_objects:
-            if object_table.Object_Type not in ["ambitie", "beleidsdoel", "beleidskeuze", "maatregel"]:
+            if object_table.Object_Type not in self._config.allowed_object_types:
                 continue
 
-            if not object_table.Hoofdlijnen:
-                continue
+            for field in self._config.fields:
+                field_value: list[str] | None = getattr(object_table, field)
+                if not field_value:
+                    continue
 
-            hoofdlijnen_uuids: set[UUID] = {UUID(hoofdlijn_uuid) for hoofdlijn_uuid in object_table.Hoofdlijnen}
-            object_data.append(HoofdlijnenCheckRuleData(hoofdlijnen_uuids=hoofdlijnen_uuids, object_table=object_table))
-            hoofdlijnen_set.update(hoofdlijnen_uuids)
+                hoofdlijnen_uuids: set[UUID] = {UUID(hoofdlijn_uuid) for hoofdlijn_uuid in field_value}
+                object_data.append(
+                    HoofdlijnenCheckRuleData(hoofdlijnen_uuids=hoofdlijnen_uuids, object_table=object_table)
+                )
+                hoofdlijnen_set.update(hoofdlijnen_uuids)
 
         if not hoofdlijnen_set:
             return errors
