@@ -521,3 +521,29 @@ class NotEmptyValidator(Validator):
             mode="before",
             func=pydantic_not_empty_validator,
         )
+
+
+class AllowedValuesListValidator(Validator):
+    def get_id(self) -> str:
+        return "allowed_values_list"
+
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        allowed_values: list[str] = config.get("allowed_values", [])
+
+        def pydantic_allowed_values_list_validator(cls, value, info: ValidationInfo):
+            if value is None:
+                return None
+
+            if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+                raise ValueError("Value must be a list of strings")
+
+            for v in value:
+                if v not in allowed_values:
+                    raise ValueError(f"Invalid value: {v}")
+
+            return value
+
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_allowed_values_list_validator,
+        )
