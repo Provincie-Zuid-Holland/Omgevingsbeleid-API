@@ -1,4 +1,4 @@
-"""Make gebruikers.rol nullable
+"""Make Gebruikers.Rol nullable
 
 Revision ID: 4ea414f3eacb
 Revises: 80143fa75c0b
