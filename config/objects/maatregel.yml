@@ -114,6 +114,12 @@ fields:
     column: description
     validators:
       - id: none_to_default_value
+  role:
+    name: Role
+    type: str
+    column: role
+    validators:
+      - id: none_to_default_value
   roles:
     name: Roles
     type: list_str
