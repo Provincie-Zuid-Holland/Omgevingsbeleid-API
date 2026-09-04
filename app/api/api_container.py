@@ -111,13 +111,13 @@ class ApiContainer(containers.DeclarativeContainer):
         PublicationContainer,
         config=config,
         main_config=main_config,
-        area_repository=area_repository,
-        area_geometry_repository=area_geometry_repository,
-        storage_file_repository=storage_file_repository,
-        asset_repository=asset_repository,
+        dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
         object_field_mapping_provider=object_field_mapping_provider,
         publication_required_object_fields_rule_mapping=publication_required_object_fields_rule_mapping,
-        dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
+        area_geometry_repository=area_geometry_repository,
+        area_repository=area_repository,
+        asset_repository=asset_repository,
+        hoofdlijn_repository=hoofdlijn_repository,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -228,6 +228,11 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 module_services.ThemasCheckRule,
                 dso_thema_factory=dso_thema_factory,
+            ),
+            providers.Singleton(
+                module_services.HoofdlijnenCheckRule,
+                main_config=main_config,
+                hoofdlijn_repository=hoofdlijn_repository,
             ),
             providers.Singleton(module_services.CheckEmptyAreaDesignationTextRule, main_config=main_config),
         ),
