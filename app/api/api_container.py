@@ -207,10 +207,12 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Singleton(
                 module_services.RequireExistingHierarchyCodeRule,
+                main_config=main_config,
                 repository=publication.object_repository,
             ),
             providers.Singleton(
                 module_services.NewestInputGeoOnderverdelingUsedRule,
+                main_config=main_config,
                 input_geo_onderverdeling_repository=input_geo_onderverdeling_repository,
             ),
             providers.Singleton(
@@ -223,10 +225,12 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Singleton(
                 module_services.AreaDesignationRefCheckRule,
+                main_config=main_config,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
             providers.Singleton(
                 module_services.ThemasCheckRule,
+                main_config=main_config,
                 dso_thema_factory=dso_thema_factory,
             ),
             providers.Singleton(
