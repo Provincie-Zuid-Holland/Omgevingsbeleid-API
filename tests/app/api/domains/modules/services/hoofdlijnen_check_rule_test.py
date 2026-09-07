@@ -23,7 +23,7 @@ class HoofdlijnenCheckRuleTest(unittest.TestCase):
         )
         config.get_as_model.return_value = rule_config
 
-        self._uuid_found: UUID = UUID("1000000-0000-0000-0000-0000000000000")
+        self._uuid_found: UUID = UUID("10000000-0000-0000-0000-000000000000")
 
         repository: HoofdlijnRepository = Mock(HoofdlijnRepository)
         repository.get_existing_uuids.return_value = {self._uuid_found}
@@ -31,7 +31,7 @@ class HoofdlijnenCheckRuleTest(unittest.TestCase):
         self._db: Mock | Session = Mock(Session)
 
     def test_validate(self):
-        uuid_missing: UUID = UUID("9999999-9999-9999-9999-9999999999999")
+        uuid_missing: UUID = UUID("99999999-9999-9999-9999-999999999999")
         request: ValidateModuleRequest = ValidateModuleRequest(
             module_id=1,
             module_objects=[

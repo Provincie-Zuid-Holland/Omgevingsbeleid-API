@@ -88,8 +88,7 @@ forbidden_html_tags_rule:
   - h2
 
 hoofdlijnen_check_rule:
-  fields:
-    - Hoofdlijnen
+  field: Hoofdlijnen
   allowed_object_types:
     - ambitie
     - beleidsdoel
@@ -120,6 +119,24 @@ themas_check_rule:
 
 # Publication validate rules
 
+publication_bill_compact_forbidden_tags_rule:
+  fields:
+    - Preamble
+    - Closing
+    - Signed
+    - Amendment_Article
+    - Time_Article
+  forbidden_tags:
+    - al
+
+publication_hoofdlijnen_check_rule:
+  field: Hoofdlijnen
+  allowed_object_types:
+    - ambitie
+    - beleidsdoel
+    - beleidskeuze
+    - maatregel
+
 publication_required_object_fields_rule:
   omgevingsvisie:
     ambitie: ambitie_module_validate
@@ -132,16 +149,6 @@ publication_required_object_fields_rule:
     maatregel: maatregel_module_validate
     programma_algemeen: programma_module_validate
     beleidsdoel: beleidsdoel_module_validate
-
-bill_compact_forbidden_tags_rule:
-  fields:
-    - Preamble
-    - Closing
-    - Signed
-    - Amendment_Article
-    - Time_Article
-  forbidden_tags:
-    - al
 
 model_map: &model_map
   ambitie: ambitie_basic
