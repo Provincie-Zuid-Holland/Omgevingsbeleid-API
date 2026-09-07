@@ -320,12 +320,9 @@ columns:
     deserializers: []
     nullable: true
 
-
 required_object_fields_rule: {}
 
 publication_required_object_fields_rule: {}
-
-hoofdlijnen_check_rule: {}
 
 users_permissions:
   "Behandelend Ambtenaar":
