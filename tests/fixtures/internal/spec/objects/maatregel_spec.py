@@ -19,7 +19,14 @@ class MaatregelMixin(BaseModel):
         "Gebiedengroep_Code",
         "Roles",
     }
-    __object_fields__: ClassVar[set[str]] = {"Title", "Description", "Effect", "Hierarchy_Code", "Gebiedengroep_Code"}
+    __object_fields__: ClassVar[set[str]] = {
+        "Title",
+        "Description",
+        "Effect",
+        "Hierarchy_Code",
+        "Gebiedengroep_Code",
+        "Roles",
+    }
 
     Title: str | None = None
     Description: str | None = None

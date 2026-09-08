@@ -351,12 +351,6 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
-      role:
-        name: Role
-        type: str
-        column: role
-        validators:
-          - id: none_to_default_value
       roles:
         default: none
         optional: true
