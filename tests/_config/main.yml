@@ -189,6 +189,11 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Roles
+  roles:
+    name: Roles
+    type: json
+    nullable: true
   # Toelichting
   explanation:
     name: Explanation

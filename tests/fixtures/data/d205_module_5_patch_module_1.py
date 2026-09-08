@@ -10,6 +10,7 @@ from tests.fixtures.internal.spec.modules import (
     ModuleSpec,
     ModuleStatusHistorySpec,
 )
+from tests.fixtures.internal.spec.modules.module_maatregel_spec import ModuleMaatregelSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
 
 
@@ -104,6 +105,14 @@ def load(col: Collector) -> None:
                         Description="Description of beleidskeuze 510",
                         Explanation="Explanation of beleidskeuze 510",
                         Owner_1_UUID=col.ref(UserSpec, "owner-1"),
+                    ),
+                ]
+            )
+            col.adds(
+                [
+                    ModuleMaatregelSpec(
+                        key="mod_5_maatregel_1_first_entry",
+                        Object_ID=1,
                     ),
                 ]
             )

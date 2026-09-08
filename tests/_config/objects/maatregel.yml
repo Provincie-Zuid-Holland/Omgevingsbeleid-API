@@ -147,6 +147,26 @@ fields:
     column: themas
     validators:
       - id: none_to_default_value
+  role:
+    name: Role
+    type: str
+    column: role
+    validators:
+      - id: none_to_default_value
+  roles:
+    name: Roles
+    type: list_str
+    column: roles
+    validators:
+      - id: none_to_default_value
+      - id: allowed_values_list
+        data:
+          allowed_values:
+            - "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."
+            - "Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken."
+            - "Rechtmatige provincie: waar normerend optreden noodzakelijk is, wettelijke bevoegdheden inzetten."
+            - "Responsieve provincie: zoveel mogelijk overlaten aan initiatieven uit de samenleving."
+
 
   # Statics
   owner_1_uuid:
@@ -248,6 +268,8 @@ models:
       title:
       description:
       documents:
+      role:
+      roles:
       effect:
       hierarchy_code:
       gebiedengroep_code:
@@ -329,6 +351,23 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
+      role:
+        name: Role
+        type: str
+        column: role
+        validators:
+          - id: none_to_default_value
+      roles:
+        default: none
+        optional: true
+        validators:
+          - id: allowed_values_list
+            data:
+              allowed_values:
+                - "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."
+                - "Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken."
+                - "Rechtmatige provincie: waar normerend optreden noodzakelijk is, wettelijke bevoegdheden inzetten."
+                - "Responsieve provincie: zoveel mogelijk overlaten aan initiatieven uit de samenleving."
       effect:
         default: none
         optional: true
