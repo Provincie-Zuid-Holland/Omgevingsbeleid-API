@@ -121,6 +121,36 @@ def test_hierarchy_code_can_be_changed(admin: TestClient, ctx: Context):
 
 
 @pytest.mark.parametrize(
+    "roles, expected_status",
+    [
+        pytest.param(
+            ["Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."],
+            200,
+            id="valid-role",
+        ),
+        pytest.param(
+            [
+                "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren.",
+                "Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken.",
+            ],
+            200,
+            id="multiple-valid-roles",
+        ),
+        pytest.param(["not-a-real-role"], 422, id="invalid-role"),
+    ],
+)
+def test_roles_validation(admin: TestClient, ctx: Context, roles: list[str], expected_status: int):
+    response: Response = admin.patch("/modules/5/object/maatregel/1", json={"Roles": roles})
+
+    assert response.status_code == expected_status, response.text
+    if expected_status >= 300:
+        return
+
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["UUID"]))
+    assert new_draft.Roles == roles
+
+
+@pytest.mark.parametrize(
     "payload, invalid_field",
     [
         pytest.param({"Title": "<b>Bold</b> title"}, "Title", id="html-in-plain-text-field"),
