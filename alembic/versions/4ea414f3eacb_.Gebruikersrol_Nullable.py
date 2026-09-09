@@ -1,7 +1,7 @@
 """Make Gebruikers.Rol nullable
 
 Revision ID: 4ea414f3eacb
-Revises: 80143fa75c0b
+Revises: a6bc53da87ff
 Create Date: 2026-09-02 11:50:23.562843
 
 """
@@ -20,7 +20,7 @@ settings = Settings()
 
 # revision identifiers, used by Alembic.
 revision = "4ea414f3eacb"
-down_revision = "80143fa75c0b"
+down_revision = "a6bc53da87ff"
 branch_labels = None
 depends_on = None
 
@@ -42,7 +42,7 @@ def downgrade() -> None:
         "Gebruikers",
         "Rol",
         existing_type=sa.String(),
-        nullable=False, # This will fail if any of the values are NULL. But it's a downgrade 
+        nullable=False,  # This will fail if any of the values are NULL. But it's a downgrade
     )
 
     # ### end Alembic commands ###
