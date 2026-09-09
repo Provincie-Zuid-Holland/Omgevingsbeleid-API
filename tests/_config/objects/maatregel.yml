@@ -154,12 +154,6 @@ fields:
     column: themas
     validators:
       - id: none_to_default_value
-  role:
-    name: Role
-    type: str
-    column: role
-    validators:
-      - id: none_to_default_value
   roles:
     name: Roles
     type: list_str
@@ -267,7 +261,6 @@ models:
       title:
       description:
       documents:
-      role:
       roles:
       effect:
       hierarchy_code:
