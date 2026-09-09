@@ -18,6 +18,13 @@ sort_default_modified_date: &sort_default_modified_date
     order: desc
   allowed_columns: *sort_allowed_columns
 
+roles_allowed_values_list_data: &roles_allowed_values_list_data
+  allowed_values:
+    - "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."
+    - "Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken."
+    - "Rechtmatige provincie: waar normerend optreden noodzakelijk is, wettelijke bevoegdheden inzetten."
+    - "Responsieve provincie: zoveel mogelijk overlaten aan initiatieven uit de samenleving."
+
 api:
   routers:
     - prefix: /maatregelen
@@ -159,14 +166,6 @@ fields:
     column: roles
     validators:
       - id: none_to_default_value
-      - id: allowed_values_list
-        data:
-          allowed_values:
-            - "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."
-            - "Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken."
-            - "Rechtmatige provincie: waar normerend optreden noodzakelijk is, wettelijke bevoegdheden inzetten."
-            - "Responsieve provincie: zoveel mogelijk overlaten aan initiatieven uit de samenleving."
-
 
   # Statics
   owner_1_uuid:
@@ -356,12 +355,7 @@ models:
         optional: true
         validators:
           - id: allowed_values_list
-            data:
-              allowed_values:
-                - "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."
-                - "Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken."
-                - "Rechtmatige provincie: waar normerend optreden noodzakelijk is, wettelijke bevoegdheden inzetten."
-                - "Responsieve provincie: zoveel mogelijk overlaten aan initiatieven uit de samenleving."
+            data: *roles_allowed_values_list_data
       effect:
         default: none
         optional: true
