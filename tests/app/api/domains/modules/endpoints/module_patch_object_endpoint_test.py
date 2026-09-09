@@ -139,10 +139,15 @@ def test_hierarchy_code_can_be_changed(admin: TestClient, ctx: Context):
         pytest.param(["not-a-real-role"], 422, id="invalid-role"),
     ],
 )
-def test_roles_validation(admin: TestClient, roles: list[str], expected_status: int):
+def test_roles_validation(admin: TestClient, ctx: Context, roles: list[str], expected_status: int):
     response: Response = admin.patch("/modules/5/object/maatregel/1", json={"Roles": roles})
 
     assert response.status_code == expected_status, response.text
+    if expected_status >= 300:
+        return
+
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["UUID"]))
+    assert new_draft.Roles == roles
 
 
 @pytest.mark.parametrize(
