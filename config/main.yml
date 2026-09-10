@@ -115,6 +115,15 @@ bill_compact_forbidden_tags_rule:
   forbidden_tags:
     - al
 
+hoofdlijnen_check_rule:
+  fields:
+    - Hoofdlijnen
+  allowed_object_types:
+    - ambitie
+    - beleidsdoel
+    - beleidskeuze
+    - maatregel
+
 model_map: &model_map
   ambitie: ambitie_basic
   beleidsdoel: beleidsdoel_basic

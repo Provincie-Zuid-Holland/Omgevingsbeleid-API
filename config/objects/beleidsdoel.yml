@@ -211,6 +211,7 @@ models:
       end_validity:
       hierarchy_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
     services:
@@ -247,6 +248,7 @@ models:
       end_validity:
       hierarchy_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
       - ambitie_minimal
@@ -336,6 +338,8 @@ models:
                 - ambitie
           - id: object_code_exists
       themas:
+        optional: true
+      hoofdlijnen:
         optional: true
     services:
       extract_assets:
