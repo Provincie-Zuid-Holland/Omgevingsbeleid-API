@@ -1,7 +1,7 @@
 """ Ensure Gebruikers.Rol is nullable
 
 Revision ID: 976ee7df9ee4
-Revises: a6bc53da87ff
+Revises: 4ea414f3eacb
 Create Date: 2026-09-09 19:12:19.141420
 
 """
@@ -19,7 +19,7 @@ settings = Settings()
 
 # revision identifiers, used by Alembic.
 revision = '976ee7df9ee4'
-down_revision = 'a6bc53da87ff'
+down_revision = '4ea414f3eacb'
 branch_labels = None
 depends_on = None
 
