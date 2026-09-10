@@ -11,6 +11,11 @@ class TimeStamped:
     Modified_Date: Mapped[datetime | None]
 
 
+class RequireTimeStamped:
+    Created_Date: Mapped[datetime]
+    Modified_Date: Mapped[datetime]
+
+
 class UserMetaData:
     Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
     Modified_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))

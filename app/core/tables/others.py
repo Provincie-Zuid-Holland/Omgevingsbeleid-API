@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, Index, Integer, LargeBinary, String, Unicode
 from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 
 from app.core.db.base import Base
-from app.core.db.mixins import SerializerMixin, TimeStamped, UserMetaData
+from app.core.db.mixins import RequireTimeStamped, SerializerMixin, UserMetaData
 from app.core.tables.objects import ObjectStaticsTable
 
 
@@ -154,7 +154,7 @@ class ObjectRelatedFileTable(Base):
         return f"ObjectRelatedFileTable(UUID={self.UUID!r}, Code={self.Code!r})"
 
 
-class HoofdlijnTable(Base, TimeStamped, UserMetaData, SerializerMixin):
+class HoofdlijnTable(Base, RequireTimeStamped, UserMetaData, SerializerMixin):
     __tablename__ = "hoofdlijnen"
 
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
