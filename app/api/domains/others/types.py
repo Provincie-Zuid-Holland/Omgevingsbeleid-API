@@ -61,33 +61,6 @@ class GraphResponse(BaseModel):
     Edges: list[GraphEdge]
 
 
-class ValidSearchConfig(BaseModel):
-    searchable_columns_high: list[str]
-    searchable_columns_low: list[str]
-    allowed_object_types: list[str]
-
-
-class ValidSearchObject[TModel: BaseModel](BaseModel):
-    Object_Type: str
-    Description: str
-    Score: float
-    Model: TModel
-
-    @field_validator("Description", mode="before")
-    def default_empty_string(cls, v):
-        return v or ""
-
-    model_config = ConfigDict(validate_assignment=True)
-
-
-class SearchConfig(ValidSearchConfig):
-    pass
-
-
-class SearchRequestData(BaseModel):
-    Object_Types: list[str] | None = None
-
-
 class ObjectRelatedFileResponse(BaseModel):
     UUID: uuid.UUID
     Code: str
