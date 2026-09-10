@@ -1,22 +1,7 @@
-searchable_config: &searchable_config
-  searchable_columns_high:
-    - Title
-  searchable_columns_low:
-    - Description
-    - Effect
-    - Provincial_Interest
-    - Cause
-
 sort_allowed_object_columns: &sort_allowed_object_columns
   - Object_ID
   - Title
   - Modified_Date
-
-sort_default_title: &sort_default_title
-  default:
-    column: Title
-    order: asc
-  allowed_columns: *sort_allowed_object_columns
 
 sort_default_modified_date: &sort_default_modified_date
   default:
@@ -212,30 +197,6 @@ api:
               # - Cause
             model_map: *model_map
             response_model_name: PagedSearchObjectResponse
-    - prefix: /search/valid
-      endpoints:
-        - resolver: mssql_valid_search
-          resolver_data:
-            <<: *searchable_config
-            allowed_object_types:
-              - ambitie
-              - beleidsdoel
-              - beleidskeuze
-              - document
-              - maatregel
-              - beleidsregel
-              - gebiedsprogramma
-              - wettelijke_taak
-              - nationaal_belang
-              - verplicht_programma
-              - visie_algemeen
-              - programma_algemeen
-              - werkingsgebied
-              - gebiedengroep
-              - gebied
-              - gebiedsaanwijzing
-            model_map: *model_map
-            response_model_name: PagedValidSearchObjectResponse
     - prefix: /full-graph
       endpoints:
         - resolver: full_graph
@@ -1158,12 +1119,6 @@ users_permissions:
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn
-
-mssql_search:
-  - table_name: objects
-    <<: *searchable_config
-  - table_name: module_objects
-    <<: *searchable_config
 
 publication:
   act_defaults:

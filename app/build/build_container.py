@@ -147,7 +147,6 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_objects.AcknowledgedRelationRequestEndpointBuilder),
             providers.Factory(endpoint_builders_objects.RelationsListEndpointBuilder),
             providers.Factory(endpoint_builders_objects.RelationsOverwriteEndpointBuilder),
-            providers.Factory(endpoint_builders_objects.SearchObjectsEndpointBuilder),
             # Publications domain
             #   Acts
             providers.Factory(endpoint_builders_publications.acts.ClosePublicationActEndpointBuilder),
@@ -333,10 +332,6 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(endpoint_builders_others.ObjectGraphEndpointBuilder),
             providers.Factory(
                 endpoint_builders_others.SearchEndpointBuilder,
-                model_dynamic_type_builder=model_dynamic_type_builder,
-            ),
-            providers.Factory(
-                endpoint_builders_others.MssqlValidSearchEndpointBuilder,
                 model_dynamic_type_builder=model_dynamic_type_builder,
             ),
             # Object Related Files
