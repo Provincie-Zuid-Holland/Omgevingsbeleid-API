@@ -184,7 +184,7 @@ class DsoActInputDataBuilder:
             tekst_artikelen=self._get_text_articles(),
             tijd_artikel=self._get_time_article(),
             sluiting=self._get_closing_text(),
-            ondertekening=self._publication_version.Bill_Compact["Signed"],
+            ondertekening=self._publication_version.Bill_Compact.get("Signed", ""),
             rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Bill_Metadata["Jurisdictions"]),
             onderwerpen=self._as_dso_onderwerpen(self._publication_version.Bill_Metadata["Subjects"]),
             soort_procedure=dso_procedure_type,
@@ -450,7 +450,9 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_closing_text(self) -> str:
-        text: str = self._publication_version.Bill_Compact["Closing"]
+        text: str = self._publication_version.Bill_Compact.get("Closing", "")
+        if text == "":
+            return text
 
         signed_date: Optional[str] = self._publication_version.Procedural.get("Signed_Date", None)
         if signed_date is not None:
