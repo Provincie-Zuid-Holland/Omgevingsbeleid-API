@@ -1,2 +1,4 @@
+from .mssql_search_repository import MssqlSearchRepository
 from .object_related_file_repository import ObjectRelatedFileRepository
+from .postgresql_search_repository import PostgresqlSearchRepository
 from .storage_file_repository import StorageFileRepository

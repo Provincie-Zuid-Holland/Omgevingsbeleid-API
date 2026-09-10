@@ -37,7 +37,7 @@ class EndpointHandler:
         self._query: str = query
 
     def handle(self) -> PagedResponse[SearchObject]:
-        if self._session.bind.name in ["sqlite", "mssql"]:
+        if self._session.bind.name in ["sqlite", "mssql", "postgresql"]:
             stmt = self._like_search_stmt()
         else:
             stmt = self._match_search_stmt()

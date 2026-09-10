@@ -63,7 +63,7 @@ class AreaPrefillHandler(BasePrefillHandler[AreaSpec]):
         record.spec.Source_Symbol = source.spec.Symbol
         record.spec.Source_Created_Date = source.spec.Created_Date
         record.spec.Source_Geometry_Index = source.spec.Geometry_Hash[:10]
-        record.spec.Source_Geometry_Hash = source.spec.Geometry_Hash
+        record.spec.Source_Geometry_Hash = source.spec.Geometry_Hash[:64]
 
         return record
 

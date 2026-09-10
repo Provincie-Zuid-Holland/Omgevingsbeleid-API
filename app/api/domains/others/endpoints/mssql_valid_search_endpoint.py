@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
+from app.api.domains.others.repositories.search_repository import SearchRepository
 from app.api.domains.others.types import SearchRequestData, ValidSearchConfig, ValidSearchObject
 from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import PagedResponse, SimplePagination
@@ -20,6 +21,7 @@ class EndpointHandler:
     def __init__(
         self,
         session: Session,
+        search_repository: SearchRepository,
         module_objects_to_models_parser: ModuleObjectsToModelsParser,
         model_map: dict[str, str],
         search_config: ValidSearchConfig,
@@ -28,6 +30,7 @@ class EndpointHandler:
         object_types: list[str] | None = None,
     ):
         self._session: Session = session
+        self._search_repository: SearchRepository = search_repository
         self._module_objects_to_models_parser: ModuleObjectsToModelsParser = module_objects_to_models_parser
         self._model_map: dict[str, str] = model_map
         self._search_config: ValidSearchConfig = search_config
@@ -52,23 +55,9 @@ class EndpointHandler:
             # default to all
             self._object_types = self._search_config.allowed_object_types
 
-        placeholders = ",".join([f":object_type{i}" for i in range(len(self._object_types))])
-        object_type_filter = f" AND v.Object_Type IN ( {placeholders})"
-        stmt = self._get_query(object_type_filter)
-
-        bindparams_dict = {
-            "query": f'"{self._query}"',
-            "offset": self._pagination.offset,
-            "limit": self._pagination.limit,
-        }
-        # fill object type placeholders
-        if self._object_types:
-            for i, ot in enumerate(self._object_types):
-                bindparams_dict[f"object_type{i}"] = ot
-
-        stmt = stmt.bindparams(**bindparams_dict)
-
-        results = self._session.execute(stmt)
+        results = self._search_repository.search(
+            self._query, self._session, self._object_types, self._pagination, self._search_config
+        )
         search_objects: list[ValidSearchObject] = []
         total_count: int = 0
 
@@ -172,9 +161,11 @@ def get_mssql_valid_search_endpoint(
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
+    search_repository: Annotated[SearchRepository, Depends(Provide[ApiContainer.search_repository])],
 ) -> PagedResponse[ValidSearchObject]:
     handler = EndpointHandler(
         session,
+        search_repository,
         module_objects_to_models_parser,
         context.model_map,
         context.search_config,
