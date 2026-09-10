@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Unicode
+from sqlalchemy import ForeignKey, String, Unicode
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -16,7 +16,7 @@ class UsersTable(Base, SerializerMixin):
     UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     Gebruikersnaam: Mapped[str | None]
     Email: Mapped[str] = mapped_column(Unicode(256), unique=True)
-    Rol: Mapped[str | None]
+    Rol: Mapped[str | None] = mapped_column(Unicode(100), nullable=True)
     Status: Mapped[str | None]
 
     user_roles: Mapped[list["UserRoleTable"]] = relationship(
@@ -48,6 +48,6 @@ class UserRoleTable(Base):
     __tablename__ = "user_roles"
 
     User_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"), primary_key=True)
-    Role: Mapped[str] = mapped_column(primary_key=True)
+    Role: Mapped[str] = mapped_column(String(100), primary_key=True)
 
     User: Mapped["UsersTable"] = relationship(back_populates="user_roles")
