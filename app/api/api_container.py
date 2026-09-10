@@ -14,8 +14,6 @@ import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
 from app.api.domains.others.repositories import (
-    MssqlSearchRepository,
-    PostgresqlSearchRepository,
     hoofdlijn_repository,
     object_related_file_repository,
     storage_file_repository,
@@ -110,14 +108,6 @@ class ApiContainer(containers.DeclarativeContainer):
         sqlite=sqlite_input_geo_onderverdeling_repository,
         mssql=mssql_input_geo_onderverdeling_repository,
         postgresql=postgresql_input_geo_onderverdeling_repository,
-    )
-
-    mssql_search_repository = providers.Singleton(MssqlSearchRepository)
-    postgresql_search_repository = providers.Singleton(PostgresqlSearchRepository)
-    search_repository = providers.Selector(
-        config.DB_TYPE,
-        mssql=mssql_search_repository,
-        postgresql=postgresql_search_repository,
     )
 
     dso_gebiedsaanwijzingen_factory = providers.Factory(
