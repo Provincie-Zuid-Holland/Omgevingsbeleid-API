@@ -1,4 +1,3 @@
-
 model_map: &model_map
   beleidsdoel: beleidsdoel_basic
   beleidskeuze: beleidskeuze_basic
@@ -320,9 +319,11 @@ columns:
     deserializers: []
     nullable: true
 
-required_object_fields_rule: {}
-
-publication_required_object_fields_rule: {}
+validate_rules:
+  module:
+    required_object_fields: {}
+  publication:
+    required_object_fields: {}
 
 users_permissions:
   "Behandelend Ambtenaar":

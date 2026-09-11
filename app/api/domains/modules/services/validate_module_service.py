@@ -127,7 +127,7 @@ class RequireExistingHierarchyCodeRuleConfig(BaseModel):
 class RequireExistingHierarchyCodeRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig, repository: PublicationObjectRepository):
         self._config: RequireExistingHierarchyCodeRuleConfig = main_config.get_as_model(
-            "require_existing_hierarchy_code_rule",
+            "validate_rules.module.require_existing_hierarchy_code",
             RequireExistingHierarchyCodeRuleConfig,
         )
         self._repository: PublicationObjectRepository = repository
@@ -174,7 +174,7 @@ class NewestInputGeoOnderverdelingUsedRuleConfig(BaseModel):
 class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig, repository: InputGeoOnderverdelingRepository):
         self._config: NewestInputGeoOnderverdelingUsedRuleConfig = main_config.get_as_model(
-            "newest_input_geo_onderverdeling_used_rule",
+            "validate_rules.module.newest_input_geo_onderverdeling_used",
             NewestInputGeoOnderverdelingUsedRuleConfig,
         )
         self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = repository
@@ -254,7 +254,7 @@ class ForbiddenHtmlTagsRuleConfig(BaseModel):
 class ForbiddenHtmlTagsRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig):
         self._config: ForbiddenHtmlTagsRuleConfig = main_config.get_as_model(
-            "forbidden_html_tags_rule",
+            "validate_rules.module.forbidden_html_tags",
             ForbiddenHtmlTagsRuleConfig,
         )
 
@@ -299,7 +299,7 @@ class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
 class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig):
         self._config: ForbidEmptyHtmlNodesRuleConfig = main_config.get_as_model(
-            "forbid_empty_html_nodes_rule",
+            "validate_rules.module.forbid_empty_html_nodes",
             ForbidEmptyHtmlNodesRuleConfig,
         )
 
@@ -367,7 +367,7 @@ class AreaDesignationRefCheckRuleConfig(BaseModel):
 class AreaDesignationRefCheckRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
         self._config: AreaDesignationRefCheckRuleConfig = main_config.get_as_model(
-            "area_designation_ref_check_rule",
+            "validate_rules.module.area_designation_ref_check",
             AreaDesignationRefCheckRuleConfig,
         )
         self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
@@ -463,7 +463,7 @@ class ThemasCheckRuleConfig(BaseModel):
 class ThemasCheckRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig, dso_thema_factory: ThemaFactory):
         self._config: ThemasCheckRuleConfig = main_config.get_as_model(
-            "themas_check_rule",
+            "validate_rules.module.themas_check",
             ThemasCheckRuleConfig,
         )
         self._dso_thema_factory: ThemaFactory = dso_thema_factory
@@ -521,7 +521,7 @@ class HoofdlijnenCheckRuleConfig(BaseModel):
 class HoofdlijnenCheckRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig, hoofdlijn_repository: HoofdlijnRepository):
         self._config: HoofdlijnenCheckRuleConfig = main_config.get_as_model(
-            "hoofdlijnen_check_rule",
+            "validate_rules.module.hoofdlijnen_check",
             HoofdlijnenCheckRuleConfig,
         )
         self._hoofdlijn_repository: HoofdlijnRepository = hoofdlijn_repository
@@ -577,7 +577,7 @@ class CheckEmptyAreaDesignationTextConfig(BaseModel):
 class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig):
         self._config: CheckEmptyAreaDesignationTextConfig = main_config.get_as_model(
-            "check_empty_area_designation_text_rule",
+            "validate_rules.module.check_empty_area_designation_text",
             CheckEmptyAreaDesignationTextConfig,
         )
 

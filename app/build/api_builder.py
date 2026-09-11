@@ -78,7 +78,7 @@ class ApiBuilder:
         models_provider: ModelsProvider,
     ) -> dict[str, type[BaseModel]]:
         rule_mapping: dict[str, type[BaseModel]] = {}
-        rule_config: dict[str, str] = build_data.main_config["required_object_fields_rule"]
+        rule_config: dict[str, str] = build_data.main_config["validate_rules"]["module"]["required_object_fields"]
         for object_type, model_name in rule_config.items():
             model_type: type[BaseModel] = models_provider.get_pydantic_model(model_name)
             rule_mapping[object_type] = model_type
@@ -90,7 +90,9 @@ class ApiBuilder:
         models_provider: ModelsProvider,
     ) -> dict[str, dict[str, type[BaseModel]]]:
         rule_mapping: dict[str, dict[str, type[BaseModel]]] = {}
-        rule_config: dict[dict[str, str]] = build_data.main_config["publication_required_object_fields_rule"]
+        rule_config: dict[dict[str, str]] = build_data.main_config["validate_rules"]["publication"][
+            "required_object_fields"
+        ]
         for publication_type, object_and_model in rule_config.items():
             for object_type, model_name in object_and_model.items():
                 model_type: type[BaseModel] = models_provider.get_pydantic_model(model_name)

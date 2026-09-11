@@ -416,7 +416,7 @@ class ForbiddenHtmlTagsRuleConfig(BaseModel):
 class ForbiddenHtmlTagsRule(ValidatePublicationRule):
     def __init__(self, main_config: MainConfig):
         self._config: ForbiddenHtmlTagsRuleConfig = main_config.get_as_model(
-            "forbidden_html_tags_rule",
+            "validate_rules.publication.forbidden_html_tags",
             ForbiddenHtmlTagsRuleConfig,
         )
 
@@ -460,7 +460,7 @@ class BillCompactForbiddenTagsRuleConfig(BaseModel):
 class BillCompactForbiddenTagsRule(ValidatePublicationRule):
     def __init__(self, main_config: MainConfig):
         self._config: BillCompactForbiddenTagsRuleConfig = main_config.get_as_model(
-            "publication_bill_compact_forbidden_tags_rule",
+            "validate_rules.publication.bill_compact_forbidden_tags",
             BillCompactForbiddenTagsRuleConfig,
         )
 
@@ -565,7 +565,7 @@ class HoofdlijnenCheckRuleConfig(BaseModel):
 class HoofdlijnenCheckRule(ValidatePublicationRule):
     def __init__(self, main_config: MainConfig, hoofdlijn_repository: HoofdlijnRepository):
         self._config: HoofdlijnenCheckRuleConfig = main_config.get_as_model(
-            "publication_hoofdlijnen_check_rule",
+            "validate_rules.publication.hoofdlijnen_check",
             HoofdlijnenCheckRuleConfig,
         )
         self._hoofdlijn_repository: HoofdlijnRepository = hoofdlijn_repository
