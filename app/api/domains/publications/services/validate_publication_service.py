@@ -416,7 +416,7 @@ class ForbiddenHtmlTagsRuleConfig(BaseModel):
 class ForbiddenHtmlTagsRule(ValidatePublicationRule):
     def __init__(self, main_config: MainConfig):
         self._config: ForbiddenHtmlTagsRuleConfig = main_config.get_as_model(
-            "forbidden_html_tags_rule",
+            "validate_rules.publication.forbidden_html_tags",
             ForbiddenHtmlTagsRuleConfig,
         )
 
@@ -460,7 +460,7 @@ class BillCompactForbiddenTagsRuleConfig(BaseModel):
 class BillCompactForbiddenTagsRule(ValidatePublicationRule):
     def __init__(self, main_config: MainConfig):
         self._config: BillCompactForbiddenTagsRuleConfig = main_config.get_as_model(
-            "bill_compact_forbidden_tags_rule",
+            "validate_rules.publication.bill_compact_forbidden_tags",
             BillCompactForbiddenTagsRuleConfig,
         )
 
@@ -558,14 +558,14 @@ class HoofdlijnenCheckRuleData:
 
 
 class HoofdlijnenCheckRuleConfig(BaseModel):
-    fields: list[str]
+    field: str
     allowed_object_types: list[str]
 
 
 class HoofdlijnenCheckRule(ValidatePublicationRule):
     def __init__(self, main_config: MainConfig, hoofdlijn_repository: HoofdlijnRepository):
         self._config: HoofdlijnenCheckRuleConfig = main_config.get_as_model(
-            "hoofdlijnen_check_rule",
+            "validate_rules.publication.hoofdlijnen_check",
             HoofdlijnenCheckRuleConfig,
         )
         self._hoofdlijn_repository: HoofdlijnRepository = hoofdlijn_repository
@@ -579,16 +579,15 @@ class HoofdlijnenCheckRule(ValidatePublicationRule):
             if object_to_validate.get("Object_Type") not in self._config.allowed_object_types:
                 continue
 
-            for field in self._config.fields:
-                field_value: list[str] | None = object_to_validate.get(field)
-                if not field_value:
-                    continue
+            field_value: list[str] | None = object_to_validate.get(self._config.field)
+            if not field_value:
+                continue
 
-                hoofdlijnen_uuids: set[UUID] = {UUID(hoofdlijn_uuid) for hoofdlijn_uuid in field_value}
-                object_data.append(
-                    HoofdlijnenCheckRuleData(hoofdlijnen_uuids=hoofdlijnen_uuids, object_to_validate=object_to_validate)
-                )
-                hoofdlijnen_set.update(hoofdlijnen_uuids)
+            hoofdlijnen_uuids: set[UUID] = {UUID(hoofdlijn_uuid) for hoofdlijn_uuid in field_value}
+            object_data.append(
+                HoofdlijnenCheckRuleData(hoofdlijnen_uuids=hoofdlijnen_uuids, object_to_validate=object_to_validate)
+            )
+            hoofdlijnen_set.update(hoofdlijnen_uuids)
 
         if not hoofdlijnen_set:
             return errors
