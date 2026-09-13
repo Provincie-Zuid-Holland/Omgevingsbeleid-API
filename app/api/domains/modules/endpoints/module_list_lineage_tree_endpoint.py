@@ -36,7 +36,7 @@ class ModuleListLineageTreeEndpointContext(BaseEndpointContext):
 
 @inject
 def get_module_list_lineage_tree_endpoint(
-    _: Annotated[UsersTable, Depends(depends_current_user)],
+    user: Annotated[UsersTable, Depends(depends_current_user)],
     lineage_id: int,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     module: Annotated[ModuleTable, Depends(depends_module)],
@@ -80,6 +80,8 @@ def get_module_list_lineage_tree_endpoint(
             rows,
             context.builder_data.endpoint_id,
             context.response_config_model,
+            user=user,
+            module_id=module.Module_ID,
         ),
     )
     rows = rows_event.payload.rows

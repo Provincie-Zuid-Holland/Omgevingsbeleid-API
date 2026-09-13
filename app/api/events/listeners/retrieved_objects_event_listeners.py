@@ -45,15 +45,15 @@ from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_servic
     ResolveChildObjectsViaHierarchyConfig,
     ResolveChildObjectsViaHierarchyService,
 )
-from app.api.domains.werkingsgebieden.services import JoinGebiedsaanwijzingenServiceFactory
+from app.api.domains.werkingsgebieden.services import JoinObjectGebiedsaanwijzingenServiceFactory
 from app.api.domains.werkingsgebieden.services.join_gebiedengroepen import (
     JoinGebiedenGroepenConfig,
     JoinGebiedenGroepenService,
     JoinGebiedenGroepenServiceFactory,
 )
-from app.api.domains.werkingsgebieden.services.join_gebiedsaanwijzingen import (
-    JoinGebiedsaanwijzingenConfig,
-    JoinGebiedsaanwijzingenService,
+from app.api.domains.werkingsgebieden.services.join_object_gebiedsaanwijzingen import (
+    JoinObjectGebiedsaanwijzingenConfig,
+    JoinObjectGebiedsaanwijzingenService,
 )
 from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
@@ -437,20 +437,20 @@ class JoinObjectsForObjectListener(JoinObjectsBaseListener[RetrievedObjectsEvent
 class JoinGebiedsaanwijzingenBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](
     ApiListener[EventRMO]
 ):
-    def __init__(self, service_factory: JoinGebiedsaanwijzingenServiceFactory):
-        self._service_factory: JoinGebiedsaanwijzingenServiceFactory = service_factory
+    def __init__(self, service_factory: JoinObjectGebiedsaanwijzingenServiceFactory):
+        self._service_factory: JoinObjectGebiedsaanwijzingenServiceFactory = service_factory
 
     def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
-        config: JoinGebiedsaanwijzingenConfig | None = self._collect_config(event)
+        config: JoinObjectGebiedsaanwijzingenConfig | None = self._collect_config(event)
         if not config:
             return event
 
-        service: JoinGebiedsaanwijzingenService = self._service_factory.create_service(session, config)
+        service: JoinObjectGebiedsaanwijzingenService = self._service_factory.create_service(session, config)
         result_rows: list[BaseModel] = service.join_gebiedsaanwijzingen(event.payload.rows)
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, event: RetrievedModuleObjectsEvent) -> JoinGebiedsaanwijzingenConfig | None:
+    def _collect_config(self, event: RetrievedModuleObjectsEvent) -> JoinObjectGebiedsaanwijzingenConfig | None:
         response_model: Model = event.context.response_model
         if not isinstance(response_model, DynamicObjectModel):
             return None
@@ -460,7 +460,7 @@ class JoinGebiedsaanwijzingenBaseListener[EventRMO: RetrievedObjectsEvent | Retr
         config_dict: dict = response_model.service_config.get("join_gebiedsaanwijzingen", {})
         to_field: str = config_dict["to_field"]
         from_fields: set[str] = config_dict["from_fields"]
-        return JoinGebiedsaanwijzingenConfig(
+        return JoinObjectGebiedsaanwijzingenConfig(
             to_field=to_field,
             from_fields=from_fields,
         )

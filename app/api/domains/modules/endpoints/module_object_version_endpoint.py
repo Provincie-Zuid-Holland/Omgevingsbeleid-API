@@ -70,6 +70,8 @@ def view_module_object_version_endpoint(
             rows,
             context.builder_data.endpoint_id,
             context.response_config_model,
+            user=user,
+            module_id=module.Module_ID,
         ),
     )
     rows = event.payload.rows

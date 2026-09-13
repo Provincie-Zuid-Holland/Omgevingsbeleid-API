@@ -162,10 +162,10 @@ class ApiContainer(containers.DeclarativeContainer):
         object_repository=object_repository,
     )
     join_gebiedsaanwijzingen_service_factory = providers.Singleton(
-        werkingsgebied_services.JoinGebiedsaanwijzingenServiceFactory,
+        werkingsgebied_services.JoinObjectGebiedsaanwijzingenServiceFactory,
     )
     join_gebiedsaanwijzingen_object_statics_service_factory = providers.Singleton(
-        werkingsgebied_services.JoinGebiedsaanwijzingenServiceFactory,
+        werkingsgebied_services.JoinObjectGebiedsaanwijzingenServiceFactory,
     )
     column_image_inserter_factory = providers.Singleton(
         object_services.ColumnImageInserterFactory,

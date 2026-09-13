@@ -303,6 +303,7 @@ models:
       - gebiedsprogramma_minimal
       - werkingsgebied_basic
       - werkingsgebied_statics
+      - gebied_basic
     services:
       next_object_version:
         to_field: Next_Version
@@ -323,6 +324,7 @@ models:
         from_fields:
           - Description
           - Effect
+        to_model: gebied_basic
       insert_assets:
         fields:
           - Description
