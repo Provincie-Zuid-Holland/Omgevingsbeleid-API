@@ -30,99 +30,124 @@ sort_default_object_id: &sort_default_object_id
     order: asc
   allowed_columns: *sort_allowed_object_columns
 
-required_object_fields_rule:
-  ambitie: ambitie_module_validate
-  beleidsdoel: beleidsdoel_module_validate
-  beleidskeuze: beleidskeuze_module_validate
-  document: document_module_validate
-  maatregel: maatregel_module_validate
-  programma_algemeen: programma_module_validate
-  visie_algemeen: visie_algemeen_module_validate
-  gebied: gebied_module_validate
-  gebiedengroep: gebiedengroep_module_validate
-  gebiedsaanwijzing: gebiedsaanwijzing_module_validate
-
-publication_required_object_fields_rule:
-  omgevingsvisie:
-    ambitie: ambitie_module_validate
-    beleidsdoel: beleidsdoel_module_validate
-    beleidskeuze: beleidskeuze_module_validate
-    document: document_module_validate
-    visie_algemeen: visie_algemeen_module_validate
-  programma:
-    document: document_module_validate
-    maatregel: maatregel_module_validate
-    programma_algemeen: programma_module_validate
-    beleidsdoel: beleidsdoel_module_validate
-
-check_empty_area_designation_text_rule:
-  fields:
-    - Description
-    - Cause
-    - Provincial_Interest
-    - Explanation
-    - Role
-    - Effect
-
-forbid_empty_html_nodes_rule:
-  fields:
-    - Description
-    - Cause
-    - Provincial_Interest
-    - Explanation
-    - Role
-    - Effect
-  html_void_elements:
-    - area
-    - base
-    - br
-    - col
-    - embed
-    - hr
-    - img
-    - input
-    - link
-    - meta
-    - param
-    - source
-    - track
-    - wbr
-  allowed_empty_when_sole_child:
-    td:
-      - p
-    th:
-      - p
-
-forbidden_html_tags_rule:
-  fields:
-    - Description
-    - Cause
-    - Provincial_Interest
-    - Explanation
-    - Role
-    - Effect
-  forbidden_html_tags:
-  - h1
-  - h2
-
-bill_compact_forbidden_tags_rule:
-  fields:
-    - Preamble
-    - Closing
-    - Signed
-    - Amendment_Article
-    - Time_Article
-  forbidden_tags:
-    - al
-
-hoofdlijnen_check_rule:
-  fields:
-    - Hoofdlijnen
-  allowed_object_types:
-    - ambitie
-    - beleidsdoel
-    - beleidskeuze
-    - maatregel
+validate_rules:
+  module:
+    area_designation_ref_check:
+      object_type: gebiedsaanwijzing
+      ref_type_field: Ref_Type
+      ref_group_field: Ref_Group
+    check_empty_area_designation_text:
+      fields:
+        - Description
+        - Cause
+        - Provincial_Interest
+        - Explanation
+        - Role
+        - Effect
+    forbid_empty_html_nodes:
+      fields:
+        - Description
+        - Cause
+        - Provincial_Interest
+        - Explanation
+        - Role
+        - Effect
+      html_void_elements:
+        - area
+        - base
+        - br
+        - col
+        - embed
+        - hr
+        - img
+        - input
+        - link
+        - meta
+        - param
+        - source
+        - track
+        - wbr
+      allowed_empty_when_sole_child:
+        td:
+          - p
+        th:
+          - p
+    forbidden_html_tags:
+      fields:
+        - Description
+        - Cause
+        - Provincial_Interest
+        - Explanation
+        - Role
+        - Effect
+      forbidden_html_tags:
+      - h1
+      - h2
+    hoofdlijnen_check:
+      field: Hoofdlijnen
+      allowed_object_types:
+        - ambitie
+        - beleidsdoel
+        - beleidskeuze
+        - maatregel
+    newest_input_geo_onderverdeling_used:
+      object_type: gebied
+      field: Area
+    require_existing_hierarchy_code:
+      field: Hierarchy_Code
+    required_object_fields:
+      ambitie: ambitie_module_validate
+      beleidsdoel: beleidsdoel_module_validate
+      beleidskeuze: beleidskeuze_module_validate
+      document: document_module_validate
+      maatregel: maatregel_module_validate
+      programma_algemeen: programma_module_validate
+      visie_algemeen: visie_algemeen_module_validate
+      gebied: gebied_module_validate
+      gebiedengroep: gebiedengroep_module_validate
+      gebiedsaanwijzing: gebiedsaanwijzing_module_validate
+    themas_check:
+      field: Themas
+  publication:
+    bill_compact_forbidden_tags:
+      fields:
+        - Preamble
+        - Closing
+        - Signed
+        - Amendment_Article
+        - Time_Article
+      forbidden_tags:
+        - al
+    forbidden_html_tags:
+      fields:
+        - Description
+        - Cause
+        - Provincial_Interest
+        - Explanation
+        - Role
+        - Effect
+      forbidden_html_tags:
+      - h1
+      - h2
+    hoofdlijnen_check:
+      field: Hoofdlijnen
+      allowed_object_types:
+        - ambitie
+        - beleidsdoel
+        - beleidskeuze
+        - maatregel
+    required_object_fields:
+      omgevingsvisie:
+        ambitie: ambitie_module_validate
+        beleidsdoel: beleidsdoel_module_validate
+        beleidskeuze: beleidskeuze_module_validate
+        document: document_module_validate
+        visie_algemeen: visie_algemeen_module_validate
+      programma:
+        document: document_module_validate
+        maatregel: maatregel_module_validate
+        programma_algemeen: programma_module_validate
+        beleidsdoel: beleidsdoel_module_validate
 
 model_map: &model_map
   ambitie: ambitie_basic
