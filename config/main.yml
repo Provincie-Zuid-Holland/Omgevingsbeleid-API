@@ -978,7 +978,6 @@ users_permissions:
     - publication_can_upload_publication_announcement_package_report
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
-  
     # Publicatieomgeving
     - publication_can_view_publication_environment
     # Storage File
