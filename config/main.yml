@@ -878,6 +878,8 @@ users_permissions:
     - user_can_create_user
     - user_can_edit_user
     - user_can_reset_user_password
+    # Publicatietemplate
+    - publication_can_view_publication_template
     # Publicatie
     - publication_can_create_publication
     - publication_can_edit_publication
@@ -976,6 +978,7 @@ users_permissions:
     - publication_can_upload_publication_announcement_package_report
     - publication_can_view_publication_announcement_package_report
     - publication_can_download_publication_announcement_package_report
+  
     # Publicatieomgeving
     - publication_can_view_publication_environment
     # Storage File
