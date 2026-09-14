@@ -6,6 +6,7 @@ from .validate_module_service import (
     CheckEmptyAreaDesignationTextRule,
     ForbiddenHtmlTagsRule,
     ForbidEmptyHtmlNodesRule,
+    HoofdlijnenCheckRule,
     NewestInputGeoOnderverdelingUsedRule,
     RequiredObjectFieldsRule,
     RequireExistingHierarchyCodeRule,

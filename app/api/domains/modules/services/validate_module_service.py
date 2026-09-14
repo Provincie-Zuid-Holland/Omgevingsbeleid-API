@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
+from uuid import UUID
 
 from bs4 import BeautifulSoup, PageElement, Tag
 from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory, Thema
@@ -13,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.api.domains.modules import ModuleObjectRepository
 from app.api.domains.modules.types import ModuleObjectActionFull
+from app.api.domains.others.repositories.hoofdlijn_repository import HoofdlijnRepository
 from app.api.domains.publications.repository.publication_object_repository import PublicationObjectRepository
 from app.api.domains.werkingsgebieden.repositories import InputGeoOnderverdelingRepository
 from app.core.services import MainConfig
@@ -117,8 +120,16 @@ class RequiredObjectFieldsRule(ValidateModuleRule):
         return errors
 
 
+class RequireExistingHierarchyCodeRuleConfig(BaseModel):
+    field: str
+
+
 class RequireExistingHierarchyCodeRule(ValidateModuleRule):
-    def __init__(self, repository: PublicationObjectRepository):
+    def __init__(self, main_config: MainConfig, repository: PublicationObjectRepository):
+        self._config: RequireExistingHierarchyCodeRuleConfig = main_config.get_as_model(
+            "validate_rules.module.require_existing_hierarchy_code",
+            RequireExistingHierarchyCodeRuleConfig,
+        )
         self._repository: PublicationObjectRepository = repository
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
@@ -132,13 +143,13 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
         errors: list[ValidateModuleError] = []
 
         for object_info in objects:
-            target_code = object_info.get("Hierarchy_Code")
+            target_code = object_info.get(self._config.field)
             if target_code is None:
                 continue
 
             if target_code not in existing_object_codes:
-                module_object = request.get_module_object(object_info["Code"])
-                title = module_object.Title if module_object and module_object.Title else ""
+                module_object: ModuleObjectsTable = request.get_module_object(object_info["Code"])
+                title: str = module_object.Title if module_object and module_object.Title else ""
 
                 errors.append(
                     ValidateModuleError(
@@ -155,20 +166,27 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
         return errors
 
 
+class NewestInputGeoOnderverdelingUsedRuleConfig(BaseModel):
+    object_type: str
+    field: str
+
+
 class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
-    def __init__(self, input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository):
-        self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = (
-            input_geo_onderverdeling_repository
+    def __init__(self, main_config: MainConfig, repository: InputGeoOnderverdelingRepository):
+        self._config: NewestInputGeoOnderverdelingUsedRuleConfig = main_config.get_as_model(
+            "validate_rules.module.newest_input_geo_onderverdeling_used",
+            NewestInputGeoOnderverdelingUsedRuleConfig,
         )
+        self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = repository
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
-            if object_table.Object_Type != "gebied":
+            if object_table.Object_Type != self._config.object_type:
                 continue
 
-            area_current: AreasTable | None = object_table.Area
+            area_current: AreasTable | None = getattr(object_table, self._config.field)
             if area_current is None:
                 errors.append(
                     ValidateModuleError(
@@ -179,7 +197,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                             object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
-                        messages=["Object is of type 'gebied', but area is not known"],
+                        messages=[f"Object is of type '{self._config.object_type}', but area is not known"],
                     )
                 )
                 continue
@@ -236,7 +254,7 @@ class ForbiddenHtmlTagsRuleConfig(BaseModel):
 class ForbiddenHtmlTagsRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig):
         self._config: ForbiddenHtmlTagsRuleConfig = main_config.get_as_model(
-            "forbidden_html_tags_rule",
+            "validate_rules.module.forbidden_html_tags",
             ForbiddenHtmlTagsRuleConfig,
         )
 
@@ -281,7 +299,7 @@ class ForbidEmptyHtmlNodesRuleConfig(BaseModel):
 class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig):
         self._config: ForbidEmptyHtmlNodesRuleConfig = main_config.get_as_model(
-            "forbid_empty_html_nodes_rule",
+            "validate_rules.module.forbid_empty_html_nodes",
             ForbidEmptyHtmlNodesRuleConfig,
         )
 
@@ -325,7 +343,7 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
 
     def _is_allowed_empty_sole_child(self, tag: Tag) -> bool:
         parent: Tag | None = tag.parent
-        if parent is None:
+        if parent is None:  # practically unreachable when using _has_empty_nodes
             return False
 
         allowed_children: list[str] = self._config.allowed_empty_when_sole_child.get(parent.name, [])
@@ -340,8 +358,18 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
         return not parent.get_text(strip=True)
 
 
+class AreaDesignationRefCheckRuleConfig(BaseModel):
+    object_type: str
+    ref_type_field: str
+    ref_group_field: str
+
+
 class AreaDesignationRefCheckRule(ValidateModuleRule):
-    def __init__(self, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
+    def __init__(self, main_config: MainConfig, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
+        self._config: AreaDesignationRefCheckRuleConfig = main_config.get_as_model(
+            "validate_rules.module.area_designation_ref_check",
+            AreaDesignationRefCheckRuleConfig,
+        )
         self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
@@ -351,10 +379,12 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
         )
 
         for object_table in request.module_objects:
-            if object_table.Object_Type != "gebiedsaanwijzing":
+            if object_table.Object_Type != self._config.object_type:
                 continue
 
-            ref_type: Gebiedsaanwijzing | None = gebiedsaanwijzingen.get_by_type_label(object_table.Ref_Type)
+            ref_type: Gebiedsaanwijzing | None = gebiedsaanwijzingen.get_by_type_label(
+                getattr(object_table, self._config.ref_type_field)
+            )
             if ref_type is None:
                 errors.append(
                     ValidateModuleError(
@@ -365,7 +395,9 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                             object_type=object_table.Object_Type,
                             title=object_table.Title,
                         ),
-                        messages=[f"GebiedsaanwijzingType '{object_table.Ref_Type}' for gebiedsaanwijzing not found"],
+                        messages=[
+                            f"GebiedsaanwijzingType '{getattr(object_table, self._config.ref_type_field)}' for gebiedsaanwijzing not found"
+                        ],
                     )
                 )
                 continue
@@ -380,13 +412,15 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                             title=object_table.Title,
                         ),
                         messages=[
-                            f"GebiedsaanwijzingType '{object_table.Ref_Type}' for gebiedsaanwijzing is deprecated"
+                            f"GebiedsaanwijzingType '{getattr(object_table, self._config.ref_type_field)}' for gebiedsaanwijzing is deprecated"
                         ],
                     )
                 )
                 continue
 
-            ref_group: GebiedsaanwijzingWaarde | None = ref_type.get_value_by_label(object_table.Ref_Group)
+            ref_group: GebiedsaanwijzingWaarde | None = ref_type.get_value_by_label(
+                getattr(object_table, self._config.ref_group_field)
+            )
             if ref_group is None:
                 errors.append(
                     ValidateModuleError(
@@ -398,7 +432,7 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                             title=object_table.Title,
                         ),
                         messages=[
-                            f"GebiedsaanwijzingGroep '{object_table.Ref_Group}' for GebiedsaanwijzingType '{object_table.Ref_Type}' not found"
+                            f"GebiedsaanwijzingGroep '{getattr(object_table, self._config.ref_group_field)}' for GebiedsaanwijzingType '{getattr(object_table, self._config.ref_type_field)}' not found"
                         ],
                     )
                 )
@@ -415,15 +449,23 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                         ),
                         severity=ValidateModuleSeverity.warning,
                         messages=[
-                            f"GebiedsaanwijzingGroep '{object_table.Ref_Group}' for GebiedsaanwijzingType '{object_table.Ref_Type}' is deprecated"
+                            f"GebiedsaanwijzingGroep '{getattr(object_table, self._config.ref_group_field)}' for GebiedsaanwijzingType '{getattr(object_table, self._config.ref_type_field)}' is deprecated"
                         ],
                     )
                 )
         return errors
 
 
+class ThemasCheckRuleConfig(BaseModel):
+    field: str
+
+
 class ThemasCheckRule(ValidateModuleRule):
-    def __init__(self, dso_thema_factory: ThemaFactory):
+    def __init__(self, main_config: MainConfig, dso_thema_factory: ThemaFactory):
+        self._config: ThemasCheckRuleConfig = main_config.get_as_model(
+            "validate_rules.module.themas_check",
+            ThemasCheckRuleConfig,
+        )
         self._dso_thema_factory: ThemaFactory = dso_thema_factory
 
     def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
@@ -431,10 +473,10 @@ class ThemasCheckRule(ValidateModuleRule):
         dso_themas: dict[str, Thema] = self._dso_thema_factory.get_all()
 
         for object_table in request.module_objects:
-            if not object_table.Themas:
+            if not getattr(object_table, self._config.field):
                 continue
 
-            for thema in object_table.Themas:
+            for thema in getattr(object_table, self._config.field):
                 dso_thema: Thema | None = dso_themas.get(thema)
                 if dso_thema is None:
                     errors.append(
@@ -465,6 +507,69 @@ class ThemasCheckRule(ValidateModuleRule):
         return errors
 
 
+@dataclass
+class HoofdlijnenCheckRuleData:
+    hoofdlijnen_uuids: set[UUID]
+    object_table: ModuleObjectsTable
+
+
+class HoofdlijnenCheckRuleConfig(BaseModel):
+    field: str
+    allowed_object_types: list[str]
+
+
+class HoofdlijnenCheckRule(ValidateModuleRule):
+    def __init__(self, main_config: MainConfig, hoofdlijn_repository: HoofdlijnRepository):
+        self._config: HoofdlijnenCheckRuleConfig = main_config.get_as_model(
+            "validate_rules.module.hoofdlijnen_check",
+            HoofdlijnenCheckRuleConfig,
+        )
+        self._hoofdlijn_repository: HoofdlijnRepository = hoofdlijn_repository
+
+    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        object_data: list[HoofdlijnenCheckRuleData] = []
+        hoofdlijnen_set: set[UUID] = set()
+
+        errors: list[ValidateModuleError] = []
+        for object_table in request.module_objects:
+            if object_table.Object_Type not in self._config.allowed_object_types:
+                continue
+
+            field_value: list[str] | None = getattr(object_table, self._config.field)
+            if not field_value:
+                continue
+
+            hoofdlijnen_uuids: set[UUID] = {UUID(hoofdlijn_uuid) for hoofdlijn_uuid in field_value}
+            object_data.append(HoofdlijnenCheckRuleData(hoofdlijnen_uuids=hoofdlijnen_uuids, object_table=object_table))
+            hoofdlijnen_set.update(hoofdlijnen_uuids)
+
+        if not hoofdlijnen_set:
+            return errors
+
+        found_hoofdlijnen_uuids: set[UUID] = self._hoofdlijn_repository.get_existing_uuids(db, hoofdlijnen_set)
+        missing_uuids = hoofdlijnen_set - found_hoofdlijnen_uuids
+        if not missing_uuids:
+            return errors
+
+        for data in object_data:
+            missing_for_object: set[UUID] = data.hoofdlijnen_uuids & missing_uuids
+            if missing_for_object:
+                missing_displayed: list[str] = sorted(str(uuidx) for uuidx in missing_for_object)
+                errors.append(
+                    ValidateModuleError(
+                        rule="hoofdlijnen_check_rule",
+                        object=ValidateModuleObject(
+                            code=data.object_table.Code,
+                            object_id=data.object_table.Object_ID,
+                            object_type=data.object_table.Object_Type,
+                            title=data.object_table.Title,
+                        ),
+                        messages=[f"Hoofdlijnen with IDs {', '.join(missing_displayed)} are unknown"],
+                    )
+                )
+        return errors
+
+
 class CheckEmptyAreaDesignationTextConfig(BaseModel):
     fields: list[str]
 
@@ -472,7 +577,7 @@ class CheckEmptyAreaDesignationTextConfig(BaseModel):
 class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
     def __init__(self, main_config: MainConfig):
         self._config: CheckEmptyAreaDesignationTextConfig = main_config.get_as_model(
-            "check_empty_area_designation_text_rule",
+            "validate_rules.module.check_empty_area_designation_text",
             CheckEmptyAreaDesignationTextConfig,
         )
 
