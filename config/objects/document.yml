@@ -105,12 +105,6 @@ fields:
     column: filename
     validators:
       - id: none_to_default_value
-  description:
-    name: Description
-    type: str
-    column: description
-    validators:
-      - id: none_to_default_value
   file_uuid:
     name: File_UUID
     type: uuid
@@ -207,7 +201,6 @@ models:
       modified_date:
       title:
       filename:
-      description:
       start_validity:
       end_validity:
       file_uuid:
@@ -255,9 +248,6 @@ models:
               min: 3
               max: 200
           - id: filename
-      description:
-        default: none
-        optional: true
       file_uuid:
   document_static:
     name: DocumentStatic
