@@ -148,11 +148,6 @@ fields:
     type: uuid
     column: portfolio_holder_1_uuid
     optional: true
-  portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
-    type: uuid
-    column: portfolio_holder_1_uuid
-    optional: true
   client_1_uuid:
     name: Client_1_UUID
     type: uuid
@@ -212,8 +207,6 @@ models:
             model_id: user_short
           - to_field: Portfolio_Holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
-            model_id: user_short
           - to_field: Client_1
             model_id: user_short
   ambitie_full:
@@ -263,8 +256,6 @@ models:
           - to_field: Owner_2
             model_id: user_short
           - to_field: Portfolio_Holder_1
-            model_id: user_short
-          - to_field: Portfolio_Holder_2
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
@@ -319,8 +310,6 @@ models:
             model_id: user_short
           - to_field: Portfolio_Holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
-            model_id: user_short
           - to_field: Client_1
             model_id: user_short
   ambitie_static_post:
@@ -330,7 +319,6 @@ models:
       owner_1_uuid:
       owner_2_uuid:
       portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
       client_1_uuid:
   ambitie_static_post_validated:
     name: AmbitieStaticPostValidated
@@ -343,18 +331,10 @@ models:
             - Owner_2_UUID
           allow_none: True
           error_message: Owners should vary
-      - id: not_equal_root
-        data:
-          fields:
-            - Portfolio_Holder_1_UUID
-            - Portfolio_Holder_2_UUID
-          allow_none: True
-          error_message: Portfolio Holders should vary
     fields:
       owner_1_uuid:
       owner_2_uuid:
       portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
       client_1_uuid:
   ambitie_uuid:
     name: AmbitieUUID

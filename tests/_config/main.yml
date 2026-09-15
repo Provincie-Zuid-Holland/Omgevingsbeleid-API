@@ -297,16 +297,6 @@ columns:
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
-  # Portefeuillehouder 2
-  portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
-    type: user_uuid
-    type_data:
-      relation_field: Portfolio_Holder_2
-    serializers: ["optional_str"]
-    deserializers: ["optional_uuid"]
-    nullable: true
-    static: true
   # Opdrachtgever
   client_1_uuid:
     name: Client_1_UUID

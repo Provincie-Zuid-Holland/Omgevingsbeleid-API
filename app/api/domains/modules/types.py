@@ -110,7 +110,6 @@ class ObjectStaticShort(BaseModel):
     Owner_1_UUID: uuid.UUID | None = None
     Owner_2_UUID: uuid.UUID | None = None
     Portfolio_Holder_1_UUID: uuid.UUID | None = None
-    Portfolio_Holder_2_UUID: uuid.UUID | None = None
     Client_1_UUID: uuid.UUID | None = None
     model_config = ConfigDict(from_attributes=True)
 

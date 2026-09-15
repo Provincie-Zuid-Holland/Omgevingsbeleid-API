@@ -48,7 +48,6 @@ def post_module_edit_object_context_endpoint(
             module_object.ObjectStatics.Owner_1_UUID,
             module_object.ObjectStatics.Owner_2_UUID,
             module_object.ObjectStatics.Portfolio_Holder_1_UUID,
-            module_object.ObjectStatics.Portfolio_Holder_2_UUID,
             module_object.ObjectStatics.Client_1_UUID,
         ],
     )
