@@ -32,6 +32,7 @@ from app.core.tables.users import UsersTable
 
 class PublicationPackagePdf(BaseModel):
     Mutation: Optional[MutationStrategy] = None
+    Hide_Artikel_Label: bool = False
 
 
 @inject
@@ -66,6 +67,7 @@ def post_create_version_pdf_endpoint(
             version,
             PackageType.VALIDATION,
             overwrite_mutation_strategy=object_in.Mutation,
+            hide_artikel_label=object_in.Hide_Artikel_Label,
         )
         package_builder.build_publication_files()
         zip_data: ZipData = package_builder.zip_files()

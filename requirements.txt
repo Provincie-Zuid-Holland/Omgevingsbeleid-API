@@ -61,23 +61,23 @@ dependency-injector==4.49.1
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@d08a1e1ddb6e786518ed9a35e7072b21e4b771ad
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@17556aa1fdbda4c62f7391f815b89b1928129256
     # via -r requirements.in
 fastapi==0.141.1
     # via -r requirements.in
 geopandas==1.1.4
     # via -r requirements.in
-greenlet==3.5.5
+greenlet==3.5.6
     # via sqlalchemy
 h11==0.16.0
     # via
     #   httpcore2
     #   uvicorn
-httpcore2==2.12.0
+httpcore2==2.13.0
     # via httpx2
 httptools==0.8.0
     # via uvicorn
-httpx2==2.12.0
+httpx2==2.13.0
     # via -r requirements.in
 idna==3.19
     # via
@@ -249,7 +249,7 @@ pydantic-core==2.46.5
     #   pydantic
 pydantic-settings==2.15.0
     # via -r requirements.in
-pyjwt[crypto]==2.13.0
+pyjwt[crypto]==2.14.0
     # via
     #   -r requirements.in
     #   msal
@@ -302,7 +302,7 @@ soupsieve==2.9.2
     # via
     #   beautifulsoup4
     #   dso
-sqlalchemy==2.0.52
+sqlalchemy==2.0.53
     # via -r requirements.in
 starlette==1.6.0
     # via fastapi
@@ -336,7 +336,7 @@ typing-inspection==0.4.4
     #   pydantic-settings
 urllib3==2.7.0
     # via requests
-uvicorn[standard]==0.52.4
+uvicorn[standard]==0.53.0
     # via -r requirements.in
 uvloop==0.22.1
     # via uvicorn
@@ -346,7 +346,7 @@ watchfiles==1.2.0
     # via uvicorn
 websockets==17.1
     # via uvicorn
-wrapt==2.4.0
+wrapt==2.4.1
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi

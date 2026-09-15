@@ -107,10 +107,11 @@ class DsoActInputDataBuilder:
         self._mutation_strategy: MutationStrategy = api_input_data.Mutation_Strategy
         self._ow_state_json: Optional[str] = api_input_data.Ow_State
 
-    def build(self) -> InputData:
+    # @todo: hide_artikel_label should be removed after october 2026
+    def build(self, hide_artikel_label: bool) -> InputData:
         input_data: InputData = InputData(
             publication_settings=self._get_publication_settings(),
-            besluit=self._get_besluit(),
+            besluit=self._get_besluit(hide_artikel_label),
             regeling=self._get_regeling(),
             regeling_vrijetekst=self._publication_data.parsed_template,
             procedure_verloop=self._get_procedure_verloop(),
@@ -171,18 +172,20 @@ class DsoActInputDataBuilder:
         filename: str = f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
         return filename
 
-    def _get_besluit(self) -> Besluit:
+    def _get_besluit(self, hide_artikel_label: bool) -> Besluit:
         api_procedure_type: APIProcedureType = APIProcedureType(self._publication.Procedure_Type)
         dso_procedure_type: DSOProcedureType = PROCEDURE_TYPE_MAP[api_procedure_type]
+
+        wijzig_artikel: Artikel = self._get_wijzigingsartikel(hide_artikel_label)
 
         besluit = Besluit(
             officiele_titel=self._publication_version.Bill_Metadata["Official_Title"],
             citeertitel=self._publication_version.Bill_Metadata["Quote_Title"],
             aanhef=self._publication_version.Bill_Compact["Preamble"],
-            wijzig_artikel=self._get_wijzigingsartikel(),
-            wijzig_bijlage=self._get_amendment_appendix(),
-            tekst_artikelen=self._get_text_articles(),
-            tijd_artikel=self._get_time_article(),
+            wijzig_artikel=wijzig_artikel,
+            wijzig_bijlage=self._get_amendment_appendix(wijzig_artikel),
+            tekst_artikelen=self._get_text_articles(hide_artikel_label),
+            tijd_artikel=self._get_time_article(hide_artikel_label),
             sluiting=self._get_closing_text(),
             ondertekening=self._publication_version.Bill_Compact.get("Signed", ""),
             rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Bill_Metadata["Jurisdictions"]),
@@ -221,8 +224,9 @@ class DsoActInputDataBuilder:
         )
         return result
 
-    def _get_time_article(self) -> Optional[Artikel]:
+    def _get_time_article(self, hide_artikel_label: bool) -> Optional[Artikel]:
         result = Artikel(
+            label=(None if hide_artikel_label else "Artikel"),
             nummer="II",
             inhoud=self._get_time_article_content(),
         )
@@ -256,7 +260,7 @@ class DsoActInputDataBuilder:
         )
         return procedure_verloop
 
-    def _get_wijzigingsartikel(self) -> Artikel:
+    def _get_wijzigingsartikel(self, hide_artikel_label: bool) -> Artikel:
         text: str = self._publication_version.Bill_Compact["Amendment_Article"]
 
         enactment_date: Optional[str] = self._publication_version.Procedural.get("Enactment_Date", None)
@@ -265,15 +269,22 @@ class DsoActInputDataBuilder:
             text = text.replace("[[ENACTMENT_DATE]]", date_readable)
 
         result = Artikel(
+            label=(None if hide_artikel_label else "Artikel"),
             nummer="I",
             inhoud=text,
         )
         return result
 
-    def _get_amendment_appendix(self) -> WijzigBijlage:
+    def _get_amendment_appendix(self, wijzig_artikel: Artikel) -> WijzigBijlage:
         data: dict = self._publication_version.Bill_Compact.get("Amendment_Appendix", {})
         number = data.get("Number", "A")
-        title = data.get("Title", "bij Artikel I")
+
+        if "Titel" in data:
+            title = data["Title"]
+        else:
+            title = f"bij {wijzig_artikel.label or ""} {wijzig_artikel.nummer}"
+        # Remove double spaces
+        title = " ".join(title.split())
 
         result = WijzigBijlage(
             nummer=number,
@@ -281,10 +292,11 @@ class DsoActInputDataBuilder:
         )
         return result
 
-    def _get_text_articles(self) -> List[Artikel]:
+    def _get_text_articles(self, hide_artikel_label: bool) -> List[Artikel]:
         result: List[Artikel] = []
         for custom_article in self._publication_version.Bill_Compact.get("Custom_Articles", []):
             article: Artikel = Artikel(
+                label=(None if hide_artikel_label else "Artikel"),
                 nummer=custom_article["Number"],
                 inhoud=custom_article["Content"],
             )

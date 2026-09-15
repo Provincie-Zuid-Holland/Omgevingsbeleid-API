@@ -44,6 +44,7 @@ from app.core.tables.users import UsersTable
 
 class PublicationPackageCreate(BaseModel):
     Package_Type: PackageType
+    Hide_Artikel_Label: bool = False
 
 
 class PublicationPackageCreatedResponse(BaseModel):
@@ -82,6 +83,7 @@ class EndpointHandler:
                 self._session,
                 self._publication_version,
                 self._object_in.Package_Type,
+                hide_artikel_label=self._object_in.Hide_Artikel_Label,
             )
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()

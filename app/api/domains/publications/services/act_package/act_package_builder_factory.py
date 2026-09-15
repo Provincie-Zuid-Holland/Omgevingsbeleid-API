@@ -62,6 +62,7 @@ class ActPackageBuilderFactory:
         publication_version: PublicationVersionTable,
         package_type: PackageType,
         overwrite_mutation_strategy: Optional[MutationStrategy] = None,
+        hide_artikel_label: bool = False,
     ) -> ActPackageBuilder:
         publication: PublicationTable = publication_version.Publication
         act: PublicationActTable = publication.Act
@@ -117,7 +118,7 @@ class ActPackageBuilderFactory:
         )
 
         try:
-            input_data: InputData = input_data_builder.build()
+            input_data: InputData = input_data_builder.build(hide_artikel_label)
         except Exception as e:
             raise DSOConfigurationException(str(e)) from e
 

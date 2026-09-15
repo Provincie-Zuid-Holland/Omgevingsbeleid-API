@@ -1,5 +1,5 @@
 # Development Environment
-ruff
+ruff<0.16
 freezegun
 pytest-freezer
 Faker

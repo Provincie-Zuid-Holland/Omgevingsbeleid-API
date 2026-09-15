@@ -4,7 +4,7 @@
 #
 #    pip-compile --no-index requirements-dev.in
 #
-alembic==1.19.2
+alembic==1.20.0
     # via -r requirements-dev.in
 anyio==4.15.1
     # via httpx2
@@ -16,7 +16,7 @@ certifi==2026.7.22
     # via requests
 charset-normalizer==3.5.1
     # via requests
-coverage[toml]==7.16.0
+coverage[toml]==7.16.1
     # via
     #   -r requirements-dev.in
     #   coverage-badge
@@ -31,19 +31,19 @@ executing==2.2.1
     # via
     #   devtools
     #   stack-data
-faker==40.38.0
+faker==40.39.0
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via
     #   -r requirements-dev.in
     #   pytest-freezer
-greenlet==3.5.5
+greenlet==3.5.6
     # via sqlalchemy
 h11==0.16.0
     # via httpcore2
-httpcore2==2.12.0
+httpcore2==2.13.0
     # via httpx2
-httpx2==2.12.0
+httpx2==2.13.0
     # via -r requirements-dev.in
 idna==3.19
     # via
@@ -84,7 +84,7 @@ psutil==7.2.2
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
-pure-eval==0.2.3
+pure-eval==0.2.4
     # via stack-data
 pygments==2.21.0
     # via
@@ -118,13 +118,13 @@ requests-mock==1.12.1
     # via -r requirements-dev.in
 rich==15.0.0
     # via -r requirements-dev.in
-ruff==0.16.6
+ruff==0.15.22
     # via -r requirements-dev.in
 six==1.17.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy==2.0.52
+sqlalchemy==2.0.53
     # via alembic
 stack-data==0.6.3
     # via ipython
