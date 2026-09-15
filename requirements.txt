@@ -26,9 +26,9 @@ azure-core-tracing-opentelemetry==1.0.0b13
     # via azure-monitor-opentelemetry
 azure-identity==1.25.3
     # via azure-monitor-opentelemetry-exporter
-azure-monitor-opentelemetry==1.8.9
+azure-monitor-opentelemetry==1.8.10
     # via -r requirements.in
-azure-monitor-opentelemetry-exporter==1.0.0b56
+azure-monitor-opentelemetry-exporter==1.0.0b57
     # via azure-monitor-opentelemetry
 bcrypt==4.0.1
     # via -r requirements.in
@@ -61,7 +61,7 @@ dependency-injector==4.49.1
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.13.1
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@d08a1e1ddb6e786518ed9a35e7072b21e4b771ad
     # via -r requirements.in
 fastapi==0.141.1
     # via -r requirements.in
@@ -116,7 +116,7 @@ numpy==2.5.3
     #   shapely
 oauthlib==3.3.1
     # via requests-oauthlib
-opentelemetry-api==1.43.0
+opentelemetry-api==1.44.0
     # via
     #   azure-core-tracing-opentelemetry
     #   azure-monitor-opentelemetry-exporter
@@ -126,6 +126,7 @@ opentelemetry-api==1.43.0
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-fastapi
     #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-logging
     #   opentelemetry-instrumentation-psycopg2
     #   opentelemetry-instrumentation-requests
@@ -134,13 +135,14 @@ opentelemetry-api==1.43.0
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-instrumentation==0.64b0
+opentelemetry-instrumentation==0.65b0
     # via
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-fastapi
     #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-logging
     #   opentelemetry-instrumentation-psycopg2
     #   opentelemetry-instrumentation-requests
@@ -148,40 +150,42 @@ opentelemetry-instrumentation==0.64b0
     #   opentelemetry-instrumentation-urllib3
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-resource-detector-azure
-opentelemetry-instrumentation-asgi==0.64b0
+opentelemetry-instrumentation-asgi==0.65b0
     # via opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-dbapi==0.64b0
+opentelemetry-instrumentation-dbapi==0.65b0
     # via opentelemetry-instrumentation-psycopg2
-opentelemetry-instrumentation-django==0.64b0
+opentelemetry-instrumentation-django==0.65b0
     # via azure-monitor-opentelemetry
-opentelemetry-instrumentation-fastapi==0.64b0
+opentelemetry-instrumentation-fastapi==0.65b0
     # via
     #   -r requirements.in
     #   azure-monitor-opentelemetry
-opentelemetry-instrumentation-flask==0.64b0
+opentelemetry-instrumentation-flask==0.65b0
     # via azure-monitor-opentelemetry
-opentelemetry-instrumentation-logging==0.64b0
+opentelemetry-instrumentation-httpx==0.65b0
     # via azure-monitor-opentelemetry
-opentelemetry-instrumentation-psycopg2==0.64b0
+opentelemetry-instrumentation-logging==0.65b0
     # via azure-monitor-opentelemetry
-opentelemetry-instrumentation-requests==0.64b0
+opentelemetry-instrumentation-psycopg2==0.65b0
     # via azure-monitor-opentelemetry
-opentelemetry-instrumentation-urllib==0.64b0
+opentelemetry-instrumentation-requests==0.65b0
     # via azure-monitor-opentelemetry
-opentelemetry-instrumentation-urllib3==0.64b0
+opentelemetry-instrumentation-urllib==0.65b0
     # via azure-monitor-opentelemetry
-opentelemetry-instrumentation-wsgi==0.64b0
+opentelemetry-instrumentation-urllib3==0.65b0
+    # via azure-monitor-opentelemetry
+opentelemetry-instrumentation-wsgi==0.65b0
     # via
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-flask
 opentelemetry-resource-detector-azure==0.2.0
     # via azure-monitor-opentelemetry
-opentelemetry-sdk==1.43.0
+opentelemetry-sdk==1.44.0
     # via
     #   azure-monitor-opentelemetry
     #   azure-monitor-opentelemetry-exporter
     #   opentelemetry-resource-detector-azure
-opentelemetry-semantic-conventions==0.64b0
+opentelemetry-semantic-conventions==0.65b0
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-asgi
@@ -189,18 +193,20 @@ opentelemetry-semantic-conventions==0.64b0
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-fastapi
     #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-logging
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-urllib
     #   opentelemetry-instrumentation-urllib3
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.64b0
+opentelemetry-util-http==0.65b0
     # via
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-fastapi
     #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-urllib
     #   opentelemetry-instrumentation-urllib3
@@ -344,4 +350,5 @@ wrapt==2.4.0
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
+    #   opentelemetry-instrumentation-httpx
     #   opentelemetry-instrumentation-urllib3
