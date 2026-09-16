@@ -1,4 +1,3 @@
-from enum import Enum
 from uuid import UUID
 
 from sqlalchemy import select
@@ -7,12 +6,6 @@ from sqlalchemy.orm import Session
 from app.api.base_repository import BaseRepository
 from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
 from app.core.tables.others import HoofdlijnTable
-
-
-class HoofdlijnSortColumn(str, Enum):
-    Created_Date = "Created_Date"
-    Name = "Name"
-    Type = "Type"
 
 
 class HoofdlijnRepository(BaseRepository):
