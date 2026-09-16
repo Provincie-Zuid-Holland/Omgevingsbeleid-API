@@ -89,6 +89,11 @@ fields:
     type: uuid
     column: owner_2_uuid
     optional: true
+  owner_3_uuid:
+    name: Owner_3_UUID
+    type: uuid
+    column: owner_3_uuid
+    optional: true
 
 models:
   nationaal_belang_minimal:
@@ -139,6 +144,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
   nationaal_belang_full:
     name: NationaalBelangFull
     fields:
@@ -174,6 +181,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
   nationaal_belang_create:
     name: NationaalBelangCreate
     fields:
@@ -190,6 +199,7 @@ models:
           - id: plain_text
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
   nationaal_belang_edit:
     name: NationaalBelangEdit
     fields:
@@ -220,12 +230,15 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
   nationaal_belang_static_post:
     name: NationaalBelangStaticPost
     static_only: true
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
   nationaal_belang_static_post_validated:
     name: NationaalBelangStaticPostValidated
     static_only: true
@@ -235,11 +248,13 @@ models:
           fields:
             - Owner_1_UUID
             - Owner_2_UUID
+            - Owner_3_UUID
           allow_none: True
           error_message: Owners should vary
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
   nationaal_belang_uuid:
     name: NationaalBelangUUID
     fields:

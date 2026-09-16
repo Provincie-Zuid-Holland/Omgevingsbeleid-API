@@ -199,6 +199,11 @@ fields:
     type: uuid
     column: owner_2_uuid
     optional: true
+  owner_3_uuid:
+    name: Owner_3_UUID
+    type: uuid
+    column: owner_3_uuid
+    optional: true
   portfolio_holder_1_uuid:
     name: Portfolio_Holder_1_UUID
     type: uuid
@@ -263,6 +268,8 @@ models:
           - to_field: Owner_1
             model_id: user_short
           - to_field: Owner_2
+            model_id: user_short
+          - to_field: Owner_3
             model_id: user_short
           - to_field: Portfolio_Holder_1
             model_id: user_short
@@ -347,6 +354,8 @@ models:
           - to_field: Owner_1
             model_id: user_short
           - to_field: Owner_2
+            model_id: user_short
+          - to_field: Owner_3
             model_id: user_short
           - to_field: Portfolio_Holder_1
             model_id: user_short
@@ -454,6 +463,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
           - to_field: Portfolio_Holder_1
             model_id: user_short
           - to_field: Client_1
@@ -464,6 +475,7 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
       portfolio_holder_1_uuid:
       client_1_uuid:
   maatregel_static_post_validated:
@@ -475,11 +487,13 @@ models:
           fields:
             - Owner_1_UUID
             - Owner_2_UUID
+            - Owner_3_UUID
           allow_none: True
           error_message: Owners should vary
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
       portfolio_holder_1_uuid:
       client_1_uuid:
   maatregel_uuid:
