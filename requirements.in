@@ -45,7 +45,7 @@ jinja2
 lxml
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@17556aa1fdbda4c62f7391f815b89b1928129256
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.15.0
 
 # Azure
 azure-monitor-opentelemetry

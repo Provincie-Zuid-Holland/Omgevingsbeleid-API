@@ -61,7 +61,7 @@ dependency-injector==4.49.1
     # via -r requirements.in
 diff-match-patch==20241021
     # via -r requirements.in
-dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@17556aa1fdbda4c62f7391f815b89b1928129256
+dso @ git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.15.0
     # via -r requirements.in
 fastapi==0.141.1
     # via -r requirements.in
@@ -302,7 +302,7 @@ soupsieve==2.9.2
     # via
     #   beautifulsoup4
     #   dso
-sqlalchemy==2.0.53
+sqlalchemy==2.0.54
     # via -r requirements.in
 starlette==1.6.0
     # via fastapi
@@ -334,7 +334,7 @@ typing-inspection==0.4.4
     #   fastapi
     #   pydantic
     #   pydantic-settings
-urllib3==2.7.0
+urllib3==2.8.0
     # via requests
 uvicorn[standard]==0.53.0
     # via -r requirements.in

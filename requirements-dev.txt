@@ -23,7 +23,7 @@ coverage[toml]==7.16.1
     #   pytest-cov
 coverage-badge==1.1.2
     # via -r requirements-dev.in
-debugpy==1.8.21
+debugpy==1.8.22
     # via -r requirements-dev.in
 devtools==0.12.2
     # via -r requirements-dev.in
@@ -124,7 +124,7 @@ six==1.17.0
     # via
     #   asttokens
     #   python-dateutil
-sqlalchemy==2.0.53
+sqlalchemy==2.0.54
     # via alembic
 stack-data==0.6.3
     # via ipython
@@ -141,7 +141,7 @@ typing-extensions==4.16.0
     #   alembic
     #   anyio
     #   sqlalchemy
-urllib3==2.7.0
+urllib3==2.8.0
     # via requests
 wcwidth==0.8.3
     # via prompt-toolkit
