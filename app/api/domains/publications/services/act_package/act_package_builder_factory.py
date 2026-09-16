@@ -17,7 +17,7 @@ from app.api.domains.publications.services.bill_frbr_provider import BillFrbrPro
 from app.api.domains.publications.services.purpose_provider import PurposeProvider
 from app.api.domains.publications.services.state.state_loader import StateLoader
 from app.api.domains.publications.services.state.versions import ActiveState
-from app.api.domains.publications.services.validate_publication_service import (
+from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationException,
     ValidatePublicationRequest,
     ValidatePublicationService,

@@ -1,5 +1,5 @@
 from app.api.domains.modules.endpoints.module_validate_endpoint import get_module_validate_endpoint
-from app.api.domains.modules.services.validate_module_service import ValidateModuleResult
+from app.api.domains.modules.services.validate_module.validate_module_service import ValidateModuleResult
 from app.api.endpoint import EndpointContextBuilderData
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
