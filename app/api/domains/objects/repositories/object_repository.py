@@ -32,6 +32,7 @@ class ObjectRepository(BaseRepository):
                 or_(
                     ObjectStaticsTable.Owner_1_UUID == user_uuid,
                     ObjectStaticsTable.Owner_2_UUID == user_uuid,
+                    ObjectStaticsTable.Owner_3_UUID == user_uuid,
                     ObjectStaticsTable.Portfolio_Holder_1_UUID == user_uuid,
                     ObjectStaticsTable.Client_1_UUID == user_uuid,
                 ).self_group()
@@ -160,6 +161,7 @@ class ObjectRepository(BaseRepository):
             owner_filter = or_(
                 ObjectStaticsTable.Owner_1_UUID == owner_uuid,
                 ObjectStaticsTable.Owner_2_UUID == owner_uuid,
+                ObjectStaticsTable.Owner_3_UUID == owner_uuid,
                 ObjectStaticsTable.Portfolio_Holder_1_UUID == owner_uuid,
                 ObjectStaticsTable.Client_1_UUID == owner_uuid,
             )
