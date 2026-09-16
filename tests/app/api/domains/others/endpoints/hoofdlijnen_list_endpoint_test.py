@@ -10,16 +10,16 @@ def test_lists_the_hoofdlijnen_newest_first(admin: TestClient, ctx: Context):
 
     assert response.status_code == 200
     assert [r["UUID"] for r in response.json().get("results")] == get_uuids_from_spec(
-        ctx, HoofdlijnSpec, ["hoofdlijn-2", "hoofdlijn-1"]
+        ctx, HoofdlijnSpec, ["hoofdlijn-3", "hoofdlijn-2", "hoofdlijn-1"]
     )
 
 
-def test_lists_the_hoofdlijnen_sort_by_title(admin: TestClient, ctx: Context):
+def test_lists_the_hoofdlijnen_sort_by_name(admin: TestClient, ctx: Context):
     response = admin.get("/hoofdlijnen?sort_column=Name&sort_order=ASC")
 
     assert response.status_code == 200
     assert [r["UUID"] for r in response.json().get("results")] == get_uuids_from_spec(
-        ctx, HoofdlijnSpec, ["hoofdlijn-1", "hoofdlijn-2"]
+        ctx, HoofdlijnSpec, ["hoofdlijn-1", "hoofdlijn-3", "hoofdlijn-2"]
     )
 
 
@@ -28,5 +28,5 @@ def test_lists_the_hoofdlijnen_sort_by_type(admin: TestClient, ctx: Context):
 
     assert response.status_code == 200
     assert [r["UUID"] for r in response.json().get("results")] == get_uuids_from_spec(
-        ctx, HoofdlijnSpec, ["hoofdlijn-2", "hoofdlijn-1"]
+        ctx, HoofdlijnSpec, ["hoofdlijn-3", "hoofdlijn-2", "hoofdlijn-1"]
     )

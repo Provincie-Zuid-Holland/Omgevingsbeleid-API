@@ -21,9 +21,15 @@ def load(col: Collector) -> None:
                 ),
                 HoofdlijnSpec(
                     key="hoofdlijn-2",
-                    Name="Regionaal Waterprogramma",
+                    Name="Regionaal waterprogramma",
                     Type="Gebiedsprogramma",
                     Created_Date=datetime(2025, 1, 3, tzinfo=UTC),
+                ),
+                HoofdlijnSpec(
+                    key="hoofdlijn-3",
+                    Name="Provinciaal waterprogramma",
+                    Type="Actief programma",
+                    Created_Date=datetime(2025, 1, 4, tzinfo=UTC),
                 ),
             ]
         )

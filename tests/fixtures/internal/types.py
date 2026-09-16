@@ -118,6 +118,7 @@ class FixtureData(BaseModel):
                     f"The PrimaryKey `{primary_key}` is not a uuid.UUID but a `{type(self.primary_key)}`"
                 )
 
+
 @dataclass
 class Context:
     session: Session

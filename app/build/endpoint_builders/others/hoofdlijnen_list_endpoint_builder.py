@@ -1,6 +1,6 @@
+from app.api.domains.others.endpoints import get_hoofdlijnen_list_endpoint
 from app.api.domains.others.endpoints.hoofdlijnen_list_endpoint import (
     ListHoofdlijnenEndpointContext,
-    get_hoofdlijnen_list_endpoint,
 )
 from app.api.domains.others.types import Hoofdlijn
 from app.api.endpoint import EndpointContextBuilderData
