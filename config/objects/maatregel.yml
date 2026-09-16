@@ -181,6 +181,8 @@ fields:
     name: Hoofdlijnen
     type: list_str
     column: hoofdlijnen
+    validators:
+      - id: none_to_default_value
   themas:
     name: Themas
     type: list_str
