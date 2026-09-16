@@ -6,8 +6,10 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from pydantic import BaseModel, Field, PrivateAttr
+from sqlalchemy.orm import Session
 
 from app.core.db.base import Base
+from app.core.services import ModelsProvider
 
 DATETIME_T0 = datetime(2025, 1, 1, tzinfo=UTC)
 
@@ -115,3 +117,21 @@ class FixtureData(BaseModel):
                 raise RuntimeError(
                     f"The PrimaryKey `{primary_key}` is not a uuid.UUID but a `{type(self.primary_key)}`"
                 )
+
+@dataclass
+class Context:
+    session: Session
+    fixtures: FixtureData
+    models_provider: ModelsProvider
+
+    @property
+    def s(self) -> Session:
+        return self.session
+
+    @property
+    def f(self) -> FixtureData:
+        return self.fixtures
+
+    @property
+    def m(self) -> ModelsProvider:
+        return self.models_provider

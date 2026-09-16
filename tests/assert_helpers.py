@@ -1,7 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from tests.conftest import Context
-from tests.fixtures.internal.types import Ref, Spec
+from tests.fixtures.internal.types import Context, Ref, Spec
 
 
 def assert_same_datetime(actual: datetime, expected: datetime | None = None):
