@@ -42,9 +42,27 @@ api:
       endpoints:
         - resolver: create_hoofdlijn
         - resolver: list_hoofdlijnen
+          resolver_data:
+            sort:
+              default:
+                column: Created_Date
+                order: desc
+              allowed_columns:
+                - Created_Date
+                - Name
+                - Type
     - prefix: /hoofdlijnen/search
       endpoints:
         - resolver: search_hoofdlijn
+          resolver_data:
+            sort:
+              default:
+                column: Created_Date
+                order: desc
+              allowed_columns:
+                - Created_Date
+                - Name
+                - Type
     - prefix: /hoofdlijnen/{hoofdlijn_uuid}
       endpoints:
         - resolver: delete_hoofdlijn

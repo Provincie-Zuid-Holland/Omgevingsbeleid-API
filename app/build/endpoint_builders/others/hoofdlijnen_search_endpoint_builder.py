@@ -1,7 +1,8 @@
 from app.api.domains.others.endpoints import post_hoofdlijnen_search_endpoint
+from app.api.domains.others.endpoints.hoofdlijnen_search_endpoint import SearchHoofdlijnenEndpointContext
 from app.api.domains.others.types import Hoofdlijn
 from app.api.endpoint import EndpointContextBuilderData
-from app.api.utils.pagination import PagedResponse
+from app.api.utils.pagination import OrderConfig, PagedResponse
 from app.build.endpoint_builders.endpoint_builder import ConfiguredFastapiEndpoint, EndpointBuilder
 from app.build.objects.types import EndpointConfig, ObjectApi
 from app.core.services.models_provider import ModelsProvider
@@ -18,9 +19,18 @@ class SearchHoofdlijnenEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
+        resolver_config: dict = endpoint_config.resolver_data
+        order_config: OrderConfig = OrderConfig.from_dict(resolver_config["sort"])
+
+        context = SearchHoofdlijnenEndpointContext(
+            order_config=order_config,
+            builder_data=builder_data,
+        )
+        endpoint = self._inject_context(post_hoofdlijnen_search_endpoint, context)
+
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,
-            endpoint=post_hoofdlijnen_search_endpoint,
+            endpoint=endpoint,
             methods=["POST"],
             response_model=PagedResponse[Hoofdlijn],
             summary="Search for hoofdlijnen",
