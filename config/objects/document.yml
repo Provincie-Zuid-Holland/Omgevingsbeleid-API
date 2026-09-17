@@ -140,6 +140,11 @@ fields:
     type: uuid
     column: owner_2_uuid
     optional: true
+  owner_3_uuid:
+    name: Owner_3_UUID
+    type: uuid
+    column: owner_3_uuid
+    optional: true
 
 models:
   document_minimal:
@@ -196,6 +201,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
   document_full:
     name: DocumentFull
     fields:
@@ -233,6 +240,8 @@ models:
           - to_field: Owner_1
             model_id: user_short
           - to_field: Owner_2
+            model_id: user_short
+          - to_field: Owner_3
             model_id: user_short
   document_patch:
     name: DocumentPatch
@@ -272,12 +281,15 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
   document_static_post:
     name: DocumentStaticPost
     static_only: true
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
   document_static_post_validated:
     name: DocumentStaticPostValidated
     static_only: true
@@ -292,6 +304,7 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
   document_uuid:
     name: DocumentUUID
     fields:
