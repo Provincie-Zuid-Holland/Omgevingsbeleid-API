@@ -39,8 +39,8 @@ class ModuleAddNewObject(BaseModel):
 
     @model_validator(mode="after")
     def check_unique_owners(self):
-        owners = [self.Owner_1_UUID, self.Owner_2_UUID, self.Owner_3_UUID]
-        present = [o for o in owners if o is not None]
+        owners: list[uuid.UUID | None] = [self.Owner_1_UUID, self.Owner_2_UUID, self.Owner_3_UUID]
+        present: list[uuid.UUID] = [o for o in owners if o is not None]
         if len(present) != len(set(present)):
             raise ValueError("Duplicate owner")
         return self

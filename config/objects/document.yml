@@ -299,6 +299,7 @@ models:
           fields:
             - Owner_1_UUID
             - Owner_2_UUID
+            - Owner_3_UUID
           allow_none: True
           error_message: Owners should vary
     fields:

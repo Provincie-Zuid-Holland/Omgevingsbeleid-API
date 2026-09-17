@@ -222,7 +222,7 @@ models:
           - to_field: Owner_2
             model_id: user_short
           - to_field: Owner_3
-            moddel_id: user_short
+            model_id: user_short
   werkingsgebied_patch:
     name: WerkingsgebiedPatch
     fields:
