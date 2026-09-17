@@ -25,6 +25,7 @@ from app.api.domains.publications.services.validate_publication import (
     ValidatePublicationService,
     WaardelijstenValuesUsedCheckRule,
 )
+from app.api.domains.publications.services.validate_publication.themas_check_rule import ThemasCheckRule
 
 
 class PublicationContainer(containers.DeclarativeContainer):
@@ -37,6 +38,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     area_repository = providers.Dependency()
     asset_repository = providers.Dependency()
     hoofdlijn_repository = providers.Dependency()
+    dso_thema_factory = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -196,6 +198,11 @@ class PublicationContainer(containers.DeclarativeContainer):
                 HoofdlijnenCheckRule,
                 main_config=main_config,
                 hoofdlijn_repository=hoofdlijn_repository,
+            ),
+            providers.Singleton(
+                ThemasCheckRule,
+                main_config=main_config,
+                dso_thema_factory=dso_thema_factory,
             ),
         ),
     )
