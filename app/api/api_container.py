@@ -119,6 +119,7 @@ class ApiContainer(containers.DeclarativeContainer):
         area_repository=area_repository,
         asset_repository=asset_repository,
         hoofdlijn_repository=hoofdlijn_repository,
+        dso_thema_factory=dso_thema_factory,
     )
 
     html_images_extractor_factory = providers.Factory(

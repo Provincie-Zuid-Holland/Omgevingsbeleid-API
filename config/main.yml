@@ -133,6 +133,8 @@ validate_rules:
         maatregel: maatregel_module_validate
         programma_algemeen: programma_module_validate
         beleidsdoel: beleidsdoel_module_validate
+    themas_check:
+      field: Themas
 
 model_map: &model_map
   ambitie: ambitie_basic
