@@ -19,13 +19,13 @@ from app.api.domains.publications.services.validate_publication import (
     HoofdlijnenCheckRule,
     ReferencedGebiedengroepCodeExistsRule,
     RequiredObjectFieldsRule,
+    ThemasCheckRule,
     UsedObjectInPublicationExistsRule,
     UsedObjectsInPublicationExistInTemplateRule,
     UsedObjectTypeExistsRule,
     ValidatePublicationService,
     WaardelijstenValuesUsedCheckRule,
 )
-from app.api.domains.publications.services.validate_publication.themas_check_rule import ThemasCheckRule
 
 
 class PublicationContainer(containers.DeclarativeContainer):

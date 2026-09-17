@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.api.domains.publications.services.validate_publication import generate_dso_gio_name
+from app.api.domains.publications.services.validate_publication.gio import generate_dso_gio_name
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
     ValidatePublicationObject,
