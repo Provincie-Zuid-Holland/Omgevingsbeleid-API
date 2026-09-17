@@ -2,8 +2,8 @@ from unittest.mock import Mock
 
 from sqlalchemy.orm import Session
 
-from app.api.domains.modules.services import RequireExistingHierarchyCodeRule
-from app.api.domains.modules.services.validate_module_service import (
+from app.api.domains.modules.services.validate_module import (
+    RequireExistingHierarchyCodeRule,
     RequireExistingHierarchyCodeRuleConfig,
     ValidateModuleError,
     ValidateModuleRequest,

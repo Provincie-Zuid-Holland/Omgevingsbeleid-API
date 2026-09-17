@@ -3,8 +3,11 @@ from unittest.mock import Mock
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
-from app.api.domains.modules.services import RequiredObjectFieldsRule
-from app.api.domains.modules.services.validate_module_service import ValidateModuleError, ValidateModuleRequest
+from app.api.domains.modules.services.validate_module import (
+    RequiredObjectFieldsRule,
+    ValidateModuleError,
+    ValidateModuleRequest,
+)
 from app.core.tables.modules import ModuleObjectsTable
 
 

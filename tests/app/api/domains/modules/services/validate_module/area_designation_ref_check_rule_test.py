@@ -4,8 +4,8 @@ from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingType, GebiedsaanwijzingWaarde
 from sqlalchemy.orm import Session
 
-from app.api.domains.modules.services import AreaDesignationRefCheckRule
-from app.api.domains.modules.services.validate_module_service import (
+from app.api.domains.modules.services.validate_module import (
+    AreaDesignationRefCheckRule,
     AreaDesignationRefCheckRuleConfig,
     ValidateModuleError,
     ValidateModuleRequest,

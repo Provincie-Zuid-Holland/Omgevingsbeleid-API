@@ -12,7 +12,7 @@ from app.api.domains.publications.services.act_package.publication_gebieden_prov
 from app.api.domains.publications.services.act_package.publication_gebiedsaanwijzing_provider import (
     GebiedsaanwijzingData,
 )
-from app.api.domains.publications.services.validate_publication_service import (
+from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
     ValidatePublicationObject,
     validation_exception,

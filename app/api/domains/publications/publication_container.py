@@ -8,7 +8,7 @@ import app.api.domains.publications.services.assets as publication_asset_service
 import app.api.domains.publications.services.state as state_services
 import app.api.domains.publications.services.state.versions as state_versions
 from app.api.domains.publications import services
-from app.api.domains.publications.services.validate_publication_service import (
+from app.api.domains.publications.services.validate_publication import (
     AreaDesignationRefCheckRule,
     AttachmentInBillReferenceRule,
     BillCompactForbiddenTagsRule,

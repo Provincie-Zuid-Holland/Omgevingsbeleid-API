@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_active_and_activated_module
-from app.api.domains.modules.services import ValidateModuleRunner
-from app.api.domains.modules.services.validate_module_service import ValidateModuleResult
+from app.api.domains.modules.services.validate_module import ValidateModuleRunner
+from app.api.domains.modules.services.validate_module.validate_module_service import ValidateModuleResult
 from app.api.domains.modules.types import ModuleStatusCode
 from app.api.domains.modules.utils import guard_module_is_locked
 from app.api.domains.users.dependencies import depends_current_user

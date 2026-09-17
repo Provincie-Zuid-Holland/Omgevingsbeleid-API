@@ -3,8 +3,8 @@ from unittest.mock import Mock
 from dso import Thema, ThemaFactory
 from sqlalchemy.orm import Session
 
-from app.api.domains.modules.services import ThemasCheckRule
-from app.api.domains.modules.services.validate_module_service import (
+from app.api.domains.modules.services.validate_module import (
+    ThemasCheckRule,
     ThemasCheckRuleConfig,
     ValidateModuleError,
     ValidateModuleRequest,
