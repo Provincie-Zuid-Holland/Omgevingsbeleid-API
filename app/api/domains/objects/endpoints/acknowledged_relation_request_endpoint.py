@@ -30,25 +30,25 @@ def get_acknowledged_relation_request_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[AcknowledgedRelationRequestEndpointContext, Depends()],
 ) -> ResponseOK:
-    if object_in.Object_Type not in context.allowed_object_types:
+    if object_in.object_type not in context.allowed_object_types:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Object_Type")
 
     timepoint: datetime = datetime.now(UTC)
 
     my_side = AcknowledgedRelationSide(
-        Object_ID=lineage_id,
-        Object_Type=context.object_type,
-        Acknowledged=timepoint,
-        Acknowledged_By_UUID=user.UUID,
-        Explanation=object_in.Explanation,
+        object_id=lineage_id,
+        object_type=context.object_type,
+        acknowledged=timepoint,
+        acknowledged_by_uuid=user.UUID,
+        explanation=object_in.explanation,
     )
     their_side = AcknowledgedRelationSide(
-        Object_ID=object_in.Object_ID,
-        Object_Type=object_in.Object_Type,
+        object_id=object_in.object_id,
+        object_type=object_in.object_type,
     )
 
     ack_table = AcknowledgedRelationsTable(
-        Requested_By_Code=my_side.Code,
+        Requested_By_Code=my_side.code,
         Created_Date=timepoint,
         Created_By_UUID=user.UUID,
         Modified_Date=timepoint,
@@ -60,17 +60,17 @@ def get_acknowledged_relation_request_endpoint(
         session.query(AcknowledgedRelationsTable)
         .filter(
             and_(
-                AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
-                AcknowledgedRelationsTable.To_Code == ack_table.To_Code,
-                AcknowledgedRelationsTable.Denied.is_(None),
-                AcknowledgedRelationsTable.Deleted_At.is_(None),
+                AcknowledgedRelationsTable.from_code == ack_table.from_code,
+                AcknowledgedRelationsTable.to_code == ack_table.to_code,
+                AcknowledgedRelationsTable.denied.is_(None),
+                AcknowledgedRelationsTable.deleted_at.is_(None),
             )
         )
         .first()
     )
 
     if existing_request:
-        if existing_request.Is_Acknowledged or existing_request.Requested_By_Code == my_side.Code:
+        if existing_request.is_acknowledged or existing_request.requested_by_code == my_side.code:
             raise HTTPException(
                 status.HTTP_409_CONFLICT,
                 "Existing relation(request), either edit or delete first",
@@ -88,18 +88,18 @@ def get_acknowledged_relation_request_endpoint(
 
     # Query for max version so we can increment by 1
     max_version = (
-        session.query(func.max(AcknowledgedRelationsTable.Version))
+        session.query(func.max(AcknowledgedRelationsTable.version))
         .filter(
             and_(
-                AcknowledgedRelationsTable.From_Code == ack_table.From_Code,
-                AcknowledgedRelationsTable.To_Code == ack_table.To_Code,
+                AcknowledgedRelationsTable.from_code == ack_table.from_code,
+                AcknowledgedRelationsTable.to_code == ack_table.to_code,
             )
         )
         .scalar()
     )
 
     if max_version is not None:
-        ack_table.Version = max_version + 1
+        ack_table.version = max_version + 1
 
     session.add(ack_table)
     session.flush()

@@ -7,22 +7,22 @@ from app.core.types import AcknowledgedRelationSide
 
 
 class AcknowledgedRelation(BaseModel):
-    Side_A: AcknowledgedRelationSide
-    Side_B: AcknowledgedRelationSide
+    side_a: AcknowledgedRelationSide
+    side_b: AcknowledgedRelationSide
 
-    Version: int
-    Requested_By_Code: str
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_Date: datetime
-    Modified_By_UUID: uuid.UUID
+    version: int
+    requested_by_code: str
+    created_date: datetime
+    created_by_uuid: uuid.UUID
+    modified_date: datetime
+    modified_by_uuid: uuid.UUID
 
-    Denied: datetime | None = None
-    Deleted_At: datetime | None = None
+    denied: datetime | None = None
+    deleted_at: datetime | None = None
 
     @property
-    def Is_Acknowledged(self) -> bool:
-        return self.Side_A.Is_Acknowledged and self.Side_B.Is_Acknowledged
+    def is_acknowledged(self) -> bool:
+        return self.side_a.is_acknowledged and self.side_b.is_acknowledged
 
 
 def build_from_orm(orm_model, perspective_code: str) -> AcknowledgedRelation:
@@ -32,20 +32,20 @@ def build_from_orm(orm_model, perspective_code: str) -> AcknowledgedRelation:
     side_from: AcknowledgedRelationSide = orm_model.side_from
     side_to: AcknowledgedRelationSide = orm_model.side_to
 
-    if perspective_code == side_from.Code:
+    if perspective_code == side_from.code:
         side_a, side_b = side_from, side_to
     else:
         side_a, side_b = side_to, side_from
 
     return AcknowledgedRelation(
-        Side_A=side_a,
-        Side_B=side_b,
-        Version=orm_model.Version,
-        Requested_By_Code=orm_model.Requested_By_Code,
-        Created_Date=orm_model.Created_Date,
-        Created_By_UUID=orm_model.Created_By_UUID,
-        Modified_Date=orm_model.Modified_Date,
-        Modified_By_UUID=orm_model.Modified_By_UUID,
-        Denied=orm_model.Denied,
-        Deleted_At=orm_model.Deleted_At,
+        side_a=side_a,
+        side_b=side_b,
+        version=orm_model.version,
+        requested_by_code=orm_model.requested_by_code,
+        created_date=orm_model.created_date,
+        created_by_uuid=orm_model.created_by_uuid,
+        modified_date=orm_model.modified_date,
+        modified_by_uuid=orm_model.modified_by_uuid,
+        denied=orm_model.denied,
+        deleted_at=orm_model.deleted_at,
     )

@@ -184,33 +184,33 @@ class EndpointHandler:
                 .filter(
                     or_(
                         and_(
-                            AcknowledgedRelationsTable.From_Code.in_(search_codes),
+                            AcknowledgedRelationsTable.from_code.in_(search_codes),
                             or_(
                                 *[
-                                    AcknowledgedRelationsTable.To_Code.like(f"{object_type}-%")
+                                    AcknowledgedRelationsTable.to_code.like(f"{object_type}-%")
                                     for object_type in iteration_config.allowed_object_types
                                 ],
                             ).self_group(),
                         ).self_group(),
                         and_(
-                            AcknowledgedRelationsTable.To_Code.in_(search_codes),
+                            AcknowledgedRelationsTable.to_code.in_(search_codes),
                             or_(
                                 *[
-                                    AcknowledgedRelationsTable.From_Code.like(f"{object_type}-%")
+                                    AcknowledgedRelationsTable.from_code.like(f"{object_type}-%")
                                     for object_type in iteration_config.allowed_object_types
                                 ],
                             ).self_group(),
                         ).self_group(),
                     )
                 )
-                .filter(AcknowledgedRelationsTable.From_Code.not_in(ignore_codes))
-                .filter(AcknowledgedRelationsTable.To_Code.not_in(ignore_codes))
-                .filter(AcknowledgedRelationsTable.From_Acknowledged.is_not(None))
-                .filter(AcknowledgedRelationsTable.To_Acknowledged.is_not(None))
+                .filter(AcknowledgedRelationsTable.from_code.not_in(ignore_codes))
+                .filter(AcknowledgedRelationsTable.to_code.not_in(ignore_codes))
+                .filter(AcknowledgedRelationsTable.from_acknowledged.is_not(None))
+                .filter(AcknowledgedRelationsTable.to_acknowledged.is_not(None))
                 .options(
                     load_only(
-                        AcknowledgedRelationsTable.From_Code,
-                        AcknowledgedRelationsTable.To_Code,
+                        AcknowledgedRelationsTable.from_code,
+                        AcknowledgedRelationsTable.to_code,
                     )
                 )
             )
@@ -225,15 +225,15 @@ class EndpointHandler:
                 edges.add(
                     GraphEdge(
                         Type=GraphEdgeType.acknowledged_relation,
-                        Vertice_A_Code=row.From_Code,
-                        Vertice_B_Code=row.To_Code,
+                        Vertice_A_Code=row.from_code,
+                        Vertice_B_Code=row.to_code,
                     )
                 )
 
                 # Just add everything to search codes for now
                 # We intersect it later with ignore codes to only search for something we have not searched for before
-                search_codes.add(row.From_Code)
-                search_codes.add(row.To_Code)
+                search_codes.add(row.from_code)
+                search_codes.add(row.to_code)
 
             # Remove everything from search_codes that is already in ignore_codes
             search_codes = set.difference(search_codes, ignore_codes)
