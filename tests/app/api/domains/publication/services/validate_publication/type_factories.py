@@ -1,12 +1,5 @@
 from datetime import date
 
-from dso.services.ow.gebiedsaanwijzingen.types import (
-    Gebiedsaanwijzing,
-    GebiedsaanwijzingGroep,
-    GebiedsaanwijzingType,
-    GebiedsaanwijzingWaarde,
-)
-
 from app.api.domains.publications.types.api_input_data import (
     ActFrbr,
     ActMutation,
