@@ -12,26 +12,26 @@ from app.core.tables.objects import ObjectStaticsTable
 class AreasTable(Base):
     __tablename__ = "areas"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    created_date: Mapped[datetime]
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
-    Gml: Mapped[str] = deferred(mapped_column(String))
+    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
+    gml: Mapped[str] = deferred(mapped_column(String))
 
-    Source_UUID: Mapped[uuid.UUID] = mapped_column(unique=True)
-    Source_ID: Mapped[int | None]
-    Source_Title: Mapped[str]
-    Source_Symbol: Mapped[str | None]
-    Source_Start_Validity: Mapped[datetime | None]
-    Source_End_Validity: Mapped[datetime | None]
-    Source_Created_Date: Mapped[datetime]
-    Source_Modified_Date: Mapped[datetime | None]
-    Source_Geometry_Index: Mapped[str | None] = mapped_column(Unicode(10), index=True, nullable=True)
-    Source_Geometry_Hash: Mapped[str | None] = mapped_column(Unicode(64), nullable=True)
+    source_uuid: Mapped[uuid.UUID] = mapped_column(unique=True)
+    source_id: Mapped[int | None]
+    source_title: Mapped[str]
+    source_symbol: Mapped[str | None]
+    source_start_validity: Mapped[datetime | None]
+    source_end_validity: Mapped[datetime | None]
+    source_created_date: Mapped[datetime]
+    source_modified_date: Mapped[datetime | None]
+    source_geometry_index: Mapped[str | None] = mapped_column(Unicode(10), index=True, nullable=True)
+    source_geometry_hash: Mapped[str | None] = mapped_column(Unicode(64), nullable=True)
 
     def __repr__(self) -> str:
-        return f"AreasTable(UUID={self.UUID!r}, Title={self.Source_Title!r})"
+        return f"AreasTable(uuid={self.id!r}, title={self.source_title!r})"
 
 
 class RelationsTable(Base, SerializerMixin):

@@ -13,9 +13,9 @@ class AcknowledgedRelation(BaseModel):
     version: int
     requested_by_code: str
     created_date: datetime
-    created_by_uuid: uuid.UUID
+    created_by: uuid.UUID
     modified_date: datetime
-    modified_by_uuid: uuid.UUID
+    modified_by: uuid.UUID
 
     denied: datetime | None = None
     deleted_at: datetime | None = None
@@ -43,9 +43,9 @@ def build_from_orm(orm_model, perspective_code: str) -> AcknowledgedRelation:
         version=orm_model.version,
         requested_by_code=orm_model.requested_by_code,
         created_date=orm_model.created_date,
-        created_by_uuid=orm_model.created_by_uuid,
+        created_by=orm_model.created_by,
         modified_date=orm_model.modified_date,
-        modified_by_uuid=orm_model.modified_by_uuid,
+        modified_by=orm_model.modified_by,
         denied=orm_model.denied,
         deleted_at=orm_model.deleted_at,
     )

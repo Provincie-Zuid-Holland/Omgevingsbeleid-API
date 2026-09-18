@@ -50,8 +50,8 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                 )
                 continue
 
-            area_hash: str = area_current.Source_Geometry_Hash or ""
-            area_title: str = area_current.Source_Title
+            area_hash: str = area_current.source_geometry_hash or ""
+            area_title: str = area_current.source_title
             onderverdeling: InputGeoOnderverdelingenTable | None = (
                 self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
             )
@@ -66,7 +66,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                             title=object_table.Title,
                         ),
                         messages=[
-                            f"The onderverdelingen lineage used by Area `{area_current.UUID}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
+                            f"The onderverdelingen lineage used by Area `{area_current.id}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
                         ],
                         severity=ValidateModuleSeverity.warning,
                     )
@@ -84,7 +84,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                             title=object_table.Title,
                         ),
                         messages=[
-                            f"Area {area_current.UUID} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
+                            f"Area {area_current.id} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
                         ],
                         severity=ValidateModuleSeverity.warning,
                     )

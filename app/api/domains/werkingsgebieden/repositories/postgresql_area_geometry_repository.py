@@ -10,8 +10,8 @@ class PostgresqlAreaGeometryRepository(AreaGeometryRepository):
     def _shape_to_text(self, column: str) -> str:
         return f"ST_AsText({column})"
 
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
-        return str(uuidx)
+    def _format_uuid(self, idx: uuid.UUID) -> str:
+        return str(idx)
 
     def _calculate_hex(self, column: str) -> str:
         return f"encode(ST_AsEWKB({column}), 'hex')"

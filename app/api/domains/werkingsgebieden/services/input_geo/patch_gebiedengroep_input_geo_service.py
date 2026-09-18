@@ -59,7 +59,7 @@ class PatchGebiedengroepInputGeoService:
                 main_obj,
                 onderverdeling,
             )
-            area_uuid: uuid.UUID = self._ensure_area(onderverdeling)
+            area_id: uuid.UUID = self._ensure_area(onderverdeling)
             _sub_object_context: ModuleObjectContextTable = self._ensure_object_context(
                 sub_object_static,
                 main_obj.Module_ID,
@@ -68,7 +68,7 @@ class PatchGebiedengroepInputGeoService:
             object_result_action, _sub_object = self._ensure_object_newest_area(
                 sub_object_static,
                 main_obj.Module_ID,
-                area_uuid,
+                area_id,
                 onderverdeling.Title,
             )
             if object_result_action in [ObjectResultType.CREATED, ObjectResultType.UPDATED]:
@@ -164,17 +164,17 @@ class PatchGebiedengroepInputGeoService:
             onderverdeling.Title,
         )
         if existing_area:
-            return existing_area.UUID
+            return existing_area.id
 
-        area_uuid: uuid.UUID = uuid.uuid4()
+        area_id: uuid.UUID = uuid.uuid4()
         self._area_geometry_repository.create_area(
             self._session,
-            area_uuid,
+            area_id,
             self._timepoint,
             self._user.UUID,
             onderverdeling,
         )
-        return area_uuid
+        return area_id
 
     def _ensure_object_context(self, sub_object_static: ObjectStaticsTable, module_id: int) -> ModuleObjectContextTable:
         request = mocs.ExistRequest(
@@ -197,7 +197,7 @@ class PatchGebiedengroepInputGeoService:
         self,
         sub_object_static: ObjectStaticsTable,
         module_id: int,
-        area_uuid: uuid.UUID,
+        area_id: uuid.UUID,
         title: str,
     ) -> tuple[ObjectResultType, ModuleObjectsTable]:
         existing_object: ModuleObjectsTable | None = self._module_object_repository.get_latest_by_module_id_object_code(
@@ -206,10 +206,10 @@ class PatchGebiedengroepInputGeoService:
             sub_object_static.Code,
         )
         if existing_object is None:
-            return ObjectResultType.CREATED, self._create_sub_object(sub_object_static, module_id, area_uuid, title)
+            return ObjectResultType.CREATED, self._create_sub_object(sub_object_static, module_id, area_id, title)
 
-        if existing_object.Area_UUID != area_uuid or existing_object.Deleted:
-            return ObjectResultType.UPDATED, self._modify_sub_object(existing_object, area_uuid, title)
+        if existing_object.area_id != area_id or existing_object.Deleted:
+            return ObjectResultType.UPDATED, self._modify_sub_object(existing_object, area_id, title)
 
         return ObjectResultType.IGNORED, existing_object
 
@@ -217,7 +217,7 @@ class PatchGebiedengroepInputGeoService:
         self,
         sub_object_static: ObjectStaticsTable,
         module_id: int,
-        area_uuid: uuid.UUID,
+        area_id: uuid.UUID,
         title: str,
     ) -> ModuleObjectsTable:
         module_object = ModuleObjectsTable()
@@ -226,7 +226,7 @@ class PatchGebiedengroepInputGeoService:
         module_object.Object_Type = sub_object_static.Object_Type
         module_object.Object_ID = sub_object_static.Object_ID
         module_object.Code = sub_object_static.Code
-        module_object.Area_UUID = area_uuid
+        module_object.area_id = area_id
         module_object.Title = title
         module_object.Adjust_On = None
         module_object.UUID = uuid.uuid4()
@@ -239,13 +239,13 @@ class PatchGebiedengroepInputGeoService:
         return module_object
 
     def _modify_sub_object(
-        self, existing_object: ModuleObjectsTable, area_uuid: uuid.UUID, title: str
+        self, existing_object: ModuleObjectsTable, area_id: uuid.UUID, title: str
     ) -> ModuleObjectsTable:
         patched_sub_object: ModuleObjectsTable = self._module_object_repository.patch_module_object(
             self._session,
             existing_object,
             {
-                "Area_UUID": area_uuid,
+                "area_id": area_id,
                 "Title": title,
                 "Deleted": False,
             },

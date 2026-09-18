@@ -148,19 +148,19 @@ def load(col: Collector) -> None:
                     key="nature-west-v1",
                     Object_ID=1,
                     Title="Nature West",
-                    Area_UUID=col.ref(AreaSpec, "nature-west-v1"),
+                    area_id=col.ref(AreaSpec, "nature-west-v1"),
                 ),
                 GebiedSpec(
                     key="nature-east-v1",
                     Object_ID=2,
                     Title="Nature East",
-                    Area_UUID=col.ref(AreaSpec, "nature-east-v1"),
+                    area_id=col.ref(AreaSpec, "nature-east-v1"),
                 ),
                 GebiedSpec(
                     key="nature-south-v1",
                     Object_ID=3,
                     Title="Nature South",
-                    Area_UUID=col.ref(AreaSpec, "nature-south-v1"),
+                    area_id=col.ref(AreaSpec, "nature-south-v1"),
                 ),
             ]
         )

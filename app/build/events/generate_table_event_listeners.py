@@ -37,14 +37,14 @@ class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
 class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
     def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
-        if column.type != "area_uuid":
+        if column.type != "area_id":
             return
 
         # Add the column itself
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, ForeignKey(AreasTable.UUID), nullable=column.nullable),
+            mapped_column(column.name, Uuid, ForeignKey(AreasTable.id), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -55,7 +55,7 @@ class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
                 relation_field,
                 relationship(
                     AreasTable,
-                    primaryjoin=f"{event.table_name}.{column.name} == AreasTable.UUID",
+                    primaryjoin=f"{event.table_name}.{column.name} == AreasTable.id",
                     viewonly=True,
                 ),
             )

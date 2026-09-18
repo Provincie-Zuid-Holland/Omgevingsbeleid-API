@@ -16,10 +16,10 @@ class InputGebied(BaseModel):
     object_id: int
     code: str
     # An Area will be transformed to the Locatie
-    area_uuid: UUID
+    area_id: UUID
     # The basisgeo_id needs to exists for each Locatie
-    # We used to use the area_uuid, but this value needs to be unique over all different Document_Types
-    # Therefor we can not use area_uuid as this will be send to both Omgevingsvisie and Programma
+    # We used to use the area_id, but this value needs to be unique over all different Document_Types
+    # Therefor we can not use area_id as this will be send to both Omgevingsvisie and Programma
     basisgeo_id: UUID
     # We overwrite this with the area.Title at the moment
     # But I think we should use the objects title instead as we can modify it
@@ -95,14 +95,14 @@ class PublicationGebiedenProvider:
         result: dict[str, InputGebied] = {}
         for gebied in gebied_objects:
             code: str = gebied["Code"]
-            area_uuid: str | None = gebied.get("Area_UUID")
-            if area_uuid is None:
+            area_id: str | None = gebied.get("area_id")
+            if area_id is None:
                 raise validation_exception(
                     [
                         ValidatePublicationError(
-                            rule="gebied_missing_area_uuid",
+                            rule="gebied_missing_area_id",
                             object=ValidatePublicationObject(code=code),
-                            messages=[f"Missing Area_UUID for gebied with code `{code}`"],
+                            messages=[f"Missing area_id for gebied with code `{code}`"],
                         )
                     ]
                 )
@@ -111,7 +111,7 @@ class PublicationGebiedenProvider:
                 uuid=gebied["UUID"],
                 object_id=gebied["Object_ID"],
                 code=code,
-                area_uuid=area_uuid,
+                area_id=area_id,
                 basisgeo_id=uuid4(),
                 title=gebied["Title"],
             )

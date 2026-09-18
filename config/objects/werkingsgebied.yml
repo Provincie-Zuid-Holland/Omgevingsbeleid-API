@@ -101,10 +101,10 @@ fields:
     column: description
     validators:
       - id: none_to_default_value
-  area_uuid:
-    name: Area_UUID
+  area_id:
+    name: area_id
     type: uuid
-    column: area_uuid
+    column: area_id
     optional: true
   idms_link:
     name: IDMS_Link
@@ -149,7 +149,7 @@ models:
       created_date:
       modified_date:
       title:
-      area_uuid:
+      area_id:
       start_validity:
       end_validity:
   werkingsgebied_extended:
@@ -162,7 +162,7 @@ models:
       created_date:
       modified_date:
       title:
-      area_uuid:
+      area_id:
       start_validity:
       end_validity:
     dependency_model_ids:
@@ -193,7 +193,7 @@ models:
       description:
       start_validity:
       end_validity:
-      area_uuid:
+      area_id:
     dependency_model_ids:
       - user_short
       - area_basic
@@ -229,11 +229,11 @@ models:
       description:
         default: none
         optional: true
-      area_uuid:
+      area_id:
     services:
       change_area:
         fields:
-          - Area_UUID
+          - area_id
   werkingsgebied_static:
     name: WerkingsgebiedStatic
     static_only: true
@@ -282,5 +282,5 @@ models:
               min: 3
               max: 200
           - id: plain_text
-      area_uuid:
+      area_id:
   
