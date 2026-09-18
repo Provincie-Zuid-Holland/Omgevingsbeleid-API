@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
-from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingType, GebiedsaanwijzingWaarde
+from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
 from sqlalchemy.orm import Session
 
 from app.api.domains.modules.services.validate_module import (
@@ -12,6 +12,7 @@ from app.api.domains.modules.services.validate_module import (
 )
 from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
+from tests.dso.factories.gebiedsaanwijzing import make_gebiedsaanwijzing
 
 
 def test_validate():
@@ -23,15 +24,8 @@ def test_validate():
     )
     config.get_as_model.return_value = rule_config
 
-    def _get_gebiedsaanwijzing(deprecated: bool) -> Mock | Gebiedsaanwijzing:
-        aanwijzing_type: Mock | GebiedsaanwijzingType = Mock(GebiedsaanwijzingType)
-        aanwijzing_type.deprecated = deprecated
-        gebiedsaanwijzing: Mock | Gebiedsaanwijzing = Mock(Gebiedsaanwijzing)
-        gebiedsaanwijzing.aanwijzing_type = aanwijzing_type
-        return gebiedsaanwijzing
-
-    gebiedsaanwijzing_1 = _get_gebiedsaanwijzing(deprecated=False)
-    gebiedsaanwijzing_2 = _get_gebiedsaanwijzing(deprecated=True)
+    gebiedsaanwijzing_1 = make_gebiedsaanwijzing(deprecated=False)
+    gebiedsaanwijzing_2 = make_gebiedsaanwijzing(deprecated=True)
 
     def fake_get_by_type_label(ref: str) -> Mock | Gebiedsaanwijzing | None:
         return {
