@@ -4,7 +4,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from sqlalchemy import String, func, insert, select
 from sqlalchemy.orm import Session
 
@@ -27,6 +27,7 @@ class ModuleAddNewObject(BaseModel):
     Title: str = Field(..., min_length=3)
     Owner_1_UUID: uuid.UUID
     Owner_2_UUID: uuid.UUID | None = Field(None)
+    Owner_3_UUID: uuid.UUID | None = Field(None)
     Client_1_UUID: uuid.UUID | None = Field(None)
 
     Explanation: str = Field("")
@@ -36,15 +37,13 @@ class ModuleAddNewObject(BaseModel):
     def default_empty_string(cls, v):
         return v or ""
 
-    @field_validator("Owner_2_UUID", mode="after")
-    def duplicate_owner(cls, v, info):
-        if v is None:
-            return v
-        if "Owner_1_UUID" not in info.data:
-            return v
-        if v == info.data["Owner_1_UUID"]:
+    @model_validator(mode="after")
+    def check_unique_owners(self):
+        owners: list[uuid.UUID | None] = [self.Owner_1_UUID, self.Owner_2_UUID, self.Owner_3_UUID]
+        present: list[uuid.UUID] = [o for o in owners if o is not None]
+        if len(present) != len(set(present)):
             raise ValueError("Duplicate owner")
-        return v
+        return self
 
 
 class NewObjectStaticResponse(BaseModel):
@@ -104,6 +103,7 @@ class ModuleAddNewObjectService:
                 # @todo: should be generated based on columns.statics
                 Owner_1_UUID=self._object_in.Owner_1_UUID,
                 Owner_2_UUID=self._object_in.Owner_2_UUID,
+                Owner_3_UUID=self._object_in.Owner_3_UUID,
                 Client_1_UUID=self._object_in.Client_1_UUID,
                 Cached_Title=self._object_in.Title,
             )

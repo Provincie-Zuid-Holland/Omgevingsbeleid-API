@@ -135,13 +135,13 @@ fields:
     type: uuid
     column: owner_2_uuid
     optional: true
+  owner_3_uuid:
+    name: Owner_3_UUID
+    type: uuid
+    column: owner_3_uuid
+    optional: true
   portfolio_holder_1_uuid:
     name: Portfolio_Holder_1_UUID
-    type: uuid
-    column: portfolio_holder_1_uuid
-    optional: true
-  portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
     type: uuid
     column: portfolio_holder_1_uuid
     optional: true
@@ -204,9 +204,9 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: Owner_3
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: Portfolio_Holder_1
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
@@ -259,9 +259,9 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: Owner_3
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: Portfolio_Holder_1
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
@@ -314,9 +314,9 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: Owner_3
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: Portfolio_Holder_1
             model_id: user_short
           - to_field: Client_1
             model_id: user_short
@@ -326,8 +326,8 @@ models:
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
       portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
       client_1_uuid:
   beleidsdoel_static_post_validated:
     name: BeleidsdoelStaticPostValidated
@@ -338,20 +338,14 @@ models:
           fields:
             - Owner_1_UUID
             - Owner_2_UUID
+            - Owner_3_UUID
           allow_none: True
           error_message: Owners should vary
-      - id: not_equal_root
-        data:
-          fields:
-            - Portfolio_Holder_1_UUID
-            - Portfolio_Holder_2_UUID
-          allow_none: True
-          error_message: Portfolio Holders should vary
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
       portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
       client_1_uuid:
   beleidsdoel_uuid:
     name: BeleidsdoelUUID

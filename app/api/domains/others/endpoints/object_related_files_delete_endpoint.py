@@ -37,6 +37,7 @@ def delete_object_related_files_delete_endpoint(
         [
             maybe_file.ObjectStatics.Owner_1_UUID,
             maybe_file.ObjectStatics.Owner_2_UUID,
+            maybe_file.ObjectStatics.Owner_3_UUID,
         ],
     )
 
