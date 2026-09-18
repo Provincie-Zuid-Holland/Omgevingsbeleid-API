@@ -12,7 +12,9 @@ from app.api.domains.publications.dependencies import depends_publication_versio
 from app.api.domains.publications.exceptions import DSOConfigurationException, DSORenvooiException
 from app.api.domains.publications.services import PublicationVersionValidator
 from app.api.domains.publications.services.act_package import ActPackageBuilder, ActPackageBuilderFactory
-from app.api.domains.publications.services.validate_publication_service import ValidatePublicationException
+from app.api.domains.publications.services.validate_publication.validate_publication_service import (
+    ValidatePublicationException,
+)
 from app.api.domains.publications.types.enums import PackageType
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
 from app.api.exceptions import LoggedHttpException

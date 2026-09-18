@@ -8,7 +8,7 @@ import app.api.domains.publications.services.assets as publication_asset_service
 import app.api.domains.publications.services.state as state_services
 import app.api.domains.publications.services.state.versions as state_versions
 from app.api.domains.publications import services
-from app.api.domains.publications.services.validate_publication_service import (
+from app.api.domains.publications.services.validate_publication import (
     AreaDesignationRefCheckRule,
     AttachmentInBillReferenceRule,
     BillCompactForbiddenTagsRule,
@@ -16,8 +16,10 @@ from app.api.domains.publications.services.validate_publication_service import (
     GebiedengroepHasGiosRule,
     GioDuplicateFilenameRule,
     GioUniqueRule,
+    HoofdlijnenCheckRule,
     ReferencedGebiedengroepCodeExistsRule,
     RequiredObjectFieldsRule,
+    ThemasCheckRule,
     UsedObjectInPublicationExistsRule,
     UsedObjectsInPublicationExistInTemplateRule,
     UsedObjectTypeExistsRule,
@@ -29,12 +31,14 @@ from app.api.domains.publications.services.validate_publication_service import (
 class PublicationContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
     main_config = providers.Dependency()
-    area_repository = providers.Dependency()
-    area_geometry_repository = providers.Dependency()
-    asset_repository = providers.Dependency()
+    dso_gebiedsaanwijzingen_factory = providers.Dependency()
     object_field_mapping_provider = providers.Dependency()
     publication_required_object_fields_rule_mapping = providers.Dependency()
-    dso_gebiedsaanwijzingen_factory = providers.Dependency()
+    area_geometry_repository = providers.Dependency()
+    area_repository = providers.Dependency()
+    asset_repository = providers.Dependency()
+    hoofdlijn_repository = providers.Dependency()
+    dso_thema_factory = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -189,6 +193,16 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 BillCompactForbiddenTagsRule,
                 main_config=main_config,
+            ),
+            providers.Singleton(
+                HoofdlijnenCheckRule,
+                main_config=main_config,
+                hoofdlijn_repository=hoofdlijn_repository,
+            ),
+            providers.Singleton(
+                ThemasCheckRule,
+                main_config=main_config,
+                dso_thema_factory=dso_thema_factory,
             ),
         ),
     )

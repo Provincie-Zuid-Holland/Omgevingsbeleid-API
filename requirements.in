@@ -49,7 +49,7 @@ lxml
 GeoAlchemy2
 
 # DSO
-git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.13.1
+git+https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git@v0.14.0
 
 # Azure
 azure-monitor-opentelemetry

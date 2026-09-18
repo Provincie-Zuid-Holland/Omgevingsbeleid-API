@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 import app.api.domains.modules as module_domain
 import app.api.domains.modules.services as module_services
+import app.api.domains.modules.services.validate_module as validate_module_services
 import app.api.domains.objects.repositories as object_repositories
 import app.api.domains.objects.services as object_services
 import app.api.domains.users as user_domain
@@ -121,13 +122,14 @@ class ApiContainer(containers.DeclarativeContainer):
         PublicationContainer,
         config=config,
         main_config=main_config,
-        area_repository=area_repository,
-        area_geometry_repository=area_geometry_repository,
-        storage_file_repository=storage_file_repository,
-        asset_repository=asset_repository,
+        dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
         object_field_mapping_provider=object_field_mapping_provider,
         publication_required_object_fields_rule_mapping=publication_required_object_fields_rule_mapping,
-        dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
+        area_geometry_repository=area_geometry_repository,
+        area_repository=area_repository,
+        asset_repository=asset_repository,
+        hoofdlijn_repository=hoofdlijn_repository,
+        dso_thema_factory=dso_thema_factory,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -209,42 +211,51 @@ class ApiContainer(containers.DeclarativeContainer):
     )
 
     validate_module_service = providers.Singleton(
-        module_services.ValidateModuleService,
+        validate_module_services.ValidateModuleService,
         rules=providers.List(
             providers.Singleton(
-                module_services.RequiredObjectFieldsRule,
+                validate_module_services.RequiredObjectFieldsRule,
                 object_map=required_object_fields_rule_mapping,
             ),
             providers.Singleton(
-                module_services.RequireExistingHierarchyCodeRule,
+                validate_module_services.RequireExistingHierarchyCodeRule,
+                main_config=main_config,
                 repository=publication.object_repository,
             ),
             providers.Singleton(
-                module_services.NewestInputGeoOnderverdelingUsedRule,
-                input_geo_onderverdeling_repository=input_geo_onderverdeling_repository,
+                validate_module_services.NewestInputGeoOnderverdelingUsedRule,
+                main_config=main_config,
+                repository=input_geo_onderverdeling_repository,
             ),
             providers.Singleton(
-                module_services.ForbidEmptyHtmlNodesRule,
+                validate_module_services.ForbidEmptyHtmlNodesRule,
                 main_config=main_config,
             ),
             providers.Singleton(
-                module_services.ForbiddenHtmlTagsRule,
+                validate_module_services.ForbiddenHtmlTagsRule,
                 main_config=main_config,
             ),
             providers.Singleton(
-                module_services.AreaDesignationRefCheckRule,
+                validate_module_services.AreaDesignationRefCheckRule,
+                main_config=main_config,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
             providers.Singleton(
-                module_services.ThemasCheckRule,
+                validate_module_services.ThemasCheckRule,
+                main_config=main_config,
                 dso_thema_factory=dso_thema_factory,
             ),
-            providers.Singleton(module_services.CheckEmptyAreaDesignationTextRule, main_config=main_config),
+            providers.Singleton(
+                validate_module_services.HoofdlijnenCheckRule,
+                main_config=main_config,
+                hoofdlijn_repository=hoofdlijn_repository,
+            ),
+            providers.Singleton(validate_module_services.CheckEmptyAreaDesignationTextRule, main_config=main_config),
         ),
     )
 
     validate_module_runner = providers.Singleton(
-        module_services.ValidateModuleRunner,
+        validate_module_services.ValidateModuleRunner,
         module_object_repository=module_object_repository,
         validate_module_service=validate_module_service,
     )

@@ -20,7 +20,9 @@ from app.api.domains.publications.services.pdf_export_service import (
     PdfExportUnavailableError,
 )
 from app.api.domains.publications.services.publication_version_validator import PublicationVersionValidator
-from app.api.domains.publications.services.validate_publication_service import ValidatePublicationException
+from app.api.domains.publications.services.validate_publication.validate_publication_service import (
+    ValidatePublicationException,
+)
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType
 from app.api.domains.publications.types.zip import ZipData
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
