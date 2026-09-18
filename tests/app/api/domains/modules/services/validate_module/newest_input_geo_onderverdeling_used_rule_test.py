@@ -60,8 +60,8 @@ def test_validate():
                 Code="gebied-2",
                 Title="G2 title",
                 Area=AreasTable(
-                    Source_Geometry_Hash="abc123",  # Onderverdeling existing
-                    Source_Title="A1 title",
+                    source_title="A1 title",
+                    source_geometry_hash="abc123",  # Onderverdeling existing
                 ),
             ),
             ModuleObjectsTable(
@@ -70,8 +70,8 @@ def test_validate():
                 Code="gebied-3",
                 Title="G3 title",
                 Area=AreasTable(
-                    Source_Geometry_Hash="fgh456",  # Onderverdeling no hash match
-                    Source_Title="A2 title",
+                    source_title="A2 title",
+                    source_geometry_hash="fgh456",  # Onderverdeling no hash match
                 ),
             ),
             ModuleObjectsTable(
@@ -80,8 +80,8 @@ def test_validate():
                 Code="gebied-4",
                 Title="G4 title",
                 Area=AreasTable(
-                    Source_Geometry_Hash="ijk789",  # onderverdeling not available
-                    Source_Title="A3 title",
+                    source_title="A3 title",
+                    source_geometry_hash="ijk789",  # onderverdeling not available
                 ),
             ),
         ],

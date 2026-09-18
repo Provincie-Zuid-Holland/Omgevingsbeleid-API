@@ -6,7 +6,7 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import InputGeoW
 
 
 def load(col: Collector) -> None:
-    # Updated the Input Geo in march
+    # Updated the Input Geo in March
     with col.with_defaults(
         Created_Date=datetime(2025, 3, 1, tzinfo=UTC),
         Description="Herziening 2025 - Ter Inzage",

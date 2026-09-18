@@ -61,7 +61,7 @@ class Collector:
         # truth: setting the dates here moves the cursor so a following move_at()
         # advances from the explicitly set time, not from a stale timepoint.
         self._defaults.update(data)
-        dates = [data[key] for key in ("Created_Date", "Modified_Date") if key in data]
+        dates = [data[key] for key in ("Created_Date", "Modified_Date", "created_date", "modified_date") if key in data]
         if dates:
             self._timepoint = max(dates)
 
@@ -70,6 +70,8 @@ class Collector:
         self.set_defaults(
             Created_Date=timepoint,
             Modified_Date=timepoint,
+            created_date=timepoint,
+            modified_date=timepoint,
         )
 
     def move_at(self, seconds: float = 0, minutes: float = 0, hours: float = 0, days: float = 0):

@@ -46,11 +46,11 @@ class PublicationWerkingsgebiedenProvider:
 
         for werkingsgebied in werkingsgebieden_objects:
             code = werkingsgebied["Code"]
-            area_uuid = werkingsgebied["Area_UUID"]
-            if area_uuid is None:
+            area_id = werkingsgebied["area_id"]
+            if area_id is None:
                 raise RuntimeError(f"Missing area for werkingsgebied with code: {code}")
 
-            area: AreasTable | None = self._area_repository.get_with_gml(session, area_uuid)
+            area: AreasTable | None = self._area_repository.get_with_gml(session, area_id)
             if area is None:
                 raise RuntimeError(f"Area UUID does not exist for code: {code}")
 
@@ -83,7 +83,7 @@ class PublicationWerkingsgebiedenProvider:
         )
 
         gml_hash = hashlib.sha512()
-        gml_hash.update(area.Gml.encode())
+        gml_hash.update(area.gml.encode())
 
         result = {
             "UUID": werkingsgebied["UUID"],
@@ -93,7 +93,7 @@ class PublicationWerkingsgebiedenProvider:
             "Code": werkingsgebied["Code"],
             "New": True,
             "Frbr": frbr,
-            "Title": area.Source_Title,
+            "Title": area.source_title,
             "Geboorteregeling": act_frbr.get_work(),
             "Achtergrond_Verwijzing": "TOP10NL",
             "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
@@ -103,8 +103,8 @@ class PublicationWerkingsgebiedenProvider:
                     "Identifier": str(uuid.uuid4()),
                     "Gml_ID": str(uuid.uuid4()),
                     "Group_ID": str(uuid.uuid4()),
-                    "Title": area.Source_Title,
-                    "Gml": area.Gml,
+                    "Title": area.source_title,
+                    "Gml": area.gml,
                 }
             ],
         }

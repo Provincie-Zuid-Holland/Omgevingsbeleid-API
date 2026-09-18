@@ -94,10 +94,10 @@ fields:
     name: Title
     type: str
     column: title
-  area_uuid:
-    name: Area_UUID
+  area_id:
+    name: area_id
     type: uuid
-    column: area_uuid
+    column: area_id
     optional: true
 
   # Statics
@@ -130,7 +130,7 @@ models:
       created_date:
       modified_date:
       title:
-      area_uuid:
+      area_id:
       start_validity:
       end_validity:
   gebied_extended:
@@ -143,7 +143,7 @@ models:
       created_date:
       modified_date:
       title:
-      area_uuid:
+      area_id:
       start_validity:
       end_validity:
     dependency_model_ids:
@@ -171,7 +171,7 @@ models:
       created_date:
       modified_date:
       title:
-      area_uuid:
+      area_id:
       start_validity:
       end_validity:
     dependency_model_ids:

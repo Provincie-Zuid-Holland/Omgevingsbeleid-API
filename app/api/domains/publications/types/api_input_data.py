@@ -94,7 +94,7 @@ class PublicationGioLocatie(BaseModel):
     code: str  # code of 'gebied' like 'gebied-1'
     title: str
     # Also used in OW as the link from OW to GIO
-    # I think its save to use the area_uuid as its unique for the geometry
+    # I think its save to use the area_id as its unique for the geometry
     # And if we find a match when loading from state, then we will overwrite this
     basisgeo_id: str
     # Used to conclude if we have new version

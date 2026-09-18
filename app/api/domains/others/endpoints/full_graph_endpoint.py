@@ -50,12 +50,12 @@ class EndpointHandler:
     def _get_valid_acknowledged_relations(self) -> list[GraphEdge]:
         stmt = (
             select(AcknowledgedRelationsTable)
-            .filter(AcknowledgedRelationsTable.From_Acknowledged.is_not(None))
-            .filter(AcknowledgedRelationsTable.To_Acknowledged.is_not(None))
+            .filter(AcknowledgedRelationsTable.from_acknowledged.is_not(None))
+            .filter(AcknowledgedRelationsTable.to_acknowledged.is_not(None))
             .options(
                 load_only(
-                    AcknowledgedRelationsTable.From_Code,
-                    AcknowledgedRelationsTable.To_Code,
+                    AcknowledgedRelationsTable.from_code,
+                    AcknowledgedRelationsTable.to_code,
                 )
             )
         )
@@ -63,8 +63,8 @@ class EndpointHandler:
         edges: list[GraphEdge] = [
             GraphEdge(
                 Type=GraphEdgeType.acknowledged_relation,
-                Vertice_A_Code=r.From_Code,
-                Vertice_B_Code=r.To_Code,
+                Vertice_A_Code=r.from_code,
+                Vertice_B_Code=r.to_code,
             )
             for r in rows
         ]

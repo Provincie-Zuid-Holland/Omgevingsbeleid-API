@@ -8,12 +8,12 @@ from app.core.tables.others import AreasTable
 
 
 class AreaRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> AreasTable | None:
-        stmt = select(AreasTable).filter(AreasTable.UUID == uuidx)
+    def get_by_id(self, session: Session, idx: UUID) -> AreasTable | None:
+        stmt = select(AreasTable).filter(AreasTable.id == idx)
         return self.fetch_first(session, stmt)
 
     def get_by_source_uuid(self, session: Session, werkingsgebied_uuid: UUID) -> AreasTable | None:
-        stmt = select(AreasTable).filter(AreasTable.Source_UUID == werkingsgebied_uuid)
+        stmt = select(AreasTable).filter(AreasTable.source_uuid == werkingsgebied_uuid)
         return self.fetch_first(session, stmt)
 
     def get_by_source_hash_and_title(self, session: Session, source_hash: str, source_title: str) -> AreasTable | None:
@@ -23,9 +23,9 @@ class AreaRepository(BaseRepository):
         lookup: str = source_hash[0:10]
         stmt = (
             select(AreasTable)
-            .filter(AreasTable.Source_Geometry_Index == lookup)
-            .filter(AreasTable.Source_Geometry_Hash == source_hash)
-            .filter(AreasTable.Source_Title == source_title)
+            .filter(AreasTable.source_geometry_index == lookup)
+            .filter(AreasTable.source_geometry_hash == source_hash)
+            .filter(AreasTable.source_title == source_title)
         )
         return self.fetch_first(session, stmt)
 
@@ -36,18 +36,18 @@ class AreaRepository(BaseRepository):
         lookup: str = source_hash[0:10]
         stmt = (
             select(AreasTable)
-            .filter(AreasTable.Source_Geometry_Index == lookup)
-            .filter(AreasTable.Source_Geometry_Hash == source_hash)
+            .filter(AreasTable.source_geometry_index == lookup)
+            .filter(AreasTable.source_geometry_hash == source_hash)
         )
         return self.fetch_first(session, stmt)
 
-    def get_with_gml(self, session: Session, uuidx: UUID) -> AreasTable | None:
-        stmt = select(AreasTable).options(undefer(AreasTable.Gml)).filter(AreasTable.UUID == uuidx)
+    def get_with_gml(self, session: Session, idx: UUID) -> AreasTable | None:
+        stmt = select(AreasTable).options(undefer(AreasTable.gml)).filter(AreasTable.id == idx)
         return self.fetch_first(session, stmt)
 
-    def get_many_with_gml(self, session: Session, uuids: list[UUID]) -> list[AreasTable]:
-        if len(uuids) == 0:
+    def get_many_with_gml(self, session: Session, ids: list[UUID]) -> list[AreasTable]:
+        if len(ids) == 0:
             return []
 
-        stmt = select(AreasTable).options(undefer("Gml")).filter(AreasTable.UUID.in_(uuids))
+        stmt = select(AreasTable).options(undefer("Gml")).filter(AreasTable.id.in_(ids))
         return self.fetch_all(session, stmt)

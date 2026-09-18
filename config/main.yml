@@ -656,10 +656,10 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
-  # Area_UUID used to store reference to the shape
-  area_uuid:
-    name: Area_UUID
-    type: area_uuid
+  # area_id used to store reference to the shape
+  area_id:
+    name: area_id
+    type: area_id
     type_data:
       relation_field: Area
     serializers: ["optional_str"]

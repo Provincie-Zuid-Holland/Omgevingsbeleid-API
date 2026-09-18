@@ -3,15 +3,15 @@ import uuid
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 
 
-class MssqlAreaGeometryRepository(AreaGeometryRepository):
+class PostgresqlAreaGeometryRepository(AreaGeometryRepository):
     def _text_to_shape(self, key: str) -> str:
-        return f"geometry::STGeomFromText(:{key}, 28992)"
+        return f"ST_GeomFromText(:{key}, 28992)"
 
     def _shape_to_text(self, column: str) -> str:
-        return f"{column}.STAsText()"
+        return f"ST_AsText({column})"
 
     def _format_uuid(self, idx: uuid.UUID) -> str:
         return str(idx)
 
     def _calculate_hex(self, column: str) -> str:
-        return f"CONVERT(varchar(max), {column}.STAsBinary(), 2)"
+        return f"encode(ST_AsEWKB({column}), 'hex')"
