@@ -175,8 +175,11 @@ class JoinGebiedsaanwijzingenListener(BuildListener[CreateModelEvent]):
         config: dict = service_config["join_gebiedsaanwijzingen"]
         field_name: str = config["to_field"]
 
+        to_model_id: str = config["to_model"]
+        model: Model = event.context.models_provider.get_model(to_model_id)
+
         event.payload.pydantic_fields[field_name] = (
-            list[ObjectStatics],
+            list[model.pydantic_model],
             [],
         )
 

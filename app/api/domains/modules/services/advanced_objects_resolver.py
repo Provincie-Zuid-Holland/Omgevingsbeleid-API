@@ -14,7 +14,7 @@ class AdvancedObjectsResolver:
         session: Session,
         columns: set[str],
         valid_timepoint: datetime | None,
-        module_timepoint: datetime | None,
+        module_timepoint: datetime | None = None,
         filter_object_types: set[str] | None = None,
         filter_codes: set[str] | None = None,
         filter_module_id: int | None = None,
@@ -41,15 +41,21 @@ class AdvancedObjectsResolver:
 
     def fetch_objects(self):
         object_query = self._get_object_query()
-        module_query = self._get_module_object_query()
-        union_query = (
-            union_all(
-                # alias().select() is a cheat to force parentheses
-                # Else the union might fail on sqlite
-                (object_query.alias().select()),
-                (module_query.alias().select()),
-            )
-        ).alias("combined")
+
+        # We only query the modules table if we have a Module ID
+        if self._filter_module_id:
+            module_query = self._get_module_object_query()
+            union_query = (
+                union_all(
+                    # alias().select() is a cheat to force parentheses
+                    # Else the union might fail on sqlite
+                    (object_query.alias().select()),
+                    (module_query.alias().select()),
+                )
+            ).alias("combined")
+        else:
+            # if we dont have a module id then we just promote the objects query as the unioned query
+            union_query = object_query.alias("combined")
 
         row_number_query = select(
             union_query.c.Module_ID,
@@ -161,7 +167,7 @@ class AdvancedObjectsResolverFactory:
         session: Session,
         columns: set[str],
         valid_timepoint: datetime | None,
-        module_timepoint: datetime | None,
+        module_timepoint: datetime | None = None,
         filter_object_types: set[str] | None = None,
         filter_codes: set[str] | None = None,
         filter_module_id: int | None = None,

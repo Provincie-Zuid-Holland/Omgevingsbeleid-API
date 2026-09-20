@@ -320,11 +320,11 @@ models:
         to_field: Gebiedengroep_Static
         from_field: Gebiedengroep_Code
       join_gebiedsaanwijzingen:
-        to_field: Gebiedsaanwijzingen_Statics
+        to_field: Gebiedsaanwijzingen_Gebieden
+        to_model: gebied_basic
         from_fields:
           - Description
           - Effect
-        to_model: gebied_basic
       insert_assets:
         fields:
           - Description

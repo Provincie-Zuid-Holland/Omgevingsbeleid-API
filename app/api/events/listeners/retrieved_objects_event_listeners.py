@@ -45,15 +45,16 @@ from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_servic
     ResolveChildObjectsViaHierarchyConfig,
     ResolveChildObjectsViaHierarchyService,
 )
-from app.api.domains.werkingsgebieden.services import JoinObjectGebiedsaanwijzingenServiceFactory
 from app.api.domains.werkingsgebieden.services.join_gebiedengroepen import (
     JoinGebiedenGroepenConfig,
     JoinGebiedenGroepenService,
     JoinGebiedenGroepenServiceFactory,
 )
-from app.api.domains.werkingsgebieden.services.join_object_gebiedsaanwijzingen import (
-    JoinObjectGebiedsaanwijzingenConfig,
-    JoinObjectGebiedsaanwijzingenService,
+from app.api.domains.werkingsgebieden.services.join_gebiedsaanwijzingen import (
+    IncludeModulesConfig,
+    JoinGebiedsaanwijzingenConfig,
+    JoinGebiedsaanwijzingenService,
+    JoinGebiedsaanwijzingenServiceFactory,
 )
 from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
     JoinWerkingsgebiedenService,
@@ -62,6 +63,7 @@ from app.api.domains.werkingsgebieden.services.join_werkingsgebieden import (
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
 from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
 from app.api.events.types import ApiListener
+from app.core.services.models_provider import ModelsProvider
 from app.core.types import DynamicObjectModel, Model
 
 
@@ -437,20 +439,25 @@ class JoinObjectsForObjectListener(JoinObjectsBaseListener[RetrievedObjectsEvent
 class JoinGebiedsaanwijzingenBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](
     ApiListener[EventRMO]
 ):
-    def __init__(self, service_factory: JoinObjectGebiedsaanwijzingenServiceFactory):
-        self._service_factory: JoinObjectGebiedsaanwijzingenServiceFactory = service_factory
+    def __init__(
+        self,
+        service_factory: JoinGebiedsaanwijzingenServiceFactory,
+        models_provider: ModelsProvider,
+    ):
+        self._service_factory: JoinGebiedsaanwijzingenServiceFactory = service_factory
+        self._models_provider: ModelsProvider = models_provider
 
-    def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
-        config: JoinObjectGebiedsaanwijzingenConfig | None = self._collect_config(event)
+    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+        config: JoinGebiedsaanwijzingenConfig | None = self._collect_config(event)
         if not config:
             return event
 
-        service: JoinObjectGebiedsaanwijzingenService = self._service_factory.create_service(session, config)
+        service: JoinGebiedsaanwijzingenService = self._service_factory.create_service(session, config)
         result_rows: list[BaseModel] = service.join_gebiedsaanwijzingen(event.payload.rows)
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, event: RetrievedModuleObjectsEvent) -> JoinObjectGebiedsaanwijzingenConfig | None:
+    def _collect_config(self, event: EventRMO) -> JoinGebiedsaanwijzingenConfig | None:
         response_model: Model = event.context.response_model
         if not isinstance(response_model, DynamicObjectModel):
             return None
@@ -460,9 +467,23 @@ class JoinGebiedsaanwijzingenBaseListener[EventRMO: RetrievedObjectsEvent | Retr
         config_dict: dict = response_model.service_config.get("join_gebiedsaanwijzingen", {})
         to_field: str = config_dict["to_field"]
         from_fields: set[str] = config_dict["from_fields"]
-        return JoinObjectGebiedsaanwijzingenConfig(
+        columns: set[str] = config_dict["columns"]
+
+        include_modules: IncludeModulesConfig | None = None
+        if isinstance(event, RetrievedModuleObjectsEvent) and event.context.module_id:
+            include_modules = IncludeModulesConfig(
+                module_id=event.context.module_id,
+                has_user=bool(event.context.user),
+            )
+
+        to_model_type: type[BaseModel] = self._models_provider.get_pydantic_model(config_dict["to_model"])
+
+        return JoinGebiedsaanwijzingenConfig(
             to_field=to_field,
             from_fields=from_fields,
+            to_model=to_model_type,
+            columns=columns,
+            include_modules=include_modules,
         )
 
 
