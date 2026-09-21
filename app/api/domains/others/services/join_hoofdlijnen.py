@@ -24,7 +24,7 @@ class JoinHoofdlijnenService:
         self._config: JoinHoofdlijnenConfig = config
 
     def join_hoofdlijnen(self, rows: list[BaseModel]) -> list[BaseModel]:
-        if len(rows) <= 0:
+        if not rows:
             return rows
         result_rows: list[BaseModel] = []
         all_hoofdlijn_codes: set[str] = set()
@@ -34,14 +34,14 @@ class JoinHoofdlijnenService:
             hoofdlijn_codes_current_row: set[str] = set()
             for field in self._config.from_fields:
                 hoofdlijn_ids: list[str] = getattr(row, field)
-                if len(hoofdlijn_ids) == 0:
+                if not hoofdlijn_ids:
                     continue
                 for hoofdlijn_id in hoofdlijn_ids:
                     all_hoofdlijn_codes.add(hoofdlijn_id)
                     hoofdlijn_codes_current_row.add(hoofdlijn_id)
             hoofdlijn_codes_per_object[row.Code] = hoofdlijn_codes_current_row
 
-        if len(all_hoofdlijn_codes) <= 0:
+        if not all_hoofdlijn_codes:
             return rows
 
         hoofdlijnen: dict[UUID, Hoofdlijn] = self._fetch_hoofdlijnen(all_hoofdlijn_codes)
