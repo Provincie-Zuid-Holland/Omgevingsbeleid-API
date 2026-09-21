@@ -26,7 +26,7 @@ class HoofdlijnenCheckRuleTest(unittest.TestCase):
         self._uuid_found: UUID = UUID("10000000-0000-0000-0000-000000000000")
 
         repository: HoofdlijnRepository = Mock(HoofdlijnRepository)
-        repository.get_existing_uuids.return_value = {self._uuid_found}
+        repository.get_by_uuids.return_value = {self._uuid_found}
         self._rule: HoofdlijnenCheckRule = HoofdlijnenCheckRule(config, repository)
         self._db: Mock | Session = Mock(Session)
 

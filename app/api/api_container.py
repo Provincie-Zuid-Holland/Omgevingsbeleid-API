@@ -9,6 +9,7 @@ import app.api.domains.modules.services as module_services
 import app.api.domains.modules.services.validate_module as validate_module_services
 import app.api.domains.objects.repositories as object_repositories
 import app.api.domains.objects.services as object_services
+import app.api.domains.others.services as others_services
 import app.api.domains.users as user_domain
 import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_repositories
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
@@ -19,7 +20,6 @@ from app.api.domains.others.repositories import (
     object_related_file_repository,
     storage_file_repository,
 )
-from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.events import event_manager
 from app.api.services import permission_service
@@ -51,7 +51,7 @@ class ApiContainer(containers.DeclarativeContainer):
         main_config=main_config,
     )
 
-    pdf_meta_service = providers.Singleton(PdfMetaService)
+    pdf_meta_service = providers.Singleton(others_services.PdfMetaService)
 
     input_geo_werkingsgebieden_repository = providers.Singleton(
         werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
@@ -168,6 +168,9 @@ class ApiContainer(containers.DeclarativeContainer):
     )
     join_gebiedsaanwijzingen_object_statics_service_factory = providers.Singleton(
         werkingsgebied_services.JoinGebiedsaanwijzingenServiceFactory,
+    )
+    join_hoofdlijnen_service_factory = providers.Singleton(
+        others_services.JoinHoofdlijnenServiceFactory,
     )
     column_image_inserter_factory = providers.Singleton(
         object_services.ColumnImageInserterFactory,
@@ -325,6 +328,10 @@ class ApiContainer(containers.DeclarativeContainer):
                 event_listeners.JoinRelatedFilesToObjectsListener,
                 service_factory=join_related_files_service_factory,
             ),
+            providers.Factory(
+                event_listeners.JoinHoofdlijnenForObjectListener,
+                service_factory=join_hoofdlijnen_service_factory,
+            ),
             # RetrievedModuleObjectsEvent
             providers.Factory(
                 event_listeners.InsertHtmlImagesForModuleListener,
@@ -365,6 +372,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.ResolveChildObjectsViaHierarchyToModuleObjectListener,
                 service_factory=resolve_child_objects_via_hierarchy_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinHoofdlijnenForModuleObjectListener,
+                service_factory=join_hoofdlijnen_service_factory,
             ),
             # BeforeSelectExecutionEvent
             providers.Factory(event_listeners.OptimizeSelectQueryListener),

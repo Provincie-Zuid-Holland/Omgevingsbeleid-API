@@ -123,6 +123,12 @@ fields:
     column: themas
     validators:
       - id: none_to_default_value
+  hoofdlijnen:
+    name: Hoofdlijnen
+    type: list_str
+    column: hoofdlijnen
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -189,6 +195,7 @@ models:
       start_validity:
       end_validity:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
     services:
@@ -224,6 +231,7 @@ models:
       start_validity:
       end_validity:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
       - beleidskeuze_minimal
@@ -269,6 +277,10 @@ models:
         to_field: Gebiedsaanwijzingen_Statics
         from_fields:
           - Description
+      join_hoofdlijnen:
+        to_field: Hoofdlijnen_Statics
+        from_fields:
+          - Hoofdlijnen
   beleidsdoel_patch:
     name: BeleidsdoelPatch
     fields:
@@ -296,6 +308,8 @@ models:
               allowed_code_types:
                 - gebiedsaanwijzing
       themas:
+        optional: true
+      hoofdlijnen:
         optional: true
     services:
       extract_assets:

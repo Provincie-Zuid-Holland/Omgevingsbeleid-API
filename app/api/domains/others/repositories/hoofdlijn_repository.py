@@ -13,7 +13,7 @@ class HoofdlijnRepository(BaseRepository):
         stmt = select(HoofdlijnTable).filter(HoofdlijnTable.UUID == uuidx)
         return self.fetch_first(session, stmt)
 
-    def get_existing_uuids(self, session: Session, uuids: set[UUID]) -> set[UUID]:
+    def get_by_uuids(self, session: Session, uuids: set[UUID]) -> set[UUID]:
         stmt = select(HoofdlijnTable.UUID).filter(HoofdlijnTable.UUID.in_(uuids))
         return set(self.fetch_all(session, stmt))
 
