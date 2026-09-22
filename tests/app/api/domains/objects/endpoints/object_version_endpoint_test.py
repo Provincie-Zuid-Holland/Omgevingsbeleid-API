@@ -51,3 +51,23 @@ def test_response_matches_the_full_model_shape(client: TestClient, ctx: Context)
     body: dict = client.get(f"/beleidsdoelen/version/{expected.UUID}").json()
 
     assert set(body.keys()) == set(model.model_fields)
+
+
+@pytest.mark.parametrize(
+    "prefix, ref, user_id, expected_gebied_keys",
+    [
+        pytest.param(
+            "/maatregelen",
+            Ref(MaatregelSpec, "maatregel_6_initial"),
+            None,
+            ["nature-west-v1", "nature-east-v1"],
+            id="vigerend-non-auth",
+        ),
+    ],
+)
+def test_gebiedsaanwijzingen_from_text(client: TestClient, ctx: Context):
+    source_object: MaatregelSpec = ctx.f.find(Ref(MaatregelSpec, "maatregel_6_initial")).spec
+
+    body: dict = client.get(f"/maatregelen/version/{source_object.UUID}").json()
+
+    assert body == {}
