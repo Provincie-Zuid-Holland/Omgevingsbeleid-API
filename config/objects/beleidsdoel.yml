@@ -304,6 +304,10 @@ models:
         to_field: Gebiedsaanwijzingen_Statics
         from_fields:
           - Description
+      join_hoofdlijnen:
+        to_field: Hoofdlijnen_Statics
+        from_fields:
+          - Hoofdlijnen
   beleidsdoel_patch:
     name: BeleidsdoelPatch
     fields:

@@ -55,7 +55,7 @@ class HoofdlijnenCheckRule(ValidatePublicationRule):
         if not hoofdlijnen_set:
             return errors
 
-        found_hoofdlijnen_uuids: set[UUID] = self._hoofdlijn_repository.get_existing_uuids(db, hoofdlijnen_set)
+        found_hoofdlijnen_uuids: set[UUID] = self._hoofdlijn_repository.get_by_uuids(db, hoofdlijnen_set)
         missing_uuids = hoofdlijnen_set - found_hoofdlijnen_uuids
         if not missing_uuids:
             return errors
