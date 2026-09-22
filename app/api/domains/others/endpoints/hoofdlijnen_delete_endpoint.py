@@ -26,11 +26,11 @@ def delete_hoofdlijnen_endpoint(
 ) -> ResponseOK:
     permission_service.guard_valid_user(Permissions.hoofdlijnen_can_delete_hoofdlijn, logged_in_user)
 
-    change_log = ChangeLogTable(
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=logged_in_user.UUID,
-        Action_Type="delete_hoofdlijn",
-        Action_Data=json.dumps(hoofdlijn.to_dict()),
+    change_log: ChangeLogTable = ChangeLogTable(
+        created_date=datetime.now(UTC),
+        created_by=logged_in_user.UUID,
+        action_type="delete_hoofdlijn",
+        action_data=json.dumps(hoofdlijn.to_dict()),
     )
 
     session.add(change_log)

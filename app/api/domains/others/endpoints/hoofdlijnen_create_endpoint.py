@@ -49,11 +49,11 @@ def post_hoofdlijnen_create_endpoint(
         Modified_By_UUID=logged_in_user.UUID,
     )
 
-    change_log = ChangeLogTable(
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=logged_in_user.UUID,
-        Action_Type="create_hoofdlijn",
-        Action_Data=json.dumps(hoofdlijn.to_dict()),
+    change_log: ChangeLogTable = ChangeLogTable(
+        created_date=datetime.now(UTC),
+        created_by=logged_in_user.UUID,
+        action_type="create_hoofdlijn",
+        action_data=json.dumps(hoofdlijn.to_dict()),
     )
 
     session.add(hoofdlijn)

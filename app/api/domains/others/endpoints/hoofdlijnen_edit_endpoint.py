@@ -51,13 +51,13 @@ def post_hoofdlijnen_edit_endpoint(
 
     hoofdlijn_after = hoofdlijn.to_dict()
 
-    change_log = ChangeLogTable(
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=logged_in_user.UUID,
-        Action_Type="edit_hoofdlijn",
-        Action_Data=json.dumps(changes),
-        Before=json.dumps(hoofdlijn_before),
-        After=json.dumps(hoofdlijn_after),
+    change_log: ChangeLogTable = ChangeLogTable(
+        created_date=datetime.now(UTC),
+        created_by=logged_in_user.UUID,
+        action_type="edit_hoofdlijn",
+        action_data=json.dumps(changes),
+        before=json.dumps(hoofdlijn_before),
+        after=json.dumps(hoofdlijn_after),
     )
 
     session.add(change_log)

@@ -36,13 +36,13 @@ def test_edit_writes_a_changelog_entry(admin: TestClient, ctx: Context):
 
     change_log = ctx.session.scalar(
         select(ChangeLogTable)
-        .where(ChangeLogTable.Action_Type == "edit_object_static")
-        .order_by(desc(ChangeLogTable.Created_Date))
+        .where(ChangeLogTable.action_type == "edit_object_static")
+        .order_by(desc(ChangeLogTable.created_date))
     )
     assert change_log is not None
-    assert change_log.Object_Type == "beleidsdoel"
-    assert change_log.Object_ID == 1
-    assert change_log.Created_By_UUID == admin_uuid
+    assert change_log.object_type == "beleidsdoel"
+    assert change_log.object_id == 1
+    assert change_log.created_by == admin_uuid
 
 
 def test_empty_body_returns_400(admin: TestClient):

@@ -94,23 +94,23 @@ class AssetsTable(Base):
 class ChangeLogTable(Base):
     __tablename__ = "change_log"
 
-    ID: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
 
-    Object_Type: Mapped[str | None] = mapped_column(Unicode(25))
-    Object_ID: Mapped[int | None]
+    object_type: Mapped[str | None] = mapped_column(Unicode(25))
+    object_id: Mapped[int | None]
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID]  # Explicit NO foreign key here, this is just a log
+    created_date: Mapped[datetime]
+    created_by: Mapped[uuid.UUID]  # Explicit NO foreign key here, this is just a log
 
-    Action_Type: Mapped[str] = mapped_column(Unicode)
-    Action_Data: Mapped[str | None] = mapped_column(Unicode)
-    Before: Mapped[str | None] = mapped_column(Unicode)
-    After: Mapped[str | None] = mapped_column(Unicode)
+    action_type: Mapped[str] = mapped_column(Unicode)
+    action_data: Mapped[str | None] = mapped_column(Unicode)
+    before: Mapped[str | None] = mapped_column(Unicode)
+    after: Mapped[str | None] = mapped_column(Unicode)
 
-    change_log_object_type_id = Index("change_log_action_type_id", "Action_Type", "Object_Type", "Object_ID")
+    change_log_object_type_id = Index("change_log_action_type_id", "action_type", "object_type", "object_id")
 
     def __repr__(self) -> str:
-        return f"ChangeLog(ID={self.ID!r})"
+        return f"ChangeLog(id={self.id!r})"
 
 
 class StorageFileTable(Base):

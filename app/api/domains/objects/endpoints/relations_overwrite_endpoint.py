@@ -70,15 +70,15 @@ class EndpointHandler:
         ]
         after_data: str = json.dumps(after)
 
-        change_log = ChangeLogTable(
-            Object_Type=self._object_type,
-            Object_ID=self._object_id,
-            Created_Date=datetime.now(UTC),
-            Created_By_UUID=self._user.UUID,
-            Action_Type="overwrite_relations",
-            Action_Data=action_data,
-            Before=before_data,
-            After=after_data,
+        change_log: ChangeLogTable = ChangeLogTable(
+            object_type=self._object_type,
+            object_id=self._object_id,
+            created_date=datetime.now(UTC),
+            created_by=self._user.UUID,
+            action_type="overwrite_relations",
+            action_data=action_data,
+            before=before_data,
+            after=after_data,
         )
         self._session.add(change_log)
 

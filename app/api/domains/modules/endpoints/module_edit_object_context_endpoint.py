@@ -69,15 +69,15 @@ def post_module_edit_object_context_endpoint(
 
     session.add(object_context)
 
-    change_log = ChangeLogTable(
-        Object_Type=object_context.Object_Type,
-        Object_ID=object_context.Object_ID,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Action_Type="module_edit_object_context",
-        Action_Data=object_in.model_dump_json(),
-        Before=log_before,
-        After=json.dumps(object_context.to_dict()),
+    change_log: ChangeLogTable = ChangeLogTable(
+        object_type=object_context.Object_Type,
+        object_id=object_context.Object_ID,
+        created_date=timepoint,
+        created_by=user.UUID,
+        action_type="module_edit_object_context",
+        action_data=object_in.model_dump_json(),
+        before=log_before,
+        after=json.dumps(object_context.to_dict()),
     )
     session.add(change_log)
 

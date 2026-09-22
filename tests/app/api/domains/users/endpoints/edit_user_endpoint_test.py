@@ -65,16 +65,16 @@ def test_edit_user_writes_changelog_without_password(admin: TestClient, target_u
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
     change_log: ChangeLogTable | None = ctx.session.scalar(
         select(ChangeLogTable)
-        .where(ChangeLogTable.Action_Type == "edit_user")
-        .order_by(desc(ChangeLogTable.Created_Date))
+        .where(ChangeLogTable.action_type == "edit_user")
+        .order_by(desc(ChangeLogTable.created_date))
     )
     assert change_log is not None
-    assert change_log.Created_By_UUID == admin_uuid
+    assert change_log.created_by == admin_uuid
 
-    assert '"Gebruikersnaam": "Viewer"' in (change_log.Before or "")
-    assert '"Gebruikersnaam": "Edited Name"' in (change_log.After or "")
-    assert "Wachtwoord" not in (change_log.Before or "")
-    assert "Wachtwoord" not in (change_log.After or "")
+    assert '"Gebruikersnaam": "Viewer"' in (change_log.before or "")
+    assert '"Gebruikersnaam": "Edited Name"' in (change_log.after or "")
+    assert "Wachtwoord" not in (change_log.before or "")
+    assert "Wachtwoord" not in (change_log.after or "")
 
 
 def test_edit_user_email_already_in_use(admin: TestClient, target_uuid: uuid.UUID, session: Session, ctx: Context):

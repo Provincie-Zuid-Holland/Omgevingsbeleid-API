@@ -81,12 +81,12 @@ def post_edit_user_endpoint(
     user_after_dict: dict = user.to_dict_safe()
 
     change_log: ChangeLogTable = ChangeLogTable(
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=logged_in_user.UUID,
-        Action_Type="edit_user",
-        Action_Data=object_in.model_dump_json(),
-        Before=log_before,
-        After=json.dumps(user_after_dict),
+        created_date=datetime.now(UTC),
+        created_by=logged_in_user.UUID,
+        action_type="edit_user",
+        action_data=object_in.model_dump_json(),
+        before=log_before,
+        after=json.dumps(user_after_dict),
     )
 
     session.add(change_log)
