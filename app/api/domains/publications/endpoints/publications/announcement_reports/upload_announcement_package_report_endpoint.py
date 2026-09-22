@@ -40,12 +40,10 @@ class RunningStatus(BaseModel):
 class FileParser:
     def __init__(
         self,
-        debug: bool,
         announcement_package: PublicationAnnouncementPackageTable,
         created_by_uuid: uuid.UUID,
         timepoint: datetime,
     ):
-        self._debug: bool = debug
         self._announcement_package: PublicationAnnouncementPackageTable = announcement_package
         self._created_by_uuid: uuid.UUID = created_by_uuid
         self._timepoint: datetime = timepoint
@@ -59,7 +57,7 @@ class FileParser:
         file.file.close()
 
         report: PublicationAnnouncementPackageReportTable = self._parse_report_xml(content, file.filename or "")
-        if not self._debug and report.Sub_Delivery_ID != self._announcement_package.Delivery_ID:
+        if report.Sub_Delivery_ID != self._announcement_package.Delivery_ID:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Report idLevering does not match publication package UUID")
 
         return report
@@ -115,7 +113,6 @@ class EndpointHandler:
     def __init__(
         self,
         session: Session,
-        debug: bool,
         report_repository: PublicationAnnouncementReportRepository,
         user: UsersTable,
         uploaded_files: list[UploadFile],
@@ -129,7 +126,6 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.now(UTC)
         self._starting_status: ReportStatusType = ReportStatusType(self._announcement_package.Report_Status)
         self._file_parser: FileParser = FileParser(
-            debug=debug,
             announcement_package=announcement_package,
             created_by_uuid=user.UUID,
             timepoint=self._timepoint,
@@ -286,12 +282,10 @@ def post_upload_announcement_package_report_endpoint(
         ),
     ],
     session: Annotated[Session, Depends(depends_db_session)],
-    debug: Annotated[bool, Depends(Provide[ApiContainer.config.DEBUG_MODE])],
     uploaded_files: Annotated[list[UploadFile], File(...)],
 ) -> UploadPackageReportResponse:
     handler = EndpointHandler(
         session=session,
-        debug=debug,
         report_repository=report_repository,
         user=user,
         uploaded_files=uploaded_files,
