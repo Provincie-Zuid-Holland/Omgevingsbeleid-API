@@ -105,8 +105,8 @@ class FileData(BaseModel):
 
 
 class Hoofdlijn(BaseModel):
-    UUID: uuid.UUID
-    Name: str
-    Type: str
+    id: uuid.UUID
+    name: str
+    type: str
 
     model_config = ConfigDict(from_attributes=True)

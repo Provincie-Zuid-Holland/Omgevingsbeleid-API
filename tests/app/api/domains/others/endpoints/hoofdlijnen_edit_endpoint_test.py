@@ -10,8 +10,8 @@ from tests.fixtures.internal.types import Ref
 
 def _payload(**overrides) -> dict:
     payload = {
-        "Name": "Edited hoofdlijn name",
-        "Type": "Edited hoofdlijn type",
+        "name": "Edited hoofdlijn name",
+        "type": "Edited hoofdlijn type",
     }
     payload.update(overrides)
     return payload
@@ -25,17 +25,17 @@ def test_edit_a_hoofdlijn_and_changes_are_persisted_in_db(
     original: HoofdlijnSpec = ctx.f.find(Ref(HoofdlijnSpec, "hoofdlijn-2")).spec
     payload: dict[str, str] = _payload()
     response = client.post(
-        f"/hoofdlijnen/{original.UUID}",
+        f"/hoofdlijnen/{original.id}",
         json=payload,
     )
 
     assert response.status_code == 200, response.text
 
     # The hoofdlijn changes are persisted
-    row: HoofdlijnTable | None = session.get(HoofdlijnTable, original.UUID)
+    row: HoofdlijnTable | None = session.get(HoofdlijnTable, original.id)
     assert row is not None
-    assert row.Name == payload.get("Name")
-    assert row.Type == payload.get("Type")
+    assert row.name == payload.get("name")
+    assert row.type == payload.get("type")
 
 
 @pytest.mark.parametrize("client_fixture", ["admin", "beheerder"])
@@ -43,7 +43,7 @@ def test_edit_a_hoofdlijn_no_updates_exception(request: pytest.FixtureRequest, c
     client: TestClient = request.getfixturevalue(client_fixture)
     original: HoofdlijnSpec = ctx.f.find(Ref(HoofdlijnSpec, "hoofdlijn-2")).spec
     response = client.post(
-        f"/hoofdlijnen/{original.UUID}",
+        f"/hoofdlijnen/{original.id}",
         json={},
     )
 

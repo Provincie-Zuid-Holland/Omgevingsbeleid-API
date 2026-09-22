@@ -157,12 +157,12 @@ class ObjectRelatedFileTable(Base):
 class HoofdlijnTable(Base, RequireTimeStamped, UserMetaData, SerializerMixin):
     __tablename__ = "hoofdlijnen"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
-    Name: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    Type: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    name: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    type: Mapped[str] = mapped_column(Unicode(255), nullable=False)
 
-    __table_args__ = (Index("ix_hoofdlijnen_Name_Type", "Name", "Type", unique=True),)
+    __table_args__ = (Index("ix_hoofdlijnen_name_type", "name", "type", unique=True),)
 
     def __repr__(self) -> str:
-        return f"HoofdlijnTable(UUID={self.UUID!r}, Name={self.Name!r}, Type={self.Type!r})"
+        return f"HoofdlijnTable(id={self.id!r}, name={self.name!r}, type={self.type!r})"

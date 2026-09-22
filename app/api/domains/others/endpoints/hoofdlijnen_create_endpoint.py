@@ -18,14 +18,14 @@ from app.core.tables.users import UsersTable
 
 
 class CreateHoofdlijn(BaseModel):
-    Name: str = Field(..., min_length=3, max_length=255)
-    Type: str = Field(..., min_length=3, max_length=255)
+    name: str = Field(..., min_length=3, max_length=255)
+    type: str = Field(..., min_length=3, max_length=255)
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class HoofdlijnCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 @inject
@@ -40,9 +40,9 @@ def post_hoofdlijnen_create_endpoint(
     timepoint: datetime = datetime.now(UTC)
 
     hoofdlijn: HoofdlijnTable = HoofdlijnTable(
-        UUID=uuid.uuid4(),
-        Name=object_in.Name,
-        Type=object_in.Type,
+        id=uuid.uuid4(),
+        name=object_in.name,
+        type=object_in.type,
         Created_Date=timepoint,
         Created_By_UUID=logged_in_user.UUID,
         Modified_Date=timepoint,
@@ -62,5 +62,5 @@ def post_hoofdlijnen_create_endpoint(
     session.commit()
 
     return HoofdlijnCreatedResponse(
-        UUID=hoofdlijn.UUID,
+        id=hoofdlijn.id,
     )

@@ -279,8 +279,8 @@ api:
                 order: desc
               allowed_columns:
                 - Created_Date
-                - Name
-                - Type
+                - name
+                - type
     - prefix: /hoofdlijnen/search
       endpoints:
         - resolver: search_hoofdlijn
@@ -291,8 +291,8 @@ api:
                 order: desc
               allowed_columns:
                 - Created_Date
-                - Name
-                - Type
+                - name
+                - type
     - prefix: /hoofdlijnen/{hoofdlijn_uuid}
       endpoints:
         - resolver: delete_hoofdlijn

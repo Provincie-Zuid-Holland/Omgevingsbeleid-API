@@ -9,12 +9,12 @@ from app.core.tables.others import HoofdlijnTable
 
 
 class HoofdlijnRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> HoofdlijnTable | None:
-        stmt = select(HoofdlijnTable).filter(HoofdlijnTable.UUID == uuidx)
+    def get_by_id(self, session: Session, idx: UUID) -> HoofdlijnTable | None:
+        stmt = select(HoofdlijnTable).filter(HoofdlijnTable.id == idx)
         return self.fetch_first(session, stmt)
 
-    def get_existing_uuids(self, session: Session, uuids: set[UUID]) -> set[UUID]:
-        stmt = select(HoofdlijnTable.UUID).filter(HoofdlijnTable.UUID.in_(uuids))
+    def get_existing_ids(self, session: Session, ids: set[UUID]) -> set[UUID]:
+        stmt = select(HoofdlijnTable.id).filter(HoofdlijnTable.id.in_(ids))
         return set(self.fetch_all(session, stmt))
 
     def get_paginated(
@@ -39,7 +39,7 @@ class HoofdlijnRepository(BaseRepository):
         pagination: SortedPagination,
         query: str,
     ) -> PaginatedQueryResult:
-        stmt = select(HoofdlijnTable).where(HoofdlijnTable.Name.like(f"%{query}%"))
+        stmt = select(HoofdlijnTable).where(HoofdlijnTable.name.like(f"%{query}%"))
 
         paged_result = self.fetch_paginated(
             session=session,
