@@ -437,6 +437,8 @@ models:
           error_message: Portfolio Holders should vary
     fields:
       owner_1_uuid:
+        validators:
+          -id : not_empty
       owner_2_uuid:
       portfolio_holder_1_uuid:
       portfolio_holder_2_uuid:

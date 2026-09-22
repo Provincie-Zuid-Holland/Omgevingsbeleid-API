@@ -263,6 +263,8 @@ models:
           error_message: Owners should vary
     fields:
       owner_1_uuid:
+        validators:
+          -id : not_empty
       owner_2_uuid:
   gebiedsaanwijzing_uuid:
     name: GebiedsaanwijzingUUID
