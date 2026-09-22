@@ -9,22 +9,22 @@ from app.core.tables.others import AssetsTable
 
 
 class AssetRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> AssetsTable | None:
-        stmt = select(AssetsTable).filter(AssetsTable.UUID == uuid)
+    def get_by_id(self, session: Session, idx: UUID) -> AssetsTable | None:
+        stmt = select(AssetsTable).filter(AssetsTable.id == idx)
         maybe_asset = session.scalars(stmt).first()
         return maybe_asset
 
-    def get_by_uuids(self, session: Session, uuids: list[UUID]) -> Sequence[AssetsTable]:
-        stmt = select(AssetsTable).filter(AssetsTable.UUID.in_(uuids))
+    def get_by_ids(self, session: Session, ids: list[UUID]) -> Sequence[AssetsTable]:
+        stmt = select(AssetsTable).filter(AssetsTable.id.in_(ids))
         assets = session.scalars(stmt).all()
         return assets
 
     def get_by_hash_and_content(self, session: Session, hash: str, content: str) -> AssetsTable | None:
         stmt = (
             select(AssetsTable)
-            .filter(AssetsTable.Lookup == hash[0:10])
-            .filter(AssetsTable.Hash == hash)
-            .filter(AssetsTable.Content == content)
+            .filter(AssetsTable.lookup == hash[0:10])
+            .filter(AssetsTable.hash == hash)
+            .filter(AssetsTable.content == content)
         )
         maybe_asset = session.scalars(stmt).first()
         return maybe_asset

@@ -23,19 +23,19 @@ class PublicationAssetProvider:
         self._asset_remove_transparency: AssetRemoveTransparency = asset_remove_transparency
 
     def get_assets(self, session: Session, objects: list[dict]) -> list[dict]:
-        asset_uuids: list[uuid.UUID] = self._calculate_asset_uuids(objects)
-        dso_assets: list[dict] = self.get_assets_by_uuids(session, asset_uuids)
+        asset_ids: list[uuid.UUID] = self._calculate_asset_ids(objects)
+        dso_assets: list[dict] = self.get_assets_by_ids(session, asset_ids)
 
         return dso_assets
 
-    def get_assets_by_uuids(self, session: Session, uuids: list[uuid.UUID]) -> list[dict]:
-        assets: Sequence[AssetsTable] = self._asset_repository.get_by_uuids(session, uuids)
+    def get_assets_by_ids(self, session: Session, ids: list[uuid.UUID]) -> list[dict]:
+        assets: Sequence[AssetsTable] = self._asset_repository.get_by_ids(session, ids)
         dso_assets: list[dict] = self._as_dso_assets(assets)
 
         return dso_assets
 
-    def _calculate_asset_uuids(self, objects: list[dict]) -> list[uuid.UUID]:
-        asset_uuids: set[uuid.UUID] = set()
+    def _calculate_asset_ids(self, objects: list[dict]) -> list[uuid.UUID]:
+        asset_ids: set[uuid.UUID] = set()
 
         # @todo: should be provided somewhere
         asset_fields = [
@@ -55,24 +55,24 @@ class PublicationAssetProvider:
                 soup = BeautifulSoup(value, "html.parser")
                 for img in soup.find_all("img", src=asset_re):
                     try:
-                        asset_uuid = uuid.UUID(img["src"].split(":")[1][:-1])
-                        asset_uuids.add(asset_uuid)
+                        asset_id = uuid.UUID(img["src"].split(":")[1][:-1])
+                        asset_ids.add(asset_id)
                     except ValueError:
                         continue
 
-        return list(asset_uuids)
+        return list(asset_ids)
 
     def _as_dso_assets(self, assets: Sequence[AssetsTable]) -> list[dict]:
         dso_assets: list[dict] = []
 
         for asset in assets:
-            content = asset.Content
-            meta = json.loads(asset.Meta)
+            content = asset.content
+            meta = json.loads(asset.meta)
             content, meta = self._asset_remove_transparency.fix(content, meta)
 
             asset_dict = {
-                "UUID": str(asset.UUID),
-                "Created_Date": str(asset.Created_Date),
+                "UUID": str(asset.id),
+                "Created_Date": str(asset.created_date),
                 "Meta": meta,
                 "Content": content,
             }

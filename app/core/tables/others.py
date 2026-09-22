@@ -71,24 +71,24 @@ class RelationsTable(Base, SerializerMixin):
 class AssetsTable(Base):
     __tablename__ = "assets"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    created_date: Mapped[datetime]
+    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     # Lookup for faster access
-    Lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
+    lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
 
     # Hash to confirm uniqueness
-    Hash: Mapped[str] = mapped_column(Unicode(64))
+    hash: Mapped[str] = mapped_column(Unicode(64))
 
     # Meta information about the asset, like it is an image
-    Meta: Mapped[str]
+    meta: Mapped[str]
 
     # Base64 content of the file (might be binary later?)
-    Content: Mapped[str]
+    content: Mapped[str]
 
     def __repr__(self) -> str:
-        return f"Assets(UUID={self.UUID!r})"
+        return f"Assets(id={self.id!r})"
 
 
 class ChangeLogTable(Base):

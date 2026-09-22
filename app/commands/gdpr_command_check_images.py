@@ -84,7 +84,7 @@ def check_images(
         stmt: Select = select(AssetsTable)
         assets: Sequence[AssetsTable] = asset_repository.iter_all(session, stmt)
         for asset in assets:
-            match: re.Match[str] | None = re.match(r"data:image/(.*?);base64,(.*)", asset.Content)
+            match: re.Match[str] | None = re.match(r"data:image/(.*?);base64,(.*)", asset.content)
             if not match:
                 report[asset] = ["No image data"]
                 continue
@@ -116,18 +116,18 @@ def check_images(
         if not report:
             return
 
-        asset_uuids: set[uuid.UUID] = {asset.UUID for asset in report}
+        asset_ids: set[uuid.UUID] = {asset.id for asset in report}
         object_lookups: ObjectLookups = ObjectLookups(
             session,
             object_repository,
             module_object_repository,
         )
         object_lookups.create_all(
-            _asset_filter(asset_uuids),
+            _asset_filter(asset_ids),
             _asset_key(),
         )
 
         for asset, issues in report.items():
             message: str = "\n".join(issues)
-            object_log: str | None = object_lookups.get_log(asset.UUID) or ""
-            log_message(message=f"Asset {asset.UUID}{object_log} has the following message: {message}")
+            object_log: str | None = object_lookups.get_log(asset.id) or ""
+            log_message(message=f"Asset {asset.id}{object_log} has the following message: {message}")

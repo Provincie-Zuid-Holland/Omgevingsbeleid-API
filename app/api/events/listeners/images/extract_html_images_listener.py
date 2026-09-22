@@ -55,7 +55,7 @@ class HtmlImagesExtractor:
 
     def _handle_image(self, img):
         image_table: AssetsTable = self._get_or_create_asset(img)
-        img["src"] = f"[ASSET:{image_table.UUID}]"
+        img["src"] = f"[ASSET:{image_table.id}]"
 
     def _get_or_create_asset(self, img) -> AssetsTable:
         # Extract the image data and file extension
@@ -98,14 +98,14 @@ class HtmlImagesExtractor:
             height=height,
             size=size,
         )
-        image_table = AssetsTable(
-            UUID=uuid4(),
-            Created_Date=self._module_object.Created_Date,
-            Created_By_UUID=self._module_object.Created_By_UUID,
-            Lookup=image_hash[0:10],
-            Hash=image_hash,
-            Meta=json.dumps(meta.to_dict()),
-            Content=image_data,
+        image_table: AssetsTable = AssetsTable(
+            id=uuid4(),
+            created_date=self._module_object.Created_Date,
+            created_by=self._module_object.Created_By_UUID,
+            lookup=image_hash[0:10],
+            hash=image_hash,
+            meta=json.dumps(meta.to_dict()),
+            content=image_data,
         )
         self._session.add(image_table)
         return image_table
