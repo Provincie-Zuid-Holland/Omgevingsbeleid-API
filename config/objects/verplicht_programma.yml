@@ -261,7 +261,7 @@ models:
     fields:
       owner_1_uuid:
         validators:
-          -id : not_empty
+          - id : not_empty
       owner_2_uuid:
   verplicht_programma_uuid:
     name: VerplichtProgrammaUUID

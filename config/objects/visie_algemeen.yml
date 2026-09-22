@@ -279,7 +279,7 @@ models:
     fields:
       owner_1_uuid:
         validators:
-          -id : not_empty
+          - id : not_empty
       owner_2_uuid:
   visie_algemeen_uuid:
     name: VisieAlgemeenUUID

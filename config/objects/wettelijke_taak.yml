@@ -247,7 +247,7 @@ models:
     fields:
       owner_1_uuid:
         validators:
-          -id : not_empty
+          - id : not_empty
       owner_2_uuid:
   wettelijke_taak_uuid:
     name: WettelijkeTaakUUID
