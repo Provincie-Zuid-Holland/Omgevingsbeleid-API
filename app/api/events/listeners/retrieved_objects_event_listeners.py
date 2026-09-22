@@ -516,7 +516,9 @@ class JoinHoofdlijnenBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedMod
     def __init__(self, service_factory: JoinHoofdlijnenServiceFactory):
         self._service_factory: JoinHoofdlijnenServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent | RetrievedModuleObjectsEvent) -> RetrievedObjectsEvent | RetrievedModuleObjectsEvent | None:
+    def handle_event(
+        self, session: Session, event: RetrievedObjectsEvent | RetrievedModuleObjectsEvent
+    ) -> RetrievedObjectsEvent | RetrievedModuleObjectsEvent | None:
         config: JoinHoofdlijnenConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -526,7 +528,9 @@ class JoinHoofdlijnenBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedMod
         event.payload.rows = result_rows
         return event
 
-    def _collect_config(self, event: RetrievedObjectsEvent | RetrievedModuleObjectsEvent) -> JoinHoofdlijnenConfig | None:
+    def _collect_config(
+        self, event: RetrievedObjectsEvent | RetrievedModuleObjectsEvent
+    ) -> JoinHoofdlijnenConfig | None:
         response_model: Model = event.context.response_model
         if not isinstance(response_model, DynamicObjectModel):
             return None
