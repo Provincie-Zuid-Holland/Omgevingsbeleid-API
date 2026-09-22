@@ -25,6 +25,8 @@ class AssetRepository(BaseRepository):
             .filter(AssetsTable.Lookup == hash[0:10])
             .filter(AssetsTable.Hash == hash)
             .filter(AssetsTable.Content == content)
+            .order_by(AssetsTable.Created_Date.asc(), AssetsTable.UUID.asc())
+            .limit(1)
         )
         maybe_asset = session.scalars(stmt).first()
         return maybe_asset
