@@ -79,7 +79,7 @@ def edit_object_static_endpoint(
         object_type=context.object_type,
         object_id=lineage_id,
         created_date=datetime.now(UTC),
-        created_by=user.UUID,
+        created_by_id=user.UUID,
         action_type="edit_object_static",
         action_data=object_in.model_dump_json(),
         before=log_before,

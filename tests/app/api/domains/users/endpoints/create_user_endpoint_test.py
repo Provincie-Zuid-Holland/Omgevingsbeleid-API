@@ -60,7 +60,7 @@ def test_create_user_writes_changelog_without_password(admin: TestClient, ctx: C
         .order_by(desc(ChangeLogTable.created_date))
     )
     assert change_log is not None
-    assert change_log.created_by == admin_uuid
+    assert change_log.created_by_id == admin_uuid
     assert "Wachtwoord" not in (change_log.after or "")
 
 

@@ -80,7 +80,7 @@ def post_create_user_endpoint(
 
     change_log: ChangeLogTable = ChangeLogTable(
         created_date=datetime.now(UTC),
-        created_by=logged_in_user.UUID,
+        created_by_id=logged_in_user.UUID,
         action_type="create_user",
         action_data=object_in.model_dump_json(),
         after=json.dumps(user.to_dict_safe()),

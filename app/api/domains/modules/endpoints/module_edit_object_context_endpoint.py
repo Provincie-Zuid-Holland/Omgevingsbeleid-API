@@ -73,7 +73,7 @@ def post_module_edit_object_context_endpoint(
         object_type=object_context.Object_Type,
         object_id=object_context.Object_ID,
         created_date=timepoint,
-        created_by=user.UUID,
+        created_by_id=user.UUID,
         action_type="module_edit_object_context",
         action_data=object_in.model_dump_json(),
         before=log_before,

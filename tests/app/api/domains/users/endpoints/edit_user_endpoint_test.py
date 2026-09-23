@@ -69,7 +69,7 @@ def test_edit_user_writes_changelog_without_password(admin: TestClient, target_u
         .order_by(desc(ChangeLogTable.created_date))
     )
     assert change_log is not None
-    assert change_log.created_by == admin_uuid
+    assert change_log.created_by_id == admin_uuid
 
     assert '"Gebruikersnaam": "Viewer"' in (change_log.before or "")
     assert '"Gebruikersnaam": "Edited Name"' in (change_log.after or "")

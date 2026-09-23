@@ -42,7 +42,7 @@ def test_edit_writes_a_changelog_entry(admin: TestClient, ctx: Context):
     assert change_log is not None
     assert change_log.object_type == "beleidsdoel"
     assert change_log.object_id == 1
-    assert change_log.created_by == admin_uuid
+    assert change_log.created_by_id == admin_uuid
 
 
 def test_empty_body_returns_400(admin: TestClient):

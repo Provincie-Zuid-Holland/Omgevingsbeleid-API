@@ -100,7 +100,7 @@ class ChangeLogTable(Base):
     object_id: Mapped[int | None]
 
     created_date: Mapped[datetime]
-    created_by: Mapped[uuid.UUID]  # Explicit NO foreign key here, this is just a log
+    created_by_id: Mapped[uuid.UUID]  # Explicit NO foreign key here, this is just a log
 
     action_type: Mapped[str] = mapped_column(Unicode)
     action_data: Mapped[str | None] = mapped_column(Unicode)

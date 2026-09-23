@@ -70,7 +70,7 @@ def atemporal_edit_object_endpoint(
         object_type=context.object_type,
         object_id=lineage_id,
         created_date=timepoint,
-        created_by=user.UUID,
+        created_by_id=user.UUID,
         action_type="atemporal_edit_object",
         action_data=json.dumps(changes),
         before=log_before,

@@ -51,7 +51,7 @@ def post_hoofdlijnen_create_endpoint(
 
     change_log: ChangeLogTable = ChangeLogTable(
         created_date=datetime.now(UTC),
-        created_by=logged_in_user.UUID,
+        created_by_id=logged_in_user.UUID,
         action_type="create_hoofdlijn",
         action_data=json.dumps(hoofdlijn.to_dict()),
     )

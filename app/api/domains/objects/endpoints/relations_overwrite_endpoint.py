@@ -74,7 +74,7 @@ class EndpointHandler:
             object_type=self._object_type,
             object_id=self._object_id,
             created_date=datetime.now(UTC),
-            created_by=self._user.UUID,
+            created_by_id=self._user.UUID,
             action_type="overwrite_relations",
             action_data=action_data,
             before=before_data,

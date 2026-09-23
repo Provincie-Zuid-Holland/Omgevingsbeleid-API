@@ -28,7 +28,7 @@ def delete_hoofdlijnen_endpoint(
 
     change_log: ChangeLogTable = ChangeLogTable(
         created_date=datetime.now(UTC),
-        created_by=logged_in_user.UUID,
+        created_by_id=logged_in_user.UUID,
         action_type="delete_hoofdlijn",
         action_data=json.dumps(hoofdlijn.to_dict()),
     )

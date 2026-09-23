@@ -48,7 +48,7 @@ def post_reset_user_password_endpoint(
 
     change_log: ChangeLogTable = ChangeLogTable(
         created_date=datetime.now(UTC),
-        created_by=logged_in_user.UUID,
+        created_by_id=logged_in_user.UUID,
         action_type="reset_user_password",
         action_data=json.dumps({"UUID": str(user.UUID)}),
     )
