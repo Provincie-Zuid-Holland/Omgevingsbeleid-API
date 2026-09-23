@@ -22,11 +22,11 @@ from tests.fixtures.internal.types import (
 
 
 class AreaSpec(Spec):
-    __link_fields__: ClassVar[set[str]] = {"created_by"}
+    __link_fields__: ClassVar[set[str]] = {"created_by_id"}
 
     id: uuid.UUID | None = None
     created_date: datetime | None = None
-    created_by: Link | None = None
+    created_by_id: Link | None = None
 
     source_ref: Ref
 
@@ -75,7 +75,7 @@ class AreaPersistHandler(BasePersistHandler[AreaSpec]):
             AreasTable(
                 id=spec.id,
                 created_date=spec.created_date,
-                created_by=spec.created_by,
+                created_by_id=spec.created_by_id,
                 shape=spec.shape,
                 gml=spec.gml,
                 source_uuid=spec.source_id,

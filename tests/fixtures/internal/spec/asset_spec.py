@@ -28,11 +28,11 @@ ASSETS_DIR: Path = BASE_FILES_DIR / "assets"
 
 
 class AssetSpec(Spec):
-    __link_fields__: ClassVar[set[str]] = {"created_by"}
+    __link_fields__: ClassVar[set[str]] = {"created_by_id"}
 
     id: uuid.UUID | None = None
     created_date: datetime | None = None
-    created_by: Link | None = None
+    created_by_id: Link | None = None
     file_path: str
 
     # These will be filled if you just set File_Path
@@ -86,7 +86,7 @@ class AssetPersistHandler(BasePersistHandler[AssetSpec]):
             AssetsTable(
                 id=spec.id,
                 created_date=spec.created_date,
-                created_by=spec.created_by,
+                created_by_id=spec.created_by_id,
                 lookup=spec.lookup,
                 hash=spec.hash,
                 meta=spec.meta,
