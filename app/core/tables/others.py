@@ -73,7 +73,7 @@ class AssetsTable(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     created_date: Mapped[datetime]
-    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     # Lookup for faster access
     lookup: Mapped[str] = mapped_column(Unicode(10), index=True)

@@ -101,7 +101,7 @@ class HtmlImagesExtractor:
         image_table: AssetsTable = AssetsTable(
             id=uuid4(),
             created_date=self._module_object.Created_Date,
-            created_by=self._module_object.Created_By_UUID,
+            created_by_id=self._module_object.Created_By_UUID,
             lookup=image_hash[0:10],
             hash=image_hash,
             meta=json.dumps(meta.to_dict()),
