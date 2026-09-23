@@ -48,7 +48,7 @@ def get_acknowledged_relation_request_endpoint(
     )
 
     ack_table = AcknowledgedRelationsTable(
-        Requested_By_Code=my_side.code,
+        requested_by_code=my_side.code,
         Created_Date=timepoint,
         Created_By_UUID=user.UUID,
         Modified_Date=timepoint,
