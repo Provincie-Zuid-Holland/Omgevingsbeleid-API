@@ -99,8 +99,8 @@ class EndpointHandler:
                 Checksum=zip_data.Checksum,
                 Latest_Download_Date=None,
                 Latest_Download_By_UUID=None,
-                Created_Date=self._timepoint,
-                Created_By_UUID=self._user.UUID,
+                created_date=self._timepoint,
+                created_by_id=self._user.UUID,
             )
             self._session.add(package_zip)
             self._session.flush()
@@ -112,10 +112,10 @@ class EndpointHandler:
                 Delivery_ID=package_builder.get_delivery_id(),
                 Package_Type=self._object_in.Package_Type,
                 Report_Status=report_status,
-                Created_Date=self._timepoint,
-                Modified_Date=self._timepoint,
-                Created_By_UUID=self._user.UUID,
-                Modified_By_UUID=self._user.UUID,
+                created_date=self._timepoint,
+                modified_date=self._timepoint,
+                created_by_id=self._user.UUID,
+                modified_by_id=self._user.UUID,
                 Module_ID=self._publication.Module_ID,
                 Module_Status_ID=self._publication_version.Module_Status_ID,
             )
@@ -190,8 +190,8 @@ class EndpointHandler:
             return
 
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
-        new_state.Created_Date = self._timepoint
-        new_state.Created_By_UUID = self._user.UUID
+        new_state.created_date = self._timepoint
+        new_state.created_by_id = self._user.UUID
         self._session.add(new_state)
         self._session.flush()
 
@@ -219,8 +219,8 @@ class EndpointHandler:
             Work_Province_ID=purpose.Work_Province_ID,
             Work_Date=purpose.Work_Date,
             Work_Other=purpose.Work_Other,
-            Created_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
+            created_date=self._timepoint,
+            created_by_id=self._user.UUID,
         )
         self._session.add(purpose_table)
         self._session.flush()
@@ -234,10 +234,10 @@ class EndpointHandler:
             Work_Country=bill_frbr.Work_Country,
             Work_Date=bill_frbr.Work_Date,
             Work_Other=bill_frbr.Work_Other,
-            Created_Date=self._timepoint,
-            Modified_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
-            Modified_By_UUID=self._user.UUID,
+            created_date=self._timepoint,
+            modified_date=self._timepoint,
+            created_by_id=self._user.UUID,
+            modified_by_id=self._user.UUID,
         )
         self._session.add(bill)
         self._session.flush()
@@ -248,8 +248,8 @@ class EndpointHandler:
             Expression_Language=bill_frbr.Expression_Language,
             Expression_Date=bill_frbr.Expression_Date,
             Expression_Version=bill_frbr.Expression_Version,
-            Created_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
+            created_date=self._timepoint,
+            created_by_id=self._user.UUID,
         )
         self._session.add(bill_version)
 
@@ -261,8 +261,8 @@ class EndpointHandler:
             Expression_Language=act_frbr.Expression_Language,
             Expression_Date=act_frbr.Expression_Date,
             Expression_Version=act_frbr.Expression_Version,
-            Created_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
+            created_date=self._timepoint,
+            created_by_id=self._user.UUID,
         )
         self._session.add(act_version)
         self._session.flush()

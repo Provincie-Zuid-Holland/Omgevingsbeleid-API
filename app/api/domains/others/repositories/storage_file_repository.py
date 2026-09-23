@@ -11,7 +11,7 @@ from app.core.tables.others import StorageFileTable
 
 
 class StorageFileSortColumn(str, Enum):
-    Created_Date = "Created_Date"
+    created_date = "created_date"
     Filename = "Filename"
     Size = "Size"
 
@@ -42,7 +42,7 @@ class StorageFileRepository(BaseRepository):
             filters.append(and_(StorageFileTable.Filename.like(filter_filename)))
 
         if mine is not None:
-            filters.append(and_(StorageFileTable.Created_By_UUID == mine))
+            filters.append(and_(StorageFileTable.created_by_id == mine))
 
         stmt = select(StorageFileTable).filter(*filters)
 

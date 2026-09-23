@@ -8,11 +8,11 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 def load(col: Collector) -> None:
     with col.with_defaults(
         # We explicitly do not set a default Created_Data
-        # this way the Created_Date of the previous version will be used
+        # this way the created_date of the previous version will be used
         # as this is the same behaviour as the real code
-        Modified_Date=datetime(2025, 2, 1, tzinfo=UTC),
+        modified_date=datetime(2025, 2, 1, tzinfo=UTC),
         Start_Validity=datetime(2025, 2, 1, tzinfo=UTC),
-        Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
+        modified_by_id=col.ref(UserSpec, "ambtenaar"),
     ):
         # Beleidsdoel
         col.adds(

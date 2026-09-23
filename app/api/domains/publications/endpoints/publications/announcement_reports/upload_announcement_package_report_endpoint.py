@@ -42,12 +42,12 @@ class FileParser:
         self,
         debug: bool,
         announcement_package: PublicationAnnouncementPackageTable,
-        created_by_uuid: uuid.UUID,
+        created_by_id: uuid.UUID,
         timepoint: datetime,
     ):
         self._debug: bool = debug
         self._announcement_package: PublicationAnnouncementPackageTable = announcement_package
-        self._created_by_uuid: uuid.UUID = created_by_uuid
+        self._created_by_uuid: uuid.UUID = created_by_id
         self._timepoint: datetime = timepoint
         self._namespaces: dict[str, str] = {
             "lvbb": "http://www.overheid.nl/2017/lvbb",
@@ -97,8 +97,8 @@ class FileParser:
                 Sub_Delivery_ID=sub_delivery_id,
                 Sub_Progress=maybe_sub_progress or "",
                 Sub_Outcome=maybe_sub_outcome or "",
-                Created_Date=self._timepoint,
-                Created_By_UUID=self._created_by_uuid,
+                created_date=self._timepoint,
+                created_by_id=self._created_by_uuid,
             )
             return report_table
         except Exception:
@@ -131,7 +131,7 @@ class EndpointHandler:
         self._file_parser: FileParser = FileParser(
             debug=debug,
             announcement_package=announcement_package,
-            created_by_uuid=user.UUID,
+            created_by_id=user.UUID,
             timepoint=self._timepoint,
         )
 
@@ -163,8 +163,8 @@ class EndpointHandler:
 
         self._handle_conclusive_status(running_status)
 
-        self._announcement_package.Modified_By_UUID = self._user.UUID
-        self._announcement_package.Modified_Date = self._timepoint
+        self._announcement_package.modified_by_id = self._user.UUID
+        self._announcement_package.modified_date = self._timepoint
 
         self._session.add(self._announcement_package)
         self._session.flush()
@@ -253,8 +253,8 @@ class EndpointHandler:
 
         environment.Active_State_UUID = new_state.UUID
         environment.Is_Locked = False
-        environment.Modified_Date = self._timepoint
-        environment.Modified_By_UUID = self._user.UUID
+        environment.modified_date = self._timepoint
+        environment.modified_by_id = self._user.UUID
         self._session.add(environment)
 
         if self._announcement_package.Package_Type == PackageType.PUBLICATION.value:

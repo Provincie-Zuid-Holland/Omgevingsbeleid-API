@@ -49,8 +49,8 @@ def post_module_remove_object_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
     object_context.Hidden = True
-    object_context.Modified_By_UUID = user.UUID
-    object_context.Modified_Date = timepoint
+    object_context.modified_by_id = user.UUID
+    object_context.modified_date = timepoint
     session.add(object_context)
 
     _, new_record = module_object_repository.patch_latest_module_object(

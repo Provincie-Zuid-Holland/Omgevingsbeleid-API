@@ -7,9 +7,9 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Modified_Date=datetime(2025, 1, 1, tzinfo=UTC),
-        Created_By_UUID=col.ref(UserSpec, "ambtenaar"),
-        Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
+        modified_date=datetime(2025, 1, 1, tzinfo=UTC),
+        created_by_id=col.ref(UserSpec, "ambtenaar"),
+        modified_by_id=col.ref(UserSpec, "ambtenaar"),
     ):
         col.adds(
             [
@@ -17,19 +17,19 @@ def load(col: Collector) -> None:
                     key="hoofdlijn-1",
                     name="Provinciaal economische groei",
                     type="Verplicht programma",
-                    Created_Date=datetime(2025, 1, 2, tzinfo=UTC),
+                    created_date=datetime(2025, 1, 2, tzinfo=UTC),
                 ),
                 HoofdlijnSpec(
                     key="hoofdlijn-2",
                     name="Regionaal waterprogramma",
                     type="Gebiedsprogramma",
-                    Created_Date=datetime(2025, 1, 3, tzinfo=UTC),
+                    created_date=datetime(2025, 1, 3, tzinfo=UTC),
                 ),
                 HoofdlijnSpec(
                     key="hoofdlijn-3",
                     name="Provinciaal waterprogramma",
                     type="Actief programma",
-                    Created_Date=datetime(2025, 1, 4, tzinfo=UTC),
+                    created_date=datetime(2025, 1, 4, tzinfo=UTC),
                 ),
             ]
         )

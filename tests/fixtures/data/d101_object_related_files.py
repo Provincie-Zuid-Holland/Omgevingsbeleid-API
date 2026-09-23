@@ -8,7 +8,7 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_By_UUID=col.ref(UserSpec, "ambtenaar"),
+        created_by_id=col.ref(UserSpec, "ambtenaar"),
     ):
         # Files for beleidsdoel-1
         col.adds(
@@ -18,14 +18,14 @@ def load(col: Collector) -> None:
                     Code="beleidsdoel-1",
                     Title="Document 1 for beleidsdoel 1",
                     File_Ref=col.ref(StorageFileSpec, "file_1"),
-                    Created_Date=datetime(2025, 4, 1, tzinfo=UTC),
+                    created_date=datetime(2025, 4, 1, tzinfo=UTC),
                 ),
                 ObjectRelatedFileSpec(
                     key="bd1_file2",
                     Code="beleidsdoel-1",
                     Title="Document 2 for beleidsdoel 1",
                     File_Ref=col.ref(StorageFileSpec, "file_2"),
-                    Created_Date=datetime(2025, 4, 2, tzinfo=UTC),
+                    created_date=datetime(2025, 4, 2, tzinfo=UTC),
                 ),
             ]
         )
@@ -37,6 +37,6 @@ def load(col: Collector) -> None:
                 Code="beleidsdoel-2",
                 Title="Document 1 for beleidsdoel 2",
                 File_Ref=col.ref(StorageFileSpec, "file_1"),
-                Created_Date=datetime(2025, 4, 1, tzinfo=UTC),
+                created_date=datetime(2025, 4, 1, tzinfo=UTC),
             )
         )

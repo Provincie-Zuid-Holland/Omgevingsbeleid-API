@@ -57,11 +57,11 @@ class Collector:
         return DefaultsCtx(self, kwargs)
 
     def _apply_defaults(self, data: dict[str, Any]) -> None:
-        # The timepoint and the Created_/Modified_Date defaults are one source of
+        # The timepoint and the created_/modified_date defaults are one source of
         # truth: setting the dates here moves the cursor so a following move_at()
         # advances from the explicitly set time, not from a stale timepoint.
         self._defaults.update(data)
-        dates = [data[key] for key in ("Created_Date", "Modified_Date", "created_date", "modified_date") if key in data]
+        dates = [data[key] for key in ("created_date", "modified_date", "Created_Date", "Modified_Date") if key in data]
         if dates:
             self._timepoint = max(dates)
 

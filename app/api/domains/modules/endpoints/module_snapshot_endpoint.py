@@ -32,7 +32,7 @@ def get_module_snapshot_endpoint(
     module_objects: list[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
         session,
         module.Module_ID,
-        status.Created_Date,
+        status.created_date,
     )
     dict_objects: list[dict] = [table_to_dict(t) for t in module_objects]
 

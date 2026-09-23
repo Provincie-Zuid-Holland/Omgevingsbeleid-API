@@ -26,7 +26,7 @@ def test_returns_the_requested_storage_file(
     assert body["Filename"] == expected.Filename
     assert body["Content_Type"] == expected.Content_Type
     assert body["Size"] == expected.Size
-    assert body["Created_By_UUID"] == str(expected.Created_By_UUID)
+    assert body["created_by_id"] == str(expected.created_by_id)
 
 
 def test_response_matches_the_storage_file_model_shape(admin: TestClient, ctx: Context):

@@ -43,10 +43,10 @@ def post_hoofdlijnen_create_endpoint(
         id=uuid.uuid4(),
         name=object_in.name,
         type=object_in.type,
-        Created_Date=timepoint,
-        Created_By_UUID=logged_in_user.UUID,
-        Modified_Date=timepoint,
-        Modified_By_UUID=logged_in_user.UUID,
+        created_date=timepoint,
+        created_by_id=logged_in_user.UUID,
+        modified_date=timepoint,
+        modified_by_id=logged_in_user.UUID,
     )
 
     change_log: ChangeLogTable = ChangeLogTable(

@@ -82,8 +82,8 @@ class ModuleStatus(BaseModel):
     ID: int
     Module_ID: int
     Status: str
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
+    created_date: datetime
+    created_by_id: uuid.UUID
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -101,7 +101,7 @@ class ModuleShort(BaseModel):
 class ActiveModuleObject(BaseModel):
     Module_ID: int | None = None
     UUID: uuid.UUID
-    Modified_Date: datetime
+    modified_date: datetime
     Title: str
     model_config = ConfigDict(from_attributes=True)
 
@@ -128,7 +128,7 @@ class ModuleObjectShort(BaseModel):
     Code: str
     UUID: uuid.UUID
 
-    Modified_Date: datetime
+    modified_date: datetime
     Title: str
 
     ObjectStatics: ObjectStaticShort | None = None
@@ -138,10 +138,10 @@ class ModuleObjectShort(BaseModel):
 
 class Module(BaseModel):
     Module_ID: int
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
     Activated: bool
     Closed: bool
     Successful: bool
@@ -152,8 +152,8 @@ class Module(BaseModel):
     Module_Manager_2_UUID: uuid.UUID | None = None
     Status: ModuleStatus | None = None
 
-    Created_By: UserShort | None = None
-    Modified_By: UserShort | None = None
+    created_by: UserShort | None = None
+    modified_by: UserShort | None = None
     Module_Manager_1: UserShort | None = None
     Module_Manager_2: UserShort | None = None
     model_config = ConfigDict(from_attributes=True)
@@ -175,8 +175,8 @@ class PublicModuleShort(BaseModel):
 class ModuleSortColumn(str, Enum):
     Module_ID = "Module_ID"
     Title = "Title"
-    Created_Date = "Created_Date"
-    Modified_Date = "Modified_Date"
+    created_date = "created_date"
+    modified_date = "modified_date"
     Activated = "Activated"
     Closed = "Closed"
     Successful = "Successful"

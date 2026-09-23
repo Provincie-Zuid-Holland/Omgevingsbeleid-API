@@ -66,8 +66,8 @@ def post_acknowledged_relation_edit_endpoint(
         side.approve(user.UUID)
 
     relation.apply_side(side)
-    relation.Modified_Date = timepoint
-    relation.Modified_By_UUID = user.UUID
+    relation.modified_date = timepoint
+    relation.modified_by_id = user.UUID
 
     if object_in.denied == True:
         relation.deny()

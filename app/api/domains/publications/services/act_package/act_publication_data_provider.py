@@ -93,7 +93,7 @@ class ActPublicationDataProvider:
             objects,
             used_objects,
         )
-        area_of_jurisdiction: dict = self._get_aoj(session, publication_version.Created_Date)
+        area_of_jurisdiction: dict = self._get_aoj(session, publication_version.created_date)
         bill_attachments: list[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
@@ -144,7 +144,7 @@ class ActPublicationDataProvider:
             "Administrative_Borders_ID": aoj.Administrative_Borders_ID,
             "Administrative_Borders_Domain": aoj.Administrative_Borders_Domain,
             "Administrative_Borders_Date": aoj.Administrative_Borders_Date,
-            "Created_Date": aoj.Created_Date,
+            "created_date": aoj.created_date,
         }
         return result
 

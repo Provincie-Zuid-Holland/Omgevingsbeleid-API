@@ -47,8 +47,8 @@ def post_edit_announcement_endpoint(
             value = value.model_dump()
         setattr(announcement, key, value)
 
-    announcement.Modified_By_UUID = user.UUID
-    announcement.Modified_Date = datetime.now(UTC)
+    announcement.modified_by_id = user.UUID
+    announcement.modified_date = datetime.now(UTC)
 
     session.add(announcement)
     session.flush()

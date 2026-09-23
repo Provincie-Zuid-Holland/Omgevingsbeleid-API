@@ -230,10 +230,10 @@ class PatchGebiedengroepInputGeoService:
         module_object.Title = title
         module_object.Adjust_On = None
         module_object.UUID = uuid.uuid4()
-        module_object.Created_Date = self._timepoint
-        module_object.Created_By_UUID = self._user.UUID
-        module_object.Modified_Date = self._timepoint
-        module_object.Modified_By_UUID = self._user.UUID
+        module_object.created_date = self._timepoint
+        module_object.created_by_id = self._user.UUID
+        module_object.modified_date = self._timepoint
+        module_object.modified_by_id = self._user.UUID
 
         self._session.add(module_object)
         return module_object

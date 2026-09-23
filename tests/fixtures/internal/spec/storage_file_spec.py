@@ -27,11 +27,11 @@ STORAGE_FILES_DIR: Path = BASE_FILES_DIR / "storage_files"
 
 
 class StorageFileSpec(Spec):
-    __link_fields__: ClassVar[set[str]] = {"Created_By_UUID"}
+    __link_fields__: ClassVar[set[str]] = {"created_by_id"}
 
     UUID: uuid.UUID | None = None
-    Created_Date: datetime | None = None
-    Created_By_UUID: Link | None = None
+    created_date: datetime | None = None
+    created_by_id: Link | None = None
     File_Path: str
 
     # These will be filled if you just set File_Path
@@ -95,7 +95,7 @@ class StorageFilePersistHandler(BasePersistHandler[StorageFileSpec]):
                 Content_Type=spec.Content_Type,
                 Size=spec.Size,
                 Binary=spec.Binary,
-                Created_Date=spec.Created_Date,
-                Created_By_UUID=spec.Created_By_UUID,
+                created_date=spec.created_date,
+                created_by_id=spec.created_by_id,
             )
         ]

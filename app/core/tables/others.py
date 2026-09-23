@@ -127,8 +127,8 @@ class StorageFileTable(Base):
     Size: Mapped[int] = mapped_column(Integer, nullable=False)
     Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     def __repr__(self) -> str:
         return f"StorageFileTable(UUID={self.UUID!r}, Filename={self.Filename!r})"
@@ -143,8 +143,8 @@ class ObjectRelatedFileTable(Base):
     File_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("storage_files.UUID"))
 
     Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     # Relationships
     ObjectStatics: Mapped["ObjectStaticsTable"] = relationship()

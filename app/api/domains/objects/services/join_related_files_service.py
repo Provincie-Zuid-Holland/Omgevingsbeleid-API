@@ -37,7 +37,7 @@ class JoinRelatedFilesService:
         stmt = (
             select(ObjectRelatedFileTable)
             .filter(ObjectRelatedFileTable.Code.in_(self._config.object_codes))
-            .order_by(ObjectRelatedFileTable.Created_Date.desc())
+            .order_by(ObjectRelatedFileTable.created_date.desc())
         )
 
         db_rows = self._session.execute(stmt).scalars().all()

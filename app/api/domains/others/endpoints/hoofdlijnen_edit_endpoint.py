@@ -46,8 +46,8 @@ def post_hoofdlijnen_edit_endpoint(
     for key, value in changes.items():
         setattr(hoofdlijn, key, value)
 
-    hoofdlijn.Modified_By_UUID = logged_in_user.UUID
-    hoofdlijn.Modified_Date = timepoint
+    hoofdlijn.modified_by_id = logged_in_user.UUID
+    hoofdlijn.modified_date = timepoint
 
     hoofdlijn_after = hoofdlijn.to_dict()
 

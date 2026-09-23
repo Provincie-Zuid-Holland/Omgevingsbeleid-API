@@ -31,6 +31,6 @@ class PublicationEnvironmentRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationEnvironmentTable.Modified_Date, SortOrder.DESC),
+            sort=(PublicationEnvironmentTable.modified_date, SortOrder.DESC),
         )
         return paged_result

@@ -33,6 +33,6 @@ class PublicationVersionRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationVersionTable.Modified_Date, SortOrder.DESC),
+            sort=(PublicationVersionTable.modified_date, SortOrder.DESC),
         )
         return paged_result

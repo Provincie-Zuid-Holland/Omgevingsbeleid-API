@@ -15,11 +15,11 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_Date=datetime(2025, 1, 1, tzinfo=UTC),
-        Modified_Date=datetime(2025, 1, 1, tzinfo=UTC),
+        created_date=datetime(2025, 1, 1, tzinfo=UTC),
+        modified_date=datetime(2025, 1, 1, tzinfo=UTC),
         Start_Validity=datetime(2025, 1, 1, tzinfo=UTC),
-        Created_By_UUID=col.ref(UserSpec, "ambtenaar"),
-        Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
+        created_by_id=col.ref(UserSpec, "ambtenaar"),
+        modified_by_id=col.ref(UserSpec, "ambtenaar"),
     ):
         # Beleidsdoel
         col.adds(

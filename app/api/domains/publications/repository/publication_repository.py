@@ -35,6 +35,6 @@ class PublicationRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationTable.Modified_Date, SortOrder.DESC),
+            sort=(PublicationTable.modified_date, SortOrder.DESC),
         )
         return paged_result

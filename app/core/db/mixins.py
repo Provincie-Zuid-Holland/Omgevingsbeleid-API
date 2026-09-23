@@ -1,29 +1,24 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import ForeignKey, Unicode
+from sqlalchemy import ForeignKey
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import Mapped, mapped_column
 
 
 class TimeStamped:
-    Created_Date: Mapped[datetime | None]
-    Modified_Date: Mapped[datetime | None]
+    created_date: Mapped[datetime | None]
+    modified_date: Mapped[datetime | None]
 
 
 class RequireTimeStamped:
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
 
 class UserMetaData:
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
-    Modified_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
-
-
-class HasIDType:
-    Object_Type: Mapped[str] = mapped_column(Unicode(25))
-    Object_ID: Mapped[int]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    modified_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class SerializerMixin:

@@ -32,10 +32,10 @@ class PublicationAnnouncementPackageDetailResponse(BaseModel):
     Created_Environment_State_UUID: uuid.UUID | None
     Used_Environment_State_UUID: uuid.UUID | None
 
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
 
     Module_ID: int | None
     Module_Title: str | None
@@ -78,10 +78,10 @@ def get_detail_announcement_package_endpoint(
         Zip=zip,
         Created_Environment_State_UUID=announcement_package.Created_Environment_State_UUID,
         Used_Environment_State_UUID=announcement_package.Used_Environment_State_UUID,
-        Created_Date=announcement_package.Created_Date,
-        Modified_Date=announcement_package.Modified_Date,
-        Created_By_UUID=announcement_package.Created_By_UUID,
-        Modified_By_UUID=announcement_package.Modified_By_UUID,
+        created_date=announcement_package.created_date,
+        modified_date=announcement_package.modified_date,
+        created_by_id=announcement_package.created_by_id,
+        modified_by_id=announcement_package.modified_by_id,
         Module_ID=module.Module_ID if module else None,
         Module_Title=module.Title if module else None,
         Module_Status_ID=module_status.ID if module_status else None,

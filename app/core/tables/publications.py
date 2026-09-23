@@ -26,8 +26,8 @@ class PublicationStorageFileTable(Base):
     Size: Mapped[int] = mapped_column(Integer, nullable=False)
     Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 ObjectFieldMapTypeAdapter = TypeAdapter(dict[str, list[str]])
@@ -48,8 +48,8 @@ class PublicationTemplateTable(Base, UserMetaData):
     Field_Map: Mapped[Any] = mapped_column(JSON, nullable=True)
     Object_Field_Map: Mapped[Any] = mapped_column(JSON, nullable=True)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
 
 class PublicationEnvironmentTable(Base, UserMetaData):
@@ -84,8 +84,8 @@ class PublicationEnvironmentTable(Base, UserMetaData):
         primaryjoin="PublicationEnvironmentTable.Active_State_UUID == PublicationEnvironmentStateTable.UUID",
     )
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
 
 class PublicationEnvironmentStateTable(Base):
@@ -102,8 +102,8 @@ class PublicationEnvironmentStateTable(Base):
     Is_Activated: Mapped[bool]
     Activated_Datetime: Mapped[datetime | None]
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationAreaOfJurisdictionTable(Base):
@@ -117,8 +117,8 @@ class PublicationAreaOfJurisdictionTable(Base):
     Administrative_Borders_Domain: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Administrative_Borders_Date: Mapped[date] = mapped_column(Date, nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationPurposeTable(Base):
@@ -136,8 +136,8 @@ class PublicationPurposeTable(Base):
     Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_pur_env_other"),)
 
@@ -177,8 +177,8 @@ class PublicationActTable(Base, UserMetaData):
         ForeignKey("publication_purposes.UUID"), nullable=True
     )
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
     Environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
     Withdrawal_Purpose: Mapped[PublicationPurposeTable | None] = relationship(
@@ -200,8 +200,8 @@ class PublicationActVersionTable(Base):
     Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Expression_Version: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     Act: Mapped[PublicationActTable] = relationship()
 
@@ -228,8 +228,8 @@ class PublicationTable(Base, UserMetaData):
 
     Is_Locked: Mapped[bool] = mapped_column(default=False)
 
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    modified_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     Module: Mapped[ModuleTable] = relationship("ModuleTable")
     Template: Mapped["PublicationTemplateTable"] = relationship("PublicationTemplateTable")
@@ -260,8 +260,8 @@ class PublicationVersionTable(Base, UserMetaData):
     Is_Locked: Mapped[bool] = mapped_column(default=False)
     Deleted_At: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
     Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
     Mutation_Strategy: Mapped[str] = mapped_column(Unicode(64), nullable=False, server_default="renvooi")
@@ -273,7 +273,7 @@ class PublicationVersionTable(Base, UserMetaData):
     )
 
     Act_Packages: Mapped[list["PublicationActPackageTable"]] = relationship(
-        back_populates="Publication_Version", order_by="asc(PublicationActPackageTable.Created_Date)"
+        back_populates="Publication_Version", order_by="asc(PublicationActPackageTable.created_date)"
     )
 
 
@@ -288,8 +288,8 @@ class PublicationVersionAttachmentTable(Base, UserMetaData):
     Filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
     Publication_Version: Mapped["PublicationVersionTable"] = relationship()
     File: Mapped[PublicationStorageFileTable] = relationship()
@@ -310,8 +310,8 @@ class PublicationBillTable(Base, UserMetaData):
     Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
     __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_bil_env_other"),)
 
@@ -326,8 +326,8 @@ class PublicationBillVersionTable(Base):
     Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Expression_Version: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     Bill: Mapped[PublicationBillTable] = relationship()
 
@@ -346,8 +346,8 @@ class PublicationPackageZipTable(Base):
     Latest_Download_Date: Mapped[datetime | None]
     Latest_Download_By_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationActPackageTable(Base, UserMetaData):
@@ -377,8 +377,8 @@ class PublicationActPackageTable(Base, UserMetaData):
     Module_ID: Mapped[int | None] = mapped_column(ForeignKey("modules.Module_ID"), nullable=True)
     Module_Status_ID: Mapped[int | None] = mapped_column(ForeignKey("module_status_history.ID"), nullable=True)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
     Publication_Version: Mapped["PublicationVersionTable"] = relationship()
     Bill_Version: Mapped["PublicationBillVersionTable"] = relationship()
@@ -408,8 +408,8 @@ class PublicationActPackageReportTable(Base):
     Sub_Progress: Mapped[str] = mapped_column(Unicode(100), nullable=False)
     Sub_Outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
 
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationDocTable(Base, UserMetaData):
@@ -425,8 +425,8 @@ class PublicationDocTable(Base, UserMetaData):
     Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
     __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_doc_env_other"),)
 
@@ -441,8 +441,8 @@ class PublicationDocVersionTable(Base):
     Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
     Expression_Version: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     Doc: Mapped[PublicationDocTable] = relationship()
 
@@ -465,8 +465,8 @@ class PublicationAnnouncementTable(Base, UserMetaData):
     Announcement_Date: Mapped[date | None]
     Is_Locked: Mapped[bool] = mapped_column(default=False)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
     Act_Package: Mapped[PublicationActPackageTable] = relationship("PublicationActPackageTable")
     Publication: Mapped[PublicationTable] = relationship("PublicationTable")
@@ -494,8 +494,8 @@ class PublicationAnnouncementPackageTable(Base, UserMetaData):
         ForeignKey("publication_environment_states.UUID"), nullable=True
     )
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
     Announcement: Mapped["PublicationAnnouncementTable"] = relationship()
     Zip: Mapped["PublicationPackageZipTable"] = relationship()
@@ -523,5 +523,5 @@ class PublicationAnnouncementPackageReportTable(Base):
     Sub_Progress: Mapped[str] = mapped_column(Unicode(100), nullable=False)
     Sub_Outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
 
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))

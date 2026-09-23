@@ -61,8 +61,8 @@ def post_edit_version_endpoint(
             value = value.model_dump()
         setattr(version, key, value)
 
-    version.Modified_By_UUID = user.UUID
-    version.Modified_Date = datetime.now(UTC)
+    version.modified_by_id = user.UUID
+    version.modified_date = datetime.now(UTC)
 
     session.add(version)
     session.flush()

@@ -49,10 +49,10 @@ def get_acknowledged_relation_request_endpoint(
 
     ack_table = AcknowledgedRelationsTable(
         requested_by_code=my_side.code,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_Date=timepoint,
-        Modified_By_UUID=user.UUID,
+        created_date=timepoint,
+        created_by_id=user.UUID,
+        modified_date=timepoint,
+        modified_by_id=user.UUID,
     )
     ack_table.with_sides(my_side, their_side)
 
@@ -78,8 +78,8 @@ def get_acknowledged_relation_request_endpoint(
 
         # assume we can approve the existing request as both sides have acted
         existing_request.apply_side(my_side)
-        existing_request.Modified_Date = timepoint
-        existing_request.Modified_By_UUID = user.UUID
+        existing_request.modified_date = timepoint
+        existing_request.modified_by_id = user.UUID
 
         session.add(existing_request)
         session.flush()

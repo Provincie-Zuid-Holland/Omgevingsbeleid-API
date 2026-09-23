@@ -40,13 +40,13 @@ class AddNextObjectVersionService:
             select(
                 ObjectsTable.UUID.label("Previous_UUID"),
                 ObjectsTable.Code.label("ref_code"),
-                ObjectsTable.Modified_Date.label("ref_modified_date"),
+                ObjectsTable.modified_date.label("ref_modified_date"),
             ).where(ObjectsTable.UUID.in_(self._config.object_uuids))
         ).subquery("input_object_reference")
 
         row_number_col = (
             func.row_number()
-            .over(partition_by=reference_subq.c.Previous_UUID, order_by=ObjectsTable.Modified_Date.asc())
+            .over(partition_by=reference_subq.c.Previous_UUID, order_by=ObjectsTable.modified_date.asc())
             .label("_RowNumber")
         )
 
@@ -59,13 +59,13 @@ class AddNextObjectVersionService:
                 ObjectsTable.Title,
                 ObjectsTable.Start_Validity,
                 ObjectsTable.End_Validity,
-                ObjectsTable.Created_Date,
-                ObjectsTable.Modified_Date,
+                ObjectsTable.created_date,
+                ObjectsTable.modified_date,
             )
             .join(
                 ObjectsTable,
                 (ObjectsTable.Code == reference_subq.c.ref_code)
-                & (ObjectsTable.Modified_Date > reference_subq.c.ref_modified_date),
+                & (ObjectsTable.modified_date > reference_subq.c.ref_modified_date),
             )
             .subquery("next_object_versions_view")
         )

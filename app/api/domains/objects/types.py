@@ -88,8 +88,8 @@ class NextObjectVersion(BaseModel):
     Title: str
     Start_Validity: datetime
     End_Validity: datetime | None = None
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     Previous_UUID: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)

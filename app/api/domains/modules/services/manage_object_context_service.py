@@ -64,10 +64,10 @@ class ManageObjectContextService:
                     Object_Type=request.object_type,
                     Object_ID=request.object_id,
                     Code=request.get_code(),
-                    Created_Date=request.timepoint,
-                    Modified_Date=request.timepoint,
-                    Created_By_UUID=request.user_uuid,
-                    Modified_By_UUID=request.user_uuid,
+                    created_date=request.timepoint,
+                    modified_date=request.timepoint,
+                    created_by_id=request.user_uuid,
+                    modified_by_id=request.user_uuid,
                     Original_Adjust_On=request.original_adjust_on,
                     Action=ModuleObjectActionFull.Create,
                     Explanation=request.explanation,
@@ -78,8 +78,8 @@ class ManageObjectContextService:
             case ModuleObjectContextTable(Hidden=True) as hidden_context:
                 # Activate
                 hidden_context.Hidden = False
-                hidden_context.Modified_Date = request.timepoint
-                hidden_context.Modified_By_UUID = request.user_uuid
+                hidden_context.modified_date = request.timepoint
+                hidden_context.modified_by_id = request.user_uuid
                 hidden_context.Original_Adjust_On = request.original_adjust_on
                 hidden_context.Explanation = request.explanation
                 hidden_context.Conclusion = request.conclusion

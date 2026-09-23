@@ -72,7 +72,7 @@ class PublicationAssetProvider:
 
             asset_dict = {
                 "UUID": str(asset.id),
-                "Created_Date": str(asset.created_date),
+                "created_date": str(asset.created_date),
                 "Meta": meta,
                 "Content": content,
             }

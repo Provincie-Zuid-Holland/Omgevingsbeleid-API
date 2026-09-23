@@ -16,8 +16,8 @@ PUBLICATION_BASE_FIELDS: Final[set[str]] = {
     "Object_ID",
     "Code",
     "Hierarchy_Code",
-    "Created_Date",
-    "Modified_Date",
+    "created_date",
+    "modified_date",
 }
 
 
@@ -47,7 +47,7 @@ class PublicationObjectRepository(BaseRepository):
             func.row_number()
             .over(
                 partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                order_by=desc(ObjectsTable.modified_date),
             )
             .label("_RowNumber")
         )
@@ -77,7 +77,7 @@ class PublicationObjectRepository(BaseRepository):
                     subq.c.End_Validity.is_(None),
                 )
             )
-            .order_by(desc(subq.c.Modified_Date))
+            .order_by(desc(subq.c.modified_date))
         )
         return stmt
 
@@ -94,7 +94,7 @@ class PublicationObjectRepository(BaseRepository):
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Code,
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
                 case((ModuleObjectContextTable.Action == "Terminate", 1), else_=0).label("_Terminated"),
@@ -102,7 +102,7 @@ class PublicationObjectRepository(BaseRepository):
             .select_from(ModuleObjectsTable)
             .join(ModuleObjectsTable.ModuleObjectContext)
             .filter(ModuleObjectsTable.Module_ID == module_id)
-            .filter(ModuleObjectsTable.Modified_Date < timepoint)
+            .filter(ModuleObjectsTable.modified_date < timepoint)
             .filter(ModuleObjectContextTable.Hidden == False)
         )
 

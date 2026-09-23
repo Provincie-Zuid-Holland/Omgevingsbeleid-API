@@ -144,10 +144,10 @@ class BaseModuleObjectPersistHandler[T: BaseModuleObjectSpec](BasePersistHandler
             Action=self._resolve_action(spec),
             Explanation=spec.Context_Explanation,
             Conclusion=spec.Context_Conclusion,
-            Created_Date=spec.Created_Date,
-            Modified_Date=spec.Modified_Date,
-            Created_By_UUID=spec.Created_By_UUID,
-            Modified_By_UUID=spec.Modified_By_UUID,
+            created_date=spec.created_date,
+            modified_date=spec.modified_date,
+            created_by_id=spec.created_by_id,
+            modified_by_id=spec.modified_by_id,
         )
 
     def _resolve_action(self, spec: T) -> ModuleObjectActionFull:

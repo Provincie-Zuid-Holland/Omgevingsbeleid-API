@@ -10,8 +10,8 @@ from tests.fixtures.internal.types import BasePersistHandler, Link, PersistConte
 
 class ModuleSpec(Spec):
     __link_fields__: ClassVar[set[str]] = {
-        "Created_By_UUID",
-        "Modified_By_UUID",
+        "created_by_id",
+        "modified_by_id",
         "Module_Manager_1_UUID",
         "Module_Manager_2_UUID",
     }
@@ -29,10 +29,10 @@ class ModuleSpec(Spec):
     Module_Manager_1_UUID: Link | None = None
     Module_Manager_2_UUID: Link | None = None
 
-    Created_Date: datetime | None = None
-    Created_By_UUID: Link | None = None
-    Modified_Date: datetime | None = None
-    Modified_By_UUID: Link | None = None
+    created_date: datetime | None = None
+    created_by_id: Link | None = None
+    modified_date: datetime | None = None
+    modified_by_id: Link | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
         return self.Module_ID
@@ -59,9 +59,9 @@ class ModulePersistHandler(BasePersistHandler[ModuleSpec]):
                 Description=spec.Description,
                 Module_Manager_1_UUID=spec.Module_Manager_1_UUID,
                 Module_Manager_2_UUID=spec.Module_Manager_2_UUID,
-                Created_Date=spec.Created_Date,
-                Created_By_UUID=spec.Created_By_UUID,
-                Modified_Date=spec.Modified_Date,
-                Modified_By_UUID=spec.Modified_By_UUID,
+                created_date=spec.created_date,
+                created_by_id=spec.created_by_id,
+                modified_date=spec.modified_date,
+                modified_by_id=spec.modified_by_id,
             ),
         ]

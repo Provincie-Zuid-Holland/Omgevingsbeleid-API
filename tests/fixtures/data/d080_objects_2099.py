@@ -8,9 +8,9 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 def load(col: Collector) -> None:
     with col.with_defaults(
         # Never versions but valid only from 2099 (after "now")
-        Modified_Date=datetime(2099, 1, 1, tzinfo=UTC),
+        modified_date=datetime(2099, 1, 1, tzinfo=UTC),
         Start_Validity=datetime(2099, 1, 1, tzinfo=UTC),
-        Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
+        modified_by_id=col.ref(UserSpec, "ambtenaar"),
     ):
         col.adds(
             [

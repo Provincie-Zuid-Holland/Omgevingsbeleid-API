@@ -34,7 +34,7 @@ class PublicModuleObjectShort(BaseModel):
     Code: str
     Description: str
 
-    Modified_Date: datetime
+    modified_date: datetime
     Title: str
 
     ModuleObjectContext: PublicModuleObjectContextShort | None = None
@@ -63,7 +63,7 @@ def get_public_module_overview_endpoint(
     if module.Current_Status not in PublicModuleStatusCode.values():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid status for module")
 
-    status_snapshot_date = module.Status.Created_Date
+    status_snapshot_date = module.Status.created_date
     subq = module_object_repository._build_snapshot_objects_query(module.Module_ID, status_snapshot_date).subquery()
     aliased_subq = aliased(ModuleObjectsTable, subq)
     stmt = (
@@ -77,7 +77,7 @@ def get_public_module_overview_endpoint(
                 aliased_subq.Object_ID,
                 aliased_subq.Code,
                 aliased_subq.UUID,
-                aliased_subq.Modified_Date,
+                aliased_subq.modified_date,
                 aliased_subq.Title,
                 aliased_subq.Deleted,
             ),

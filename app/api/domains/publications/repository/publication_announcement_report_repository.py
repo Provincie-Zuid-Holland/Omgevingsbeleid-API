@@ -42,6 +42,6 @@ class PublicationAnnouncementReportRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationAnnouncementPackageReportTable.Created_Date, SortOrder.DESC),
+            sort=(PublicationAnnouncementPackageReportTable.created_date, SortOrder.DESC),
         )
         return paged_result

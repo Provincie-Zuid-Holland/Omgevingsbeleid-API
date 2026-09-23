@@ -113,7 +113,7 @@ class AddRelationsService:
                 func.row_number()
                 .over(
                     partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
+                    order_by=desc(ObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
             )

@@ -18,8 +18,8 @@ class ModuleObjectContext(BaseModel):
     Object_ID: int
     Code: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
 
     Action: str
     Explanation: str
@@ -27,8 +27,8 @@ class ModuleObjectContext(BaseModel):
 
     Original_Adjust_On: uuid.UUID | None = None
 
-    Created_By: UserShort | None = None
-    Modified_By: UserShort | None = None
+    created_by: UserShort | None = None
+    modified_by: UserShort | None = None
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -28,7 +28,7 @@ class PublicationObjectProvider:
         objects: list[dict] = self._publication_object_repository.fetch_objects(
             session,
             publication_version.Publication.Module_ID,
-            publication_version.Module_Status.Created_Date,
+            publication_version.Module_Status.created_date,
             template.Object_Types,
             list(requested_fields),
         )

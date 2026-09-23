@@ -4,7 +4,7 @@ object_type: beleidsdoel
 sort_allowed_columns: &sort_allowed_columns
   - Object_ID
   - Title
-  - Modified_Date
+  - modified_date
 
 sort_default_title: &sort_default_title
   default:
@@ -14,7 +14,7 @@ sort_default_title: &sort_default_title
 
 sort_default_modified_date: &sort_default_modified_date
   default:
-    column: Modified_Date
+    column: modified_date
     order: desc
   allowed_columns: *sort_allowed_columns
 
@@ -194,9 +194,9 @@ models:
     services:
       foreign_keys_extender:
         fields_map:
-          - to_field: Created_By
+          - to_field: created_by
             model_id: user_short
-          - to_field: Modified_By
+          - to_field: modified_by
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
@@ -249,9 +249,9 @@ models:
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
-          - to_field: Created_By
+          - to_field: created_by
             model_id: user_short
-          - to_field: Modified_By
+          - to_field: modified_by
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:

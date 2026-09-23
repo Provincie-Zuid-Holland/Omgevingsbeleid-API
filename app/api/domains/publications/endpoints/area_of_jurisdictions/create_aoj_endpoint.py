@@ -40,8 +40,8 @@ def post_create_aoj_endpoint(
         Administrative_Borders_ID=object_in.Administrative_Borders_ID,
         Administrative_Borders_Domain=object_in.Administrative_Borders_Domain,
         Administrative_Borders_Date=object_in.Administrative_Borders_Date,
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=user.UUID,
+        created_date=datetime.now(UTC),
+        created_by_id=user.UUID,
     )
 
     session.add(area_of_jurisdiction)

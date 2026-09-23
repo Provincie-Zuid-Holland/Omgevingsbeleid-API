@@ -64,8 +64,8 @@ def post_module_edit_object_context_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
 
-    object_context.Modified_By_UUID = user.UUID
-    object_context.Modified_Date = timepoint
+    object_context.modified_by_id = user.UUID
+    object_context.modified_date = timepoint
 
     session.add(object_context)
 

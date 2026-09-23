@@ -28,8 +28,8 @@ class PublicationTemplate(BaseModel):
     Object_Templates: Any = None
     Object_Field_Map: Any = None
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -48,8 +48,8 @@ class PublicationEnvironment(BaseModel):
     Can_Validate: bool
     Can_Publicate: bool
     Is_Locked: bool
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -58,7 +58,7 @@ class PublicationAOJ(BaseModel):
     Administrative_Borders_ID: str
     Administrative_Borders_Domain: str
     Administrative_Borders_Date: date
-    Created_Date: datetime
+    created_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -75,8 +75,8 @@ class PublicationAct(BaseModel):
     Work_Date: str
     Work_Other: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -92,8 +92,8 @@ class PublicationActShort(BaseModel):
     Work_Date: str
     Work_Other: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -108,8 +108,8 @@ class Publication(BaseModel):
     Environment_UUID: uuid.UUID | None = None
     Act_UUID: uuid.UUID | None = None
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -124,8 +124,8 @@ class PublicationShort(BaseModel):
     Environment_UUID: uuid.UUID | None = None
     Act_UUID: uuid.UUID | None = None
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -266,8 +266,8 @@ class AttachmentShort(BaseModel):
     File_UUID: uuid.UUID
     Filename: str
     Title: str
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -286,8 +286,8 @@ class PublicationVersion(BaseModel):
     Status: PublicationVersionStatus
     Mutation_Strategy: MutationStrategy
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
 
     Attachments: list[AttachmentShort]
 
@@ -302,10 +302,10 @@ class PublicationPackageShort(BaseModel):
     Report_Status: str
     Delivery_ID: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
@@ -323,8 +323,8 @@ class PublicationVersionShort(BaseModel):
     Status: PublicationVersionStatus
     Procedural: ProceduralClass | None = None
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
 
     Act_Packages: list[PublicationPackageShort]
     model_config = ConfigDict(from_attributes=True)
@@ -338,7 +338,7 @@ class PublicationActPackageReportShort(BaseModel):
     Filename: str
     Main_Outcome: str
 
-    Created_Date: datetime
+    created_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -354,7 +354,7 @@ class PublicationActPackageReport(BaseModel):
     Sub_Progress: str
     Sub_Outcome: str
 
-    Created_Date: datetime
+    created_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -373,10 +373,10 @@ class PublicationPackage(BaseModel):
     Report_Status: str
     Delivery_ID: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
 
     Zip: PackageZipShort
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
@@ -432,8 +432,8 @@ class PublicationAnnouncement(BaseModel):
     Announcement_Date: date | None = None
     Is_Locked: bool
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -445,8 +445,8 @@ class PublicationAnnouncementShort(BaseModel):
     Announcement_Date: date | None = None
     Is_Locked: bool
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -458,7 +458,7 @@ class PublicationAnnouncementPackageReportShort(BaseModel):
     Filename: str
     Main_Outcome: str
 
-    Created_Date: datetime
+    created_date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -474,5 +474,5 @@ class PublicationAnnouncementPackageReport(BaseModel):
     Sub_Progress: str
     Sub_Outcome: str
 
-    Created_Date: datetime
+    created_date: datetime
     model_config = ConfigDict(from_attributes=True)

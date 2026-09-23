@@ -71,9 +71,9 @@ class ModuleTable(Base, TimeStamped, UserMetaData):
         back_populates="Module", order_by="asc(ModuleStatusHistoryTable.ID)"
     )
 
-    Created_By: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.Created_By_UUID == UsersTable.UUID")
-    Modified_By: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.Modified_By_UUID == UsersTable.UUID"
+    created_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.created_by_id == UsersTable.UUID")
+    modified_by: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.modified_by_id == UsersTable.UUID"
     )
     Module_Manager_1: Mapped[list["UsersTable"]] = relationship(
         primaryjoin="ModuleTable.Module_Manager_1_UUID == UsersTable.UUID"
@@ -92,8 +92,8 @@ class ModuleStatusHistoryTable(Base):
     ID: Mapped[int] = mapped_column(primary_key=True)
     Module_ID: Mapped[int] = mapped_column(ForeignKey("modules.Module_ID"))
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     Status: Mapped[str]
 
@@ -144,11 +144,11 @@ class ModuleObjectContextTable(Base, TimeStamped, UserMetaData, SerializerMixin)
     Explanation: Mapped[str]
     Conclusion: Mapped[str]
 
-    Created_By: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleObjectContextTable.Created_By_UUID == UsersTable.UUID"
+    created_by: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleObjectContextTable.created_by_id == UsersTable.UUID"
     )
-    Modified_By: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleObjectContextTable.Modified_By_UUID == UsersTable.UUID"
+    modified_by: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleObjectContextTable.modified_by_id == UsersTable.UUID"
     )
 
     def __repr__(self) -> str:

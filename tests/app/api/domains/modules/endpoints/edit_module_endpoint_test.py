@@ -26,7 +26,7 @@ def test_edits_module_fields(admin: TestClient, ctx: Context):
     assert module
     assert module.Title == "An edited title"
     assert module.Description == "An edited description"
-    assert module.Modified_By_UUID == admin_uuid
+    assert module.modified_by_id == admin_uuid
 
 
 def test_partial_update_leaves_other_fields_untouched(admin: TestClient, ctx: Context):

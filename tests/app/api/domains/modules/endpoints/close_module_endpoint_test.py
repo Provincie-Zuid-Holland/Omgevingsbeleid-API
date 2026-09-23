@@ -28,7 +28,7 @@ def _latest_status(session: Session, module_id: int) -> ModuleStatusHistoryTable
     return session.scalar(
         select(ModuleStatusHistoryTable)
         .where(ModuleStatusHistoryTable.Module_ID == module_id)
-        .order_by(desc(ModuleStatusHistoryTable.Created_Date), desc(ModuleStatusHistoryTable.ID))
+        .order_by(desc(ModuleStatusHistoryTable.created_date), desc(ModuleStatusHistoryTable.ID))
     )
 
 
@@ -44,7 +44,7 @@ def test_closes_an_active_module(admin: TestClient, ctx: Context):
     assert module
     assert module.Closed is True
     assert module.Successful is False
-    assert module.Modified_By_UUID == admin_uuid
+    assert module.modified_by_id == admin_uuid
 
 
 def test_creates_a_module_status_history_record(admin: TestClient, ctx: Context):
@@ -59,7 +59,7 @@ def test_creates_a_module_status_history_record(admin: TestClient, ctx: Context)
     latest = _latest_status(ctx.session, 1)
     assert latest
     assert latest.Status == ModuleStatusCodeInternal.Gesloten
-    assert latest.Created_By_UUID == admin_uuid
+    assert latest.created_by_id == admin_uuid
 
 
 def test_already_closed_module_returns_404(admin: TestClient, ctx: Context):

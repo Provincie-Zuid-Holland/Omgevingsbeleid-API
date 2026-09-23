@@ -103,7 +103,7 @@ class ModuleRepository(BaseRepository):
             func.row_number()
             .over(
                 partition_by=ModuleStatusHistoryTable.Module_ID,
-                order_by=desc(ModuleStatusHistoryTable.Created_Date),
+                order_by=desc(ModuleStatusHistoryTable.created_date),
             )
             .label("_RowNumber"),
         )

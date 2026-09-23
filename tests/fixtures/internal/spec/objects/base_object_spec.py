@@ -23,15 +23,15 @@ class BaseObjectSpec(Spec):
     # This will handle the Object_Type and that it is not overwritten by the users
     __object_type__: ClassVar[str] = ""
     __inheritable__: ClassVar[set[str]] = {
-        "Created_Date",
-        "Created_By_UUID",
+        "created_date",
+        "created_by_id",
         "Start_Validity",
         "End_Validity",
     }
     __link_fields__: ClassVar[set[str]] = {
         "Adjust_On",
-        "Created_By_UUID",
-        "Modified_By_UUID",
+        "created_by_id",
+        "modified_by_id",
         "Owner_1_UUID",
         "Owner_2_UUID",
         "Portfolio_Holder_1_UUID",
@@ -44,10 +44,10 @@ class BaseObjectSpec(Spec):
         "Code",
         "UUID",
         "Adjust_On",
-        "Created_Date",
-        "Created_By_UUID",
-        "Modified_Date",
-        "Modified_By_UUID",
+        "created_date",
+        "created_by_id",
+        "modified_date",
+        "modified_by_id",
         "Start_Validity",
         "End_Validity",
     }
@@ -67,10 +67,10 @@ class BaseObjectSpec(Spec):
     Code: str = ""
     UUID: uuid.UUID | None = None
     Adjust_On: Link | None = None
-    Created_Date: datetime | None = None
-    Created_By_UUID: Link | None = None
-    Modified_Date: datetime | None = None
-    Modified_By_UUID: Link | None = None
+    created_date: datetime | None = None
+    created_by_id: Link | None = None
+    modified_date: datetime | None = None
+    modified_by_id: Link | None = None
     Start_Validity: datetime | None = None
     End_Validity: datetime | None = None
     Owner_1_UUID: Link | None = None

@@ -60,10 +60,10 @@ def post_create_environment_endpoint(
         Can_Validate=object_in.Can_Validate,
         Can_Publicate=object_in.Can_Publicate,
         Is_Locked=False,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.UUID,
+        modified_by_id=user.UUID,
     )
     session.add(environment)
     session.flush()
@@ -76,8 +76,8 @@ def post_create_environment_endpoint(
             State=(InitialState().state_dict()),
             Is_Activated=True,
             Activated_Datetime=timepoint,
-            Created_Date=timepoint,
-            Created_By_UUID=user.UUID,
+            created_date=timepoint,
+            created_by_id=user.UUID,
         )
         session.add(initial_state)
         session.flush()

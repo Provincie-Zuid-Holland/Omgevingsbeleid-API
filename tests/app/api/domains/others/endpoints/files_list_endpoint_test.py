@@ -26,7 +26,7 @@ def test_results_match_the_storage_file_model_shape(admin: TestClient):
 
 
 def test_default_sort_is_created_date_descending(admin: TestClient, ctx: Context):
-    # The endpoint forces Created_Date DESC; fixtures are dated 2025-01-01/02/03.
+    # The endpoint forces created_date DESC; fixtures are dated 2025-01-01/02/03.
     results = admin.get("/storage-files").json()["results"]
 
     assert [r["UUID"] for r in results] == get_uuids_from_spec(ctx, StorageFileSpec, ["file_3", "file_2", "file_1"])

@@ -74,7 +74,7 @@ def test_adds_existing_object_creates_context_and_draft(
     assert context.Original_Adjust_On == object_uuid
     assert context.Explanation == "Why"
     assert context.Conclusion == "Outcome"
-    assert context.Created_By_UUID == admin_uuid
+    assert context.created_by_id == admin_uuid
 
     drafts = _drafts(ctx.session, 2, object_id)
     assert len(drafts) == 1
@@ -82,7 +82,7 @@ def test_adds_existing_object_creates_context_and_draft(
     assert draft.Module_ID == 2
     assert draft.Adjust_On == object_uuid
     assert draft.UUID != object_uuid
-    assert draft.Modified_By_UUID == admin_uuid
+    assert draft.modified_by_id == admin_uuid
 
 
 def test_readding_hidden_object_unhides_and_updates_context(admin: TestClient, ctx: Context):

@@ -144,7 +144,7 @@ class EndpointHandler:
         combined = union_all(*branches).subquery() if len(branches) > 1 else branches[0].subquery()
 
         return select(combined).order_by(
-            desc(combined.c.Modified_Date),
+            desc(combined.c.modified_date),
             desc(combined.c.Module_ID),
             asc(combined.c.UUID),
         )
@@ -157,7 +157,7 @@ class EndpointHandler:
                 func.row_number()
                 .over(
                     partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
+                    order_by=desc(ObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
             )
@@ -190,7 +190,7 @@ class EndpointHandler:
                 func.row_number()
                 .over(
                     partition_by=(ModuleObjectsTable.Module_ID, ModuleObjectsTable.Code),
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
             )
@@ -205,7 +205,7 @@ class EndpointHandler:
             public_status_subq = (
                 select(
                     ModuleStatusHistoryTable.Module_ID,
-                    ModuleStatusHistoryTable.Created_Date,
+                    ModuleStatusHistoryTable.created_date,
                     func.row_number()
                     .over(
                         partition_by=ModuleStatusHistoryTable.Module_ID,
@@ -219,7 +219,7 @@ class EndpointHandler:
             subq = (
                 subq.join(public_status_subq, ModuleObjectsTable.Module_ID == public_status_subq.c.Module_ID)
                 .filter(public_status_subq.c._StatusRowNumber == 1)
-                .filter(ModuleObjectsTable.Modified_Date <= public_status_subq.c.Created_Date)
+                .filter(ModuleObjectsTable.modified_date <= public_status_subq.c.created_date)
             )
 
         if self._request_data.module_id is not None:

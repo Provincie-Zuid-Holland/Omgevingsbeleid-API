@@ -76,7 +76,7 @@ class PublicationGebiedenProvider:
                 code=g["Code"],
                 title=g["Title"],
                 gebied_codes=set(g["Gebieden"] or []),
-                modified_date=g["Modified_Date"],
+                modified_date=g["modified_date"],
             )
             for g in groep_objects
             if g["Code"] in gebiedengroep_codes

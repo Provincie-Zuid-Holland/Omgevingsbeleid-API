@@ -50,8 +50,8 @@ def post_edit_environment_endpoint(
     for key, value in changes.items():
         setattr(environment, key, value)
 
-    environment.Modified_By_UUID = user.UUID
-    environment.Modified_Date = datetime.now(UTC)
+    environment.modified_by_id = user.UUID
+    environment.modified_date = datetime.now(UTC)
 
     session.add(environment)
     session.flush()

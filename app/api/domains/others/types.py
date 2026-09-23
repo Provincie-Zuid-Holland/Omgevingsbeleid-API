@@ -15,8 +15,8 @@ class StorageFileBasic(BaseModel):
     Filename: str
     Content_Type: str
     Size: int
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
+    created_date: datetime
+    created_by_id: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -66,8 +66,8 @@ class ObjectRelatedFileResponse(BaseModel):
     Code: str
     File_UUID: uuid.UUID
     Title: str
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
+    created_date: datetime
+    created_by_id: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)
 

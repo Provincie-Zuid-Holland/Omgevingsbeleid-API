@@ -58,8 +58,8 @@ def post_edit_module_endpoint(
     for key, value in changes.items():
         setattr(module, key, value)
 
-    module.Modified_By_UUID = user.UUID
-    module.Modified_Date = datetime.now(UTC)
+    module.modified_by_id = user.UUID
+    module.modified_date = datetime.now(UTC)
 
     session.add(module)
     session.flush()

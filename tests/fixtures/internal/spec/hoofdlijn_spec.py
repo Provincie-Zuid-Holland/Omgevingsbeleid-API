@@ -17,13 +17,13 @@ from tests.fixtures.internal.types import (
 
 
 class HoofdlijnSpec(Spec):
-    __link_fields__: ClassVar[set[str]] = {"Created_By_UUID", "Modified_By_UUID"}
+    __link_fields__: ClassVar[set[str]] = {"created_by_id", "modified_by_id"}
 
     id: uuid.UUID | None = None
-    Created_Date: datetime | None = None
-    Created_By_UUID: Link | None = None
-    Modified_Date: datetime | None = None
-    Modified_By_UUID: Link | None = None
+    created_date: datetime | None = None
+    created_by_id: Link | None = None
+    modified_date: datetime | None = None
+    modified_by_id: Link | None = None
 
     name: str
     type: str
@@ -49,10 +49,10 @@ class HoofdlijnPersistHandler(BasePersistHandler[HoofdlijnSpec]):
         return [
             HoofdlijnTable(
                 id=spec.id,
-                Created_Date=spec.Created_Date,
-                Created_By_UUID=spec.Created_By_UUID,
-                Modified_Date=spec.Modified_Date,
-                Modified_By_UUID=spec.Modified_By_UUID,
+                created_date=spec.created_date,
+                created_by_id=spec.created_by_id,
+                modified_date=spec.modified_date,
+                modified_by_id=spec.modified_by_id,
                 name=spec.name,
                 type=spec.type,
             )

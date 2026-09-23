@@ -22,8 +22,8 @@ class UnifiedPackagesProvider:
             select(
                 literal("act").label("Publication_Type"),
                 PublicationActPackageTable.UUID,
-                PublicationActPackageTable.Created_Date,
-                PublicationActPackageTable.Modified_Date,
+                PublicationActPackageTable.created_date,
+                PublicationActPackageTable.modified_date,
                 PublicationActPackageTable.Package_Type,
                 PublicationActPackageTable.Report_Status,
                 PublicationActPackageTable.Delivery_ID,
@@ -44,8 +44,8 @@ class UnifiedPackagesProvider:
             select(
                 literal("announcement").label("Publication_Type"),
                 PublicationAnnouncementPackageTable.UUID,
-                PublicationAnnouncementPackageTable.Created_Date,
-                PublicationAnnouncementPackageTable.Modified_Date,
+                PublicationAnnouncementPackageTable.created_date,
+                PublicationAnnouncementPackageTable.modified_date,
                 PublicationAnnouncementPackageTable.Package_Type,
                 PublicationAnnouncementPackageTable.Report_Status,
                 PublicationAnnouncementPackageTable.Delivery_ID,

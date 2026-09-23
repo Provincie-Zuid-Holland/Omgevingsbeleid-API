@@ -52,8 +52,8 @@ def atemporal_delete_object_endpoint(
     log_before: str = json.dumps(maybe_object.to_dict())
 
     maybe_object.End_Validity = timepoint
-    maybe_object.Modified_By_UUID = user.UUID
-    maybe_object.Modified_Date = timepoint
+    maybe_object.modified_by_id = user.UUID
+    maybe_object.modified_date = timepoint
     session.add(maybe_object)
 
     change_log: ChangeLogTable = ChangeLogTable(

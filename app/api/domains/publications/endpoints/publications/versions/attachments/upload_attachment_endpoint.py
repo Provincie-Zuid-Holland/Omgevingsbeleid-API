@@ -76,10 +76,10 @@ def post_upload_attachment_endpoint(
         File_UUID=file_table.UUID,
         Filename=file_data.normalize_filename(),
         Title=title,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_Date=timepoint,
-        Modified_By_UUID=user.UUID,
+        created_date=timepoint,
+        created_by_id=user.UUID,
+        modified_date=timepoint,
+        modified_by_id=user.UUID,
     )
     session.add(attachment)
     session.flush()
@@ -122,7 +122,7 @@ def _store_file(
         Content_Type=file_data.get_content_type() or "",
         Size=file_data.get_size(),
         Binary=file_data.get_binary(),
-        Created_Date=timepoint,
-        Created_By_UUID=user_uuid,
+        created_date=timepoint,
+        created_by_id=user_uuid,
     )
     return file_table

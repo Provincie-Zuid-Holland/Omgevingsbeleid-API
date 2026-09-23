@@ -87,8 +87,8 @@ def _create_objects(
         new_object.Adjust_On = module_object_dict["UUID"]
         new_object.UUID = uuid.uuid4()
 
-        new_object.Modified_By_UUID = user.UUID
-        new_object.Modified_Date = timepoint
+        new_object.modified_by_id = user.UUID
+        new_object.modified_date = timepoint
 
         validities: ObjectValidities = _get_validities(
             object_in,
@@ -131,8 +131,8 @@ def post_complete_module_endpoint(
         status = ModuleStatusHistoryTable(
             Module_ID=module.Module_ID,
             Status=ModuleStatusCodeInternal.Module_afgerond,
-            Created_Date=timepoint,
-            Created_By_UUID=user.UUID,
+            created_date=timepoint,
+            created_by_id=user.UUID,
         )
         session.add(status)
 
@@ -140,8 +140,8 @@ def post_complete_module_endpoint(
 
         module.Closed = True
         module.Successful = True
-        module.Modified_By_UUID = user.UUID
-        module.Modified_Date = timepoint
+        module.modified_by_id = user.UUID
+        module.modified_date = timepoint
         session.add(module)
 
         session.flush()

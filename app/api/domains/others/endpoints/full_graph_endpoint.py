@@ -77,7 +77,7 @@ class EndpointHandler:
                 func.row_number()
                 .over(
                     partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
+                    order_by=desc(ObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
             )
@@ -96,7 +96,7 @@ class EndpointHandler:
                     subq.c.End_Validity.is_(None),
                 )
             )
-            .order_by(desc(subq.c.Modified_Date))
+            .order_by(desc(subq.c.modified_date))
             .options(
                 load_only(
                     aliased_subq.Object_Type,

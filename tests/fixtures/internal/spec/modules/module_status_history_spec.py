@@ -9,14 +9,14 @@ from tests.fixtures.internal.types import BasePersistHandler, Link, PersistConte
 
 
 class ModuleStatusHistorySpec(Spec):
-    __link_fields__: ClassVar[set[str]] = {"Created_By_UUID"}
+    __link_fields__: ClassVar[set[str]] = {"created_by_id"}
 
     ID: int | None = None
     Module_ID: int | None = None
     Status: str | None = None
 
-    Created_Date: datetime | None = None
-    Created_By_UUID: Link | None = None
+    created_date: datetime | None = None
+    created_by_id: Link | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
         assert self.ID, "ID is not set which is expected to happen at this stage."
@@ -41,7 +41,7 @@ class ModuleStatusHistoryPersistHandler(BasePersistHandler[ModuleStatusHistorySp
                 ID=spec.ID,
                 Module_ID=spec.Module_ID,
                 Status=spec.Status,
-                Created_Date=spec.Created_Date,
-                Created_By_UUID=spec.Created_By_UUID,
+                created_date=spec.created_date,
+                created_by_id=spec.created_by_id,
             )
         ]

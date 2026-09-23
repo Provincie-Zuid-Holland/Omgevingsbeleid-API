@@ -1,11 +1,11 @@
 sort_allowed_object_columns: &sort_allowed_object_columns
   - Object_ID
   - Title
-  - Modified_Date
+  - modified_date
 
 sort_default_modified_date: &sort_default_modified_date
   default:
-    column: Modified_Date
+    column: modified_date
     order: desc
   allowed_columns: *sort_allowed_object_columns
 
@@ -218,8 +218,8 @@ api:
               allowed_columns:
                 - Title
                 - ID
-                - Created_Date
-                - Modified_Date
+                - created_date
+                - modified_date
     - prefix: /search
       endpoints:
         - resolver: search
@@ -275,10 +275,10 @@ api:
           resolver_data:
             sort:
               default:
-                column: Created_Date
+                column: created_date
                 order: desc
               allowed_columns:
-                - Created_Date
+                - created_date
                 - name
                 - type
     - prefix: /hoofdlijnen/search
@@ -287,10 +287,10 @@ api:
           resolver_data:
             sort:
               default:
-                column: Created_Date
+                column: created_date
                 order: desc
               allowed_columns:
-                - Created_Date
+                - created_date
                 - name
                 - type
     - prefix: /hoofdlijnen/{hoofdlijn_uuid}
@@ -374,12 +374,12 @@ api:
           resolver_data:
             sort:
               default:
-                column: Modified_Date
+                column: modified_date
                 order: desc
               allowed_columns:
                 - Object_ID
                 - Title
-                - Modified_Date
+                - modified_date
                 - Object_Type
                 - Action
             model_map: *model_map
@@ -489,8 +489,8 @@ api:
             sort:
               <<: *sort_default_modified_date
               allowed_columns:
-                - Modified_Date
-                - Created_Date
+                - modified_date
+                - created_date
     - prefix: /publication-act-packages/{act_package_uuid}
       endpoints:
         - resolver: detail_publication_act_package
@@ -539,8 +539,8 @@ api:
             sort:
               <<: *sort_default_modified_date
               allowed_columns:
-                - Modified_Date
-                - Created_Date
+                - modified_date
+                - created_date
     - prefix: /publication-announcement-packages/{announcement_package_uuid}
       endpoints:
         - resolver: detail_publication_announcement_package
@@ -566,11 +566,11 @@ api:
           resolver_data:
             sort:
               default:
-                column: Created_Date
+                column: created_date
                 order: DESC
               allowed_columns:
-                - Created_Date
-                - Modified_Date
+                - created_date
+                - modified_date
                 - Package_Type
                 - Report_Status
                 - Module_ID

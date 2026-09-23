@@ -57,14 +57,14 @@ class AddPublicRevisionsService:
                 ModuleObjectsTable.Module_ID,
                 ModuleObjectsTable.UUID,
                 ModuleObjectsTable.Code,
-                ModuleObjectsTable.Modified_Date,
+                ModuleObjectsTable.modified_date,
                 latest_status_subq.c.Status,
                 latest_status_subq.c.Title,
                 ModuleObjectContextTable.Action,
                 func.row_number()
                 .over(
                     partition_by=(ModuleObjectsTable.Module_ID, ModuleObjectsTable.Code),
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
                 .label("_ObjectRowNumber"),
             )
@@ -72,7 +72,7 @@ class AddPublicRevisionsService:
             .join(ModuleObjectsTable.ModuleObjectContext)
             .filter(
                 latest_status_subq.c._StatusRowNumber == 1,
-                ModuleObjectsTable.Modified_Date <= latest_status_subq.c.Created_Date,
+                ModuleObjectsTable.modified_date <= latest_status_subq.c.created_date,
                 ModuleObjectContextTable.Code.in_(self._config.object_codes),
                 ModuleObjectContextTable.Hidden == False,
             )
@@ -93,7 +93,7 @@ class AddPublicRevisionsService:
             .select_from(module_objects_filtered_subq)
             .join(ModuleTable, module_objects_filtered_subq.c.Module_ID == ModuleTable.Module_ID)
             .filter(module_objects_filtered_subq.c._ObjectRowNumber == 1)
-            .order_by(desc(module_objects_filtered_subq.c.Modified_Date))
+            .order_by(desc(module_objects_filtered_subq.c.modified_date))
         )
 
         public_revisions_map: dict[str, list[PublicModuleObjectRevision]] = defaultdict(list)

@@ -10,7 +10,7 @@ from app.core.tables.others import ObjectRelatedFileTable
 
 
 class ObjectRelatedFileSortColumn(str, Enum):
-    Created_Date = "Created_Date"
+    created_date = "created_date"
     Title = "Title"
 
 
@@ -23,7 +23,7 @@ class ObjectRelatedFileRepository(BaseRepository):
         stmt = (
             select(ObjectRelatedFileTable)
             .filter(ObjectRelatedFileTable.Code == object_code)
-            .order_by(ObjectRelatedFileTable.Created_Date.desc())
+            .order_by(ObjectRelatedFileTable.created_date.desc())
         )
         return self.fetch_all(session, stmt)
 

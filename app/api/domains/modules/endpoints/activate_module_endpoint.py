@@ -35,15 +35,15 @@ def post_activate_module_endpoint(
     timepoint: datetime = datetime.now(UTC)
 
     module.Activated = True
-    module.Modified_By_UUID = user.UUID
-    module.Modified_Date = timepoint
+    module.modified_by_id = user.UUID
+    module.modified_date = timepoint
     session.add(module)
 
     module_status = ModuleStatusHistoryTable(
         Module_ID=module.Module_ID,
         Status=ModuleStatusCode.Ontwerp_GS_Concept,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
+        created_date=timepoint,
+        created_by_id=user.UUID,
     )
     session.add(module_status)
 

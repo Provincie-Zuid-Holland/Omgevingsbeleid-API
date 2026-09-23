@@ -42,8 +42,8 @@ def test_patch_adds_a_new_draft_to_the_lineage(admin: TestClient, ctx: Context):
     assert new_draft.Code == previous_draft.Code
     assert new_draft.Adjust_On == previous_draft.UUID
     assert new_draft.Title == "Patched via module 5"
-    assert new_draft.Modified_By_UUID == admin_uuid
-    assert_same_datetime(new_draft.Modified_Date)
+    assert new_draft.modified_by_id == admin_uuid
+    assert_same_datetime(new_draft.modified_date)
 
     all_drafts: list[ModuleObjectsTable] = list(
         ctx.session.scalars(
@@ -71,8 +71,8 @@ def test_fields_left_out_are_copied_from_the_previous_draft(admin: TestClient, c
     assert new_draft.Explanation == previous_draft.Explanation
     assert new_draft.Hierarchy_Code == previous_draft.Hierarchy_Code
     assert_same_datetime(new_draft.Start_Validity, previous_draft.Start_Validity)
-    assert_same_datetime(new_draft.Created_Date, previous_draft.Created_Date)
-    assert new_draft.Created_By_UUID == previous_draft.Created_By_UUID
+    assert_same_datetime(new_draft.created_date, previous_draft.created_date)
+    assert new_draft.created_by_id == previous_draft.created_by_id
 
 
 def test_patch_accepts_a_list_field(admin: TestClient, ctx: Context):

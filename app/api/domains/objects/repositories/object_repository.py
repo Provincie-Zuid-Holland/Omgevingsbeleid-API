@@ -19,7 +19,7 @@ class ObjectRepository(BaseRepository):
             func.row_number()
             .over(
                 partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                order_by=desc(ObjectsTable.modified_date),
             )
             .label("_RowNumber")
         )
@@ -76,9 +76,9 @@ class ObjectRepository(BaseRepository):
             .options(selectinload(ObjectsTable.ObjectStatics))
             .join(ObjectsTable.ObjectStatics)
             .filter(ObjectsTable.Code == reference_obj.c.Code)
-            .filter(ObjectsTable.Modified_Date > reference_obj.c.Modified_Date)
+            .filter(ObjectsTable.modified_date > reference_obj.c.modified_date)
             .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
-            .order_by(ObjectsTable.Modified_Date.asc())
+            .order_by(ObjectsTable.modified_date.asc())
         )
         stmt = stmt.filter(
             or_(
@@ -94,7 +94,7 @@ class ObjectRepository(BaseRepository):
             func.row_number()
             .over(
                 partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                order_by=desc(ObjectsTable.modified_date),
             )
             .label("_RowNumber")
         )
@@ -119,7 +119,7 @@ class ObjectRepository(BaseRepository):
                     subq.c.End_Validity.is_(None),
                 )
             )
-            .order_by(desc(subq.c.Modified_Date))
+            .order_by(desc(subq.c.modified_date))
         )
         result = self.fetch_first(session, stmt)
         return result
@@ -129,7 +129,7 @@ class ObjectRepository(BaseRepository):
             select(ObjectsTable)
             .filter(ObjectsTable.Object_Type == object_type)
             .filter(ObjectsTable.Object_ID == object_id)
-            .order_by(desc(ObjectsTable.Modified_Date))
+            .order_by(desc(ObjectsTable.modified_date))
         )
         return self.fetch_first(session, stmt)
 
@@ -144,7 +144,7 @@ class ObjectRepository(BaseRepository):
             func.row_number()
             .over(
                 partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                order_by=desc(ObjectsTable.modified_date),
             )
             .label("_RowNumber")
         )
@@ -192,7 +192,7 @@ class ObjectRepository(BaseRepository):
                 func.row_number()
                 .over(
                     partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
+                    order_by=desc(ObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
             )

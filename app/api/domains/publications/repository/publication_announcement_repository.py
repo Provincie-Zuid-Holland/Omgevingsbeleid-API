@@ -31,6 +31,6 @@ class PublicationAnnouncementRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationAnnouncementTable.Modified_Date, SortOrder.DESC),
+            sort=(PublicationAnnouncementTable.modified_date, SortOrder.DESC),
         )
         return paged_result

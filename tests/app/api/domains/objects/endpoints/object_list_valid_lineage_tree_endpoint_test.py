@@ -85,7 +85,7 @@ def test_lineage_without_versions_returns_empty(client: TestClient, url: str):
 
 
 def test_default_sort_is_modified_date_descending(client: TestClient):
-    mods = [r["Modified_Date"] for r in client.get("/beleidsdoelen/valid/1").json()["results"]]
+    mods = [r["modified_date"] for r in client.get("/beleidsdoelen/valid/1").json()["results"]]
 
     assert mods == sorted(mods, reverse=True)
 
@@ -98,8 +98,8 @@ def test_default_sort_is_modified_date_descending(client: TestClient):
     ],
 )
 def test_sort_by_modified_date(client: TestClient, sort_order: str, reverse: bool):
-    url = f"/beleidsdoelen/valid/1?sort_column=Modified_Date&sort_order={sort_order}"
-    mods = [r["Modified_Date"] for r in client.get(url).json()["results"]]
+    url = f"/beleidsdoelen/valid/1?sort_column=modified_date&sort_order={sort_order}"
+    mods = [r["modified_date"] for r in client.get(url).json()["results"]]
 
     assert mods == sorted(mods, reverse=reverse)
 

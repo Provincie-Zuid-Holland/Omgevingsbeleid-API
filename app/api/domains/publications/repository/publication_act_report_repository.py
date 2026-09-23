@@ -38,6 +38,6 @@ class PublicationActReportRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationActPackageReportTable.Created_Date, SortOrder.DESC),
+            sort=(PublicationActPackageReportTable.created_date, SortOrder.DESC),
         )
         return paged_result

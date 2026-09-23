@@ -58,10 +58,10 @@ def post_create_announcement_endpoint(
         Content=content.model_dump(),
         Announcement_Date=None,
         Is_Locked=False,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.UUID,
+        modified_by_id=user.UUID,
     )
 
     session.add(announcement)

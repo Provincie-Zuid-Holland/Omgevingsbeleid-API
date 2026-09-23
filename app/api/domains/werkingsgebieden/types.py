@@ -9,8 +9,8 @@ from app.api.utils.pagination import OrderConfig, SortOrder
 
 class AreaBasic(BaseModel):
     UUID: uuid.UUID
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
+    created_date: datetime
+    created_by_id: uuid.UUID
     Source_UUID: uuid.UUID
     Source_Title: str
     Source_Created_Date: datetime
@@ -34,8 +34,8 @@ class WerkingsgebiedStatics(BaseModel):
 class Werkingsgebied(BaseModel):
     ID: int | None = None
     UUID: uuid.UUID
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     Title: str
     Start_Validity: datetime | None = Field(None)
     End_Validity: datetime | None = Field(None)
@@ -45,11 +45,11 @@ class Werkingsgebied(BaseModel):
 
 class InputGeoWerkingsgebiedenSortColumn(str, Enum):
     Title = "Title"
-    Created_Date = "Created_Date"
+    created_date = "created_date"
 
 
 input_geo_werkingsgebieden_order_config = OrderConfig(
-    default_column=InputGeoWerkingsgebiedenSortColumn.Created_Date.value,
+    default_column=InputGeoWerkingsgebiedenSortColumn.created_date.value,
     default_order=SortOrder.DESC,
     allowed_columns=[col.value for col in InputGeoWerkingsgebiedenSortColumn],
 )
@@ -57,7 +57,7 @@ input_geo_werkingsgebieden_order_config = OrderConfig(
 
 class InputGeoOnderverdeling(BaseModel):
     UUID: uuid.UUID
-    Created_Date: datetime
+    created_date: datetime
     Title: str
     Description: str
     Geometry_Hash: str
@@ -66,7 +66,7 @@ class InputGeoOnderverdeling(BaseModel):
 
 class InputGeoWerkingsgebied(BaseModel):
     UUID: uuid.UUID
-    Created_Date: datetime
+    created_date: datetime
     Title: str
     Description: str
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -74,7 +74,7 @@ class InputGeoWerkingsgebied(BaseModel):
 
 class InputGeoWerkingsgebiedDetailed(BaseModel):
     UUID: uuid.UUID
-    Created_Date: datetime
+    created_date: datetime
     Title: str
     Description: str
     Onderverdelingen: list[InputGeoOnderverdeling]

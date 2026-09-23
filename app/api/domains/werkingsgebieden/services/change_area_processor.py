@@ -103,8 +103,8 @@ class AreaProcessorService:
             session=self._session,
             idx=area_id,
             onderverdeling=onderverdeling,
-            created_date=new_record.Modified_Date,
-            created_by_id=new_record.Modified_By_UUID,
+            created_date=new_record.modified_date,
+            created_by_id=new_record.modified_by_id,
         )
 
         return area_id

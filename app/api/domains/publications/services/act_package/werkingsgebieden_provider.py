@@ -96,7 +96,7 @@ class PublicationWerkingsgebiedenProvider:
             "Title": area.source_title,
             "Geboorteregeling": act_frbr.get_work(),
             "Achtergrond_Verwijzing": "TOP10NL",
-            "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
+            "Achtergrond_Actualiteit": str(werkingsgebied["modified_date"])[:10],
             "Locaties": [
                 {
                     "UUID": str(werkingsgebied["UUID"]),

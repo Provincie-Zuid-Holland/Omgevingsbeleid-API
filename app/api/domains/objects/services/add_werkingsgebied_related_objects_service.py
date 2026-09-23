@@ -66,7 +66,7 @@ class AddWerkingsgebiedRelatedObjectsService:
             func.row_number()
             .over(
                 partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                order_by=desc(ObjectsTable.modified_date),
             )
             .label("_RowNumber")
         )
@@ -80,7 +80,7 @@ class AddWerkingsgebiedRelatedObjectsService:
                 ObjectsTable.Title.label("Title"),
                 ObjectsTable.Code,
                 ObjectsTable.Werkingsgebied_Code.label("Werkingsgebied_Code"),
-                ObjectsTable.Modified_Date,
+                ObjectsTable.modified_date,
                 ObjectsTable.Start_Validity,
                 ObjectsTable.End_Validity,
             )
@@ -117,14 +117,14 @@ class AddWerkingsgebiedRelatedObjectsService:
                 ModuleObjectsTable.Title.label("Title"),
                 ModuleObjectsTable.Code,
                 ModuleObjectsTable.Werkingsgebied_Code.label("Werkingsgebied_Code"),
-                ModuleObjectsTable.Modified_Date,
+                ModuleObjectsTable.modified_date,
                 ModuleTable.Module_ID.label("Module_ID"),
                 ModuleTable.Title.label("Module_Title"),
                 ModuleObjectContextTable.Action.label("context_action"),
                 func.row_number()
                 .over(
                     partition_by=(ModuleObjectsTable.Module_ID, ModuleObjectsTable.Code),
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
             )
@@ -155,7 +155,7 @@ class AddWerkingsgebiedRelatedObjectsService:
             )
             .where(subq.c._RowNumber == 1)
             .where(subq.c.Werkingsgebied_Code.in_(self._config.werkingsgebied_codes))
-            .order_by(desc(subq.c.Modified_Date))
+            .order_by(desc(subq.c.modified_date))
         )
 
         db_result = self._session.execute(stmt).mappings().all()

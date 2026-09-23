@@ -45,10 +45,10 @@ api:
           resolver_data:
             sort:
               default:
-                column: Created_Date
+                column: created_date
                 order: desc
               allowed_columns:
-                - Created_Date
+                - created_date
                 - name
                 - type
     - prefix: /hoofdlijnen/search
@@ -57,10 +57,10 @@ api:
           resolver_data:
             sort:
               default:
-                column: Created_Date
+                column: created_date
                 order: desc
               allowed_columns:
-                - Created_Date
+                - created_date
                 - name
                 - type
     - prefix: /hoofdlijnen/{hoofdlijn_uuid}
@@ -114,7 +114,7 @@ api:
               allowed_columns:
                 - Object_ID
                 - Title
-                - Modified_Date
+                - modified_date
             model_map:
               beleidsdoel: beleidsdoel_basic
               beleidskeuze: beleidskeuze_basic

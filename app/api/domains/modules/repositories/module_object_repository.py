@@ -68,7 +68,7 @@ class ModuleObjectRepository(BaseRepository):
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Code == object_code)
-            .order_by(desc(ModuleObjectsTable.Modified_Date))
+            .order_by(desc(ModuleObjectsTable.modified_date))
         )
         return self.fetch_first(session, stmt)
 
@@ -84,7 +84,7 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ModuleObjectsTable.Module_ID == module_id)
             .filter(ModuleObjectsTable.Object_Type == object_type)
             .filter(ModuleObjectsTable.Object_ID == object_id)
-            .order_by(desc(ModuleObjectsTable.Modified_Date))
+            .order_by(desc(ModuleObjectsTable.modified_date))
         )
         return self.fetch_first(session, stmt)
 
@@ -95,14 +95,14 @@ class ModuleObjectRepository(BaseRepository):
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Code,
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleObjectsTable.ModuleObjectContext)
             .filter(ModuleObjectsTable.Module_ID == module_id)
-            .filter(ModuleObjectsTable.Modified_Date < before)
+            .filter(ModuleObjectsTable.modified_date < before)
             .filter(ModuleObjectContextTable.Hidden == False)
         )
 
@@ -141,7 +141,7 @@ class ModuleObjectRepository(BaseRepository):
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Module_ID,
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
             )
@@ -182,7 +182,7 @@ class ModuleObjectRepository(BaseRepository):
         stmt = (
             select(aliased_objects, aliased_module, subq.c.context_action)
             .filter(subq.c._RowNumber == 1)
-            .order_by(desc(subq.c.Modified_Date))
+            .order_by(desc(subq.c.modified_date))
         )
         return stmt
 
@@ -241,7 +241,7 @@ class ModuleObjectRepository(BaseRepository):
                 func.row_number()
                 .over(
                     partition_by=ModuleObjectsTable.Code,
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
                 .label("_RowNumber"),
                 latest_status_subquery,  # Include each mo latest status
@@ -367,8 +367,8 @@ class ModuleObjectRepository(BaseRepository):
 
         new_record.UUID = uuid4()
         new_record.Adjust_On = previous_uuid
-        new_record.Modified_Date = timepoint
-        new_record.Modified_By_UUID = by_uuid
+        new_record.modified_date = timepoint
+        new_record.modified_by_id = by_uuid
 
         return new_record
 
@@ -382,7 +382,7 @@ class ModuleObjectRepository(BaseRepository):
             func.row_number()
             .over(
                 partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                order_by=desc(ObjectsTable.modified_date),
             )
             .label("_RowNumber")
         )

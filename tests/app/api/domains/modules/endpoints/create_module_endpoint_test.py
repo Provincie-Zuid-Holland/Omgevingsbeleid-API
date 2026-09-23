@@ -55,8 +55,8 @@ def test_creates_a_module(admin: TestClient, ctx: Context):
     assert module.Closed is False
     assert module.Successful is False
     assert module.Temporary_Locked is False
-    assert module.Created_By_UUID == admin_uuid
-    assert module.Modified_By_UUID == admin_uuid
+    assert module.created_by_id == admin_uuid
+    assert module.modified_by_id == admin_uuid
 
 
 def test_creates_an_initial_niet_actief_status(admin: TestClient, ctx: Context):
@@ -71,7 +71,7 @@ def test_creates_an_initial_niet_actief_status(admin: TestClient, ctx: Context):
     statuses = _statuses(ctx.session, module_id)
     assert len(statuses) == 1
     assert statuses[0].Status == ModuleStatusCodeInternal.Niet_Actief
-    assert statuses[0].Created_By_UUID == admin_uuid
+    assert statuses[0].created_by_id == admin_uuid
 
 
 def test_creates_a_module_without_second_manager(admin: TestClient, ctx: Context):

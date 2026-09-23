@@ -29,12 +29,12 @@ BASE_COLUMNS = [
     ),
     Column(
         id="created_date",
-        name="Created_Date",
+        name="created_date",
         type="datetime",
     ),
     Column(
         id="modified_date",
-        name="Modified_Date",
+        name="modified_date",
         type="datetime",
     ),
     Column(
@@ -50,11 +50,11 @@ BASE_COLUMNS = [
         ],
     ),
     Column(
-        id="created_by_uuid",
-        name="Created_By_UUID",
+        id="created_by_id",
+        name="created_by_id",
         type="user_uuid",
         type_data={
-            "relation_field": "Created_By",
+            "relation_field": "created_by",
         },
         serializers=[
             "str",
@@ -64,11 +64,11 @@ BASE_COLUMNS = [
         ],
     ),
     Column(
-        id="modified_by_uuid",
-        name="Modified_By_UUID",
+        id="modified_by_id",
+        name="modified_by_id",
         type="user_uuid",
         type_data={
-            "relation_field": "Modified_By",
+            "relation_field": "modified_by",
         },
         serializers=[
             "str",

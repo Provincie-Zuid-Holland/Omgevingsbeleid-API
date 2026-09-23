@@ -59,9 +59,7 @@ class FixturesService:
         for source in sources:
             collector.at(DATETIME_T0)
             with collector.with_defaults(
-                Created_By_UUID=collector.ref(UserSpec, "admin"),
                 created_by_id=collector.ref(UserSpec, "admin"),
-                Modified_By_UUID=collector.ref(UserSpec, "admin"),
                 modified_by_id=collector.ref(UserSpec, "admin"),
             ):
                 source(collector)

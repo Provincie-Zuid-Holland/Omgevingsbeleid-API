@@ -24,7 +24,7 @@ class ModuleStatusRepository(BaseRepository):
         stmt = (
             select(ModuleStatusHistoryTable)
             .filter(ModuleStatusHistoryTable.Module_ID == module_id)
-            .order_by(desc(ModuleStatusHistoryTable.Created_Date))
+            .order_by(desc(ModuleStatusHistoryTable.created_date))
         )
         maybe_status = session.scalars(stmt).first()
 

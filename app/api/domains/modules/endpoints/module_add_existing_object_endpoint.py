@@ -110,10 +110,10 @@ class ModuleAddExistingObjectService:
             Object_Type=object_data["Object_Type"],
             Object_ID=object_data["Object_ID"],
             Code=object_data["Code"],
-            Created_Date=self._timepoint,
-            Modified_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
-            Modified_By_UUID=self._user.UUID,
+            created_date=self._timepoint,
+            modified_date=self._timepoint,
+            created_by_id=self._user.UUID,
+            modified_by_id=self._user.UUID,
             Original_Adjust_On=object_data["UUID"],
             Action=self._object_in.Action,
             Explanation=self._object_in.Explanation,
@@ -123,8 +123,8 @@ class ModuleAddExistingObjectService:
 
     def _update_object_context(self, object_context: ModuleObjectContextTable, object_data: dict):
         object_context.Hidden = False
-        object_context.Modified_Date = self._timepoint
-        object_context.Modified_By_UUID = self._user.UUID
+        object_context.modified_date = self._timepoint
+        object_context.modified_by_id = self._user.UUID
         object_context.Original_Adjust_On = object_data["UUID"]
         object_context.Action = self._object_in.Action
         object_context.Explanation = self._object_in.Explanation
@@ -140,8 +140,8 @@ class ModuleAddExistingObjectService:
         module_object.Module_ID = self._module.Module_ID
         module_object.Adjust_On = object_data["UUID"]
         module_object.UUID = uuid.uuid4()
-        module_object.Modified_Date = self._timepoint
-        module_object.Modified_By_UUID = self._user.UUID
+        module_object.modified_date = self._timepoint
+        module_object.modified_by_id = self._user.UUID
 
         self._session.add(module_object)
 

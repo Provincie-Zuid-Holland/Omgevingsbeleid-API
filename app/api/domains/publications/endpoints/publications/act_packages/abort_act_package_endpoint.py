@@ -54,7 +54,7 @@ def post_abort_act_package_endpoint(
             detail="We do not know what to do if we do not have state uuids",
         )
     timepoint: datetime = datetime.now(UTC)
-    since_creation: timedelta = timepoint.date() - act_package.Created_Date.date()
+    since_creation: timedelta = timepoint.date() - act_package.created_date.date()
     if since_creation.days > 30:
         raise HTTPException(
             452, "Too many days has passed since creation of the package. Its unlikely that you want to abort this"
@@ -69,19 +69,19 @@ def post_abort_act_package_endpoint(
         raise HTTPException(452, "We can only abort the latest package in the state chain")
 
     act_package.Report_Status = ReportStatusType.ABORTED
-    act_package.Modified_Date = timepoint
-    act_package.Modified_By_UUID = user.UUID
+    act_package.modified_date = timepoint
+    act_package.modified_by_id = user.UUID
     session.add(act_package)
 
     publication_version.Status = PublicationVersionStatus.PUBLICATION_ABORTED
-    publication_version.Modified_Date = timepoint
-    publication_version.Modified_By_UUID = user.UUID
+    publication_version.modified_date = timepoint
+    publication_version.modified_by_id = user.UUID
     publication_version.Is_Locked = False
     session.add(publication_version)
 
     environment.Active_State_UUID = act_package.Used_Environment_State_UUID
-    environment.Modified_Date = timepoint
-    environment.Modified_By_UUID = user.UUID
+    environment.modified_date = timepoint
+    environment.modified_by_id = user.UUID
     session.add(environment)
 
     session.flush()
