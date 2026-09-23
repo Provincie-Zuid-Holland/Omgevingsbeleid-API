@@ -104,7 +104,7 @@ class AreaProcessorService:
             idx=area_id,
             onderverdeling=onderverdeling,
             created_date=new_record.Modified_Date,
-            created_by=new_record.Modified_By_UUID,
+            created_by_id=new_record.Modified_By_UUID,
         )
 
         return area_id

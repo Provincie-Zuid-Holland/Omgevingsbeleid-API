@@ -51,13 +51,13 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         session: Session,
         idx: uuid.UUID,
         created_date: datetime,
-        created_by: uuid.UUID,
+        created_by_id: uuid.UUID,
         onderverdeling: InputGeoOnderverdelingenTable,
     ):
         area = AreasTable(
             id=idx,
             created_date=created_date,
-            created_by_uuid=created_by,
+            created_by_uuid=created_by_id,
             shape=None,
             gml=onderverdeling.GML,
             source_uuid=onderverdeling.UUID,
