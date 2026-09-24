@@ -199,6 +199,12 @@ def owner_1(_test_env: Context, security: Security) -> Generator[TestClient]:
 
 
 @pytest.fixture()
+def owner_3(_test_env: Context, security: Security) -> Generator[TestClient]:
+    owner_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "owner-3"))
+    yield from _client_logged_in_as(security, owner_uuid)
+
+
+@pytest.fixture()
 def viewer(_test_env: Context, security: Security) -> Generator[TestClient]:
     viewer_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "viewer"))
     yield from _client_logged_in_as(security, viewer_uuid)

@@ -30,6 +30,12 @@ def load(col: Collector) -> None:
                 Roles=["Behandelend Ambtenaar"],
             ),
             UserSpec(
+                key="owner-3",
+                Gebruikersnaam="Third owner of a few objects",
+                Email="owner-3@pzh.nl",
+                Roles=["Behandelend Ambtenaar"],
+            ),
+            UserSpec(
                 key="frozen",
                 Gebruikersnaam="Frozen",
                 Email="frozen@pzh.nl",

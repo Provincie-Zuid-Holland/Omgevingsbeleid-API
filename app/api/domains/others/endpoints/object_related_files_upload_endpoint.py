@@ -132,6 +132,7 @@ def post_object_related_files_upload_endpoint(
         [
             object_static.Owner_1_UUID,
             object_static.Owner_2_UUID,
+            object_static.Owner_3_UUID,
         ],
     )
 

@@ -111,6 +111,11 @@ fields:
     type: uuid
     column: owner_2_uuid
     optional: true
+  owner_3_uuid:
+    name: Owner_3_UUID
+    type: uuid
+    column: owner_3_uuid
+    optional: true
 
 models:
   gebied_minimal:
@@ -161,6 +166,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
   gebied_full:
     name: GebiedFull
     fields:
@@ -196,6 +203,8 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
   gebied_patch:
     name: GebiedPatch
     fields:
@@ -221,12 +230,15 @@ models:
             model_id: user_short
           - to_field: Owner_2
             model_id: user_short
+          - to_field: Owner_3
+            model_id: user_short
   gebied_static_post:
     name: GebiedStaticPost
     static_only: true
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
   gebied_static_post_validated:
     name: GebiedStaticPostValidated
     static_only: true
@@ -236,11 +248,13 @@ models:
           fields:
             - Owner_1_UUID
             - Owner_2_UUID
+            - Owner_3_UUID
           allow_none: True
           error_message: Owners should vary
     fields:
       owner_1_uuid:
       owner_2_uuid:
+      owner_3_uuid:
   gebied_uuid:
     name: GebiedUUID
     fields:
