@@ -6,18 +6,23 @@ from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
-from app.api.domains.others.repositories.hoofdlijn_repository import HoofdlijnRepository, HoofdlijnSortColumn
+from app.api.domains.others.repositories.hoofdlijn_repository import HoofdlijnRepository
 from app.api.domains.others.types import Hoofdlijn
 from app.api.domains.users.dependencies import depends_current_user
+from app.api.endpoint import BaseEndpointContext
 from app.api.utils.pagination import (
     OptionalSortedPagination,
+    OrderConfig,
     PagedResponse,
     PaginatedQueryResult,
     Sort,
     SortedPagination,
-    SortOrder,
 )
 from app.core.tables.users import UsersTable
+
+
+class SearchHoofdlijnenEndpointContext(BaseEndpointContext):
+    order_config: OrderConfig
 
 
 @inject
@@ -26,14 +31,11 @@ def post_hoofdlijnen_search_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[HoofdlijnRepository, Depends(Provide[ApiContainer.hoofdlijn_repository])],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
+    context: Annotated[SearchHoofdlijnenEndpointContext, Depends()],
     query: str,
 ) -> PagedResponse[Hoofdlijn]:
-    pagination: SortedPagination = optional_pagination.with_sort(
-        Sort(
-            column=HoofdlijnSortColumn.Created_Date,
-            order=SortOrder.DESC,
-        )
-    )
+    sort: Sort = context.order_config.get_sort(optional_pagination.sort)
+    pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     paginated_result: PaginatedQueryResult = repository.search_by_name(
         session=session,

@@ -7,10 +7,7 @@ from sqlalchemy.orm import Session
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_module
-from app.api.domains.modules.services import ValidateModuleRunner
-from app.api.domains.modules.services.validate_module_service import (
-    ValidateModuleResult,
-)
+from app.api.domains.modules.services.validate_module import ValidateModuleResult, ValidateModuleRunner
 from app.api.domains.users.dependencies import depends_current_user
 from app.core.tables.modules import ModuleTable
 from app.core.tables.users import UsersTable

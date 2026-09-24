@@ -139,6 +139,8 @@ fields:
     name: Hoofdlijnen
     type: list_str
     column: hoofdlijnen
+    validators:
+      - id: none_to_default_value
   themas:
     name: Themas
     type: list_str
@@ -211,6 +213,7 @@ models:
       end_validity:
       hierarchy_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
     services:
@@ -247,6 +250,7 @@ models:
       end_validity:
       hierarchy_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
       - ambitie_minimal
@@ -300,6 +304,10 @@ models:
         to_field: Gebiedsaanwijzingen_Statics
         from_fields:
           - Description
+      join_hoofdlijnen:
+        to_field: Hoofdlijnen_Statics
+        from_fields:
+          - Hoofdlijnen
   beleidsdoel_patch:
     name: BeleidsdoelPatch
     fields:
@@ -336,6 +344,8 @@ models:
                 - ambitie
           - id: object_code_exists
       themas:
+        optional: true
+      hoofdlijnen:
         optional: true
     services:
       extract_assets:

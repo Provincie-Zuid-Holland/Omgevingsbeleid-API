@@ -21,7 +21,7 @@ from app.api.domains.publications.services.act_package.publication_gios_provider
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.publication_object_provider import PublicationObjectProvider
 from app.api.domains.publications.services.template_parser import TemplateParser
-from app.api.domains.publications.services.validate_publication_service import (
+from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
     validation_exception,
 )

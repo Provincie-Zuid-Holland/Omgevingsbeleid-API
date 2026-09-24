@@ -4,7 +4,7 @@ import dso.models as dso_models
 from sqlalchemy.orm import Session
 
 from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository
-from app.api.domains.publications.services.validate_publication_service import (
+from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
     ValidatePublicationObject,
     validation_exception,
