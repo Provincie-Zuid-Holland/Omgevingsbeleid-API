@@ -14,6 +14,7 @@ def _guard_non_dev_environment(db_password: str) -> None:
     if db_password not in ["Passw0rd", "password"]:
         raise RuntimeError("Database connection not in DEV environment")
 
+
 def _disable_foreign_keys(dialect: str, session: Session) -> None:
     if dialect == "sqlite":
         session.execute(text("PRAGMA foreign_keys = OFF"))
@@ -30,6 +31,7 @@ def _enable_foreign_keys(dialect: str, session: Session) -> None:
         session.execute(text("""SET session_replication_role = 'origin';"""))
     elif dialect == "mssql":
         session.execute(text("""EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT ALL";"""))
+
 
 @click.command()
 @inject
