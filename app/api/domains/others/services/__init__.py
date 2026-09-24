@@ -1,1 +1,2 @@
+from .join_hoofdlijnen import JoinHoofdlijnenServiceFactory
 from .pdf_meta_service import PdfMetaService

@@ -13,7 +13,7 @@ class HoofdlijnRepository(BaseRepository):
         stmt = select(HoofdlijnTable).filter(HoofdlijnTable.id == idx)
         return self.fetch_first(session, stmt)
 
-    def get_existing_ids(self, session: Session, ids: set[UUID]) -> set[UUID]:
+    def get_by_ids(self, session: Session, ids: set[UUID]) -> set[UUID]:
         stmt = select(HoofdlijnTable.id).filter(HoofdlijnTable.id.in_(ids))
         return set(self.fetch_all(session, stmt))
 

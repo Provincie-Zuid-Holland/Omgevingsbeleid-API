@@ -6,6 +6,7 @@ from app.api.domains.publications.types.api_input_data import (
     ApiActInputData,
     BillFrbr,
     PublicationData,
+    PublicationGebiedsaanwijzing,
     Purpose,
 )
 from app.api.domains.publications.types.enums import MutationStrategy, PackageType, PurposeType
@@ -98,3 +99,18 @@ def make_api_act_input_data(**overrides) -> ApiActInputData:
     }
     defaults.update(overrides)
     return ApiActInputData(**defaults)
+
+
+def make_publication_gebiedsaanwijzing(**overrides) -> PublicationGebiedsaanwijzing:
+    defaults = {
+        "uuid": "",
+        "code": "",
+        "title": "",
+        "aanwijzing_type": "",
+        "aanwijzing_group": "",
+        "gio_key": "",
+        "source_target_codes": set(),
+        "resolved_gebied_codes": set(),
+    }
+    defaults.update(overrides)
+    return PublicationGebiedsaanwijzing(**defaults)

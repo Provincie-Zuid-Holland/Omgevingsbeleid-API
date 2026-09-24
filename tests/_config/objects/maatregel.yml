@@ -154,6 +154,12 @@ fields:
     column: themas
     validators:
       - id: none_to_default_value
+  hoofdlijnen:
+    name: hoofdlijnen
+    type: list_str
+    column: hoofdlijnen
+    validators:
+      - id: none_to_default_value
   roles:
     name: roles
     type: list_str
@@ -226,6 +232,7 @@ models:
       hierarchy_code:
       gebiedengroep_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
     services:
@@ -266,6 +273,7 @@ models:
       hierarchy_code:
       gebiedengroep_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
       - hierarchy_statics
@@ -286,6 +294,10 @@ models:
         from_fields:
           - description
           - effect
+      join_hoofdlijnen:
+        to_field: hoofdlijnen_statics
+        from_fields:
+          - hoofdlijnen
       insert_assets:
         fields:
           - description
@@ -391,6 +403,8 @@ models:
                 - gebiedengroep
           - id: object_code_exists
       themas:
+        optional: true
+      hoofdlijnen:
         optional: true
     services:
       extract_assets:

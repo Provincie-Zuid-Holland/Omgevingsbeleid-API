@@ -324,6 +324,10 @@ models:
           - cause
           - provincial_interest
           - explanation
+      join_hoofdlijnen:
+        to_field: hoofdlijnen_statics
+        from_fields:
+          - hoofdlijnen
       insert_assets:
         fields:
           - description

@@ -276,6 +276,10 @@ models:
         to_field: gebiedsaanwijzingen_statics
         from_fields:
           - description
+      join_hoofdlijnen:
+        to_field: hoofdlijnen_statics
+        from_fields:
+          - hoofdlijnen
   ambitie_patch:
     name: AmbitiePatch
     fields:

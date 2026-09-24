@@ -327,6 +327,10 @@ models:
         from_fields:
           - description
           - effect
+      join_hoofdlijnen:
+        to_field: hoofdlijnen_statics
+        from_fields:
+          - hoofdlijnen
       insert_assets:
         fields:
           - description
