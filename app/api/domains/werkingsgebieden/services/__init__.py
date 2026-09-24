@@ -1,5 +1,8 @@
 from .change_area_processor import AreaProcessorService, AreaProcessorServiceFactory
 from .input_geo import PatchGebiedengroepInputGeoService, PatchGebiedengroepInputGeoServiceFactory
 from .join_gebiedengroepen import JoinGebiedenGroepenService, JoinGebiedenGroepenServiceFactory
-from .join_gebiedsaanwijzingen import JoinGebiedsaanwijzingenService, JoinGebiedsaanwijzingenServiceFactory
+from .join_gebiedsaanwijzingen import (
+    JoinGebiedsaanwijzingenService,
+    JoinGebiedsaanwijzingenServiceFactory,
+)
 from .join_werkingsgebieden import JoinWerkingsgebiedenService, JoinWerkingsgebiedenServiceFactory

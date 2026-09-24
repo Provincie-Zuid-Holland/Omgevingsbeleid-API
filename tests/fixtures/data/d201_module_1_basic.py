@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 from app.api.domains.modules.types import ModuleStatusCode, ModuleStatusCodeInternal, PublicModuleStatusCode
 from tests.fixtures.internal.services.collector import Collector
-from tests.fixtures.internal.spec.modules.module_beleidsdoel_spec import ModuleBeleidsdoelSpec
+from tests.fixtures.internal.spec.modules import ModuleBeleidsdoelSpec, ModuleMaatregelSpec
 from tests.fixtures.internal.spec.modules.module_spec import ModuleSpec
 from tests.fixtures.internal.spec.modules.module_status_history_spec import ModuleStatusHistorySpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
@@ -90,6 +90,11 @@ def load(col: Collector) -> None:
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_2_first_entry",
                         Object_ID=2,
+                    ),
+                    # We add for testing resolve of gebied
+                    ModuleMaatregelSpec(
+                        key="maatregel_6_mod_1",
+                        Object_ID=6,
                     ),
                 ]
             )

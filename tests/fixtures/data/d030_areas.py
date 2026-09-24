@@ -7,16 +7,16 @@ def load(col: Collector) -> None:
     col.adds(
         [
             AreaSpec(
-                key="nature-west-v1",
-                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "nature-west-v1"),
+                key="nature_west_v1",
+                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "nature_west_v1"),
             ),
             AreaSpec(
-                key="nature-east-v1",
-                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "nature-east-v1"),
+                key="nature_east_v1",
+                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "nature_east_v1"),
             ),
             AreaSpec(
-                key="nature-south-v1",
-                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "nature-south-v1"),
+                key="nature_south_v1",
+                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "nature_south_v1"),
             ),
         ]
     )
@@ -24,16 +24,16 @@ def load(col: Collector) -> None:
     col.adds(
         [
             AreaSpec(
-                key="sea-v1",
-                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "sea-v1"),
+                key="sea_v1",
+                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "sea_v1"),
             ),
             AreaSpec(
-                key="lake-v1",
-                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "lake-v1"),
+                key="lake_v1",
+                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "lake_v1"),
             ),
             AreaSpec(
-                key="river-v1",
-                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "river-v1"),
+                key="river_v1",
+                Source_Ref=col.ref(InputGeoOnderverdelingSpec, "river_v1"),
             ),
         ]
     )

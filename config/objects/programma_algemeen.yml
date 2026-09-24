@@ -191,6 +191,7 @@ models:
       end_validity:
     dependency_model_ids:
       - user_short
+      - gebied_basic
     services:
       next_object_version:
         to_field: Next_Version
@@ -212,9 +213,13 @@ models:
           - to_field: Owner_2
             model_id: user_short
       join_gebiedsaanwijzingen:
-        to_field: Gebiedsaanwijzingen_Statics
+        to_field: Gebiedsaanwijzingen_Gebieden
+        to_model: gebied_basic
         from_fields:
           - Description
+        columns:
+          - Target_Codes
+          - Gebieden
   programma_algemeen_patch:
     name: ProgrammaAlgemeenPatch
     fields:

@@ -14,7 +14,9 @@ import app.api.domains.users as user_domain
 import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_repositories
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
 import app.api.events.listeners as event_listeners
+from app.api.domains.modules.services.advanced_objects_resolver import AdvancedObjectsResolverFactory
 from app.api.domains.modules.services.module_objects_to_models_parser import ModuleObjectsToModelsParser
+from app.api.domains.objects.services.gebiedsaanwijzing_service import GebiedsaanwijzingService
 from app.api.domains.others.repositories import (
     hoofdlijn_repository,
     object_related_file_repository,
@@ -101,6 +103,8 @@ class ApiContainer(containers.DeclarativeContainer):
         mssql=mssql_input_geo_onderverdeling_repository,
     )
 
+    gebiedsaanwijzing_service = providers.Singleton(GebiedsaanwijzingService)
+
     dso_gebiedsaanwijzingen_factory = providers.Factory(
         dso.GebiedsaanwijzingenFactory,
     )
@@ -151,6 +155,8 @@ class ApiContainer(containers.DeclarativeContainer):
     )
     user_repository = providers.Factory(user_domain.UserRepository, security=security)
 
+    advanced_objects_resolver_factory = providers.Singleton(AdvancedObjectsResolverFactory)
+
     add_relations_service_factory = providers.Singleton(object_services.AddRelationsServiceFactory)
     join_werkingsgebieden_service_factory = providers.Singleton(
         werkingsgebied_services.JoinWerkingsgebiedenServiceFactory
@@ -165,9 +171,8 @@ class ApiContainer(containers.DeclarativeContainer):
     )
     join_gebiedsaanwijzingen_service_factory = providers.Singleton(
         werkingsgebied_services.JoinGebiedsaanwijzingenServiceFactory,
-    )
-    join_gebiedsaanwijzingen_object_statics_service_factory = providers.Singleton(
-        werkingsgebied_services.JoinGebiedsaanwijzingenServiceFactory,
+        gebiedsaanwijzing_service,
+        advanced_objects_resolver_factory,
     )
     join_hoofdlijnen_service_factory = providers.Singleton(
         others_services.JoinHoofdlijnenServiceFactory,
@@ -287,6 +292,7 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.JoinGebiedsaanwijzingenForObjectListener,
                 service_factory=join_gebiedsaanwijzingen_service_factory,
+                models_provider=models_provider,
             ),
             providers.Factory(
                 event_listeners.JoinObjectsForObjectListener,
@@ -355,7 +361,8 @@ class ApiContainer(containers.DeclarativeContainer):
             ),
             providers.Factory(
                 event_listeners.JoinGebiedsaanwijzingenForModuleObjectListener,
-                service_factory=join_gebiedsaanwijzingen_object_statics_service_factory,
+                service_factory=join_gebiedsaanwijzingen_service_factory,
+                models_provider=models_provider,
             ),
             providers.Factory(
                 event_listeners.GetImagesForModuleListener,
