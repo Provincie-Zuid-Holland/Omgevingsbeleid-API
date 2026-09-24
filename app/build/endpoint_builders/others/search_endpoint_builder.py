@@ -98,7 +98,7 @@ class SearchEndpointBuilder(EndpointBuilder):
         final_columns: set[str] = requested_columns
         final_columns.update(
             # These are used by the search endpoints code
-            ["UUID", "modified_date", "Object_Type", "Title", "Description"]
+            ["id", "modified_date", "object_type", "title", "description"]
         )
         final_columns.update(search_columns)
 

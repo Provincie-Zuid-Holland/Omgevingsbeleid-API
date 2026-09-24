@@ -16,7 +16,7 @@ from app.core.utils.utils import table_to_dict
 
 
 class ModuleSnapshot(BaseModel):
-    Objects: list[dict[str, Any]]
+    objects: list[dict[str, Any]]
 
 
 @inject
@@ -31,12 +31,12 @@ def get_module_snapshot_endpoint(
 ) -> ModuleSnapshot:
     module_objects: list[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
         session,
-        module.Module_ID,
+        module.module_id,
         status.created_date,
     )
     dict_objects: list[dict] = [table_to_dict(t) for t in module_objects]
 
     response = ModuleSnapshot(
-        Objects=dict_objects,
+        objects=dict_objects,
     )
     return response

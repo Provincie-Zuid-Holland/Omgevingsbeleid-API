@@ -19,12 +19,12 @@ class AreaBasic(BaseModel):
 
 
 class WerkingsgebiedStatics(BaseModel):
-    Object_Type: str
+    object_type: str
     Object_ID: int
-    Code: str
-    Cached_Title: str
+    code: str
+    cached_title: str
 
-    @field_validator("Cached_Title", mode="before")
+    @field_validator("cached_title", mode="before")
     def default_empty_string(cls, v):
         return "" if v is None else v
 
@@ -37,8 +37,8 @@ class Werkingsgebied(BaseModel):
     created_date: datetime
     modified_date: datetime
     Title: str
-    Start_Validity: datetime | None = Field(None)
-    End_Validity: datetime | None = Field(None)
+    start_validity: datetime | None = Field(None)
+    end_validity: datetime | None = Field(None)
     Geometry_Hash: str | None = Field(None)
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 

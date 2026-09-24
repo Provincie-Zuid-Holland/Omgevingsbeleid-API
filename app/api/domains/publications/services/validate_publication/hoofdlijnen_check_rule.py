@@ -39,7 +39,7 @@ class HoofdlijnenCheckRule(ValidatePublicationRule):
 
         errors: list[ValidatePublicationError] = []
         for object_to_validate in request.input_data.Publication_Data.used_objects:
-            if object_to_validate.get("Object_Type") not in self._config.allowed_object_types:
+            if object_to_validate.get("object_type") not in self._config.allowed_object_types:
                 continue
 
             field_value: list[str] | None = object_to_validate.get(self._config.field)
@@ -68,10 +68,10 @@ class HoofdlijnenCheckRule(ValidatePublicationRule):
                     ValidatePublicationError(
                         rule="hoofdlijnen_check_rule",
                         object=ValidatePublicationObject(
-                            code=data.object_to_validate.get("Code"),
-                            object_id=data.object_to_validate.get("Object_ID"),
-                            object_type=data.object_to_validate.get("Object_Type"),
-                            title=data.object_to_validate.get("Title"),
+                            code=data.object_to_validate.get("code"),
+                            object_id=data.object_to_validate.get("object_id"),
+                            object_type=data.object_to_validate.get("object_type"),
+                            title=data.object_to_validate.get("title"),
                         ),
                         messages=[f"Hoofdlijnen with IDs {', '.join(missing_displayed)} are unknown"],
                     )

@@ -17,15 +17,15 @@ def test_returns_the_requested_storage_file(
     client: TestClient = request.getfixturevalue(client_fixture)
     expected: StorageFileSpec = ctx.f.find(Ref(StorageFileSpec, file_key)).spec
 
-    response = client.get(f"/storage-files/{expected.UUID}")
+    response = client.get(f"/storage-files/{expected.id}")
 
     assert response.status_code == 200, response.text
     body = response.json()
-    assert body["UUID"] == str(expected.UUID)
-    assert body["Checksum"] == expected.Checksum
-    assert body["Filename"] == expected.Filename
-    assert body["Content_Type"] == expected.Content_Type
-    assert body["Size"] == expected.Size
+    assert body["id"] == str(expected.id)
+    assert body["checksum"] == expected.checksum
+    assert body["filename"] == expected.filename
+    assert body["content_type"] == expected.content_type
+    assert body["size"] == expected.size
     assert body["created_by_id"] == str(expected.created_by_id)
 
 

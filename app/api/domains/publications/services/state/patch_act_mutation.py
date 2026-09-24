@@ -189,33 +189,33 @@ class PatchActMutation:
 
         documents: list[dict] = data.Publication_Data.documents
         for index, document in enumerate(documents):
-            object_id: int = document["Object_ID"]
+            object_id: int = document["object_id"]
             existing_document: models.Document | None = state_documents.get(object_id)
             if existing_document is None:
                 continue
 
             # If the Hash are the same, then we use the state data
             # and define the document as not new
-            if str(document["Hash"]) == existing_document.Hash:
+            if str(document["Hash"]) == existing_document.hash:
                 documents[index]["New"] = False
-                documents[index]["UUID"] = existing_document.UUID
-                documents[index]["Geboorteregeling"] = existing_document.Owner_Act
+                documents[index]["UUID"] = existing_document.id
+                documents[index]["Geboorteregeling"] = existing_document.owner_act
                 # Keep the same FRBR
-                documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
-                documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
-                documents[index]["Frbr"].Work_Other = existing_document.Frbr.Work_Other
-                documents[index]["Frbr"].Expression_Language = existing_document.Frbr.Expression_Language
-                documents[index]["Frbr"].Expression_Date = existing_document.Frbr.Expression_Date
-                documents[index]["Frbr"].Expression_Version = existing_document.Frbr.Expression_Version
+                documents[index]["Frbr"].work_province_id = existing_document.frbr.Work_Province_ID
+                documents[index]["Frbr"].work_date = existing_document.frbr.Work_Date
+                documents[index]["Frbr"].work_other = existing_document.frbr.Work_Other
+                documents[index]["Frbr"].expression_language = existing_document.frbr.Expression_Language
+                documents[index]["Frbr"].expression_date = existing_document.frbr.Expression_Date
+                documents[index]["Frbr"].expression_version = existing_document.frbr.Expression_Version
             else:
                 # If the hash are different that we will publish this as a new version
                 documents[index]["New"] = True
-                documents[index]["Geboorteregeling"] = existing_document.Owner_Act
+                documents[index]["Geboorteregeling"] = existing_document.owner_act
                 # Keep the same FRBR Work, but new expression
-                documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
-                documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
-                documents[index]["Frbr"].Work_Other = existing_document.Frbr.Work_Other
-                documents[index]["Frbr"].Expression_Version = existing_document.Frbr.Expression_Version + 1
+                documents[index]["Frbr"].work_province_id = existing_document.frbr.Work_Province_ID
+                documents[index]["Frbr"].work_date = existing_document.frbr.Work_Date
+                documents[index]["Frbr"].work_other = existing_document.frbr.Work_Other
+                documents[index]["Frbr"].expression_version = existing_document.frbr.Expression_Version + 1
 
         data.Publication_Data.documents = documents
 
@@ -229,7 +229,7 @@ class PatchActMutation:
 
         fetched_assets_ids: set[str] = {a["UUID"] for a in data.Publication_Data.assets}
         additional_asset_ids_str: set[str] = {
-            sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_ids
+            sa.id for _, sa in state_assets.items() if sa.id not in fetched_assets_ids
         }
         additional_asset_ids: list[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_ids_str]
         additional_assets: list[dict] = self._asset_provider.get_assets_by_ids(session, additional_asset_ids)
@@ -252,8 +252,8 @@ class PatchActMutation:
         data.Act_Mutation = ActMutation(
             Consolidated_Act_Frbr=consolidated_frbr,
             Consolidated_Act_Text=self._active_act.Act_Text,
-            Known_Wid_Map=self._active_act.Wid_Data.Known_Wid_Map,
-            Known_Wids=self._active_act.Wid_Data.Known_Wids,
+            Known_Wid_Map=self._active_act.Wid_Data.known_wid_map,
+            Known_Wids=self._active_act.Wid_Data.known_wids,
             Removed_Gios=self._get_removed_gios(),
         )
         return data

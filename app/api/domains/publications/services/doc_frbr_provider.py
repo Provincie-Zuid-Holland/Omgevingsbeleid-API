@@ -16,7 +16,7 @@ from app.core.tables.publications import (
 
 class DocFrbrProvider:
     def generate_frbr(self, session: Session, announcement: PublicationAnnouncementTable) -> DocFrbr:
-        if announcement.Publication.Environment.Has_State:
+        if announcement.publication.environment.has_state:
             return self._create_real(session, announcement)
 
         return self._create_fake(announcement)
@@ -38,21 +38,21 @@ class DocFrbrProvider:
         announcement: PublicationAnnouncementTable,
         id_suffix: str,
     ) -> DocFrbr:
-        act_version: PublicationActVersionTable = announcement.Act_Package.Act_Version
-        publication: PublicationTable = announcement.Publication
-        environment: PublicationEnvironmentTable = publication.Environment
+        act_version: PublicationActVersionTable = announcement.act_package.act_version
+        publication: PublicationTable = announcement.publication
+        environment: PublicationEnvironmentTable = publication.environment
 
-        work_other: str = f"kennisgeving-{act_version.Act.Work_Other}-{id_suffix}"
+        work_other: str = f"kennisgeving-{act_version.act.work_other}-{id_suffix}"
 
         timepoint: datetime = datetime.now(UTC)
         frbr: DocFrbr = DocFrbr(
-            Work_Province_ID=environment.Province_ID,
-            Work_Country=environment.Frbr_Country,
+            Work_Province_ID=environment.province_id,
+            Work_Country=environment.frbr_country,
             Work_Date=str(timepoint.year),
             Work_Other=work_other,
-            Expression_Language=environment.Frbr_Language,
+            Expression_Language=environment.frbr_language,
             Expression_Date=timepoint.strftime("%Y-%m-%d"),
             Expression_Version=1,
-            Document_Type=publication.Document_Type,
+            Document_Type=publication.document_type,
         )
         return frbr

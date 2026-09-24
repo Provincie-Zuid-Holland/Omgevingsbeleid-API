@@ -14,11 +14,11 @@ def test_uploads_a_file_and_it_appears_first_in_the_list(admin: TestClient):
 
     assert response.status_code == 200, response.text
     body = response.json()
-    assert body["Title"] == "New upload"
-    assert body["Code"] == "beleidsdoel-1"
+    assert body["title"] == "New upload"
+    assert body["code"] == "beleidsdoel-1"
 
     listed = admin.get("/beleidsdoel/1/object-related-files").json()
-    assert listed[0]["UUID"] == body["UUID"]
+    assert listed[0]["id"] == body["id"]
 
 
 def test_unknown_lineage_returns_404(admin: TestClient):

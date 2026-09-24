@@ -67,11 +67,11 @@ class AddRelationsService:
         relations = defaultdict(lambda: defaultdict(list))
         for relation_row in relation_rows:
             # Determine the owner
-            target_code: str = relation_row["_Relation_From_Code"]
-            if relation_row["_Relation_From_Code"] == relation_row["Code"]:
-                target_code = relation_row["_Relation_To_Code"]
+            target_code: str = relation_row["_relation_from_code"]
+            if relation_row["_relation_from_code"] == relation_row["code"]:
+                target_code = relation_row["_relation_to_code"]
 
-            relation_object_type: str = relation_row["Object_Type"]
+            relation_object_type: str = relation_row["object_type"]
             object_config: ObjectRelationConfig = config.object_type_details[relation_object_type]
 
             # extract the created relation-object pydantic model
@@ -82,12 +82,12 @@ class AddRelationsService:
             field_value: dict = relation_row
             if object_config.wrapped_with_relation_data:
                 field_value = {
-                    "Relation": {
-                        "Object_Type": relation_row.get("Object_Type"),
-                        "Object_ID": relation_row.get("Object_ID"),
-                        "Description": relation_row.get("_Relation_Description"),
+                    "relation": {
+                        "object_type": relation_row.get("object_type"),
+                        "object_id": relation_row.get("object_id"),
+                        "description": relation_row.get("_relation_description"),
                     },
-                    "Object": relation_row,
+                    "object": relation_row,
                 }
 
             field_result: BaseModel = relation_row_model.model_validate(field_value)
@@ -96,8 +96,8 @@ class AddRelationsService:
         # Now we union the relation "rows" into the event rows
         result_rows: list[BaseModel] = []
         for row in self._rows:
-            if row.Code in relations:
-                for field_name, content in relations[row.Code].items():
+            if row.code in relations:
+                for field_name, content in relations[row.code].items():
                     setattr(row, field_name, content)
             result_rows.append(row)
 
@@ -107,32 +107,32 @@ class AddRelationsService:
         subq = (
             select(
                 ObjectsTable,
-                RelationsTable.From_Code.label("_Relation_From_Code"),
-                RelationsTable.To_Code.label("_Relation_To_Code"),
-                RelationsTable.Description.label("_Relation_Description"),
+                RelationsTable.from_code.label("_relation_from_code"),
+                RelationsTable.to_code.label("_relation_to_code"),
+                RelationsTable.description.label("_relation_description"),
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
+                    partition_by=ObjectsTable.code,
                     order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(RelationsTable)
             .join(
                 ObjectsTable,
-                or_(ObjectsTable.Code == RelationsTable.From_Code, ObjectsTable.Code == RelationsTable.To_Code),
+                or_(ObjectsTable.code == RelationsTable.from_code, ObjectsTable.code == RelationsTable.to_code),
             )
             .filter(
                 or_(
-                    RelationsTable.From_Code.in_(config.object_codes),
-                    RelationsTable.To_Code.in_(config.object_codes),
+                    RelationsTable.from_code.in_(config.object_codes),
+                    RelationsTable.to_code.in_(config.object_codes),
                 )
             )
-            .filter(ObjectsTable.Object_Type.in_(config.object_types))
+            .filter(ObjectsTable.object_type.in_(config.object_types))
             .subquery()
         )
 
-        stmt = select(subq).filter(subq.c._RowNumber == 1)
+        stmt = select(subq).filter(subq.c._row_number == 1)
 
         rows = self._session.execute(stmt).all()
         dict_rows = [r._asdict() for r in rows]
@@ -144,7 +144,7 @@ class AddRelationsService:
         if "relations" not in self._response_model.service_config:
             return None
 
-        object_codes = list({r.Code for r in self._rows})
+        object_codes = list({r.code for r in self._rows})
 
         relations_config = RelationsConfig.model_validate(self._response_model.service_config["relations"])
 

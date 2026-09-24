@@ -3,12 +3,12 @@ from app.core.types import Column
 BASE_COLUMNS = [
     Column(
         id="object_id",
-        name="Object_ID",
+        name="object_id",
         type="int",
     ),
     Column(
-        id="uuid",
-        name="UUID",
+        id="id",
+        name="id",
         type="str",
         serializers=[
             "str",
@@ -19,12 +19,12 @@ BASE_COLUMNS = [
     ),
     Column(
         id="object_type",
-        name="Object_Type",
+        name="object_type",
         type="str_25",
     ),
     Column(
         id="code",
-        name="Code",
+        name="code",
         type="str_35",
     ),
     Column(
@@ -39,7 +39,7 @@ BASE_COLUMNS = [
     ),
     Column(
         id="adjust_on",
-        name="Adjust_On",
+        name="adjust_on",
         type="object_uuid",
         nullable=True,
         serializers=[
@@ -79,13 +79,13 @@ BASE_COLUMNS = [
     ),
     Column(
         id="start_validity",
-        name="Start_Validity",
+        name="start_validity",
         nullable=True,
         type="datetime",
     ),
     Column(
         id="end_validity",
-        name="End_Validity",
+        name="end_validity",
         nullable=True,
         type="datetime",
     ),

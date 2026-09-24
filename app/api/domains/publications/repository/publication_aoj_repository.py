@@ -11,7 +11,7 @@ from app.core.tables.publications import PublicationAreaOfJurisdictionTable
 
 class PublicationAOJRepository(BaseRepository):
     def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationAreaOfJurisdictionTable | None:
-        stmt = select(PublicationAreaOfJurisdictionTable).where(PublicationAreaOfJurisdictionTable.UUID == uuidx)
+        stmt = select(PublicationAreaOfJurisdictionTable).where(PublicationAreaOfJurisdictionTable.id == uuidx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(

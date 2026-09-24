@@ -73,8 +73,8 @@ api:
         - resolver: search
           resolver_data:
             search_columns:
-              - Title
-              - Description
+              - title
+              - description
             model_map: *model_map
             response_model_name: PagedSearchObjectResponse
     - prefix: /modules
@@ -109,11 +109,11 @@ api:
               - gebiedsaanwijzing
             sort:
               default:
-                column: Object_ID
+                column: title
                 order: asc
               allowed_columns:
-                - Object_ID
-                - Title
+                - object_id
+                - title
                 - modified_date
             model_map:
               beleidsdoel: beleidsdoel_basic
@@ -127,49 +127,49 @@ api:
 columns:
   # Titel
   title:
-    name: Title
+    name: title
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Filename
   filename:
-    name: Filename
+    name: filename
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Omschrijving
   description:
-    name: Description
+    name: description
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Document references
   documents:
-    name: Documents
+    name: documents
     type: json
     serializers: []
     deserializers: []
     nullable: true
   # Gebieden references
   gebieden:
-    name: Gebieden
+    name: gebieden
     type: json
     serializers: []
     deserializers: []
     nullable: true
   # Target codes (gebied, gebieden for gebiedsaanwijzingen)
   target_codes:
-    name: Target_Codes
+    name: target_codes
     type: json
     serializers: []
     deserializers: []
     nullable: true
   # Hoofdlijnen references
   hoofdlijnen:
-    name: Hoofdlijnen
+    name: hoofdlijnen
     type: json
     serializers: [ ]
     deserializers: [ ]
@@ -179,164 +179,164 @@ columns:
     name: area_id
     type: area_id
     type_data:
-      relation_field: Area
+      relation_field: area
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
-  # File_UUID used to store reference to the file
-  file_uuid:
-    name: File_UUID
-    type: file_uuid
+  # file_id used to store reference to the file
+  file_id:
+    name: file_id
+    type: file_id
     type_data:
-      relation_field: File
+      relation_field: file
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
   # Beschrijf de uitwerking van het object
   effect:
-    name: Effect
+    name: effect
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Rol
   role:
-    name: Role
+    name: role
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Roles
   roles:
-    name: Roles
+    name: roles
     type: json
     nullable: true
   # Toelichting
   explanation:
-    name: Explanation
+    name: explanation
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
-  # Gebied UUID
+  # Gebied id
   gebied_uuid:
-    name: Gebied_UUID
-    type: werkingsgebied_uuid
+    name: gebied_id
+    type: werkingsgebied_id
     type_data:
-      relation_field: Gebied
+      relation_field: gebied
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
   # Gebied Duiding
   gebied_duiding:
-    name: Gebied_Duiding
+    name: gebied_duiding
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Primaire koppeling
   hierarchy_code:
-    name: Hierarchy_Code
+    name: hierarchy_code
     type: object_code
     type_data:
-      relation_field: Hierarchy_Statics
+      relation_field: hierarchy_statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
   gebiedengroep_code:
-    name: Gebiedengroep_Code
+    name: gebiedengroep_code
     type: object_code
     type_data:
-      relation_field: Gebiedengroep_Statics
+      relation_field: gebiedengroep_statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
   ref_type:
-    name: Ref_Type
+    name: ref_type
     type: str
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
   ref_group:
-    name: Ref_Group
+    name: ref_group
     type: str
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
-  # Source Title, used to target the Input_Geo_Werkingsgebied
+  # Source title, used to target the Input_Geo_Werkingsgebied
   source_title:
-    name: Source_Title
+    name: source_title
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
-  # Source UUID, # Source Title, used to target the Input_Geo_Werkingsgebied
+  # Source UUID, used to target the Input_Geo_Werkingsgebied
   source_uuid:
-    name: Source_UUID
+    name: source_uuid
     type: uuid
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
   # Image
   image:
-    name: Image
+    name: image
     type: str
     serializers: []
     deserializers: []
     nullable: true
   # Eigenaar 1
   owner_1_uuid:
-    name: Owner_1_UUID
+    name: owner_1_id
     type: user_uuid
     type_data:
-      relation_field: Owner_1
+      relation_field: owner_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Eigenaar 2
   owner_2_uuid:
-    name: Owner_2_UUID
+    name: owner_2_id
     type: user_uuid
     type_data:
-      relation_field: Owner_2
+      relation_field: owner_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Portefeuillehouder 1
   portfolio_holder_1_uuid:
-    name: Portfolio_Holder_1_UUID
+    name: portfolio_holder_1_id
     type: user_uuid
     type_data:
-      relation_field: Portfolio_Holder_1
+      relation_field: portfolio_holder_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Portefeuillehouder 2
   portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
+    name: portfolio_holder_2_id
     type: user_uuid
     type_data:
-      relation_field: Portfolio_Holder_2
+      relation_field: portfolio_holder_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Opdrachtgever
   client_1_uuid:
-    name: Client_1_UUID
+    name: client_1_id
     type: user_uuid
     type_data:
-      relation_field: Client_1
+      relation_field: client_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Thema's
   themas:
-    name: Themas
+    name: themas
     type: json
     serializers: []
     deserializers: []

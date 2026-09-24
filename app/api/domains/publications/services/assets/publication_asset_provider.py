@@ -39,11 +39,11 @@ class PublicationAssetProvider:
 
         # @todo: should be provided somewhere
         asset_fields = [
-            "Description",
-            "Cause",
-            "Provincial_Interest",
-            "Explanation",
-            "Effect",
+            "description",
+            "cause",
+            "provincial_interest",
+            "explanation",
+            "effect",
         ]
 
         for o in objects:

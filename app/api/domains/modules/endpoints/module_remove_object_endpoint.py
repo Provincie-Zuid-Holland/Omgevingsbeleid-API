@@ -40,24 +40,24 @@ def post_module_remove_object_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_remove_object_from_module,
         user,
-        whitelisted_uuids=[
-            module.Module_Manager_1_UUID,
-            module.Module_Manager_2_UUID,
+        whitelisted_ids=[
+            module.module_manager_1_id,
+            module.module_manager_2_id,
         ],
     )
     guard_module_not_locked(module)
 
     timepoint: datetime = datetime.now(UTC)
-    object_context.Hidden = True
+    object_context.hidden = True
     object_context.modified_by_id = user.UUID
     object_context.modified_date = timepoint
     session.add(object_context)
 
     _, new_record = module_object_repository.patch_latest_module_object(
         session,
-        object_context.Module_ID,
-        object_context.Object_Type,
-        object_context.Object_ID,
+        object_context.module_id,
+        object_context.object_type,
+        object_context.object_id,
         {
             "Deleted": True,
         },

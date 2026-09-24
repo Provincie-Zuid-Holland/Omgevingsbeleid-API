@@ -20,14 +20,14 @@ def load(col: Collector) -> None:
         modified_date=datetime(2025, 6, 5, tzinfo=UTC),
         created_by_id=col.ref(UserSpec, "admin"),
         modified_by_id=col.ref(UserSpec, "admin"),
-        Module_Manager_1_UUID=col.ref(UserSpec, "admin"),
+        module_manager_1_id=col.ref(UserSpec, "admin"),
     ):
         col.add(
             ModuleSpec(
                 key="module_5",
-                Module_ID=5,
-                Title="Title of Module 5",
-                Description="Description of Module 5",
+                module_id=5,
+                title="Title of Module 5",
+                description="Description of Module 5",
             )
         )
 
@@ -51,41 +51,41 @@ def load(col: Collector) -> None:
                     # Which should not be usable by other modules yet
                     ModuleGebiedengroepSpec(
                         key="mod_5_gebiedengroep_510",
-                        Object_ID=510,
-                        Title="Gebiedengroep 510 in Module 5",
+                        object_id=510,
+                        title="Gebiedengroep 510 in Module 5",
                     ),
                     ModuleGebiedSpec(
                         key="mod_5_gebied_510",
-                        Object_ID=510,
-                        Title="Gebied 510 in Module 5",
+                        object_id=510,
+                        title="Gebied 510 in Module 5",
                     ),
                     ModuleGebiedsaanwijzingSpec(
                         key="mod_5_gebiedsaanwijzing_510",
-                        Object_ID=510,
-                        Title="Gebiedsaanwijzing 510 in Module 5",
+                        object_id=510,
+                        title="Gebiedsaanwijzing 510 in Module 5",
                     ),
                     # Removed from the module (did not really exists but this will handle the case anyways)
                     ModuleGebiedSpec(
                         key="mod_5_gebied_511",
-                        Object_ID=511,
-                        Title="Gebied 511 hidden in Module 5",
-                        Context_Hidden=True,
+                        object_id=511,
+                        title="Gebied 511 hidden in Module 5",
+                        context_hidden=True,
                     ),
                     # Terminated in the module
                     ModuleGebiedSpec(
                         key="mod_5_gebied_1",
-                        Object_ID=1,
-                        Title="Gebied 1 terminated in Module 5",
-                        Context_Action=ModuleObjectActionFull.Terminate,
+                        object_id=1,
+                        title="Gebied 1 terminated in Module 5",
+                        context_action=ModuleObjectActionFull.Terminate,
                     ),
                     # Terminated in the module, but removed from the module again
                     # so the module does not terminate it anymore
                     ModuleGebiedSpec(
                         key="mod_5_gebied_3",
-                        Object_ID=3,
-                        Title="Gebied 3 terminated and removed in Module 5",
-                        Context_Action=ModuleObjectActionFull.Terminate,
-                        Context_Hidden=True,
+                        object_id=3,
+                        title="Gebied 3 terminated and removed in Module 5",
+                        context_action=ModuleObjectActionFull.Terminate,
+                        context_hidden=True,
                     ),
                 ]
             )
@@ -95,16 +95,16 @@ def load(col: Collector) -> None:
                     # Edit of the live beleidskeuze-1
                     ModuleBeleidskeuzeSpec(
                         key="mod_5_beleidskeuze_1_first_entry",
-                        Object_ID=1,
+                        object_id=1,
                     ),
                     # New beleidskeuze, so it has no live version yet
                     ModuleBeleidskeuzeSpec(
                         key="mod_5_beleidskeuze_510_first_entry",
-                        Object_ID=510,
-                        Title="Beleidskeuze 510 from module 5",
-                        Description="Description of beleidskeuze 510",
-                        Explanation="Explanation of beleidskeuze 510",
-                        Owner_1_UUID=col.ref(UserSpec, "owner-1"),
+                        object_id=510,
+                        title="Beleidskeuze 510 from module 5",
+                        description="Description of beleidskeuze 510",
+                        explanation="Explanation of beleidskeuze 510",
+                        owner_1_id=col.ref(UserSpec, "owner-1"),
                     ),
                 ]
             )
@@ -112,7 +112,7 @@ def load(col: Collector) -> None:
                 [
                     ModuleMaatregelSpec(
                         key="mod_5_maatregel_1_first_entry",
-                        Object_ID=1,
+                        object_id=1,
                     ),
                 ]
             )

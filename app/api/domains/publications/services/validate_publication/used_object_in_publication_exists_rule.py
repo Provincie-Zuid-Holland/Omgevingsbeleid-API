@@ -18,20 +18,20 @@ class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
             used_object_types_in_template.add(object_type)
 
         for object_current in request.input_data.Publication_Data.all_objects:
-            if object_current.get("Object_Type") not in used_object_types_in_template:
+            if object_current.get("object_type") not in used_object_types_in_template:
                 continue
 
-            if object_current.get("Code") not in request.input_data.Publication_Data.used_object_codes:
+            if object_current.get("code") not in request.input_data.Publication_Data.used_object_codes:
                 errors.append(
                     ValidatePublicationError(
                         rule="used_object_in_publication_exists_rule",
                         object=ValidatePublicationObject(
-                            code=object_current.get("Code"),
-                            object_id=object_current.get("Object_ID"),
-                            object_type=object_current.get("Object_Type"),
-                            title=object_current.get("Title", ""),
+                            code=object_current.get("code"),
+                            object_id=object_current.get("object_id"),
+                            object_type=object_current.get("object_type"),
+                            title=object_current.get("title", ""),
                         ),
-                        messages=[f"Object {object_current.get('Code')} can't be found in publication"],
+                        messages=[f"Object {object_current.get('code')} can't be found in publication"],
                     )
                 )
         return errors

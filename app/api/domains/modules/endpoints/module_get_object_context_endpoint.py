@@ -13,10 +13,10 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleObjectContext(BaseModel):
-    Module_ID: int
-    Object_Type: str
-    Object_ID: int
-    Code: str
+    module_id: int
+    object_type: str
+    object_id: int
+    code: str
 
     created_date: datetime
     modified_date: datetime

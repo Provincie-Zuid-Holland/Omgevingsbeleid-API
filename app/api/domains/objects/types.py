@@ -11,60 +11,60 @@ class ObjectCount(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-# Wraps a List type to a Pyndantic model type for FastAPI
+# Wraps a List type to a Pydantic model type for FastAPI
 ObjectCountResponse = RootModel[list[ObjectCount]]
 
 
 class WriteRelation(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Description: str = Field("")
+    object_id: int
+    object_type: str
+    description: str = Field("")
 
-    @field_validator("Description", mode="before")
+    @field_validator("description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
     @property
-    def Code(self) -> str:
-        return f"{self.Object_Type}-{self.Object_ID}"
+    def code(self) -> str:
+        return f"{self.object_type}-{self.object_id}"
 
 
 class ReadRelationShort(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Description: str = Field("")
+    object_id: int
+    object_type: str
+    description: str = Field("")
 
-    @field_validator("Description", mode="before")
+    @field_validator("description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
     @property
-    def Code(self) -> str:
-        return f"{self.Object_Type}-{self.Object_ID}"
+    def code(self) -> str:
+        return f"{self.object_type}-{self.object_id}"
 
 
 class ReadRelation(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Description: str = Field("")
-    Title: str = Field("")
+    object_id: int
+    object_type: str
+    description: str = Field("")
+    title: str = Field("")
 
-    @field_validator("Description", "Title", mode="before")
+    @field_validator("description", "title", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
     @property
-    def Code(self) -> str:
-        return f"{self.Object_Type}-{self.Object_ID}"
+    def code(self) -> str:
+        return f"{self.object_type}-{self.object_id}"
 
 
 class ObjectStatics(BaseModel):
-    Object_Type: str
-    Object_ID: int
-    Code: str
-    Cached_Title: str
+    object_type: str
+    object_id: int
+    code: str
+    cached_title: str
 
-    @field_validator("Cached_Title", mode="before")
+    @field_validator("cached_title", mode="before")
     def default_empty_string(cls, v):
         return "" if v is None else v
 
@@ -84,12 +84,12 @@ class FilterObjectCode(BaseModel):
 
 
 class NextObjectVersion(BaseModel):
-    UUID: uuid.UUID
-    Title: str
-    Start_Validity: datetime
-    End_Validity: datetime | None = None
+    id: uuid.UUID
+    title: str
+    start_validity: datetime
+    end_validity: datetime | None = None
     created_date: datetime
     modified_date: datetime
-    Previous_UUID: uuid.UUID
+    previous_id: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)

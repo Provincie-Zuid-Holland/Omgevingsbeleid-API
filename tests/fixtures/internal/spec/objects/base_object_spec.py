@@ -20,81 +20,81 @@ from tests.fixtures.internal.types import (
 
 
 class BaseObjectSpec(Spec):
-    # This will handle the Object_Type and that it is not overwritten by the users
+    # This will handle the object_type and that it is not overwritten by the users
     __object_type__: ClassVar[str] = ""
     __inheritable__: ClassVar[set[str]] = {
         "created_date",
         "created_by_id",
-        "Start_Validity",
-        "End_Validity",
+        "start_validity",
+        "end_validity",
     }
     __link_fields__: ClassVar[set[str]] = {
-        "Adjust_On",
+        "adjust_on",
         "created_by_id",
         "modified_by_id",
-        "Owner_1_UUID",
-        "Owner_2_UUID",
-        "Portfolio_Holder_1_UUID",
-        "Portfolio_Holder_2_UUID",
-        "Client_1_UUID",
+        "owner_1_id",
+        "owner_2_id",
+        "portfolio_holder_1_id",
+        "portfolio_holder_2_id",
+        "client_1_id",
     }
     __object_fields__: ClassVar[set[str]] = {
-        "Object_ID",
-        "Object_Type",
-        "Code",
-        "UUID",
-        "Adjust_On",
+        "object_id",
+        "object_type",
+        "code",
+        "id",
+        "adjust_on",
         "created_date",
         "created_by_id",
         "modified_date",
         "modified_by_id",
-        "Start_Validity",
-        "End_Validity",
+        "start_validity",
+        "end_validity",
     }
     __static_fields__: ClassVar[set[str]] = {
-        "Object_ID",
-        "Object_Type",
-        "Code",
-        "Owner_1_UUID",
-        "Owner_2_UUID",
-        "Portfolio_Holder_1_UUID",
-        "Portfolio_Holder_2_UUID",
-        "Client_1_UUID",
+        "object_id",
+        "object_type",
+        "code",
+        "owner_1_id",
+        "owner_2_id",
+        "portfolio_holder_1_id",
+        "portfolio_holder_2_id",
+        "client_1_id",
     }
 
-    Object_ID: int = 0
-    Object_Type: str = ""
-    Code: str = ""
-    UUID: uuid.UUID | None = None
-    Adjust_On: Link | None = None
+    object_id: int = 0
+    object_type: str = ""
+    code: str = ""
+    id: uuid.UUID | None = None
+    adjust_on: Link | None = None
     created_date: datetime | None = None
     created_by_id: Link | None = None
     modified_date: datetime | None = None
     modified_by_id: Link | None = None
-    Start_Validity: datetime | None = None
-    End_Validity: datetime | None = None
-    Owner_1_UUID: Link | None = None
-    Owner_2_UUID: Link | None = None
-    Portfolio_Holder_1_UUID: Link | None = None
-    Portfolio_Holder_2_UUID: Link | None = None
-    Client_1_UUID: Link | None = None
+    start_validity: datetime | None = None
+    end_validity: datetime | None = None
+    owner_1_id: Link | None = None
+    owner_2_id: Link | None = None
+    portfolio_holder_1_id: Link | None = None
+    portfolio_holder_2_id: Link | None = None
+    client_1_id: Link | None = None
 
     @model_validator(mode="before")
     def ensure_fixed_object_type(cls, data: Any):
-        data["Object_Type"] = cls.__object_type__
+        data["object_type"] = cls.__object_type__
         return data
 
     @model_validator(mode="after")
     def ensure_object_id_code(self) -> Self:
         # Everything is already set
-        if self.Object_ID and self.Code:
+        if self.object_id and self.code:
             return self
 
-        if self.Code:
-            self.Object_ID = self._resolve_object_id(self.Code)
+        if self.code:
+            self.object_id = self._resolve_object_id(self.code)
             return self
 
-        self.Code = f"{self.Object_Type}-{self.Object_ID}"
+        self.code = f"{self.object_type}-{self.object_id}"
         return self
 
     def _resolve_object_id(self, code: str) -> int:
@@ -103,11 +103,11 @@ class BaseObjectSpec(Spec):
             object_id = int(object_id_str)
             return object_id
         except ValueError:
-            raise RuntimeError(f"Invalid format for Object Code `{code}`")
+            raise RuntimeError(f"Invalid format for Object code `{code}`")
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.UUID, "UUID is not set which is expected to happen at this stage."
-        return self.UUID
+        assert self.id, "UUID is not set which is expected to happen at this stage."
+        return self.id
 
     def get_ref(self) -> Ref | None:
         if self.key is None:
@@ -139,8 +139,8 @@ T = TypeVar("T", bound=BaseObjectSpec)
 
 class BaseObjectPrefillHandler(BasePrefillHandler[T]):
     def fill(self, record: Record[T], context: PrefillContext) -> Record[T]:
-        if record.spec.UUID is None:
-            record.spec.UUID = uuid.uuid4()
+        if record.spec.id is None:
+            record.spec.id = uuid.uuid4()
 
         record = super().fill(record, context)
 
@@ -149,7 +149,7 @@ class BaseObjectPrefillHandler(BasePrefillHandler[T]):
             context.previous_records,
         )
         if previous_version is not None:
-            record.spec.Adjust_On = previous_version.spec.UUID
+            record.spec.adjust_on = previous_version.spec.id
             for field_name in record.spec.get_inheritable_fields():
                 if field_name not in record.spec.model_fields_set:
                     prev_value = getattr(previous_version.spec, field_name)
@@ -166,14 +166,14 @@ class BaseObjectPrefillHandler(BasePrefillHandler[T]):
             previous_record_casted = cast(Record[T], previous_record)
 
             # Find based on what we have
-            # If we have a Adjust_On, then we must find where we are pointing to
-            match current_record.spec.Adjust_On:
+            # If we have an adjust_on, then we must find where we are pointing to
+            match current_record.spec.adjust_on:
                 case None:
                     # Search for code
-                    if previous_record.spec.Code == current_record.spec.Code:
+                    if previous_record.spec.code == current_record.spec.code:
                         return previous_record_casted
                 case Ref():
-                    if previous_record.spec.get_ref() == current_record.spec.Adjust_On:
+                    if previous_record.spec.get_ref() == current_record.spec.adjust_on:
                         return previous_record_casted
                 case uuid.UUID() | int() as pk:
                     if previous_record.spec.get_table_primary_key() == pk:
@@ -186,8 +186,8 @@ class BaseObjectPersistHandler[T: BaseObjectSpec](BasePersistHandler[T]):
         spec: T = record.spec
         result: list[Base] = []
 
-        if spec.Code not in context.seen_codes:
-            context.seen_codes.add(spec.Code)
+        if spec.code not in context.seen_codes:
+            context.seen_codes.add(spec.code)
             result.append(self._build_object_static(spec))
 
         result.append(self._build_object(spec))

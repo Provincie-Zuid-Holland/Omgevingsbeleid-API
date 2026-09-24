@@ -128,7 +128,7 @@ class AddPublicRevisionsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
         service_config: dict = event.context.response_model.service_config["public_revisions"]
         to_field: str = service_config["to_field"]
 
-        object_codes: list[str] = list({r.Code for r in event.payload.rows})
+        object_codes: list[str] = list({r.code for r in event.payload.rows})
 
         return AddPublicRevisionsConfig(
             to_field=to_field,
@@ -166,7 +166,7 @@ class AddNextObjectVersionToObjectsListener(ApiListener[RetrievedObjectsEvent]):
         service_config: dict = event.context.response_model.service_config["next_object_version"]
         to_field: str = service_config["to_field"]
 
-        object_uuids: list[uuid.UUID] = list({r.UUID for r in event.payload.rows})
+        object_uuids: list[uuid.UUID] = list({r.id for r in event.payload.rows})
 
         return AddNextObjectVersionConfig(
             to_field=to_field,
@@ -203,7 +203,7 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObje
         service_config: dict = event.context.response_model.service_config["werkingsgebied_related_objects"]
         to_field: str = service_config["to_field"]
 
-        werkingsgebied_codes: list[str] = list({r.Code for r in event.payload.rows})
+        werkingsgebied_codes: list[str] = list({r.code for r in event.payload.rows})
 
         return AddWerkingsgebiedRelatedObjectsConfig(
             to_field=to_field,
@@ -499,7 +499,7 @@ class JoinRelatedFilesToObjectsListener(ApiListener[RetrievedObjectsEvent]):
         service_config: dict = event.context.response_model.service_config["related_files"]
         to_field: str = service_config["to_field"]
 
-        object_codes: list[str] = list({r.Code for r in event.payload.rows})
+        object_codes: list[str] = list({r.code for r in event.payload.rows})
 
         return JoinRelatedFilesConfig(
             to_field=to_field,

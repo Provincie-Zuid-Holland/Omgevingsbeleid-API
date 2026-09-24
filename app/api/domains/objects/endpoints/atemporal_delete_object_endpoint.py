@@ -46,12 +46,12 @@ def atemporal_delete_object_endpoint(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object not found")
 
     timepoint: datetime = datetime.now(UTC)
-    if maybe_object.End_Validity is not None and maybe_object.End_Validity < timepoint:
+    if maybe_object.end_validity is not None and maybe_object.end_validity < timepoint:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Object is already deleted")
 
     log_before: str = json.dumps(maybe_object.to_dict())
 
-    maybe_object.End_Validity = timepoint
+    maybe_object.end_validity = timepoint
     maybe_object.modified_by_id = user.UUID
     maybe_object.modified_date = timepoint
     session.add(maybe_object)

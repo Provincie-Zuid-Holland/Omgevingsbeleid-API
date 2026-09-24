@@ -16,12 +16,13 @@ class ResolveChildObjectsViaHierarchyConfig(BaseModel):
 
 
 class HierachyReference(BaseModel):
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Code: str
-    Hierarchy_Code: str
-    Title: str | None = None
+    id: uuid.UUID
+    object_type: str
+    object_id: int
+    code: str
+    hierarchy_code: str
+    title: str | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -35,15 +36,15 @@ class ResolveChildObjectsViaHierarchyService:
         self._config: ResolveChildObjectsViaHierarchyConfig = config
 
     def resolve_child_objects(self, rows: list[BaseModel]) -> list[BaseModel]:
-        target_codes: set[str] = {row.Code for row in rows}
+        target_codes: set[str] = {row.code for row in rows}
         child_rows = self._fetch_children(target_codes)
 
         map_for_target: dict[str, list[HierachyReference]] = defaultdict(list)
         for child_row in child_rows:
-            map_for_target[child_row.Hierarchy_Code].append(child_row)
+            map_for_target[child_row.hierarchy_code].append(child_row)
 
         for row in rows:
-            children: list[HierachyReference] = map_for_target.get(row.Code, [])
+            children: list[HierachyReference] = map_for_target.get(row.code, [])
             setattr(row, self._config.to_field, children)
 
         return rows
@@ -54,32 +55,32 @@ class ResolveChildObjectsViaHierarchyService:
 
         subq = (
             select(
-                ObjectsTable.UUID,
-                ObjectsTable.Object_Type,
-                ObjectsTable.Object_ID,
-                ObjectsTable.Code,
-                ObjectsTable.Hierarchy_Code,
-                ObjectsTable.Title,
-                ObjectsTable.End_Validity,
+                ObjectsTable.id,
+                ObjectsTable.object_type,
+                ObjectsTable.object_id,
+                ObjectsTable.code,
+                ObjectsTable.hierarchy_code,
+                ObjectsTable.title,
+                ObjectsTable.end_validity,
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
+                    partition_by=ObjectsTable.code,
                     order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
             .subquery()
         )
 
         stmt = (
             select(subq)
-            .filter(subq.c._RowNumber == 1)
-            .filter(subq.c.Hierarchy_Code.in_(hierarchy_targets))
+            .filter(subq.c._row_number == 1)
+            .filter(subq.c.hierarchy_code.in_(hierarchy_targets))
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(UTC),
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > datetime.now(UTC),
+                    subq.c.end_validity.is_(None),
                 )
             )
         )

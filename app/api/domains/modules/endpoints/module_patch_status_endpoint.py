@@ -38,22 +38,22 @@ def post_module_patch_status_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_patch_module_status,
         user,
-        whitelisted_uuids=[
-            module.Module_Manager_1_UUID,
-            module.Module_Manager_2_UUID,
+        whitelisted_ids=[
+            module.module_manager_1_id,
+            module.module_manager_2_id,
         ],
     )
     guard_module_is_locked(module)
 
     if object_in.Status == ModuleStatusCode.Vastgesteld:
-        result: ValidateModuleResult = validate_module_runner.run(session, module.Module_ID)
+        result: ValidateModuleResult = validate_module_runner.run(session, module.module_id)
         if len(result.errors) > 0:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST, "Please run the module validator, there seems to be a problem."
             )
 
     module_status_history = ModuleStatusHistoryTable(
-        Module_ID=module.Module_ID,
+        module_id=module.module_id,
         Status=object_in.Status,
         created_date=datetime.now(UTC),
         created_by_id=user.UUID,

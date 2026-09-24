@@ -12,7 +12,7 @@ from app.core.tables.modules import ModuleObjectsTable
 
 
 class Ambitie(BaseModel):
-    Title: str = Field(..., min_length=5)
+    title: str = Field(..., min_length=5)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -25,22 +25,22 @@ def test_validate():
         module_id=1,
         module_objects=[
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="1",
-                Code="ambitie-1",
-                Title="Obj",  # Title too short
+                object_type="ambitie",
+                object_id="1",
+                code="ambitie-1",
+                title="Obj",  # title too short
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="2",
-                Code="ambitie-2",
-                Title="Object valid",
+                object_type="ambitie",
+                object_id="2",
+                code="ambitie-2",
+                title="Object valid",
             ),
             ModuleObjectsTable(
-                Object_Type="beleidsdoel",  # Object type not in map
-                Object_ID="1",
-                Code="beleidsdoel-1",
-                Title="Some beleidsdoel",
+                object_type="beleidsdoel",  # Object type not in map
+                object_id="1",
+                code="beleidsdoel-1",
+                title="Some beleidsdoel",
             ),
         ],
     )

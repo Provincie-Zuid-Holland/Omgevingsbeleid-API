@@ -2,13 +2,13 @@ id: gebiedsprogramma
 object_type: gebiedsprogramma
 
 sort_allowed_columns: &sort_allowed_columns
-  - Object_ID
-  - Title
+  - object_id
+  - title
   - modified_date
 
 sort_default_title: &sort_default_title
   default:
-    column: Title
+    column: title
     order: asc
   allowed_columns: *sort_allowed_columns
 
@@ -27,14 +27,14 @@ api:
             path: /valid
             response_model: gebiedsprogramma_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: gebiedsprogramma_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
@@ -67,13 +67,13 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: gebiedsprogramma_patch
-            response_model: gebiedsprogramma_uuid
+            response_model: gebiedsprogramma_id
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
             response_model: gebiedsprogramma_extended
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
@@ -99,61 +99,61 @@ api:
 
 fields:
   title:
-    name: Title
+    name: title
     type: str
     column: title
     validators:
       - id: none_to_default_value
   description:
-    name: Description
+    name: description
     type: str
     column: description
     validators:
       - id: none_to_default_value
   image:
-    name: Image
+    name: image
     type: str
     column: image
     validators:
       - id: none_to_default_value
   idms_link:
-    name: IDMS_Link
+    name: idms_link
     type: str
     column: idms_link
     validators:
       - id: none_to_default_value
   decision_number:
-    name: Decision_Number
+    name: decision_number
     type: str
     column: decision_number
     validators:
       - id: none_to_default_value
 
   # Statics
-  owner_1_uuid:
-    name: Owner_1_UUID
+  owner_1_id:
+    name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
-    name: Owner_2_UUID
+  owner_2_id:
+    name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
-  portfolio_holder_1_uuid:
-    name: Portfolio_Holder_1_UUID
+  portfolio_holder_1_id:
+    name: portfolio_holder_1_id
     type: uuid
-    column: portfolio_holder_1_uuid
+    column: portfolio_holder_1_id
     optional: true
-  portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
+  portfolio_holder_2_id:
+    name: portfolio_holder_2_id
     type: uuid
-    column: portfolio_holder_1_uuid
+    column: portfolio_holder_1_id
     optional: true
-  client_1_uuid:
-    name: Client_1_UUID
+  client_1_id:
+    name: client_1_id
     type: uuid
-    column: client_1_uuid
+    column: client_1_id
     optional: true
 
 models:
@@ -181,10 +181,10 @@ models:
         optional: true
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
       get_image:
         fields:
-          - Image
+          - image
   gebiedsprogramma_extended:
     name: GebiedsprogrammaExtended
     fields:
@@ -205,7 +205,7 @@ models:
     services:
       get_image:
         fields:
-          - Image
+          - image
       foreign_keys_extender:
         fields_map:
           - to_field: created_by
@@ -214,15 +214,15 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   gebiedsprogramma_full:
     name: GebiedsprogrammaFull
@@ -246,15 +246,15 @@ models:
       - maatregel_minimal
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
       public_revisions:
-        to_field: Public_Revisions
+        to_field: public_revisions
       insert_assets:
         fields:
-          - Description
+          - description
       get_image:
         fields:
-          - Image
+          - image
       relations:
         objects:
           - object_type: maatregel
@@ -270,15 +270,15 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   gebiedsprogramma_patch:
     name: GebiedsprogrammaPatch
@@ -314,10 +314,10 @@ models:
     services:
       extract_assets:
         fields:
-          - Description
+          - description
       store_image:
         fields:
-          - Image
+          - image
   gebiedsprogramma_static:
     name: GebiedsprogrammaStatic
     static_only: true
@@ -327,25 +327,25 @@ models:
     services:
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   gebiedsprogramma_static_post:
     name: GebiedsprogrammaStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-      portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
-      client_1_uuid:
+      owner_1_id:
+      owner_2_id:
+      portfolio_holder_1_id:
+      portfolio_holder_2_id:
+      client_1_id:
   gebiedsprogramma_static_post_validated:
     name: GebiedsprogrammaStaticPostValidated
     static_only: true
@@ -353,24 +353,24 @@ models:
       - id: not_equal_root
         data:
           fields:
-            - Owner_1_UUID
-            - Owner_2_UUID
+            - owner_1_id
+            - owner_2_id
           allow_none: True
           error_message: Owners should vary
       - id: not_equal_root
         data:
           fields:
-            - Portfolio_Holder_1_UUID
-            - Portfolio_Holder_2_UUID
+            - portfolio_holder_1_id
+            - portfolio_holder_2_id
           allow_none: True
           error_message: Portfolio Holders should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-      portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
-      client_1_uuid:
-  gebiedsprogramma_uuid:
+      owner_1_id:
+      owner_2_id:
+      portfolio_holder_1_id:
+      portfolio_holder_2_id:
+      client_1_id:
+  gebiedsprogramma_id:
     name: GebiedsprogrammaUUID
     fields:
       object_id:

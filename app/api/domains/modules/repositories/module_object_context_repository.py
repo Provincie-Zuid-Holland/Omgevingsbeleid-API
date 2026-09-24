@@ -11,9 +11,9 @@ class ModuleObjectContextRepository(BaseRepository):
     ) -> ModuleObjectContextTable | None:
         stmt = (
             select(ModuleObjectContextTable)
-            .filter(ModuleObjectContextTable.Object_Type == object_type)
-            .filter(ModuleObjectContextTable.Object_ID == object_id)
-            .filter(ModuleObjectContextTable.Module_ID == module_id)
+            .filter(ModuleObjectContextTable.object_type == object_type)
+            .filter(ModuleObjectContextTable.object_id == object_id)
+            .filter(ModuleObjectContextTable.module_id == module_id)
         )
 
         maybe_context: ModuleObjectContextTable | None = session.scalars(stmt).first()

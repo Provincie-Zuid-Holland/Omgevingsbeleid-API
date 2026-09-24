@@ -2,13 +2,13 @@ id: beleidskeuze
 object_type: beleidskeuze
 
 sort_allowed_columns: &sort_allowed_columns
-  - Object_ID
-  - Title
+  - object_id
+  - title
   - modified_date
 
 sort_default_title: &sort_default_title
   default:
-    column: Title
+    column: title
     order: asc
   allowed_columns: *sort_allowed_columns
 
@@ -27,14 +27,14 @@ api:
             path: /valid
             response_model: beleidskeuze_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: beleidskeuze_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
@@ -81,13 +81,13 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: beleidskeuze_patch
-            response_model: beleidskeuze_uuid
+            response_model: beleidskeuze_id
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
             response_model: beleidskeuze_extended
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
@@ -112,105 +112,105 @@ api:
 
 fields:
   title:
-    name: Title
+    name: title
     type: str
     column: title
     validators:
       - id: none_to_default_value
   description:
-    name: Description
+    name: description
     type: str
     column: description
     validators:
       - id: none_to_default_value
   cause:
-    name: Cause
+    name: cause
     type: str
     column: cause
     validators:
       - id: none_to_default_value
   provincial_interest:
-    name: Provincial_Interest
+    name: provincial_interest
     type: str
     column: provincial_interest
     validators:
       - id: none_to_default_value
   explanation:
-    name: Explanation
+    name: explanation
     type: str
     column: explanation
     validators:
       - id: none_to_default_value
   idms_link:
-    name: IDMS_Link
+    name: idms_link
     type: str
     column: idms_link
     validators:
       - id: none_to_default_value
   decision_number:
-    name: Decision_Number
+    name: decision_number
     type: str
     column: decision_number
     validators:
       - id: none_to_default_value
   hierarchy_code:
-    name: Hierarchy_Code
+    name: hierarchy_code
     type: str
     column: hierarchy_code
     validators:
       - id: none_to_default_value
   werkingsgebied_code:
-    name: Werkingsgebied_Code
+    name: werkingsgebied_code
     type: str
     column: werkingsgebied_code
     validators:
       - id: none_to_default_value
   gebiedengroep_code:
-    optional: true
-    default: none
-    name: Gebiedengroep_Code
+    name: gebiedengroep_code
     type: str
     column: gebiedengroep_code
+    optional: true
+    default: none
     validators:
       - id: none_to_default_value
   hoofdlijnen:
-    name: Hoofdlijnen
+    name: hoofdlijnen
     type: list_str
     column: hoofdlijnen
     validators:
       - id: none_to_default_value
   themas:
-    name: Themas
+    name: themas
     type: list_str
     column: themas
     validators:
       - id: none_to_default_value
   
   # Statics
-  owner_1_uuid:
-    name: Owner_1_UUID
+  owner_1_id:
+    name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
-    name: Owner_2_UUID
+  owner_2_id:
+    name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
-  portfolio_holder_1_uuid:
-    name: Portfolio_Holder_1_UUID
+  portfolio_holder_1_id:
+    name: portfolio_holder_1_id
     type: uuid
-    column: portfolio_holder_1_uuid
+    column: portfolio_holder_1_id
     optional: true
-  portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
+  portfolio_holder_2_id:
+    name: portfolio_holder_2_id
     type: uuid
-    column: portfolio_holder_1_uuid
+    column: portfolio_holder_1_id
     optional: true
-  client_1_uuid:
-    name: Client_1_UUID
+  client_1_id:
+    name: client_1_id
     type: uuid
-    column: client_1_uuid
+    column: client_1_id
     optional: true
 
 models:
@@ -235,7 +235,7 @@ models:
       title:
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
   beleidskeuze_extended:
     name: BeleidskeuzeExtended
     fields:
@@ -264,15 +264,15 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   beleidskeuze_full:
     name: BeleidskeuzeFull
@@ -307,34 +307,34 @@ models:
       - maatregel_minimal
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
       public_revisions:
-        to_field: Public_Revisions
+        to_field: public_revisions
       join_werkingsgebieden:
         model_id: werkingsgebied_basic
-        to_field: Werkingsgebied
-        from_field: Werkingsgebied_Code
+        to_field: werkingsgebied
+        from_field: werkingsgebied_code
       join_gebiedengroepen:
-        to_field: Gebiedengroep_Static
-        from_field: Gebiedengroep_Code
+        to_field: gebiedengroep_static
+        from_field: gebiedengroep_code
       join_gebiedsaanwijzingen:
-        to_field: Gebiedsaanwijzingen_Statics
+        to_field: gebiedsaanwijzingen_statics
         from_fields:
-          - Description
-          - Cause
-          - Provincial_Interest
-          - Explanation
+          - description
+          - cause
+          - provincial_interest
+          - explanation
       insert_assets:
         fields:
-          - Description
-          - Cause
-          - Provincial_Interest
-          - Explanation
+          - description
+          - cause
+          - provincial_interest
+          - explanation
       foreign_keys_extender:
         fields_map:
-          - to_field: Hierarchy_Statics
+          - to_field: hierarchy_statics
             model_id: hierarchy_statics
-          - to_field: Werkingsgebied_Statics
+          - to_field: werkingsgebied_statics
             model_id: werkingsgebied_statics
           - to_field: created_by
             model_id: user_short
@@ -342,18 +342,18 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
       resolve_child_objects_via_hierarchy_listener:
-        to_field: Hierarchy_Children
+        to_field: hierarchy_children
       relations:
         objects:
           - object_type: wettelijke_taak
@@ -483,10 +483,10 @@ models:
     services:
       extract_assets:
         fields:
-          - Description
-          - Cause
-          - Provincial_Interest
-          - Explanation
+          - description
+          - cause
+          - provincial_interest
+          - explanation
   beleidskeuze_static:
     name: BeleidskeuzeStatic
     static_only: true
@@ -496,25 +496,25 @@ models:
     services:
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   beleidskeuze_static_post:
     name: BeleidskeuzeStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-      portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
-      client_1_uuid:
+      owner_1_id:
+      owner_2_id:
+      portfolio_holder_1_id:
+      portfolio_holder_2_id:
+      client_1_id:
   beleidskeuze_static_post_validated:
     name: BeleidskeuzeStaticPostValidated
     static_only: true
@@ -522,24 +522,24 @@ models:
       - id: not_equal_root
         data:
           fields:
-            - Owner_1_UUID
-            - Owner_2_UUID
+            - owner_1_id
+            - owner_2_id
           allow_none: True
           error_message: Owners should vary
       - id: not_equal_root
         data:
           fields:
-            - Portfolio_Holder_1_UUID
-            - Portfolio_Holder_2_UUID
+            - portfolio_holder_1_id
+            - portfolio_holder_2_id
           allow_none: True
           error_message: Portfolio Holders should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-      portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
-      client_1_uuid:
-  beleidskeuze_uuid:
+      owner_1_id:
+      owner_2_id:
+      portfolio_holder_1_id:
+      portfolio_holder_2_id:
+      client_1_id:
+  beleidskeuze_id:
     name: BeleidskeuzeUUID
     fields:
       object_id:

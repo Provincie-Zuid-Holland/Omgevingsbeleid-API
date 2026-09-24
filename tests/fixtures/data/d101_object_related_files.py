@@ -15,16 +15,16 @@ def load(col: Collector) -> None:
             [
                 ObjectRelatedFileSpec(
                     key="bd1_file1",
-                    Code="beleidsdoel-1",
-                    Title="Document 1 for beleidsdoel 1",
-                    File_Ref=col.ref(StorageFileSpec, "file_1"),
+                    code="beleidsdoel-1",
+                    title="Document 1 for beleidsdoel 1",
+                    file_ref=col.ref(StorageFileSpec, "file_1"),
                     created_date=datetime(2025, 4, 1, tzinfo=UTC),
                 ),
                 ObjectRelatedFileSpec(
                     key="bd1_file2",
-                    Code="beleidsdoel-1",
-                    Title="Document 2 for beleidsdoel 1",
-                    File_Ref=col.ref(StorageFileSpec, "file_2"),
+                    code="beleidsdoel-1",
+                    title="Document 2 for beleidsdoel 1",
+                    file_ref=col.ref(StorageFileSpec, "file_2"),
                     created_date=datetime(2025, 4, 2, tzinfo=UTC),
                 ),
             ]
@@ -34,9 +34,9 @@ def load(col: Collector) -> None:
         col.add(
             ObjectRelatedFileSpec(
                 key="bd2_file1",
-                Code="beleidsdoel-2",
-                Title="Document 1 for beleidsdoel 2",
-                File_Ref=col.ref(StorageFileSpec, "file_1"),
+                code="beleidsdoel-2",
+                title="Document 1 for beleidsdoel 2",
+                file_ref=col.ref(StorageFileSpec, "file_1"),
                 created_date=datetime(2025, 4, 1, tzinfo=UTC),
             )
         )

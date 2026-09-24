@@ -42,13 +42,13 @@ def post_abort_act_package_endpoint(
 ) -> AbortResponse:
     if not confirm:
         raise HTTPException(450, "Are you sure you want to abort this publication?")
-    if act_package.Report_Status != ReportStatusType.VALID:
+    if act_package.report_status != ReportStatusType.VALID:
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="You can only abort packages which are successfull"
         )
-    if act_package.Package_Type != PackageType.PUBLICATION:
+    if act_package.package_type != PackageType.PUBLICATION:
         raise HTTPException(451, "Only publications can be aborted")
-    if act_package.Used_Environment_State_UUID is None or act_package.Created_Environment_State_UUID is None:
+    if act_package.used_environment_state_id is None or act_package.created_environment_state_id is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="We do not know what to do if we do not have state uuids",
@@ -63,23 +63,23 @@ def post_abort_act_package_endpoint(
     # We can only abort the latest package in the chain:
     # That is, we can only revert the package that caused the current state.
     # After aborting it, we can then abort the package that caused the new (previous) state, and so on...
-    publication_version: PublicationVersionTable = act_package.Publication_Version
-    environment: PublicationEnvironmentTable = publication_version.Publication.Act.Environment
-    if environment.Active_State_UUID != act_package.Created_Environment_State_UUID:
+    publication_version: PublicationVersionTable = act_package.publication_version
+    environment: PublicationEnvironmentTable = publication_version.publication.act.environment
+    if environment.active_state_id != act_package.created_environment_state_id:
         raise HTTPException(452, "We can only abort the latest package in the state chain")
 
-    act_package.Report_Status = ReportStatusType.ABORTED
+    act_package.report_status = ReportStatusType.ABORTED
     act_package.modified_date = timepoint
     act_package.modified_by_id = user.UUID
     session.add(act_package)
 
-    publication_version.Status = PublicationVersionStatus.PUBLICATION_ABORTED
+    publication_version.status = PublicationVersionStatus.PUBLICATION_ABORTED
     publication_version.modified_date = timepoint
     publication_version.modified_by_id = user.UUID
-    publication_version.Is_Locked = False
+    publication_version.is_locked = False
     session.add(publication_version)
 
-    environment.Active_State_UUID = act_package.Used_Environment_State_UUID
+    environment.active_state_id = act_package.used_environment_state_id
     environment.modified_date = timepoint
     environment.modified_by_id = user.UUID
     session.add(environment)
@@ -88,5 +88,5 @@ def post_abort_act_package_endpoint(
     session.commit()
 
     return AbortResponse(
-        new_state_uuid=act_package.Used_Environment_State_UUID,
+        new_state_uuid=act_package.used_environment_state_id,
     )

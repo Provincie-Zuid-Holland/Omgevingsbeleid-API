@@ -22,14 +22,14 @@ class PublicationObjectProvider:
         session: Session,
         publication_version: PublicationVersionTable,
     ) -> list[dict]:
-        template: PublicationTemplateTable = publication_version.Publication.Template
-        object_field_map: dict[str, list[str]] = template.Object_Field_Map or {}
+        template: PublicationTemplateTable = publication_version.publication.template
+        object_field_map: dict[str, list[str]] = template.object_field_map or {}
         requested_fields: set[str] = {field for field_list in object_field_map.values() for field in field_list}
         objects: list[dict] = self._publication_object_repository.fetch_objects(
             session,
-            publication_version.Publication.Module_ID,
-            publication_version.Module_Status.created_date,
-            template.Object_Types,
+            publication_version.publication.module_id,
+            publication_version.module_status.created_date,
+            template.object_types,
             list(requested_fields),
         )
 
@@ -42,9 +42,9 @@ class PublicationObjectProvider:
 
         result: list[dict] = []
         for obj in objects:
-            obj_type: str = obj["Object_Type"]
+            obj_type: str = obj["object_type"]
             type_specific_fields: set[str] = set(object_field_map.get(obj_type, []))
-            allowed_fields: set[str] = PUBLICATION_BASE_FIELDS | {"Module_ID"} | type_specific_fields
+            allowed_fields: set[str] = PUBLICATION_BASE_FIELDS | {"module_id"} | type_specific_fields
 
             # @NOTE: I'm not sure anymore why we keep fields with underscores here
             cleaned: dict = {

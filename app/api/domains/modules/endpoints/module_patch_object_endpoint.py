@@ -1,4 +1,3 @@
-# from datetime import datetime, timezone
 from datetime import UTC, datetime
 from typing import Annotated, Any
 
@@ -60,7 +59,7 @@ def post_module_patch_object_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_patch_object_in_module,
         user,
-        [object_static.Owner_1_UUID, object_static.Owner_2_UUID],
+        [object_static.owner_1_id, object_static.owner_2_id],
     )
     guard_module_not_locked(module)
 
@@ -69,7 +68,7 @@ def post_module_patch_object_endpoint(
         object_in: BaseModel = context.request_config_model.pydantic_model.model_validate(
             object_in_raw,
             context={
-                "module_id": module.Module_ID,
+                "module_id": module.module_id,
             },
         )
     except ValidationError as e:
@@ -83,7 +82,7 @@ def post_module_patch_object_endpoint(
     try:
         old_record, new_record = module_object_repository.patch_latest_module_object(
             session,
-            module.Module_ID,
+            module.module_id,
             context.object_type,
             lineage_id,
             changes,
@@ -107,10 +106,10 @@ def post_module_patch_object_endpoint(
     new_record = event.payload.new_record
 
     # cache statics title if needed
-    if "Title" in changes:
-        valid_version = session.query(ObjectsTable).filter(ObjectsTable.Code == new_record.Code).first()
+    if "title" in changes:
+        valid_version = session.query(ObjectsTable).filter(ObjectsTable.code == new_record.code).first()
         if valid_version is None:
-            object_static.Cached_Title = changes["Title"]
+            object_static.cached_title = changes["title"]
             session.add(object_static)
 
     session.add(new_record)

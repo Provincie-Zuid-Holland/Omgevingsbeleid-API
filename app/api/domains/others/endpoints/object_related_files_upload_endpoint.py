@@ -60,10 +60,10 @@ class EndpointHandler:
         file_table: StorageFileTable = self._store_file()
 
         related_file = ObjectRelatedFileTable(
-            UUID=uuid.uuid4(),
-            Code=self._object_static.Code,
-            File_UUID=file_table.UUID,
-            Title=self._title,
+            id=uuid.uuid4(),
+            code=self._object_static.code,
+            file_id=file_table.id,
+            title=self._title,
             created_date=self._timepoint,
             created_by_id=self._user.UUID,
         )
@@ -89,13 +89,13 @@ class EndpointHandler:
             return existing_file_table
 
         file_table = StorageFileTable(
-            UUID=uuid.uuid4(),
-            Lookup=self._file_data.get_lookup(),
-            Checksum=self._file_data.get_checksum(),
-            Filename=self._file_data.normalize_filename(),
-            Content_Type=self._file_data.get_content_type(),
-            Size=self._file_data.get_size(),
-            Binary=self._file_data.get_binary(),
+            id=uuid.uuid4(),
+            lookup=self._file_data.get_lookup(),
+            checksum=self._file_data.get_checksum(),
+            filename=self._file_data.normalize_filename(),
+            content_type=self._file_data.get_content_type(),
+            size=self._file_data.get_size(),
+            binary=self._file_data.get_binary(),
             created_date=self._timepoint,
             created_by_id=self._user.UUID,
         )
@@ -130,8 +130,8 @@ def post_object_related_files_upload_endpoint(
         Permissions.object_related_files_can_create_object_related_file,
         user,
         [
-            object_static.Owner_1_UUID,
-            object_static.Owner_2_UUID,
+            object_static.owner_1_id,
+            object_static.owner_2_id,
         ],
     )
 

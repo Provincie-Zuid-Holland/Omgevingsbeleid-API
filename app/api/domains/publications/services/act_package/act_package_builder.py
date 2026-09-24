@@ -67,17 +67,17 @@ class ActPackageBuilder:
         if self._state is None:
             raise RuntimeError("Can not create new state")
 
-        environment: PublicationEnvironmentTable = self._api_input_data.Publication_Version.Publication.Environment
+        environment: PublicationEnvironmentTable = self._api_input_data.Publication_Version.publication.environment
 
         state_changer = ActStatePatcher(self._api_input_data, self._dso_builder)
         state: State = state_changer.apply(self._state)
 
         state_table: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(
-            UUID=uuid.uuid4(),
-            Environment_UUID=environment.UUID,
-            Adjust_On_UUID=environment.Active_State_UUID,
-            State=state.state_dict(),
-            Is_Activated=False,
-            Activated_Datetime=None,
+            id=uuid.uuid4(),
+            environment_id=environment.id,
+            adjust_on_id=environment.active_state_id,
+            state=state.state_dict(),
+            is_activated=False,
+            activated_datetime=None,
         )
         return state_table

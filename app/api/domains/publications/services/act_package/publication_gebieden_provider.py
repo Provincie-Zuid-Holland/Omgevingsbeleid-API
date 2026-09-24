@@ -11,7 +11,7 @@ from app.api.domains.publications.services.validate_publication.validate_publica
 
 
 class InputGebied(BaseModel):
-    # Represents an Object_Type=gebied and which convert to a DSO.GioLocatie
+    # Represents an object_type=gebied and which convert to a DSO.GioLocatie
     uuid: UUID
     object_id: int
     code: str
@@ -68,33 +68,33 @@ class PublicationGebiedenProvider:
         used_objects: list[dict],
     ) -> list[InputGebiedengroep]:
         gebiedengroep_codes: set[str] = self._calculate_gebiedengroep_codes(used_objects)
-        groep_objects: list[dict] = [o for o in all_objects if o["Object_Type"] == "gebiedengroep"]
+        groep_objects: list[dict] = [o for o in all_objects if o["object_type"] == "gebiedengroep"]
         used_groep_objects: list[InputGebiedengroep] = [
             InputGebiedengroep(
-                uuid=g["UUID"],
-                object_id=g["Object_ID"],
-                code=g["Code"],
-                title=g["Title"],
-                gebied_codes=set(g["Gebieden"] or []),
+                uuid=g["id"],
+                object_id=g["object_id"],
+                code=g["code"],
+                title=g["title"],
+                gebied_codes=set(g["gebieden"] or []),
                 modified_date=g["modified_date"],
             )
             for g in groep_objects
-            if g["Code"] in gebiedengroep_codes
+            if g["code"] in gebiedengroep_codes
         ]
         return used_groep_objects
 
     def _calculate_gebiedengroep_codes(self, used_objects: list[dict]) -> set[str]:
         used_codes: set[str] = {
-            o.get("Gebiedengroep_Code") for o in used_objects if o.get("Gebiedengroep_Code", None) is not None
+            o.get("gebiedengroep_code") for o in used_objects if o.get("gebiedengroep_code", None) is not None
         }  # type: ignore
         return used_codes
 
     def _get_gebied_objects(self, all_objects: list[dict]) -> dict[str, InputGebied]:
-        gebied_objects: list[dict] = [o for o in all_objects if o["Object_Type"] == "gebied"]
+        gebied_objects: list[dict] = [o for o in all_objects if o["object_type"] == "gebied"]
 
         result: dict[str, InputGebied] = {}
         for gebied in gebied_objects:
-            code: str = gebied["Code"]
+            code: str = gebied["code"]
             area_id: str | None = gebied.get("area_id")
             if area_id is None:
                 raise validation_exception(
@@ -108,12 +108,12 @@ class PublicationGebiedenProvider:
                 )
 
             input_gebied: InputGebied = InputGebied(
-                uuid=gebied["UUID"],
-                object_id=gebied["Object_ID"],
+                uuid=gebied["id"],
+                object_id=gebied["object_id"],
                 code=code,
                 area_id=area_id,
                 basisgeo_id=uuid4(),
-                title=gebied["Title"],
+                title=gebied["title"],
             )
             result[code] = input_gebied
 

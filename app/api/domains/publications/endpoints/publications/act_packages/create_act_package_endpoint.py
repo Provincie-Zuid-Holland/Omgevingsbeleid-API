@@ -69,9 +69,9 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._object_in: PublicationPackageCreate = object_in
         self._publication_version: PublicationVersionTable = publication_version
-        self._publication: PublicationTable = publication_version.Publication
-        self._environment: PublicationEnvironmentTable = publication_version.Publication.Environment
-        self._act: PublicationActTable = publication_version.Publication.Act
+        self._publication: PublicationTable = publication_version.publication
+        self._environment: PublicationEnvironmentTable = publication_version.publication.environment
+        self._act: PublicationActTable = publication_version.publication.act
         self._timepoint: datetime = datetime.now(UTC)
 
     def handle(self) -> PublicationPackageCreatedResponse:
@@ -89,16 +89,16 @@ class EndpointHandler:
             zip_data: ZipData = package_builder.zip_files()
 
             report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
-            if self._environment.Has_State:
+            if self._environment.has_state:
                 report_status = ReportStatusType.PENDING
 
             package_zip = PublicationPackageZipTable(
-                UUID=uuid.uuid4(),
-                Filename=zip_data.Filename,
-                Binary=zip_data.Binary,
-                Checksum=zip_data.Checksum,
-                Latest_Download_Date=None,
-                Latest_Download_By_UUID=None,
+                id=uuid.uuid4(),
+                filename=zip_data.Filename,
+                binary=zip_data.Binary,
+                checksum=zip_data.Checksum,
+                latest_download_date=None,
+                latest_download_by_uuid=None,
                 created_date=self._timepoint,
                 created_by_id=self._user.UUID,
             )
@@ -106,18 +106,18 @@ class EndpointHandler:
             self._session.flush()
 
             package = PublicationActPackageTable(
-                UUID=uuid.uuid4(),
-                Publication_Version_UUID=self._publication_version.UUID,
-                Zip_UUID=package_zip.UUID,
-                Delivery_ID=package_builder.get_delivery_id(),
-                Package_Type=self._object_in.Package_Type,
-                Report_Status=report_status,
+                id=uuid.uuid4(),
+                publication_version_id=self._publication_version.id,
+                zip_id=package_zip.id,
+                delivery_id=package_builder.get_delivery_id(),
+                package_type=self._object_in.Package_Type,
+                report_status=report_status,
+                module_id=self._publication.module_id,
+                module_status_id=self._publication_version.module_status_id,
                 created_date=self._timepoint,
                 modified_date=self._timepoint,
                 created_by_id=self._user.UUID,
                 modified_by_id=self._user.UUID,
-                Module_ID=self._publication.Module_ID,
-                Module_Status_ID=self._publication_version.Module_Status_ID,
             )
             self._session.add(package)
             self._session.flush()
@@ -125,20 +125,20 @@ class EndpointHandler:
             self._handle_new_state(package_builder, package)
             self._handle_bill_act_purpose(package_builder, package)
 
-            if self._publication_version.Status != PublicationVersionStatus.NOT_APPLICABLE:
+            if self._publication_version.status != PublicationVersionStatus.NOT_APPLICABLE:
                 match self._object_in.Package_Type:
                     case PackageType.VALIDATION:
-                        self._publication_version.Status = PublicationVersionStatus.VALIDATION
+                        self._publication_version.status = PublicationVersionStatus.VALIDATION
                     case PackageType.PUBLICATION:
-                        self._publication_version.Status = PublicationVersionStatus.PUBLICATION
+                        self._publication_version.status = PublicationVersionStatus.PUBLICATION
                 self._session.add(self._publication_version)
                 self._session.flush()
 
             self._session.commit()
 
             response = PublicationPackageCreatedResponse(
-                Package_UUID=package.UUID,
-                Zip_UUID=package_zip.UUID,
+                Package_UUID=package.id,
+                Zip_UUID=package_zip.id,
             )
             return response
 
@@ -161,21 +161,21 @@ class EndpointHandler:
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:
             case PackageType.VALIDATION:
-                if not self._environment.Can_Validate:
+                if not self._environment.can_validate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Validation for this environment")
             case PackageType.PUBLICATION:
-                if not self._environment.Can_Publicate:
+                if not self._environment.can_publicate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Publication for this environment")
 
     def _guard_locked(self):
-        if not self._publication.Module.is_active:
+        if not self._publication.module.is_active:
             raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
-        if self._publication_version.Is_Locked:
+        if self._publication_version.is_locked:
             raise HTTPException(status.HTTP_409_CONFLICT, "This publication version is locked")
         # allow creation of packages while validating, even when the environment is locked
-        if self._environment.Is_Locked and self._object_in.Package_Type is not PackageType.VALIDATION:
+        if self._environment.is_locked and self._object_in.Package_Type is not PackageType.VALIDATION:
             raise HTTPException(status.HTTP_409_CONFLICT, "This environment is locked")
-        if not self._act.Is_Active:
+        if not self._act.is_active:
             raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
 
     def _guard_valid_publication_version(self):
@@ -184,7 +184,7 @@ class EndpointHandler:
             raise HTTPException(status.HTTP_409_CONFLICT, errors)
 
     def _handle_new_state(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
-        if not self._environment.Has_State:
+        if not self._environment.has_state:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
             return
@@ -195,30 +195,30 @@ class EndpointHandler:
         self._session.add(new_state)
         self._session.flush()
 
-        package.Used_Environment_State_UUID = self._environment.Active_State_UUID
-        package.Created_Environment_State_UUID = new_state.UUID
+        package.used_environment_state_id = self._environment.active_state_id
+        package.created_environment_state_id = new_state.id
         self._session.add(package)
         self._session.flush()
 
         environment: PublicationEnvironmentTable = self._environment
-        environment.Is_Locked = True
+        environment.is_locked = True
         self._session.add(environment)
 
     def _handle_bill_act_purpose(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
-        if not self._environment.Has_State:
+        if not self._environment.has_state:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
             return
 
         purpose: Purpose = package_builder.get_consolidation_purpose()
         purpose_table = PublicationPurposeTable(
-            UUID=uuid.uuid4(),
-            Environment_UUID=self._environment.UUID,
-            Purpose_Type=purpose.Purpose_Type,
-            Effective_Date=purpose.Effective_Date,
-            Work_Province_ID=purpose.Work_Province_ID,
-            Work_Date=purpose.Work_Date,
-            Work_Other=purpose.Work_Other,
+            id=uuid.uuid4(),
+            environment_id=self._environment.id,
+            purpose_type=purpose.Purpose_Type,
+            effective_date=purpose.Effective_Date,
+            work_province_id=purpose.Work_Province_ID,
+            work_date=purpose.Work_Date,
+            work_other=purpose.Work_Other,
             created_date=self._timepoint,
             created_by_id=self._user.UUID,
         )
@@ -227,13 +227,13 @@ class EndpointHandler:
 
         bill_frbr: BillFrbr = package_builder.get_bill_frbr()
         bill = PublicationBillTable(
-            UUID=uuid.uuid4(),
-            Environment_UUID=self._environment.UUID,
-            Document_Type=self._publication.Document_Type,
-            Work_Province_ID=bill_frbr.Work_Province_ID,
-            Work_Country=bill_frbr.Work_Country,
-            Work_Date=bill_frbr.Work_Date,
-            Work_Other=bill_frbr.Work_Other,
+            id=uuid.uuid4(),
+            environment_id=self._environment.id,
+            document_type=self._publication.document_type,
+            work_province_id=bill_frbr.Work_Province_ID,
+            work_country=bill_frbr.Work_Country,
+            work_date=bill_frbr.Work_Date,
+            work_other=bill_frbr.Work_Other,
             created_date=self._timepoint,
             modified_date=self._timepoint,
             created_by_id=self._user.UUID,
@@ -243,11 +243,11 @@ class EndpointHandler:
         self._session.flush()
 
         bill_version = PublicationBillVersionTable(
-            UUID=uuid.uuid4(),
-            Bill_UUID=bill.UUID,
-            Expression_Language=bill_frbr.Expression_Language,
-            Expression_Date=bill_frbr.Expression_Date,
-            Expression_Version=bill_frbr.Expression_Version,
+            id=uuid.uuid4(),
+            bill_id=bill.id,
+            expression_language=bill_frbr.Expression_Language,
+            expression_date=bill_frbr.Expression_Date,
+            expression_version=bill_frbr.Expression_Version,
             created_date=self._timepoint,
             created_by_id=self._user.UUID,
         )
@@ -255,20 +255,20 @@ class EndpointHandler:
 
         act_frbr: ActFrbr = package_builder.get_act_frbr()
         act_version = PublicationActVersionTable(
-            UUID=uuid.uuid4(),
-            Act_UUID=self._act.UUID,
-            Consolidation_Purpose_UUID=purpose_table.UUID,
-            Expression_Language=act_frbr.Expression_Language,
-            Expression_Date=act_frbr.Expression_Date,
-            Expression_Version=act_frbr.Expression_Version,
+            id=uuid.uuid4(),
+            act_id=self._act.uuid,
+            consolidation_purpose_id=purpose_table.id,
+            expression_language=act_frbr.Expression_Language,
+            expression_date=act_frbr.Expression_Date,
+            expression_version=act_frbr.Expression_Version,
             created_date=self._timepoint,
             created_by_id=self._user.UUID,
         )
         self._session.add(act_version)
         self._session.flush()
 
-        package.Bill_Version_UUID = bill_version.UUID
-        package.Act_Version_UUID = act_version.UUID
+        package.bill_version_id = bill_version.id
+        package.act_version_id = act_version.id
         self._session.add(package)
         self._session.flush()
 

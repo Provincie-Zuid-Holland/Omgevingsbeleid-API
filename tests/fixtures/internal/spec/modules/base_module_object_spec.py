@@ -19,23 +19,23 @@ from tests.fixtures.internal.types import (
 
 class BaseModuleObjectSpec(BaseObjectSpec):
     # This is the spec of the vigerend version, ex: for ModuleBeleidsdoelSpec it would be BeleidsdoelSpec
-    # This is used to find the adjusted on it it does not exists in the module, and none was explicitly set
+    # This is used to find the adjusted on it does not exist in the module, and none was explicitly set
     __vigerend_spec__: ClassVar[type[BaseObjectSpec]] = BaseObjectSpec
 
     __object_type__: ClassVar[str] = ""
     __object_fields__: ClassVar[set[str]] = {
-        "Module_ID",
-        "Deleted",
+        "module_id",
+        "deleted",
     }
 
-    Module_ID: int = 0
-    Deleted: bool | None = None
+    module_id: int = 0
+    deleted: bool | None = None
 
     # These fields are for the ModuleObjectContextTable
-    Context_Hidden: bool | None = None
-    Context_Action: ModuleObjectActionFull | None = None
-    Context_Explanation: str = ""
-    Context_Conclusion: str = ""
+    context_hidden: bool | None = None
+    context_action: ModuleObjectActionFull | None = None
+    context_explanation: str = ""
+    context_conclusion: str = ""
 
     def get_vigerend_spec(self) -> type[BaseObjectSpec]:
         return self.__vigerend_spec__
@@ -46,15 +46,15 @@ T = TypeVar("T", bound=BaseModuleObjectSpec)
 
 class BaseModuleObjectPrefillHandler(BasePrefillHandler[T]):
     def fill(self, record: Record[T], context: PrefillContext) -> Record[T]:
-        if record.spec.UUID is None:
-            record.spec.UUID = uuid.uuid4()
+        if record.spec.id is None:
+            record.spec.id = uuid.uuid4()
 
         previous_version: Record[T | BaseObjectSpec] | None = self._find_previous(
             record,
             context.previous_records,
         )
         if previous_version is not None:
-            record.spec.Adjust_On = previous_version.spec.UUID
+            record.spec.adjust_on = previous_version.spec.id
             for field_name in record.spec.get_inheritable_fields():
                 if field_name not in record.spec.model_fields_set:
                     prev_value = getattr(previous_version.spec, field_name)
@@ -90,14 +90,14 @@ class BaseModuleObjectPrefillHandler(BasePrefillHandler[T]):
             previous_record_casted = cast(Record[T | BaseObjectSpec], previous_record)
 
             # Find based on what we have
-            # If we have a Adjust_On, then we must find where we are pointing to
-            match current_record.spec.Adjust_On:
+            # If we have an adjust_on, then we must find where we are pointing to
+            match current_record.spec.adjust_on:
                 case None:
                     # Search for code
-                    if previous_record.spec.Code == current_record.spec.Code:
+                    if previous_record.spec.code == current_record.spec.code:
                         return previous_record_casted
                 case Ref():
-                    if previous_record.spec.get_ref() == current_record.spec.Adjust_On:
+                    if previous_record.spec.get_ref() == current_record.spec.adjust_on:
                         return previous_record_casted
                 case uuid.UUID() | int() as pk:
                     if previous_record.spec.get_table_primary_key() == pk:
@@ -110,11 +110,11 @@ class BaseModuleObjectPersistHandler[T: BaseModuleObjectSpec](BasePersistHandler
         spec: T = record.spec
         result: list[Base] = []
 
-        if spec.Code not in context.seen_codes:
-            context.seen_codes.add(spec.Code)
+        if spec.code not in context.seen_codes:
+            context.seen_codes.add(spec.code)
             result.append(self._build_object_static(spec))
 
-        module_context_index: tuple[int, str] = (spec.Module_ID, spec.Code)
+        module_context_index: tuple[int, str] = (spec.module_id, spec.code)
         if module_context_index not in context.seen_module_context:
             context.seen_module_context.add(module_context_index)
             result.append(self._build_module_object_context(spec))
@@ -135,15 +135,15 @@ class BaseModuleObjectPersistHandler[T: BaseModuleObjectSpec](BasePersistHandler
 
     def _build_module_object_context(self, spec: T) -> ModuleObjectContextTable:
         return ModuleObjectContextTable(
-            Module_ID=spec.Module_ID,
-            Object_Type=spec.Object_Type,
-            Object_ID=spec.Object_ID,
-            Code=spec.Code,
-            Original_Adjust_On=spec.Adjust_On,
-            Hidden=spec.Context_Hidden or False,
-            Action=self._resolve_action(spec),
-            Explanation=spec.Context_Explanation,
-            Conclusion=spec.Context_Conclusion,
+            module_id=spec.module_id,
+            object_type=spec.object_type,
+            object_id=spec.object_id,
+            code=spec.code,
+            original_adjust_on=spec.adjust_on,
+            hidden=spec.context_hidden or False,
+            action=self._resolve_action(spec),
+            explanation=spec.context_explanation,
+            conclusion=spec.context_conclusion,
             created_date=spec.created_date,
             modified_date=spec.modified_date,
             created_by_id=spec.created_by_id,
@@ -151,10 +151,10 @@ class BaseModuleObjectPersistHandler[T: BaseModuleObjectSpec](BasePersistHandler
         )
 
     def _resolve_action(self, spec: T) -> ModuleObjectActionFull:
-        if spec.Context_Action is not None:
-            return spec.Context_Action
+        if spec.context_action is not None:
+            return spec.context_action
 
-        if spec.Adjust_On is None:
+        if spec.adjust_on is None:
             return ModuleObjectActionFull.Create
 
         return ModuleObjectActionFull.Edit

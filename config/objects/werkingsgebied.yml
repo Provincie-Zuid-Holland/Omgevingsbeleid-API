@@ -2,13 +2,13 @@ id: werkingsgebied
 object_type: werkingsgebied
 
 sort_allowed_columns: &sort_allowed_columns
-  - Object_ID
-  - Title
+  - object_id
+  - title
   - modified_date
 
 sort_default_title: &sort_default_title
   default:
-    column: Title
+    column: title
     order: asc
   allowed_columns: *sort_allowed_columns
 
@@ -27,14 +27,14 @@ api:
             path: /valid
             response_model: werkingsgebied_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: werkingsgebied_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
@@ -59,13 +59,13 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: werkingsgebied_patch
-            response_model: werkingsgebied_uuid
+            response_model: werkingsgebied_id
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
             response_model: werkingsgebied_extended
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
@@ -90,13 +90,13 @@ api:
 
 fields:
   title:
-    name: Title
+    name: title
     type: str
     column: title
     validators:
       - id: none_to_default_value
   description:
-    name: Description
+    name: description
     type: str
     column: description
     validators:
@@ -107,28 +107,28 @@ fields:
     column: area_id
     optional: true
   idms_link:
-    name: IDMS_Link
+    name: idms_link
     type: str
     column: idms_link
     validators:
       - id: none_to_default_value
   decision_number:
-    name: Decision_Number
+    name: decision_number
     type: str
     column: decision_number
     validators:
       - id: none_to_default_value
 
   # Statics
-  owner_1_uuid:
-    name: Owner_1_UUID
+  owner_1_id:
+    name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
-    name: Owner_2_UUID
+  owner_2_id:
+    name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
 
 models:
@@ -176,9 +176,9 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   werkingsgebied_full:
     name: WerkingsgebiedFull
@@ -199,10 +199,10 @@ models:
       - area_basic
     services:
       werkingsgebied_related_objects:
-        to_field: Related_Objects
+        to_field: related_objects
       foreign_keys_extender:
         fields_map:
-          - to_field: Area
+          - to_field: area
             model_id: area_basic
           - to_field: created_by
             model_id: user_short
@@ -210,9 +210,9 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   werkingsgebied_patch:
     name: WerkingsgebiedPatch
@@ -243,16 +243,16 @@ models:
     services:
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   werkingsgebied_static_post:
     name: WerkingsgebiedStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
+      owner_1_id:
+      owner_2_id:
   werkingsgebied_static_post_validated:
     name: WerkingsgebiedStaticPostValidated
     static_only: true
@@ -260,14 +260,14 @@ models:
       - id: not_equal_root
         data:
           fields:
-            - Owner_1_UUID
-            - Owner_2_UUID
+            - owner_1_id
+            - owner_2_id
           allow_none: True
           error_message: Owners should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-  werkingsgebied_uuid:
+      owner_1_id:
+      owner_2_id:
+  werkingsgebied_id:
     name: WerkingsgebiedUUID
     fields:
       object_id:

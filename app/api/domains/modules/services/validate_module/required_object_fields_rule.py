@@ -17,7 +17,7 @@ class RequiredObjectFieldsRule(ValidateModuleRule):
         errors: list[ValidateModuleError] = []
 
         for module_object_table in request.module_objects:
-            model: type[BaseModel] | None = self._object_map.get(module_object_table.Object_Type)
+            model: type[BaseModel] | None = self._object_map.get(module_object_table.object_type)
             if not model:
                 continue
 
@@ -28,10 +28,10 @@ class RequiredObjectFieldsRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="required_object_fields_rule",
                         object=ValidateModuleObject(
-                            code=module_object_table.Code,
-                            object_id=module_object_table.Object_ID,
-                            object_type=module_object_table.Object_Type,
-                            title=module_object_table.Title,
+                            code=module_object_table.code,
+                            object_id=module_object_table.object_id,
+                            object_type=module_object_table.object_type,
+                            title=module_object_table.title,
                         ),
                         messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
                     )

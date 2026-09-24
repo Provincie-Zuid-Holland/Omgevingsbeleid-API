@@ -50,7 +50,7 @@ class EndpointHandler:
 
     def _guard_invalid_relations(self):
         for relation in self._overwrite_list:
-            if relation.Object_Type not in self._allowed_object_types_relations:
+            if relation.object_type not in self._allowed_object_types_relations:
                 raise HTTPException(
                     status.HTTP_400_BAD_REQUEST, f"Invalid object_type for relation with '{self._object_code}'"
                 )
@@ -62,9 +62,9 @@ class EndpointHandler:
 
         after: list[dict] = [
             RelationsTable.create(
-                data.Description,
+                data.description,
                 self._object_code,
-                data.Code,
+                data.code,
             ).to_dict()
             for data in self._overwrite_list
         ]
@@ -85,8 +85,8 @@ class EndpointHandler:
     def _fetch_current_relations(self):
         stmt = select(RelationsTable).filter(
             or_(
-                RelationsTable.From_Code == self._object_code,
-                RelationsTable.To_Code == self._object_code,
+                RelationsTable.from_code == self._object_code,
+                RelationsTable.to_code == self._object_code,
             )
         )
         rows: Sequence[RelationsTable] = self._session.scalars(stmt).all()
@@ -96,8 +96,8 @@ class EndpointHandler:
     def _remove_current_relations(self):
         stmt = delete(RelationsTable).filter(
             or_(
-                RelationsTable.From_Code == self._object_code,
-                RelationsTable.To_Code == self._object_code,
+                RelationsTable.from_code == self._object_code,
+                RelationsTable.to_code == self._object_code,
             )
         )
         self._session.execute(stmt)
@@ -108,9 +108,9 @@ class EndpointHandler:
 
         for data in self._overwrite_list:
             relation: RelationsTable = RelationsTable.create(
-                data.Description,
+                data.description,
                 self._object_code,
-                data.Code,
+                data.code,
             )
             self._session.add(relation)
 

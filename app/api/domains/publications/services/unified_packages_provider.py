@@ -21,44 +21,44 @@ class UnifiedPackagesProvider:
         return (
             select(
                 literal("act").label("Publication_Type"),
-                PublicationActPackageTable.UUID,
+                PublicationActPackageTable.id,
                 PublicationActPackageTable.created_date,
                 PublicationActPackageTable.modified_date,
-                PublicationActPackageTable.Package_Type,
-                PublicationActPackageTable.Report_Status,
-                PublicationActPackageTable.Delivery_ID,
-                ModuleTable.Module_ID,
-                ModuleTable.Title.label("Module_Title"),
-                PublicationTable.Document_Type,
-                PublicationEnvironmentTable.UUID.label("Environment_UUID"),
+                PublicationActPackageTable.package_type,
+                PublicationActPackageTable.report_status,
+                PublicationActPackageTable.delivery_id,
+                ModuleTable.module_id,
+                ModuleTable.title.label("Module_Title"),
+                PublicationTable.document_type,
+                PublicationEnvironmentTable.id.label("Environment_UUID"),
             )
             .select_from(PublicationActPackageTable)
-            .join(PublicationActPackageTable.Publication_Version)
-            .join(PublicationVersionTable.Publication)
-            .join(PublicationTable.Module)
-            .join(PublicationTable.Environment)
+            .join(PublicationActPackageTable.publication_version)
+            .join(PublicationVersionTable.publication)
+            .join(PublicationTable.module)
+            .join(PublicationTable.environment)
         )
 
     def _build_announcement_packages_query(self):
         return (
             select(
                 literal("announcement").label("Publication_Type"),
-                PublicationAnnouncementPackageTable.UUID,
+                PublicationAnnouncementPackageTable.id,
                 PublicationAnnouncementPackageTable.created_date,
                 PublicationAnnouncementPackageTable.modified_date,
-                PublicationAnnouncementPackageTable.Package_Type,
-                PublicationAnnouncementPackageTable.Report_Status,
-                PublicationAnnouncementPackageTable.Delivery_ID,
-                ModuleTable.Module_ID,
-                ModuleTable.Title.label("Module_Title"),
-                PublicationTable.Document_Type,
-                PublicationEnvironmentTable.UUID.label("Environment_UUID"),
+                PublicationAnnouncementPackageTable.package_type,
+                PublicationAnnouncementPackageTable.report_status,
+                PublicationAnnouncementPackageTable.delivery_id,
+                ModuleTable.module_id,
+                ModuleTable.title.label("Module_Title"),
+                PublicationTable.document_type,
+                PublicationEnvironmentTable.id.label("Environment_UUID"),
             )
             .select_from(PublicationAnnouncementPackageTable)
-            .join(PublicationAnnouncementPackageTable.Announcement)
-            .join(PublicationAnnouncementTable.Publication)
-            .join(PublicationTable.Module)
-            .join(PublicationTable.Environment)
+            .join(PublicationAnnouncementPackageTable.announcement)
+            .join(PublicationAnnouncementTable.publication)
+            .join(PublicationTable.module)
+            .join(PublicationTable.environment)
         )
 
     def get_unified_packages(
@@ -83,15 +83,15 @@ class UnifiedPackagesProvider:
         if publication_type:
             stmt = stmt.filter(combined.c.Publication_Type == publication_type.value)
         if environment_uuid:
-            stmt = stmt.filter(combined.c.Environment_UUID == environment_uuid)
+            stmt = stmt.filter(combined.c.environment_id == environment_uuid)
         if module_id:
-            stmt = stmt.filter(combined.c.Module_ID == module_id)
+            stmt = stmt.filter(combined.c.module_id == module_id)
         if report_status:
-            stmt = stmt.filter(combined.c.Report_Status == report_status.value)
+            stmt = stmt.filter(combined.c.report_status == report_status.value)
         if package_type:
-            stmt = stmt.filter(combined.c.Package_Type == package_type.value)
+            stmt = stmt.filter(combined.c.package_type == package_type.value)
         if document_type:
-            stmt = stmt.filter(combined.c.Document_Type == document_type.value)
+            stmt = stmt.filter(combined.c.document_type == document_type.value)
 
         return query_paginated_no_scalars(
             query=stmt,

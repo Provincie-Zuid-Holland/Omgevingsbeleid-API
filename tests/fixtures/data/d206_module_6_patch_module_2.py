@@ -18,14 +18,14 @@ def load(col: Collector) -> None:
         modified_date=datetime(2025, 6, 6, tzinfo=UTC),
         created_by_id=col.ref(UserSpec, "admin"),
         modified_by_id=col.ref(UserSpec, "admin"),
-        Module_Manager_1_UUID=col.ref(UserSpec, "admin"),
+        module_manager_1_id=col.ref(UserSpec, "admin"),
     ):
         col.add(
             ModuleSpec(
                 key="module_6",
-                Module_ID=6,
-                Title="Title of Module 6",
-                Description="Description of Module 6",
+                module_id=6,
+                title="Title of Module 6",
+                description="Description of Module 6",
             )
         )
 
@@ -48,11 +48,11 @@ def load(col: Collector) -> None:
                     # Created Gebiedengroepen and Gebieden
                     # Which should not be usable by other modules yet
                     ModuleGebiedengroepSpec(
-                        key="mod_6_gebiedengroep_610", Object_ID=610, Title="Gebiedengroep 610 in Module 6"
+                        key="mod_6_gebiedengroep_610", object_id=610, title="Gebiedengroep 610 in Module 6"
                     ),
-                    ModuleGebiedSpec(key="mod_6_gebied_610", Object_ID=610, Title="Gebied 610 in Module 6"),
+                    ModuleGebiedSpec(key="mod_6_gebied_610", object_id=610, title="Gebied 610 in Module 6"),
                     ModuleGebiedsaanwijzingSpec(
-                        key="mod_6_gebiedsaanwijzing_610", Object_ID=610, Title="Gebiedsaanwijzing 610 in Module 6"
+                        key="mod_6_gebiedsaanwijzing_610", object_id=610, title="Gebiedsaanwijzing 610 in Module 6"
                     ),
                 ]
             )

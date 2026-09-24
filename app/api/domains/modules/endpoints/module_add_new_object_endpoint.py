@@ -23,11 +23,11 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleAddNewObject(BaseModel):
-    Object_Type: str
+    object_type: str
     Title: str = Field(..., min_length=3)
-    Owner_1_UUID: uuid.UUID
-    Owner_2_UUID: uuid.UUID | None = Field(None)
-    Client_1_UUID: uuid.UUID | None = Field(None)
+    owner_1_id: uuid.UUID
+    owner_2_id: uuid.UUID | None = Field(None)
+    client_1_id: uuid.UUID | None = Field(None)
 
     Explanation: str = Field("")
     Conclusion: str = Field("")
@@ -36,21 +36,21 @@ class ModuleAddNewObject(BaseModel):
     def default_empty_string(cls, v):
         return v or ""
 
-    @field_validator("Owner_2_UUID", mode="after")
+    @field_validator("owner_2_id", mode="after")
     def duplicate_owner(cls, v, info):
         if v is None:
             return v
-        if "Owner_1_UUID" not in info.data:
+        if "owner_1_id" not in info.data:
             return v
-        if v == info.data["Owner_1_UUID"]:
+        if v == info.data["owner_1_id"]:
             raise ValueError("Duplicate owner")
         return v
 
 
 class NewObjectStaticResponse(BaseModel):
-    Object_Type: str
-    Object_ID: int
-    Code: str
+    object_type: str
+    object_id: int
+    code: str
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -89,23 +89,23 @@ class ModuleAddNewObjectService:
 
     def _create_new_object_static(self) -> ObjectStaticsTable:
         generate_id_subq = (
-            select(func.coalesce(func.max(ObjectStaticsTable.Object_ID), 0) + 1)
+            select(func.coalesce(func.max(ObjectStaticsTable.object_id), 0) + 1)
             .select_from(ObjectStaticsTable)
-            .filter(ObjectStaticsTable.Object_Type == self._object_in.Object_Type)
+            .filter(ObjectStaticsTable.object_type == self._object_in.object_type)
             .scalar_subquery()
         )
 
         stmt = (
             insert(ObjectStaticsTable)
             .values(
-                Object_Type=self._object_in.Object_Type,
-                Object_ID=generate_id_subq,
-                Code=(self._object_in.Object_Type + "-" + func.cast(generate_id_subq, String)),
+                object_type=self._object_in.object_type,
+                object_id=generate_id_subq,
+                code=(self._object_in.object_type + "-" + func.cast(generate_id_subq, String)),
                 # @todo: should be generated based on columns.statics
-                Owner_1_UUID=self._object_in.Owner_1_UUID,
-                Owner_2_UUID=self._object_in.Owner_2_UUID,
-                Client_1_UUID=self._object_in.Client_1_UUID,
-                Cached_Title=self._object_in.Title,
+                owner_1_id=self._object_in.owner_1_id,
+                owner_2_id=self._object_in.owner_2_id,
+                client_1_id=self._object_in.client_1_id,
+                cached_title=self._object_in.Title,
             )
             .returning(ObjectStaticsTable)
         )
@@ -118,29 +118,29 @@ class ModuleAddNewObjectService:
 
     def _create_object_context(self, object_static: ObjectStaticsTable):
         object_context: ModuleObjectContextTable = ModuleObjectContextTable(
-            Module_ID=self._module.Module_ID,
-            Object_Type=object_static.Object_Type,
-            Object_ID=object_static.Object_ID,
-            Code=object_static.Code,
+            module_id=self._module.module_id,
+            object_type=object_static.object_type,
+            object_id=object_static.object_id,
+            code=object_static.code,
             created_date=self._timepoint,
             modified_date=self._timepoint,
             created_by_id=self._user.UUID,
             modified_by_id=self._user.UUID,
-            Original_Adjust_On=None,
-            Action=ModuleObjectActionFull.Create,
-            Explanation=self._object_in.Explanation,
-            Conclusion=self._object_in.Conclusion,
+            original_adjust_on=None,
+            action=ModuleObjectActionFull.Create,
+            explanation=self._object_in.Explanation,
+            conclusion=self._object_in.Conclusion,
         )
         self._session.add(object_context)
 
     def _create_object(self, object_static: ObjectStaticsTable):
         module_object: ModuleObjectsTable = ModuleObjectsTable(
-            Module_ID=self._module.Module_ID,
-            Object_Type=object_static.Object_Type,
-            Object_ID=object_static.Object_ID,
-            Code=object_static.Code,
-            UUID=uuid.uuid4(),
-            Title=self._object_in.Title,
+            id=uuid.uuid4(),
+            module_id=self._module.module_id,
+            object_type=object_static.object_type,
+            object_id=object_static.object_id,
+            code=object_static.code,
+            title=self._object_in.Title,
             created_date=self._timepoint,
             modified_date=self._timepoint,
             created_by_id=self._user.UUID,
@@ -161,14 +161,14 @@ def post_module_add_new_object_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_add_new_object_to_module,
         user,
-        [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
+        [module.module_manager_1_id, module.module_manager_2_id],
     )
     guard_module_not_locked(module)
 
-    if object_in.Object_Type not in context.allowed_object_types:
+    if object_in.object_type not in context.allowed_object_types:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
-            f"Invalid Object_Type, accepted object_type are: {context.allowed_object_types}",
+            f"Invalid object_type, accepted object_type are: {context.allowed_object_types}",
         )
 
     service = ModuleAddNewObjectService(

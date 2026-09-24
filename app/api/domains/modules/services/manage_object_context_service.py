@@ -60,29 +60,29 @@ class ManageObjectContextService:
             case None:
                 # Create
                 object_context: ModuleObjectContextTable = ModuleObjectContextTable(
-                    Module_ID=request.module_id,
-                    Object_Type=request.object_type,
-                    Object_ID=request.object_id,
-                    Code=request.get_code(),
+                    module_id=request.module_id,
+                    object_type=request.object_type,
+                    object_id=request.object_id,
+                    code=request.get_code(),
                     created_date=request.timepoint,
                     modified_date=request.timepoint,
                     created_by_id=request.user_uuid,
                     modified_by_id=request.user_uuid,
-                    Original_Adjust_On=request.original_adjust_on,
-                    Action=ModuleObjectActionFull.Create,
-                    Explanation=request.explanation,
-                    Conclusion=request.conclusion,
+                    original_adjust_on=request.original_adjust_on,
+                    action=ModuleObjectActionFull.Create,
+                    explanation=request.explanation,
+                    conclusion=request.conclusion,
                 )
                 session.add(object_context)
                 return Result(object_context=object_context, result_type=ResultType.CREATED)
-            case ModuleObjectContextTable(Hidden=True) as hidden_context:
+            case ModuleObjectContextTable(hidden=True) as hidden_context:
                 # Activate
-                hidden_context.Hidden = False
+                hidden_context.hidden = False
                 hidden_context.modified_date = request.timepoint
                 hidden_context.modified_by_id = request.user_uuid
-                hidden_context.Original_Adjust_On = request.original_adjust_on
-                hidden_context.Explanation = request.explanation
-                hidden_context.Conclusion = request.conclusion
+                hidden_context.original_adjust_on = request.original_adjust_on
+                hidden_context.explanation = request.explanation
+                hidden_context.conclusion = request.conclusion
                 session.add(hidden_context)
                 return Result(object_context=hidden_context, result_type=ResultType.ACTIVATED)
             case _:

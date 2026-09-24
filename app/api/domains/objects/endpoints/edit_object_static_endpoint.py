@@ -55,11 +55,11 @@ def edit_object_static_endpoint(
         Permissions.can_patch_object_static,
         user,
         [
-            object_static.Owner_1_UUID,
-            object_static.Owner_2_UUID,
-            object_static.Portfolio_Holder_1_UUID,
-            object_static.Portfolio_Holder_2_UUID,
-            object_static.Client_1_UUID,
+            object_static.owner_1_id,
+            object_static.owner_2_id,
+            object_static.portfolio_holder_1_id,
+            object_static.portfolio_holder_2_id,
+            object_static.client_1_id,
         ],
     )
 

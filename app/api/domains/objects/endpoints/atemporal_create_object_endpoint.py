@@ -31,19 +31,19 @@ def _create_new_static_object(
     title: str,
 ) -> ObjectStaticsTable:
     generate_id_subq = (
-        select(func.coalesce(func.max(ObjectStaticsTable.Object_ID), 0) + 1)
+        select(func.coalesce(func.max(ObjectStaticsTable.object_id), 0) + 1)
         .select_from(ObjectStaticsTable)
-        .filter(ObjectStaticsTable.Object_Type == object_type)
+        .filter(ObjectStaticsTable.object_type == object_type)
         .scalar_subquery()
     )
 
     stmt = (
         insert(ObjectStaticsTable)
         .values(
-            Object_Type=object_type,
-            Object_ID=generate_id_subq,
-            Code=(object_type + "-" + func.cast(generate_id_subq, String)),
-            Cached_Title=title,
+            object_type=object_type,
+            object_id=generate_id_subq,
+            code=(object_type + "-" + func.cast(generate_id_subq, String)),
+            cached_title=title,
             # Unpack object_in static fields
             **(static_fields),
         )
@@ -69,9 +69,9 @@ def atemporal_create_object_endpoint(
     object_in_data: dict[str, Any] = object_in.model_dump(exclude_unset=True)
 
     static_fields: dict[str, Any] = {}
-    if "ObjectStatics" in object_in_data:
-        static_fields = object_in_data["ObjectStatics"]
-        del object_in_data["ObjectStatics"]
+    if "object_statics" in object_in_data:
+        static_fields = object_in_data["object_statics"]
+        del object_in_data["object_statics"]
 
     try:
         object_static: ObjectStaticsTable = _create_new_static_object(
@@ -83,15 +83,15 @@ def atemporal_create_object_endpoint(
 
         timepoint: datetime = datetime.now(UTC)
         new_object: ObjectsTable = ObjectsTable(
-            Object_Type=object_static.Object_Type,
-            Object_ID=object_static.Object_ID,
-            Code=object_static.Code,
+            object_type=object_static.object_type,
+            object_id=object_static.object_id,
+            code=object_static.code,
             UUID=uuid.uuid4(),
             created_date=timepoint,
             modified_date=timepoint,
             created_by_id=user.UUID,
             modified_by_id=user.UUID,
-            Start_Validity=timepoint,
+            start_validity=timepoint,
             # Unpack object_in fields
             **(object_in_data),
         )

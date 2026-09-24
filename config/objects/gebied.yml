@@ -3,13 +3,13 @@ id: gebied
 object_type: gebied
 
 sort_allowed_columns: &sort_allowed_columns
-  - Object_ID
-  - Title
+  - object_id
+  - title
   - modified_date
 
 sort_default_title: &sort_default_title
   default:
-    column: Title
+    column: title
     order: asc
   allowed_columns: *sort_allowed_columns
 
@@ -28,14 +28,14 @@ api:
             path: /valid
             response_model: gebied_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: gebied_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
@@ -60,13 +60,13 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: gebied_patch
-            response_model: gebied_uuid
+            response_model: gebied_id
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
             response_model: gebied_extended
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
@@ -91,7 +91,7 @@ api:
 
 fields:
   title:
-    name: Title
+    name: title
     type: str
     column: title
   area_id:
@@ -101,15 +101,15 @@ fields:
     optional: true
 
   # Statics
-  owner_1_uuid:
-    name: Owner_1_UUID
+  owner_1_id:
+    name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
-    name: Owner_2_UUID
+  owner_2_id:
+    name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
 
 models:
@@ -157,9 +157,9 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   gebied_full:
     name: GebiedFull
@@ -179,12 +179,12 @@ models:
       - area_basic
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
       public_revisions:
-        to_field: Public_Revisions
+        to_field: public_revisions
       foreign_keys_extender:
         fields_map:
-          - to_field: Area
+          - to_field: area
             model_id: area_basic
           - to_field: created_by
             model_id: user_short
@@ -192,9 +192,9 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   gebied_patch:
     name: GebiedPatch
@@ -217,16 +217,16 @@ models:
     services:
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   gebied_static_post:
     name: GebiedStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
+      owner_1_id:
+      owner_2_id:
   gebied_static_post_validated:
     name: GebiedStaticPostValidated
     static_only: true
@@ -234,14 +234,14 @@ models:
       - id: not_equal_root
         data:
           fields:
-            - Owner_1_UUID
-            - Owner_2_UUID
+            - owner_1_id
+            - owner_2_id
           allow_none: True
           error_message: Owners should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-  gebied_uuid:
+      owner_1_id:
+      owner_2_id:
+  gebied_id:
     name: GebiedUUID
     fields:
       object_id:

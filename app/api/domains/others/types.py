@@ -10,11 +10,11 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class StorageFileBasic(BaseModel):
-    UUID: uuid.UUID
-    Checksum: str
-    Filename: str
-    Content_Type: str
-    Size: int
+    id: uuid.UUID
+    checksum: str
+    filename: str
+    content_type: str
+    size: int
     created_date: datetime
     created_by_id: uuid.UUID
 
@@ -43,13 +43,13 @@ class GraphEdge(BaseModel):
 
 
 class GraphVertice(BaseModel):
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Code: str
-    Title: str
+    id: uuid.UUID
+    object_type: str
+    object_id: int
+    code: str
+    title: str
 
-    @field_validator("Title", mode="before")
+    @field_validator("title", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -62,10 +62,10 @@ class GraphResponse(BaseModel):
 
 
 class ObjectRelatedFileResponse(BaseModel):
-    UUID: uuid.UUID
-    Code: str
-    File_UUID: uuid.UUID
-    Title: str
+    id: uuid.UUID
+    code: str
+    file_id: uuid.UUID
+    title: str
     created_date: datetime
     created_by_id: uuid.UUID
 

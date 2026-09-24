@@ -2,13 +2,13 @@ id: maatregel
 object_type: maatregel
 
 sort_allowed_columns: &sort_allowed_columns
-  - Object_ID
-  - Title
+  - object_id
+  - title
   - modified_date
 
 sort_default_title: &sort_default_title
   default:
-    column: Title
+    column: title
     order: asc
   allowed_columns: *sort_allowed_columns
 
@@ -34,16 +34,16 @@ api:
             path: /valid
             response_model: maatregel_basic
             allowed_filter_columns:
-              - Title
-              - Weblink
+              - title
+              - weblink
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: maatregel_basic
             allowed_filter_columns:
-              - Title
-              - Weblink
+              - title
+              - weblink
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
@@ -78,14 +78,14 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: maatregel_patch
-            response_model: maatregel_uuid
+            response_model: maatregel_id
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
             response_model: maatregel_extended
             allowed_filter_columns:
-              - Title
-              - Weblink
+              - title
+              - weblink
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
@@ -110,111 +110,111 @@ api:
 
 fields:
   title:
-    name: Title
+    name: title
     type: str
     column: title
     validators:
       - id: none_to_default_value
   description:
-    name: Description
+    name: description
     type: str
     column: description
     validators:
       - id: none_to_default_value
   role:
-    name: Role
+    name: role
     type: str
     column: role
     validators:
       - id: none_to_default_value
   roles:
-    name: Roles
+    name: roles
     type: list_str
     column: roles
     validators:
       - id: none_to_default_value
   effect:
-    name: Effect
+    name: effect
     type: str
     column: effect
     validators:
       - id: none_to_default_value
   idms_link:
-    name: IDMS_Link
+    name: idms_link
     type: str
     column: idms_link
     validators:
       - id: none_to_default_value
   decision_number:
-    name: Decision_Number
+    name: decision_number
     type: str
     column: decision_number
     validators:
       - id: none_to_default_value
   documents:
-    name: Documents
+    name: documents
     type: list_str
     column: documents
     validators:
       - id: none_to_default_value
   hierarchy_code:
-    name: Hierarchy_Code
+    name: hierarchy_code
     type: str
     column: hierarchy_code
     validators:
       - id: none_to_default_value
   werkingsgebied_code:
-    name: Werkingsgebied_Code
+    name: werkingsgebied_code
     type: str
     column: werkingsgebied_code
     validators:
       - id: none_to_default_value
   gebiedengroep_code:
-    optional: true
-    default: none
-    name: Gebiedengroep_Code
+    name: gebiedengroep_code
     type: str
     column: gebiedengroep_code
+    optional: true
+    default: none
     validators:
       - id: none_to_default_value
   hoofdlijnen:
-    name: Hoofdlijnen
+    name: hoofdlijnen
     type: list_str
     column: hoofdlijnen
     validators:
       - id: none_to_default_value
   themas:
-    name: Themas
+    name: themas
     type: list_str
     column: themas
     validators:
       - id: none_to_default_value
 
   # Statics
-  owner_1_uuid:
-    name: Owner_1_UUID
+  owner_1_id:
+    name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
-    name: Owner_2_UUID
+  owner_2_id:
+    name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
-  portfolio_holder_1_uuid:
-    name: Portfolio_Holder_1_UUID
+  portfolio_holder_1_id:
+    name: portfolio_holder_1_id
     type: uuid
-    column: portfolio_holder_1_uuid
+    column: portfolio_holder_1_id
     optional: true
-  portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
+  portfolio_holder_2_id:
+    name: portfolio_holder_2_id
     type: uuid
-    column: portfolio_holder_1_uuid
+    column: portfolio_holder_1_id
     optional: true
-  client_1_uuid:
-    name: Client_1_UUID
+  client_1_id:
+    name: client_1_id
     type: uuid
-    column: client_1_uuid
+    column: client_1_id
     optional: true
 
 models:
@@ -239,7 +239,7 @@ models:
       title:
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
   maatregel_extended:
     name: MaatregelExtended
     fields:
@@ -268,15 +268,15 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   maatregel_full:
     name: MaatregelFull
@@ -309,28 +309,28 @@ models:
       - werkingsgebied_statics
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
       public_revisions:
-        to_field: Public_Revisions
+        to_field: public_revisions
       join_werkingsgebieden:
         model_id: werkingsgebied_basic
-        to_field: Werkingsgebied
-        from_field: Werkingsgebied_Code
+        to_field: werkingsgebied
+        from_field: werkingsgebied_code
       join_documents:
-        to_field: Documents_Statics
-        from_field: Documents
+        to_field: documents_statics
+        from_field: documents
       join_gebiedengroepen:
-        to_field: Gebiedengroep_Static
-        from_field: Gebiedengroep_Code
+        to_field: gebiedengroep_static
+        from_field: gebiedengroep_code
       join_gebiedsaanwijzingen:
-        to_field: Gebiedsaanwijzingen_Statics
+        to_field: gebiedsaanwijzingen_statics
         from_fields:
-          - Description
-          - Effect
+          - description
+          - effect
       insert_assets:
         fields:
-          - Description
-          - Effect
+          - description
+          - effect
       relations:
         objects:
           - object_type: beleidskeuze
@@ -345,9 +345,9 @@ models:
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
-          - to_field: Hierarchy_Statics
+          - to_field: hierarchy_statics
             model_id: hierarchy_statics
-          - to_field: Werkingsgebied_Statics
+          - to_field: werkingsgebied_statics
             model_id: werkingsgebied_statics
           - to_field: created_by
             model_id: user_short
@@ -355,15 +355,15 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   maatregel_patch:
     name: MaatregelPatch
@@ -454,8 +454,8 @@ models:
     services:
       extract_assets:
         fields:
-          - Description
-          - Effect
+          - description
+          - effect
   maatregel_static:
     name: MaatregelStatic
     static_only: true
@@ -465,25 +465,25 @@ models:
     services:
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   maatregel_static_post:
     name: MaatregelStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-      portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
-      client_1_uuid:
+      owner_1_id:
+      owner_2_id:
+      portfolio_holder_1_id:
+      portfolio_holder_2_id:
+      client_1_id:
   maatregel_static_post_validated:
     name: MaatregelStaticPostValidated
     static_only: true
@@ -491,24 +491,24 @@ models:
       - id: not_equal_root
         data:
           fields:
-            - Owner_1_UUID
-            - Owner_2_UUID
+            - owner_1_id
+            - owner_2_id
           allow_none: True
           error_message: Owners should vary
       - id: not_equal_root
         data:
           fields:
-            - Portfolio_Holder_1_UUID
-            - Portfolio_Holder_2_UUID
+            - portfolio_holder_1_id
+            - portfolio_holder_2_id
           allow_none: True
           error_message: Portfolio Holders should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-      portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
-      client_1_uuid:
-  maatregel_uuid:
+      owner_1_id:
+      owner_2_id:
+      portfolio_holder_1_id:
+      portfolio_holder_2_id:
+      client_1_id:
+  maatregel_id:
     name: MaatregelUUID
     fields:
       object_id:

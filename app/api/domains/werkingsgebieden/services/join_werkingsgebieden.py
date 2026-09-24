@@ -54,24 +54,24 @@ class JoinWerkingsgebiedenService:
                 ObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
+                    partition_by=ObjectsTable.code,
                     order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ObjectsTable)
             .filter(
-                ObjectsTable.Code.in_(config.werkingsgebied_codes),
+                ObjectsTable.code.in_(config.werkingsgebied_codes),
             )
             .subquery()
         )
 
         # TODO check of het niet verlopen is
 
-        stmt = select(subq).filter(subq.c._RowNumber == 1)
+        stmt = select(subq).filter(subq.c._row_number == 1)
 
         rows = self._session.execute(stmt).all()
-        result: dict[str, BaseModel] = {r.Code: werkingsgebied_model.model_validate(r) for r in rows}
+        result: dict[str, BaseModel] = {r.code: werkingsgebied_model.model_validate(r) for r in rows}
 
         return result
 

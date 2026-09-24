@@ -39,7 +39,7 @@ def post_edit_publication_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_in: PublicationEdit,
 ) -> ResponseOK:
-    if not publication.Module.is_active:
+    if not publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
@@ -47,7 +47,7 @@ def post_edit_publication_endpoint(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
     if object_in.Template_UUID is not None:
-        _guard_template(session, template_repository, publication.Document_Type, object_in.Template_UUID)
+        _guard_template(session, template_repository, publication.document_type, object_in.Template_UUID)
 
     for key, value in changes.items():
         setattr(publication, key, value)
@@ -71,7 +71,7 @@ def _guard_template(
     template: PublicationTemplateTable | None = template_repository.get_by_uuid(session, template_uuid)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
-    if not template.Is_Active:
+    if not template.is_active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template is gesloten")
-    if template.Document_Type != document_type:
+    if template.document_type != document_type:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template hoort niet bij dit document type")

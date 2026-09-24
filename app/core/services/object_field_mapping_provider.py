@@ -5,5 +5,5 @@ class ObjectFieldMappingProvider:
     def get_valid_fields_for_type(self, object_type: str) -> set[str]:
         fields: set[str] = self._field_mappings.get(object_type, set())
         if not fields:
-            raise RuntimeError(f"The Object_Type '{object_type}' does not exist in ObjectFieldMappingProvider")
+            raise RuntimeError(f"The object_type '{object_type}' does not exist in ObjectFieldMappingProvider")
         return fields

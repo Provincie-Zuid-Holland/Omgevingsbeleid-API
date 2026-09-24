@@ -19,7 +19,7 @@ class HoofdlijnenCheckRuleTest(unittest.TestCase):
     def setUp(self) -> None:
         config: Mock | MainConfig = Mock(MainConfig)
         rule_config: HoofdlijnenCheckRuleConfig = HoofdlijnenCheckRuleConfig(
-            field="Hoofdlijnen", allowed_object_types=["ambitie"]
+            field="hoofdlijnen", allowed_object_types=["ambitie"]
         )
         config.get_as_model.return_value = rule_config
 
@@ -36,30 +36,30 @@ class HoofdlijnenCheckRuleTest(unittest.TestCase):
             module_id=1,
             module_objects=[
                 ModuleObjectsTable(
-                    Object_Type="ambitie",  # No hoofdlijnen
-                    Object_ID="1",
-                    Code="ambitie-1",
-                    Title="A1 title",
+                    object_type="ambitie",  # No hoofdlijnen
+                    object_id="1",
+                    code="ambitie-1",
+                    title="A1 title",
                 ),
                 ModuleObjectsTable(
-                    Object_Type="ambitie",
-                    Object_ID="2",
-                    Code="ambitie-2",
-                    Title="A2 title",
-                    Hoofdlijnen=[str(self._uuid_found)],
+                    object_type="ambitie",
+                    object_id="2",
+                    code="ambitie-2",
+                    title="A2 title",
+                    hoofdlijnen=[str(self._uuid_found)],
                 ),
                 ModuleObjectsTable(
-                    Object_Type="beleidsdoel",  # ignored object type
-                    Object_ID="1",
-                    Code="beleidsdoel-1",
-                    Title="BD1 title",
+                    object_type="beleidsdoel",  # ignored object type
+                    object_id="1",
+                    code="beleidsdoel-1",
+                    title="BD1 title",
                 ),
                 ModuleObjectsTable(
-                    Object_Type="ambitie",  # hoofdlijn unknown
-                    Object_ID="3",
-                    Code="ambitie-3",
-                    Title="A3 title",
-                    Hoofdlijnen=[str(uuid_missing)],
+                    object_type="ambitie",  # hoofdlijn unknown
+                    object_id="3",
+                    code="ambitie-3",
+                    title="A3 title",
+                    hoofdlijnen=[str(uuid_missing)],
                 ),
             ],
         )
@@ -73,18 +73,18 @@ class HoofdlijnenCheckRuleTest(unittest.TestCase):
             module_id=1,
             module_objects=[
                 ModuleObjectsTable(
-                    Object_Type="ambitie",
-                    Object_ID="1",
-                    Code="ambitie-1",
-                    Title="A1 title",
-                    Hoofdlijnen=[],
+                    object_type="ambitie",
+                    object_id="1",
+                    code="ambitie-1",
+                    title="A1 title",
+                    hoofdlijnen=[],
                 ),
                 ModuleObjectsTable(
-                    Object_Type="ambitie",
-                    Object_ID="2",
-                    Code="ambitie-2",
-                    Title="A2 title",
-                    Hoofdlijnen=[],
+                    object_type="ambitie",
+                    object_id="2",
+                    code="ambitie-2",
+                    title="A2 title",
+                    hoofdlijnen=[],
                 ),
             ],
         )
@@ -97,18 +97,18 @@ class HoofdlijnenCheckRuleTest(unittest.TestCase):
             module_id=1,
             module_objects=[
                 ModuleObjectsTable(
-                    Object_Type="ambitie",
-                    Object_ID="1",
-                    Code="ambitie-1",
-                    Title="A1 title",
-                    Hoofdlijnen=[str(self._uuid_found)],
+                    object_type="ambitie",
+                    object_id="1",
+                    code="ambitie-1",
+                    title="A1 title",
+                    hoofdlijnen=[str(self._uuid_found)],
                 ),
                 ModuleObjectsTable(
-                    Object_Type="ambitie",
-                    Object_ID="2",
-                    Code="ambitie-2",
-                    Title="A2 title",
-                    Hoofdlijnen=[str(self._uuid_found)],
+                    object_type="ambitie",
+                    object_id="2",
+                    code="ambitie-2",
+                    title="A2 title",
+                    hoofdlijnen=[str(self._uuid_found)],
                 ),
             ],
         )

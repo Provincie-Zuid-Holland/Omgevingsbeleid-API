@@ -31,7 +31,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
         errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
-            if object_table.Object_Type != self._config.object_type:
+            if object_table.object_type != self._config.object_type:
                 continue
 
             area_current: AreasTable | None = getattr(object_table, self._config.field)
@@ -40,10 +40,10 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[f"Object is of type '{self._config.object_type}', but area is not known"],
                     )
@@ -60,10 +60,10 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
                             f"The onderverdelingen lineage used by Area `{area_current.id}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
@@ -78,10 +78,10 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
                             f"Area {area_current.id} does not use the latest known onderverdeling shape {onderverdeling.UUID}"

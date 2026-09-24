@@ -31,7 +31,7 @@ def get_acknowledged_relation_request_endpoint(
     context: Annotated[AcknowledgedRelationRequestEndpointContext, Depends()],
 ) -> ResponseOK:
     if object_in.object_type not in context.allowed_object_types:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Object_Type")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid object_type")
 
     timepoint: datetime = datetime.now(UTC)
 
@@ -39,7 +39,7 @@ def get_acknowledged_relation_request_endpoint(
         object_id=lineage_id,
         object_type=context.object_type,
         acknowledged=timepoint,
-        acknowledged_by_uuid=user.UUID,
+        acknowledged_by_id=user.UUID,
         explanation=object_in.explanation,
     )
     their_side = AcknowledgedRelationSide(

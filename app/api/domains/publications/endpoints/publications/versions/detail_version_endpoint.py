@@ -29,6 +29,6 @@ def get_detail_version_endpoint(
 ) -> PublicationVersion:
     errors: list[ErrorDetails] = validator.get_errors(publication_version)
     result: PublicationVersion = PublicationVersion.model_validate(publication_version)
-    result.Errors = errors
+    result.errors = errors
 
     return result

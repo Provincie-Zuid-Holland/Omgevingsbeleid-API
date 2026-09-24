@@ -20,7 +20,7 @@ def depends_object_by_uuid(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
 ):
-    maybe_object: ObjectsTable | None = repository.get_by_uuid(session, uuid)
+    maybe_object: ObjectsTable | None = repository.get_by_id(session, uuid)
     if not maybe_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object niet gevonden")
     return maybe_object

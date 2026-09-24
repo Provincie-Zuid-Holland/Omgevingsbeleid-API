@@ -12,11 +12,11 @@ from tests.fixtures.internal.types import Link
 
 class GebiedMixin(BaseModel):
     __object_type__: ClassVar[str] = "gebied"
-    __inheritable__: ClassVar[set[str]] = {"Title", "area_id"}
-    __object_fields__: ClassVar[set[str]] = {"Title", "area_id"}
+    __inheritable__: ClassVar[set[str]] = {"title", "area_id"}
+    __object_fields__: ClassVar[set[str]] = {"title", "area_id"}
     __link_fields__: ClassVar[set[str]] = {"area_id"}
 
-    Title: str | None = None
+    title: str | None = None
     area_id: Link | None = None
 
 

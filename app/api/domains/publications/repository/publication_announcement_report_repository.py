@@ -12,7 +12,7 @@ from app.core.tables.publications import PublicationAnnouncementPackageReportTab
 class PublicationAnnouncementReportRepository(BaseRepository):
     def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationAnnouncementPackageReportTable | None:
         stmt = select(PublicationAnnouncementPackageReportTable).where(
-            PublicationAnnouncementPackageReportTable.UUID == uuidx
+            PublicationAnnouncementPackageReportTable.id == uuidx
         )
         return self.fetch_first(session, stmt)
 
@@ -28,12 +28,12 @@ class PublicationAnnouncementReportRepository(BaseRepository):
         filters = []
         if announcement_package_uuid is not None:
             filters.append(
-                and_(PublicationAnnouncementPackageReportTable.Announcement_Package_UUID == announcement_package_uuid)
+                and_(PublicationAnnouncementPackageReportTable.announcement_package_id == announcement_package_uuid)
             )
         if filename is not None:
-            filters.append(and_(PublicationAnnouncementPackageReportTable.Filename == filename))
+            filters.append(and_(PublicationAnnouncementPackageReportTable.filename == filename))
         if report_status is not None:
-            filters.append(and_(PublicationAnnouncementPackageReportTable.Report_Status == report_status.value))
+            filters.append(and_(PublicationAnnouncementPackageReportTable.report_status == report_status.value))
 
         stmt = select(PublicationAnnouncementPackageReportTable).filter(*filters)
 

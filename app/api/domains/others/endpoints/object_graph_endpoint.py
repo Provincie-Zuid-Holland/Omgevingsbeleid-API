@@ -62,34 +62,34 @@ class EndpointHandler:
                 ObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
+                    partition_by=ObjectsTable.code,
                     order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ObjectsTable)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
-            .filter(ObjectsTable.Code.in_(codes))
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
+            .filter(ObjectsTable.code.in_(codes))
             .subquery()
         )
 
         aliased_subq = aliased(ObjectsTable, subq)
         stmt = (
             select(aliased_subq)
-            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c._row_number == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(UTC),
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > datetime.now(UTC),
+                    subq.c.end_validity.is_(None),
                 )
             )
             .order_by(desc(subq.c.modified_date))
             .options(
                 load_only(
-                    aliased_subq.Object_Type,
-                    aliased_subq.Object_ID,
-                    aliased_subq.Code,
-                    aliased_subq.UUID,
+                    aliased_subq.object_type,
+                    aliased_subq.object_id,
+                    aliased_subq.code,
+                    aliased_subq.id,
                     aliased_subq.Title,
                 ),
             )
@@ -107,7 +107,7 @@ class EndpointHandler:
 
     def _get_relations(self) -> set[GraphEdge]:
         search_codes: set[str] = {
-            self._object.Code,
+            self._object.code,
         }
         ignore_codes: set[str] = set()
         edges: set[GraphEdge] = set()
@@ -121,27 +121,27 @@ class EndpointHandler:
                 .filter(
                     or_(
                         and_(
-                            RelationsTable.From_Code.in_(search_codes),
+                            RelationsTable.from_code.in_(search_codes),
                             or_(
                                 *[
-                                    RelationsTable.To_Code.like(f"{object_type}-%")
+                                    RelationsTable.to_code.like(f"{object_type}-%")
                                     for object_type in iteration_config.allowed_object_types
                                 ],
                             ).self_group(),
                         ).self_group(),
                         and_(
-                            RelationsTable.To_Code.in_(search_codes),
+                            RelationsTable.to_code.in_(search_codes),
                             or_(
                                 *[
-                                    RelationsTable.From_Code.like(f"{object_type}-%")
+                                    RelationsTable.from_code.like(f"{object_type}-%")
                                     for object_type in iteration_config.allowed_object_types
                                 ],
                             ).self_group(),
                         ).self_group(),
                     )
                 )
-                .filter(RelationsTable.From_Code.not_in(ignore_codes))
-                .filter(RelationsTable.To_Code.not_in(ignore_codes))
+                .filter(RelationsTable.from_code.not_in(ignore_codes))
+                .filter(RelationsTable.to_code.not_in(ignore_codes))
             )
             rows: list[RelationsTable] = self._session.execute(stmt).scalars().all()
 
@@ -153,15 +153,15 @@ class EndpointHandler:
                 edges.add(
                     GraphEdge(
                         Type=GraphEdgeType.relation,
-                        Vertice_A_Code=row.From_Code,
-                        Vertice_B_Code=row.To_Code,
+                        Vertice_A_Code=row.from_code,
+                        Vertice_B_Code=row.to_code,
                     )
                 )
 
                 # Just add everything to search codes for now
                 # We intersect it later with ignore codes to only search for something we have not searched for before
-                search_codes.add(row.From_Code)
-                search_codes.add(row.To_Code)
+                search_codes.add(row.from_code)
+                search_codes.add(row.to_code)
 
             # Remove everything from search_codes that is already in ignore_codes
             search_codes = set.difference(search_codes, ignore_codes)
@@ -170,7 +170,7 @@ class EndpointHandler:
 
     def _get_valid_acknowledged_relations(self) -> set[GraphEdge]:
         search_codes: set[str] = {
-            self._object.Code,
+            self._object.code,
         }
         ignore_codes: set[str] = set()
         edges: set[GraphEdge] = set()

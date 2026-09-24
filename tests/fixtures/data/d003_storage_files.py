@@ -10,18 +10,18 @@ def load(col: Collector) -> None:
         [
             StorageFileSpec(
                 key="file_1",
-                File_Path="./document-1.pdf",
+                file_path="./document-1.pdf",
                 created_date=datetime(2025, 1, 1, tzinfo=UTC),
             ),
             StorageFileSpec(
                 key="file_2",
-                File_Path="./document-2.pdf",
+                file_path="./document-2.pdf",
                 created_date=datetime(2025, 1, 2, tzinfo=UTC),
                 created_by_id=col.ref(UserSpec, "ambtenaar"),
             ),
             StorageFileSpec(
                 key="file_3",
-                File_Path="./document-3.pdf",
+                file_path="./document-3.pdf",
                 created_date=datetime(2025, 1, 3, tzinfo=UTC),
             ),
         ]

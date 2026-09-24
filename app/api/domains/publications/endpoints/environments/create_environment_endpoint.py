@@ -15,16 +15,16 @@ from app.core.tables.users import UsersTable
 
 
 class EnvironmentCreate(BaseModel):
-    Title: str = Field(..., min_length=3)
-    Description: str
-    Province_ID: str
-    Authority_ID: str
-    Submitter_ID: str
-    Frbr_Country: str
-    Frbr_Language: str
-    Has_State: bool
-    Can_Validate: bool
-    Can_Publicate: bool
+    title: str = Field(..., min_length=3)
+    description: str
+    province_id: str
+    authority_id: str
+    submitter_id: str
+    frbr_country: str
+    frbr_language: str
+    has_state: bool
+    can_validate: bool
+    can_publicate: bool
 
 
 class EnvironmentCreatedResponse(BaseModel):
@@ -46,20 +46,20 @@ def post_create_environment_endpoint(
     timepoint: datetime = datetime.now(UTC)
 
     environment: PublicationEnvironmentTable = PublicationEnvironmentTable(
-        UUID=uuid.uuid4(),
-        Title=object_in.Title,
-        Description=object_in.Description,
-        Province_ID=object_in.Province_ID,
-        Authority_ID=object_in.Authority_ID,
-        Submitter_ID=object_in.Submitter_ID,
-        Governing_Body_Type="provinciale_staten",
-        Frbr_Country=object_in.Frbr_Country,
-        Frbr_Language=object_in.Frbr_Language,
-        Is_Active=True,
-        Has_State=object_in.Has_State,
-        Can_Validate=object_in.Can_Validate,
-        Can_Publicate=object_in.Can_Publicate,
-        Is_Locked=False,
+        id=uuid.uuid4(),
+        title=object_in.title,
+        description=object_in.description,
+        province_id=object_in.province_id,
+        authority_id=object_in.authority_id,
+        submitter_id=object_in.submitter_id,
+        governing_body_type="provinciale_staten",
+        frbr_country=object_in.frbr_country,
+        frbr_language=object_in.frbr_language,
+        is_active=True,
+        has_state=object_in.has_state,
+        can_validate=object_in.can_validate,
+        can_publicate=object_in.can_publicate,
+        is_locked=False,
         created_date=timepoint,
         modified_date=timepoint,
         created_by_id=user.UUID,
@@ -68,26 +68,26 @@ def post_create_environment_endpoint(
     session.add(environment)
     session.flush()
 
-    if environment.Has_State:
+    if environment.has_state:
         initial_state = PublicationEnvironmentStateTable(
-            UUID=uuid.uuid4(),
-            Environment_UUID=environment.UUID,
-            Adjust_On_UUID=None,
-            State=(InitialState().state_dict()),
-            Is_Activated=True,
-            Activated_Datetime=timepoint,
+            id=uuid.uuid4(),
+            environment_id=environment.id,
+            adjust_on_id=None,
+            state=(InitialState().state_dict()),
+            is_activated=True,
+            activated_datetime=timepoint,
             created_date=timepoint,
             created_by_id=user.UUID,
         )
         session.add(initial_state)
         session.flush()
 
-        environment.Active_State_UUID = initial_state.UUID
+        environment.active_state_id = initial_state.id
         session.add(environment)
 
     session.flush()
     session.commit()
 
     return EnvironmentCreatedResponse(
-        UUID=environment.UUID,
+        UUID=environment.id,
     )

@@ -37,32 +37,32 @@ class AreasTable(Base):
 class RelationsTable(Base, SerializerMixin):
     __tablename__ = "relations"
 
-    From_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
-    To_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
-    Description: Mapped[str]
+    from_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"), primary_key=True)
+    to_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"), primary_key=True)
+    description: Mapped[str]
 
-    FromObjectStatics: Mapped[ObjectStaticsTable] = relationship(
+    from_object_statics: Mapped[ObjectStaticsTable] = relationship(
         ObjectStaticsTable,
-        foreign_keys=[From_Code],
+        foreign_keys=[from_code],
     )
 
-    ToObjectStatics: Mapped[ObjectStaticsTable] = relationship(
+    to_object_statics: Mapped[ObjectStaticsTable] = relationship(
         ObjectStaticsTable,
-        foreign_keys=[To_Code],
+        foreign_keys=[to_code],
     )
 
     def __repr__(self) -> str:
-        return f"Relations(From_Code={self.From_Code!r}, To_Code={self.To_Code!r})"
+        return f"Relations(from_code={self.from_code!r}, to_code={self.to_code!r})"
 
     def set_codes(self, code_a: str, code_b: str):
         from_code, to_code = sorted([code_a, code_b])
-        self.From_Code = from_code
-        self.To_Code = to_code
+        self.from_code = from_code
+        self.to_code = to_code
 
     @staticmethod
     def create(description: str, code_a: str, code_b: str) -> "RelationsTable":
         relation: RelationsTable = RelationsTable(
-            Description=description,
+            description=description,
         )
         relation.set_codes(code_a, code_b)
         return relation
@@ -116,42 +116,42 @@ class ChangeLogTable(Base):
 class StorageFileTable(Base):
     __tablename__ = "storage_files"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
     # Lookup for faster access
-    Lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
-    Checksum: Mapped[str] = mapped_column(String(64), nullable=False)
+    lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
+    checksum: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    Filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    Content_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
-    Size: Mapped[int] = mapped_column(Integer, nullable=False)
-    Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
+    filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    content_type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    size: Mapped[int] = mapped_column(Integer, nullable=False)
+    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
 
     created_date: Mapped[datetime]
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     def __repr__(self) -> str:
-        return f"StorageFileTable(UUID={self.UUID!r}, Filename={self.Filename!r})"
+        return f"StorageFileTable(id={self.id!r}, filename={self.filename!r})"
 
 
 class ObjectRelatedFileTable(Base):
     __tablename__ = "object_related_files"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"), index=True)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.code"), index=True)
 
-    File_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("storage_files.UUID"))
+    file_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("storage_files.id"))
 
-    Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     created_date: Mapped[datetime]
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     # Relationships
-    ObjectStatics: Mapped["ObjectStaticsTable"] = relationship()
-    File: Mapped["StorageFileTable"] = relationship()
+    object_statics: Mapped["ObjectStaticsTable"] = relationship()
+    file: Mapped["StorageFileTable"] = relationship()
 
     def __repr__(self) -> str:
-        return f"ObjectRelatedFileTable(UUID={self.UUID!r}, Code={self.Code!r})"
+        return f"ObjectRelatedFileTable(id={self.id!r}, code={self.code!r})"
 
 
 class HoofdlijnTable(Base, RequireTimeStamped, UserMetaData, SerializerMixin):

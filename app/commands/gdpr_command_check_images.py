@@ -38,11 +38,11 @@ def _asset_key() -> KeyStrategy:
     def _key(object_in: ObjectTableType) -> Iterable[uuid.UUID]:
         uuids: set[uuid.UUID] = set()
         for column in [
-            object_in.Description,
-            object_in.Cause,
-            object_in.Effect,
-            object_in.Explanation,
-            object_in.Provincial_Interest,
+            object_in.description,
+            object_in.cause,
+            object_in.effect,
+            object_in.explanation,
+            object_in.provincial_interest,
         ]:
             if not column:
                 continue
@@ -57,11 +57,11 @@ def _asset_key() -> KeyStrategy:
 def _asset_filter(asset_uuids: set[uuid.UUID]) -> FilterStrategy:
     def _filter(table_type: type[ObjectTableType]):
         columns: list[Column] = [
-            table_type.Cause,
-            table_type.Description,
-            table_type.Effect,
-            table_type.Explanation,
-            table_type.Provincial_Interest,
+            table_type.cause,
+            table_type.description,
+            table_type.effect,
+            table_type.explanation,
+            table_type.provincial_interest,
         ]
         conditions: list[BinaryExpression[bool]] = [
             column.like(f"%ASSET:{asset_uuid}%") for column in columns for asset_uuid in asset_uuids

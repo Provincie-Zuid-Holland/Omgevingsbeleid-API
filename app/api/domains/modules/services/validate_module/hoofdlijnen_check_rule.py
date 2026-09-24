@@ -40,7 +40,7 @@ class HoofdlijnenCheckRule(ValidateModuleRule):
 
         errors: list[ValidateModuleError] = []
         for object_table in request.module_objects:
-            if object_table.Object_Type not in self._config.allowed_object_types:
+            if object_table.object_type not in self._config.allowed_object_types:
                 continue
 
             field_value: list[str] | None = getattr(object_table, self._config.field)
@@ -67,10 +67,10 @@ class HoofdlijnenCheckRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="hoofdlijnen_check_rule",
                         object=ValidateModuleObject(
-                            code=data.object_table.Code,
-                            object_id=data.object_table.Object_ID,
-                            object_type=data.object_table.Object_Type,
-                            title=data.object_table.Title,
+                            code=data.object_table.code,
+                            object_id=data.object_table.object_id,
+                            object_type=data.object_table.object_type,
+                            title=data.object_table.title,
                         ),
                         messages=[f"Hoofdlijnen with IDs {', '.join(missing_displayed)} are unknown"],
                     )

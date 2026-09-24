@@ -39,7 +39,7 @@ class AcknowledgedRelationBase(BaseModel):
 
 class AcknowledgedRelationSide(AcknowledgedRelationBase):
     acknowledged: datetime | None = None
-    acknowledged_by_uuid: uuid.UUID | None = None
+    acknowledged_by_id: uuid.UUID | None = None
     title: str | None = None
     explanation: str | None = None
 
@@ -59,23 +59,23 @@ class AcknowledgedRelationSide(AcknowledgedRelationBase):
         if self.is_acknowledged:
             return
 
-        self.acknowledged_by_uuid = user_uuid
+        self.acknowledged_by_id = user_uuid
         self.acknowledged = timepoint
 
 
 class WerkingsgebiedRelatedObjectShort(BaseModel):
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Title: str | None
-    Werkingsgebied_Code: str
+    id: uuid.UUID
+    object_type: str
+    object_id: int
+    title: str | None
+    werkingsgebied_code: str
 
 
 class WerkingsgebiedRelatedModuleObjectShort(WerkingsgebiedRelatedObjectShort):
-    Module_ID: int | None = None
-    Module_Title: str | None = None
+    module_id: int | None = None
+    module_title: str | None = None
 
 
 class WerkingsgebiedRelatedObjects(BaseModel):
-    Valid_Objects: list[WerkingsgebiedRelatedObjectShort]
-    Module_Objects: list[WerkingsgebiedRelatedModuleObjectShort]
+    valid_objects: list[WerkingsgebiedRelatedObjectShort]
+    module_objects: list[WerkingsgebiedRelatedModuleObjectShort]

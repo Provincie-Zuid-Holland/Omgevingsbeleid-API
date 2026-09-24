@@ -62,7 +62,7 @@ class FileParser:
         file.file.close()
 
         report: PublicationActPackageReportTable = self._parse_report_xml(content, file.filename or "")
-        if not self._debug and report.Sub_Delivery_ID != self._act_package.Delivery_ID:
+        if not self._debug and report.sub_delivery_id != self._act_package.delivery_id:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST, "Report idLevering does not match publication package UUID"
             )
@@ -90,15 +90,15 @@ class FileParser:
                 report_status = ReportStatusType.VALID
 
             report_table = PublicationActPackageReportTable(
-                UUID=uuid.uuid4(),
-                Act_Package_UUID=self._act_package.UUID,
-                Report_Status=report_status,
-                Filename=filename,
-                Source_Document=content.decode("utf-8"),
-                Main_Outcome=main_outcome,
-                Sub_Delivery_ID=sub_delivery_id,
-                Sub_Progress=maybe_sub_progress or "",
-                Sub_Outcome=maybe_sub_outcome or "",
+                id=uuid.uuid4(),
+                act_package_id=self._act_package.id,
+                report_status=report_status,
+                filename=filename,
+                source_document=content.decode("utf-8"),
+                main_outcome=main_outcome,
+                sub_delivery_id=sub_delivery_id,
+                sub_progress=maybe_sub_progress or "",
+                sub_outcome=maybe_sub_outcome or "",
                 created_date=self._timepoint,
                 created_by_id=self._created_by_uuid,
             )
@@ -129,7 +129,7 @@ class EndpointHandler:
         self._uploaded_files: list[UploadFile] = uploaded_files
         self._act_package: PublicationActPackageTable = act_package
         self._timepoint: datetime = datetime.now(UTC)
-        self._starting_status: ReportStatusType = ReportStatusType(self._act_package.Report_Status)
+        self._starting_status: ReportStatusType = ReportStatusType(self._act_package.report_status)
         self._file_parser: FileParser = FileParser(
             debug=debug,
             act_package=act_package,
@@ -145,13 +145,13 @@ class EndpointHandler:
 
         duplicate_count: int = 0
         running_status: RunningStatus = RunningStatus(
-            Status=ReportStatusType(self._act_package.Report_Status),
+            Status=ReportStatusType(self._act_package.report_status),
             Is_Conclusive=False,
         )
         for file in self._uploaded_files:
             existing_data: PaginatedQueryResult = self._report_repository.get_with_filters(
                 session=self._session,
-                act_package_uuid=self._act_package.UUID,
+                act_package_uuid=self._act_package.id,
                 filename=file.filename,
                 limit=1,
             )
@@ -173,13 +173,13 @@ class EndpointHandler:
         self._session.commit()
 
         response: UploadPackageReportResponse = UploadPackageReportResponse(
-            Status=ReportStatusType(self._act_package.Report_Status),
+            Status=ReportStatusType(self._act_package.report_status),
             Duplicate_Count=duplicate_count,
         )
         return response
 
     def _guard_can_upload_files(self):
-        if not self._act_package.Publication_Version.Publication.Environment.Has_State:
+        if not self._act_package.publication_version.publication.environment.has_state:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Can not upload packages for stateless environment")
 
     def _update_running_status(
@@ -187,22 +187,22 @@ class EndpointHandler:
         running_status: RunningStatus,
         report: PublicationActPackageReportTable,
     ):
-        if self._act_package.Report_Status == ReportStatusType.ABORTED:
+        if self._act_package.report_status == ReportStatusType.ABORTED:
             running_status.Status = ReportStatusType.ABORTED
             running_status.Is_Conclusive = True
             return running_status
 
-        if self._act_package.Report_Status == ReportStatusType.FAILED:
+        if self._act_package.report_status == ReportStatusType.FAILED:
             running_status.Status = ReportStatusType.FAILED
             running_status.Is_Conclusive = True
             return running_status
 
-        if report.Report_Status == ReportStatusType.FAILED:
+        if report.report_status == ReportStatusType.FAILED:
             running_status.Status = ReportStatusType.FAILED
             running_status.Is_Conclusive = True
             return running_status
 
-        if report.Report_Status == ReportStatusType.VALID and report.Sub_Outcome:
+        if report.report_status == ReportStatusType.VALID and report.sub_outcome:
             running_status.Status = ReportStatusType.VALID
             running_status.Is_Conclusive = True
             return running_status
@@ -221,14 +221,14 @@ class EndpointHandler:
         if not running_status.Is_Conclusive:
             return
 
-        self._act_package.Report_Status = running_status.Status
+        self._act_package.report_status = running_status.Status
 
         # If we did not create a new state (for example on validation)
         # Then we do not really have to do anything
-        if self._act_package.Created_Environment_State_UUID is None:
+        if self._act_package.created_environment_state_id is None:
             return
 
-        match self._act_package.Report_Status:
+        match self._act_package.report_status:
             case ReportStatusType.FAILED:
                 return self._handle_conclusive_failed()
             case ReportStatusType.VALID:
@@ -236,21 +236,21 @@ class EndpointHandler:
 
     def _handle_conclusive_failed(self):
         # On failed we just unlock the environment
-        self._act_package.Publication_Version.Publication.Environment.Is_Locked = False
-        self._session.add(self._act_package.Publication_Version.Publication.Environment)
+        self._act_package.publication_version.publication.environment.is_locked = False
+        self._session.add(self._act_package.publication_version.publication.environment)
 
         # Show failure in the publication version status
-        match self._act_package.Package_Type:
+        match self._act_package.package_type:
             case PackageType.VALIDATION.value:
-                self._act_package.Publication_Version.Status = PublicationVersionStatus.VALIDATION_FAILED
+                self._act_package.publication_version.status = PublicationVersionStatus.VALIDATION_FAILED
             case PackageType.PUBLICATION.value:
-                self._act_package.Publication_Version.Status = PublicationVersionStatus.PUBLICATION_FAILED
+                self._act_package.publication_version.status = PublicationVersionStatus.PUBLICATION_FAILED
 
-        self._session.add(self._act_package.Publication_Version)
+        self._session.add(self._act_package.publication_version)
 
     def _handle_conclusive_valid(self):
-        environment: PublicationEnvironmentTable = self._act_package.Publication_Version.Publication.Environment
-        new_state: PublicationEnvironmentStateTable = self._act_package.Created_Environment_State
+        environment: PublicationEnvironmentTable = self._act_package.publication_version.publication.environment
+        new_state: PublicationEnvironmentStateTable = self._act_package.created_environment_state
 
         # On success we have to:
         # - Activate the new state
@@ -258,23 +258,23 @@ class EndpointHandler:
         # - Unlock the environment
         # - Lock the Publication Version if the package was a Publication
         # - Complete the publication version Status if the procedure type is final
-        new_state.Is_Activated = True
-        new_state.Activated_Datetime = self._timepoint
+        new_state.is_activated = True
+        new_state.activated_datetime = self._timepoint
         self._session.add(new_state)
 
-        environment.Active_State_UUID = new_state.UUID
-        environment.Is_Locked = False
+        environment.active_state_id = new_state.id
+        environment.is_locked = False
         environment.modified_date = self._timepoint
         environment.modified_by_id = self._user.UUID
         self._session.add(environment)
 
-        if self._act_package.Package_Type == PackageType.PUBLICATION.value:
-            self._act_package.Publication_Version.Is_Locked = True
+        if self._act_package.package_type == PackageType.PUBLICATION.value:
+            self._act_package.publication_version.is_locked = True
 
-            if self._act_package.Publication_Version.Publication.Procedure_Type == ProcedureType.FINAL.value:
-                self._act_package.Publication_Version.Status = PublicationVersionStatus.COMPLETED
+            if self._act_package.publication_version.publication.procedure_type == ProcedureType.FINAL.value:
+                self._act_package.publication_version.status = PublicationVersionStatus.COMPLETED
 
-            self._session.add(self._act_package.Publication_Version)
+            self._session.add(self._act_package.publication_version)
 
 
 @inject

@@ -27,7 +27,7 @@ def post_close_act_endpoint(
 ) -> ResponseOK:
     act.modified_by_id = user.UUID
     act.modified_date = datetime.now(UTC)
-    act.Is_Active = False
+    act.is_active = False
 
     session.add(act)
     session.flush()

@@ -24,11 +24,11 @@ def get_download_announcement_package_endpoint(
     ],
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> Response:
-    package_zip.Latest_Download_Date = datetime.now(UTC)
-    package_zip.Latest_Download_By_UUID = user.UUID
+    package_zip.latest_download_date = datetime.now(UTC)
+    package_zip.latest_download_by_id = user.UUID
 
-    content = package_zip.Binary
-    filename = package_zip.Filename
+    content = package_zip.binary
+    filename = package_zip.filename
 
     session.add(package_zip)
     session.flush()

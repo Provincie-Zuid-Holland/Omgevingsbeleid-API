@@ -62,23 +62,23 @@ class PatchGebiedengroepInputGeoService:
             area_id: uuid.UUID = self._ensure_area(onderverdeling)
             _sub_object_context: ModuleObjectContextTable = self._ensure_object_context(
                 sub_object_static,
-                main_obj.Module_ID,
+                main_obj.module_id,
             )
 
             object_result_action, _sub_object = self._ensure_object_newest_area(
                 sub_object_static,
-                main_obj.Module_ID,
+                main_obj.module_id,
                 area_id,
                 onderverdeling.Title,
             )
             if object_result_action in [ObjectResultType.CREATED, ObjectResultType.UPDATED]:
                 something_changed = True
 
-            used_sub_codes.add(sub_object_static.Code)
+            used_sub_codes.add(sub_object_static.code)
 
-        if main_obj.Source_Title != self._input_geo_werkingsgebied.Title:
+        if main_obj.source_title != self._input_geo_werkingsgebied.Title:
             something_changed = True
-        if main_obj.Source_UUID != self._input_geo_werkingsgebied.UUID:
+        if main_obj.source_uuid != self._input_geo_werkingsgebied.UUID:
             something_changed = True
 
         # Patch the main object and set the "gebieden"
@@ -87,9 +87,9 @@ class PatchGebiedengroepInputGeoService:
                 self._session,
                 main_obj,
                 {
-                    "Gebieden": list(used_sub_codes),
-                    "Source_Title": self._input_geo_werkingsgebied.Title,
-                    "Source_UUID": self._input_geo_werkingsgebied.UUID,
+                    "gebieden": list(used_sub_codes),
+                    "source_title": self._input_geo_werkingsgebied.Title,
+                    "source_uuid": self._input_geo_werkingsgebied.UUID,
                 },
                 self._timepoint,
                 self._user.UUID,
@@ -124,24 +124,24 @@ class PatchGebiedengroepInputGeoService:
         source_key: str,
     ) -> ObjectStaticsTable:
         generate_id_subq = (
-            select(func.coalesce(func.max(ObjectStaticsTable.Object_ID), 0) + 1)
+            select(func.coalesce(func.max(ObjectStaticsTable.object_id), 0) + 1)
             .select_from(ObjectStaticsTable)
-            .filter(ObjectStaticsTable.Object_Type == self._onderverdeling_object_type)
+            .filter(ObjectStaticsTable.object_type == self._onderverdeling_object_type)
             .scalar_subquery()
         )
 
         stmt = (
             insert(ObjectStaticsTable)
             .values(
-                Object_Type=self._onderverdeling_object_type,
-                Object_ID=generate_id_subq,
-                Code=(self._onderverdeling_object_type + "-" + func.cast(generate_id_subq, String)),
-                Cached_Title=onderverdeling.Title,
-                Source_Identifier=source_key,
+                object_type=self._onderverdeling_object_type,
+                object_id=generate_id_subq,
+                code=(self._onderverdeling_object_type + "-" + func.cast(generate_id_subq, String)),
+                cached_title=onderverdeling.Title,
+                source_identifier=source_key,
                 # These are inherited from the parent object
-                Owner_1_UUID=main_obj.ObjectStatics.Owner_1_UUID,
-                Owner_2_UUID=main_obj.ObjectStatics.Owner_2_UUID,
-                Client_1_UUID=main_obj.ObjectStatics.Client_1_UUID,
+                owner_1_id=main_obj.object_statics.owner_1_id,
+                owner_2_id=main_obj.object_statics.owner_2_id,
+                client_1_id=main_obj.object_statics.client_1_id,
             )
             .returning(ObjectStaticsTable)
         )
@@ -179,8 +179,8 @@ class PatchGebiedengroepInputGeoService:
     def _ensure_object_context(self, sub_object_static: ObjectStaticsTable, module_id: int) -> ModuleObjectContextTable:
         request = mocs.ExistRequest(
             module_id=module_id,
-            object_type=sub_object_static.Object_Type,
-            object_id=sub_object_static.Object_ID,
+            object_type=sub_object_static.object_type,
+            object_id=sub_object_static.object_id,
             timepoint=self._timepoint,
             original_adjust_on=None,
             explanation="",
@@ -203,12 +203,12 @@ class PatchGebiedengroepInputGeoService:
         existing_object: ModuleObjectsTable | None = self._module_object_repository.get_latest_by_module_id_object_code(
             self._session,
             module_id,
-            sub_object_static.Code,
+            sub_object_static.code,
         )
         if existing_object is None:
             return ObjectResultType.CREATED, self._create_sub_object(sub_object_static, module_id, area_id, title)
 
-        if existing_object.area_id != area_id or existing_object.Deleted:
+        if existing_object.area_id != area_id or existing_object.deleted:
             return ObjectResultType.UPDATED, self._modify_sub_object(existing_object, area_id, title)
 
         return ObjectResultType.IGNORED, existing_object
@@ -222,14 +222,14 @@ class PatchGebiedengroepInputGeoService:
     ) -> ModuleObjectsTable:
         module_object = ModuleObjectsTable()
 
-        module_object.Module_ID = module_id
-        module_object.Object_Type = sub_object_static.Object_Type
-        module_object.Object_ID = sub_object_static.Object_ID
-        module_object.Code = sub_object_static.Code
+        module_object.module_id = module_id
+        module_object.object_type = sub_object_static.object_type
+        module_object.object_id = sub_object_static.object_id
+        module_object.code = sub_object_static.code
         module_object.area_id = area_id
-        module_object.Title = title
-        module_object.Adjust_On = None
-        module_object.UUID = uuid.uuid4()
+        module_object.title = title
+        module_object.adjust_on = None
+        module_object.id = uuid.uuid4()
         module_object.created_date = self._timepoint
         module_object.created_by_id = self._user.UUID
         module_object.modified_date = self._timepoint
@@ -246,8 +246,8 @@ class PatchGebiedengroepInputGeoService:
             existing_object,
             {
                 "area_id": area_id,
-                "Title": title,
-                "Deleted": False,
+                "title": title,
+                "deleted": False,
             },
             self._timepoint,
             self._user.UUID,

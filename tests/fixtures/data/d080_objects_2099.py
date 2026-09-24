@@ -9,21 +9,21 @@ def load(col: Collector) -> None:
     with col.with_defaults(
         # Never versions but valid only from 2099 (after "now")
         modified_date=datetime(2099, 1, 1, tzinfo=UTC),
-        Start_Validity=datetime(2099, 1, 1, tzinfo=UTC),
+        start_validity=datetime(2099, 1, 1, tzinfo=UTC),
         modified_by_id=col.ref(UserSpec, "ambtenaar"),
     ):
         col.adds(
             [
                 BeleidsdoelSpec(
                     key="beleidsdoel_3_future",
-                    Object_ID=3,
-                    Title="Beleidsdoel 3 from future",
+                    object_id=3,
+                    title="Beleidsdoel 3 from future",
                 ),
                 # New lineage which is not vigerend yet
                 GebiedSpec(
                     key="gebied_5_future",
-                    Object_ID=5,
-                    Title="Gebied 5 from future",
+                    object_id=5,
+                    title="Gebied 5 from future",
                 ),
             ]
         )

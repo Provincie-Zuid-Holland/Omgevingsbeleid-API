@@ -15,14 +15,14 @@ def load(col: Collector) -> None:
         modified_by_id=col.ref(UserSpec, "admin"),
         # Managed by the ambtenaar, whose role lacks module_can_close_module:
         # the close permission must come from the manager whitelist, not the role.
-        Module_Manager_1_UUID=col.ref(UserSpec, "ambtenaar"),
+        module_manager_1_id=col.ref(UserSpec, "ambtenaar"),
     ):
         col.add(
             ModuleSpec(
                 key="module_4",
-                Module_ID=4,
-                Title="Title of Module 4",
-                Description="Description of Module 4",
+                module_id=4,
+                title="Title of Module 4",
+                description="Description of Module 4",
             )
         )
         with col.in_module(4):

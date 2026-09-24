@@ -36,10 +36,10 @@ def post_create_aoj_endpoint(
     object_in: AOJCreate,
 ) -> AOJCreatedResponse:
     area_of_jurisdiction = PublicationAreaOfJurisdictionTable(
-        UUID=uuid.uuid4(),
-        Administrative_Borders_ID=object_in.Administrative_Borders_ID,
-        Administrative_Borders_Domain=object_in.Administrative_Borders_Domain,
-        Administrative_Borders_Date=object_in.Administrative_Borders_Date,
+        id=uuid.uuid4(),
+        administrative_borders_id=object_in.Administrative_Borders_ID,
+        administrative_borders_domain=object_in.Administrative_Borders_Domain,
+        administrative_borders_date=object_in.Administrative_Borders_Date,
         created_date=datetime.now(UTC),
         created_by_id=user.UUID,
     )
@@ -49,5 +49,5 @@ def post_create_aoj_endpoint(
     session.commit()
 
     return AOJCreatedResponse(
-        UUID=area_of_jurisdiction.UUID,
+        UUID=area_of_jurisdiction.id,
     )

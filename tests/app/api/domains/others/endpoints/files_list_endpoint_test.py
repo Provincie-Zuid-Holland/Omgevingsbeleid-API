@@ -12,7 +12,7 @@ def test_lists_all_storage_files(admin: TestClient, ctx: Context):
     body = admin.get("/storage-files").json()
 
     assert body["total"] == 3
-    assert {r["UUID"] for r in body["results"]} == set(
+    assert {r["id"] for r in body["results"]} == set(
         get_uuids_from_spec(ctx, StorageFileSpec, ["file_1", "file_2", "file_3"])
     )
 
@@ -29,7 +29,7 @@ def test_default_sort_is_created_date_descending(admin: TestClient, ctx: Context
     # The endpoint forces created_date DESC; fixtures are dated 2025-01-01/02/03.
     results = admin.get("/storage-files").json()["results"]
 
-    assert [r["UUID"] for r in results] == get_uuids_from_spec(ctx, StorageFileSpec, ["file_3", "file_2", "file_1"])
+    assert [r["id"] for r in results] == get_uuids_from_spec(ctx, StorageFileSpec, ["file_3", "file_2", "file_1"])
 
 
 def test_pagination_limits_results_but_keeps_total(admin: TestClient, ctx: Context):
@@ -38,13 +38,13 @@ def test_pagination_limits_results_but_keeps_total(admin: TestClient, ctx: Conte
     assert body["total"] == 3
     assert body["limit"] == 2
     assert body["offset"] == 0
-    assert [r["UUID"] for r in body["results"]] == get_uuids_from_spec(ctx, StorageFileSpec, ["file_3", "file_2"])
+    assert [r["id"] for r in body["results"]] == get_uuids_from_spec(ctx, StorageFileSpec, ["file_3", "file_2"])
 
 
 def test_pagination_offset_returns_the_next_page(admin: TestClient, ctx: Context):
     body = admin.get("/storage-files?offset=2&limit=2").json()
 
-    assert [r["UUID"] for r in body["results"]] == [str(ctx.f.primary_key_uuid(Ref(StorageFileSpec, "file_1")))]
+    assert [r["id"] for r in body["results"]] == [str(ctx.f.primary_key_uuid(Ref(StorageFileSpec, "file_1")))]
 
 
 @pytest.mark.parametrize(
@@ -61,16 +61,16 @@ def test_only_mine_filters_on_the_current_user(
 
     body = client.get("/storage-files?only_mine=true").json()
 
-    assert {r["UUID"] for r in body["results"]} == set(get_uuids_from_spec(ctx, StorageFileSpec, owned_keys))
+    assert {r["id"] for r in body["results"]} == set(get_uuids_from_spec(ctx, StorageFileSpec, owned_keys))
 
 
 def test_filter_filename_matches_a_single_file(admin: TestClient, ctx: Context):
     expected: StorageFileSpec = ctx.f.find(Ref(StorageFileSpec, "file_1")).spec
 
-    body = admin.get(f"/storage-files?filter_filename={expected.Filename}").json()
+    body = admin.get(f"/storage-files?filter_filename={expected.filename}").json()
 
     assert body["total"] == 1
-    assert [r["UUID"] for r in body["results"]] == [str(expected.UUID)]
+    assert [r["id"] for r in body["results"]] == [str(expected.id)]
 
 
 def test_unauthenticated_returns_401(client: TestClient):

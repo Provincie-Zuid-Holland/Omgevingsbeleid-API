@@ -2,13 +2,13 @@ id: beleidskeuze
 object_type: beleidskeuze
 
 sort_allowed_columns: &sort_allowed_columns
-  - Object_ID
-  - Title
+  - object_id
+  - title
   - modified_date
 
 sort_default_title: &sort_default_title
   default:
-    column: Title
+    column: title
     order: asc
   allowed_columns: *sort_allowed_columns
 
@@ -27,14 +27,14 @@ api:
             path: /valid
             response_model: beleidskeuze_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: beleidskeuze_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
@@ -87,7 +87,7 @@ api:
             path: /{lineage_id}
             response_model: beleidskeuze_extended
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
@@ -112,39 +112,39 @@ api:
 
 fields:
   title:
-    name: Title
+    name: title
     type: str
     column: title
     validators:
       - id: none_to_default_value
   description:
-    name: Description
+    name: description
     type: str
     column: description
     validators:
       - id: none_to_default_value
   explanation:
-    name: Explanation
+    name: explanation
     type: str
     column: explanation
     validators:
       - id: none_to_default_value
   hierarchy_code:
-    name: Hierarchy_Code
+    name: hierarchy_code
     type: str
     column: hierarchy_code
     validators:
       - id: none_to_default_value
   gebiedengroep_code:
-    optional: true
-    default: none
-    name: Gebiedengroep_Code
+    name: gebiedengroep_code
     type: str
     column: gebiedengroep_code
+    optional: true
+    default: none
     validators:
       - id: none_to_default_value
   themas:
-    name: Themas
+    name: themas
     type: list_str
     column: themas
     validators:
@@ -152,27 +152,27 @@ fields:
 
   # Statics
   owner_1_uuid:
-    name: Owner_1_UUID
+    name: owner_1_id
     type: uuid
     column: owner_1_uuid
     optional: true
   owner_2_uuid:
-    name: Owner_2_UUID
+    name: owner_2_id
     type: uuid
     column: owner_2_uuid
     optional: true
   portfolio_holder_1_uuid:
-    name: Portfolio_Holder_1_UUID
+    name: portfolio_holder_1_id
     type: uuid
     column: portfolio_holder_1_uuid
     optional: true
   portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
+    name: portfolio_holder_2_id
     type: uuid
     column: portfolio_holder_1_uuid
     optional: true
   client_1_uuid:
-    name: Client_1_UUID
+    name: client_1_id
     type: uuid
     column: client_1_uuid
     optional: true
@@ -183,14 +183,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   beleidskeuze_basic:
     name: BeleidskeuzeBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -199,13 +199,13 @@ models:
       title:
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
   beleidskeuze_extended:
     name: BeleidskeuzeExtended
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -226,22 +226,22 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   beleidskeuze_full:
     name: BeleidskeuzeFull
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -261,24 +261,24 @@ models:
       - maatregel_minimal
     services:
       next_object_version:
-        to_field: Next_Version
+        to_field: next_version
       public_revisions:
-        to_field: Public_Revisions
+        to_field: public_revisions
       join_gebiedengroepen:
-        to_field: Gebiedengroep_Static
-        from_field: Gebiedengroep_Code
+        to_field: gebiedengroep_static
+        from_field: gebiedengroep_code
       join_gebiedsaanwijzingen:
-        to_field: Gebiedsaanwijzingen_Statics
+        to_field: gebiedsaanwijzingen_statics
         from_fields:
-          - Description
-          - Explanation
+          - description
+          - explanation
       insert_assets:
         fields:
-          - Description
-          - Explanation
+          - description
+          - explanation
       foreign_keys_extender:
         fields_map:
-          - to_field: Hierarchy_Statics
+          - to_field: hierarchy_statics
             model_id: hierarchy_statics
           - to_field: created_by
             model_id: user_short
@@ -286,18 +286,18 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
       resolve_child_objects_via_hierarchy_listener:
-        to_field: Hierarchy_Children
+        to_field: hierarchy_children
       relations:
         objects:
           - object_type: beleidsdoel
@@ -373,8 +373,8 @@ models:
     services:
       extract_assets:
         fields:
-          - Description
-          - Explanation
+          - description
+          - explanation
   beleidskeuze_static:
     name: BeleidskeuzeStatic
     static_only: true
@@ -384,15 +384,15 @@ models:
     services:
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
-          - to_field: Portfolio_Holder_1
+          - to_field: portfolio_holder_1
             model_id: user_short
-          - to_field: Portfolio_Holder_2
+          - to_field: portfolio_holder_2
             model_id: user_short
-          - to_field: Client_1
+          - to_field: client_1
             model_id: user_short
   beleidskeuze_static_post:
     name: BeleidskeuzeStaticPost
@@ -410,15 +410,15 @@ models:
       - id: not_equal_root
         data:
           fields:
-            - Owner_1_UUID
-            - Owner_2_UUID
+            - owner_1_id
+            - owner_2_id
           allow_none: True
           error_message: Owners should vary
       - id: not_equal_root
         data:
           fields:
-            - Portfolio_Holder_1_UUID
-            - Portfolio_Holder_2_UUID
+            - portfolio_holder_1_id
+            - portfolio_holder_2_id
           allow_none: True
           error_message: Portfolio Holders should vary
     fields:
@@ -431,7 +431,7 @@ models:
     name: BeleidskeuzeUUID
     fields:
       object_id:
-      uuid:
+      id:
   beleidskeuze_module_validate:
     name: BeleidskeuzeModuleValidate
     fields:

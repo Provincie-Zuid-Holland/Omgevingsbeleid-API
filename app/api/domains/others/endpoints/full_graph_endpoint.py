@@ -40,8 +40,8 @@ class EndpointHandler:
         edges: list[GraphEdge] = [
             GraphEdge(
                 Type=GraphEdgeType.relation,
-                Vertice_A_Code=r.From_Code,
-                Vertice_B_Code=r.To_Code,
+                Vertice_A_Code=r.from_code,
+                Vertice_B_Code=r.to_code,
             )
             for r in rows
         ]
@@ -76,35 +76,35 @@ class EndpointHandler:
                 ObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
+                    partition_by=ObjectsTable.code,
                     order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ObjectsTable)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
             .subquery()
         )
 
         aliased_subq = aliased(ObjectsTable, subq)
         stmt = (
             select(aliased_subq)
-            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c._row_number == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(UTC),
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > datetime.now(UTC),
+                    subq.c.end_validity.is_(None),
                 )
             )
             .order_by(desc(subq.c.modified_date))
             .options(
                 load_only(
-                    aliased_subq.Object_Type,
-                    aliased_subq.Object_ID,
-                    aliased_subq.Code,
-                    aliased_subq.UUID,
-                    aliased_subq.Title,
-                    aliased_subq.Hierarchy_Code,
+                    aliased_subq.object_type,
+                    aliased_subq.object_id,
+                    aliased_subq.code,
+                    aliased_subq.id,
+                    aliased_subq.title,
+                    aliased_subq.hierarchy_code,
                 ),
             )
         )
@@ -112,16 +112,16 @@ class EndpointHandler:
         rows: list[ObjectsTable] = list(self._session.execute(stmt).scalars().all())
         vertices: list[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
 
-        # Use the same rows to build hierarcy_code edges
+        # Use the same rows to build hierarchy_code edges
         hierarchy_code_edges: list[GraphEdge] = []
         for row in rows:
-            if not row.Hierarchy_Code:
+            if not row.hierarchy_code:
                 continue
             hierarchy_code_edges.append(
                 GraphEdge(
                     Type=GraphEdgeType.hierarchy_code,
-                    Vertice_A_Code=row.Code,
-                    Vertice_B_Code=row.Hierarchy_Code,
+                    Vertice_A_Code=row.code,
+                    Vertice_B_Code=row.hierarchy_code,
                 )
             )
 

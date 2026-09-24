@@ -1,6 +1,6 @@
 sort_allowed_object_columns: &sort_allowed_object_columns
-  - Object_ID
-  - Title
+  - object_id
+  - title
   - modified_date
 
 sort_default_modified_date: &sort_default_modified_date
@@ -11,7 +11,7 @@ sort_default_modified_date: &sort_default_modified_date
 
 sort_default_object_id: &sort_default_object_id
   default:
-    column: Object_ID
+    column: title
     order: asc
   allowed_columns: *sort_allowed_object_columns
 
@@ -19,24 +19,24 @@ validate_rules:
   module:
     area_designation_ref_check:
       object_type: gebiedsaanwijzing
-      ref_type_field: Ref_Type
-      ref_group_field: Ref_Group
+      ref_type_field: ref_type
+      ref_group_field: ref_group
     check_empty_area_designation_text:
       fields:
-        - Description
-        - Cause
-        - Provincial_Interest
-        - Explanation
-        - Role
-        - Effect
+        - description
+        - cause
+        - provincial_interest
+        - explanation
+        - role
+        - effect
     forbid_empty_html_nodes:
       fields:
-        - Description
-        - Cause
-        - Provincial_Interest
-        - Explanation
-        - Role
-        - Effect
+        - description
+        - cause
+        - provincial_interest
+        - explanation
+        - role
+        - effect
       html_void_elements:
         - area
         - base
@@ -59,17 +59,17 @@ validate_rules:
           - p
     forbidden_html_tags:
       fields:
-        - Description
-        - Cause
-        - Provincial_Interest
-        - Explanation
-        - Role
-        - Effect
+        - description
+        - cause
+        - provincial_interest
+        - explanation
+        - role
+        - effect
       forbidden_html_tags:
       - h1
       - h2
     hoofdlijnen_check:
-      field: Hoofdlijnen
+      field: hoofdlijnen
       allowed_object_types:
         - ambitie
         - beleidsdoel
@@ -77,9 +77,9 @@ validate_rules:
         - maatregel
     newest_input_geo_onderverdeling_used:
       object_type: gebied
-      field: Area
+      field: area
     require_existing_hierarchy_code:
-      field: Hierarchy_Code
+      field: hierarchy_code
     required_object_fields:
       ambitie: ambitie_module_validate
       beleidsdoel: beleidsdoel_module_validate
@@ -92,30 +92,30 @@ validate_rules:
       gebiedengroep: gebiedengroep_module_validate
       gebiedsaanwijzing: gebiedsaanwijzing_module_validate
     themas_check:
-      field: Themas
+      field: themas
   publication:
     bill_compact_forbidden_tags:
       fields:
-        - Preamble
-        - Closing
-        - Signed
-        - Amendment_Article
-        - Time_Article
+        - preamble
+        - closing
+        - signed
+        - amendment_article
+        - time_article
       forbidden_tags:
         - al
     forbidden_html_tags:
       fields:
-        - Description
-        - Cause
-        - Provincial_Interest
-        - Explanation
-        - Role
-        - Effect
+        - description
+        - cause
+        - provincial_interest
+        - explanation
+        - role
+        - effect
       forbidden_html_tags:
       - h1
       - h2
     hoofdlijnen_check:
-      field: Hoofdlijnen
+      field: hoofdlijnen
       allowed_object_types:
         - ambitie
         - beleidsdoel
@@ -134,7 +134,7 @@ validate_rules:
         programma_algemeen: programma_module_validate
         beleidsdoel: beleidsdoel_module_validate
     themas_check:
-      field: Themas
+      field: themas
 
 model_map: &model_map
   ambitie: ambitie_basic
@@ -213,11 +213,11 @@ api:
           resolver_data:
             sort:
               default:
-                column: Title
+                column: title
                 order: asc
               allowed_columns:
-                - Title
-                - ID
+                - title
+                - id
                 - created_date
                 - modified_date
     - prefix: /search
@@ -225,12 +225,12 @@ api:
         - resolver: search
           resolver_data:
             search_columns:
-              - Title
-              - Description
+              - title
+              - description
               # @note: These were not used in the previous setup. Should discuss if they should be used
-              # - Effect
-              # - Provincial_Interest
-              # - Cause
+              # - effect
+              # - provincial_interest
+              # - cause
             model_map: *model_map
             response_model_name: PagedSearchObjectResponse
     - prefix: /full-graph
@@ -377,11 +377,11 @@ api:
                 column: modified_date
                 order: desc
               allowed_columns:
-                - Object_ID
-                - Title
+                - object_id
+                - title
                 - modified_date
-                - Object_Type
-                - Action
+                - object_type
+                - action
             model_map: *model_map
             response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
@@ -571,12 +571,12 @@ api:
               allowed_columns:
                 - created_date
                 - modified_date
-                - Package_Type
-                - Report_Status
-                - Module_ID
-                - Publication_Type
-                - Document_Type
-                - Module_Title
+                - package_type
+                - report_status
+                - module_id
+                - publication_type
+                - document_type
+                - module_title
     # DSO value list getters
     - prefix: /publication-dso-value-lists
       endpoints:
@@ -602,56 +602,56 @@ api:
 columns:
   # Titel
   title:
-    name: Title
+    name: title
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Filename
   filename:
-    name: Filename
+    name: filename
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Omschrijving
   description:
-    name: Description
+    name: description
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Document references
   documents:
-    name: Documents
+    name: documents
     type: json
     serializers: []
     deserializers: []
     nullable: true
   # Onderverdeling references @deprecated
   onderverdelingen:
-    name: Onderverdelingen
+    name: onderverdelingen
     type: json
     serializers: []
     deserializers: []
     nullable: true
   # Gebieden references
   gebieden:
-    name: Gebieden
+    name: gebieden
     type: json
     serializers: []
     deserializers: []
     nullable: true
   # Target codes (gebied, gebieden for gebiedsaanwijzingen)
   target_codes:
-    name: Target_Codes
+    name: target_codes
     type: json
     serializers: []
     deserializers: []
     nullable: true
   # Hoofdlijnen references
   hoofdlijnen:
-    name: Hoofdlijnen
+    name: hoofdlijnen
     type: json
     serializers: []
     deserializers: []
@@ -661,209 +661,209 @@ columns:
     name: area_id
     type: area_id
     type_data:
-      relation_field: Area
+      relation_field: area
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
-  # File_UUID used to store reference to the file
-  file_uuid:
-    name: File_UUID
-    type: file_uuid
+  # file_id used to store reference to the file
+  file_id:
+    name: file_id
+    type: file_id
     type_data:
-      relation_field: File
+      relation_field: file
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
   # Beschrijf de uitwerking van het object
   effect:
-    name: Effect
+    name: effect
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Rol
   role:
-    name: Role
+    name: role
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Roles
   roles:
-    name: Roles
+    name: roles
     type: json
     serializers: []
     deserializers: []
     nullable: true
   # Provinciaal Belang
   provincial_interest:
-    name: Provincial_Interest
+    name: provincial_interest
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Aanleiding
   cause:
-    name: Cause
+    name: cause
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Besluitnummer
   decision_number:
-    name: Decision_Number
+    name: decision_number
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Toelichting
   explanation:
-    name: Explanation
+    name: explanation
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Weblink
   weblink:
-    name: Weblink
+    name: weblink
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # IDMS Link
   idms_link:
-    name: IDMS_Link
+    name: idms_link
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
-  # Gebied UUID
-  gebied_uuid:
-    name: Gebied_UUID
-    type: werkingsgebied_uuid
+  # Gebied id
+  gebied_id:
+    name: gebied_id
+    type: werkingsgebied_id
     type_data:
-      relation_field: Gebied
+      relation_field: gebied
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
   # Gebied Duiding
   gebied_duiding:
-    name: Gebied_Duiding
+    name: gebied_duiding
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Primaire koppeling
   hierarchy_code:
-    name: Hierarchy_Code
+    name: hierarchy_code
     type: object_code
     type_data:
-      relation_field: Hierarchy_Statics
+      relation_field: hierarchy_statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
   werkingsgebied_code:
-    name: Werkingsgebied_Code
+    name: werkingsgebied_code
     type: object_code
     type_data:
-      relation_field: Werkingsgebied_Statics
+      relation_field: werkingsgebied_statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
   gebiedengroep_code:
-    name: Gebiedengroep_Code
+    name: gebiedengroep_code
     type: object_code
     type_data:
-      relation_field: Gebiedengroep_Statics
+      relation_field: gebiedengroep_statics
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
   ref_type:
-    name: Ref_Type
+    name: ref_type
     type: str
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
   ref_group:
-    name: Ref_Group
+    name: ref_group
     type: str
     serializers: ["optional_str"]
     deserializers: ["optional_str"]
     nullable: true
   # Source Title, used to target the Input_Geo_Werkingsgebied
   source_title:
-    name: Source_Title
+    name: source_title
     type: str
     serializers: []
     deserializers: ["str"]
     nullable: true
   # Source UUID, # Source Title, used to target the Input_Geo_Werkingsgebied
   source_uuid:
-    name: Source_UUID
+    name: source_uuid
     type: uuid
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
   # Image
   image:
-    name: Image
+    name: image
     type: str
     serializers: []
     deserializers: []
     nullable: true
   # Eigenaar 1
   owner_1_uuid:
-    name: Owner_1_UUID
+    name: owner_1_id
     type: user_uuid
     type_data:
-      relation_field: Owner_1
+      relation_field: owner_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Eigenaar 2
   owner_2_uuid:
-    name: Owner_2_UUID
+    name: owner_2_id
     type: user_uuid
     type_data:
-      relation_field: Owner_2
+      relation_field: owner_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Portefeuillehouder 1
   portfolio_holder_1_uuid:
-    name: Portfolio_Holder_1_UUID
+    name: portfolio_holder_1_id
     type: user_uuid
     type_data:
-      relation_field: Portfolio_Holder_1
+      relation_field: portfolio_holder_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Portefeuillehouder 2
   portfolio_holder_2_uuid:
-    name: Portfolio_Holder_2_UUID
+    name: portfolio_holder_2_id
     type: user_uuid
     type_data:
-      relation_field: Portfolio_Holder_2
+      relation_field: portfolio_holder_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Opdrachtgever
   client_1_uuid:
-    name: Client_1_UUID
+    name: client_1_id
     type: user_uuid
     type_data:
-      relation_field: Client_1
+      relation_field: client_1
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
   # Thema's
   themas:
-    name: Themas
+    name: themas
     type: json
     serializers: []
     deserializers: []
@@ -1179,10 +1179,10 @@ users_permissions:
 publication:
   act_defaults:
     omgevingsvisie:
-      metadata:
-        Official_Title: ""
-        Quote_Title: ""
-        Subjects:
+      meta_data:
+        official_title: ""
+        quote_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1209,14 +1209,14 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
-        Jurisdictions:
+        jurisdictions:
           - omgevingsrecht
 
     programma:
-      metadata:
-        Official_Title: ""
-        Quote_Title: ""
-        Subjects:
+      meta_data:
+        official_title: ""
+        quote_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1243,16 +1243,16 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
-        Jurisdictions:
+        jurisdictions:
           - omgevingsrecht
   
   bill_defaults:
     draft_omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:
-        Official_Title: ""
-        Quote_Title: ""
-        Subjects:
+        official_title: ""
+        quote_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1279,27 +1279,27 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
-        Jurisdictions:
+        jurisdictions:
           - omgevingsrecht
       # @see: class BillCompact
       bill_compact:
-        Preamble: |
+        preamble: |
           <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
-        Closing: |
+        closing: |
           <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
-        Signed: |
+        signed: |
           <p>Gedeputeerde Staten</p>
-        Amendment_Article: |
+        amendment_article: |
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
-        Time_Article: |
+        time_article: |
           <p>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     final_omgevingsvisie:
       # @see: class BillMetadata
       bill_metadata:
-        Official_Title: ""
-        Quote_Title: ""
-        Subjects:
+        official_title: ""
+        quote_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1326,26 +1326,26 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
-        Jurisdictions:
+        jurisdictions:
           - omgevingsrecht
       # @see: class BillCompact
       bill_compact:
-        Preamble: |
+        preamble: |
           <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
-        Closing: |
+        closing: |
           <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
-        Signed: |
+        signed: |
           <p>Gedeputeerde Staten</p>
-        Amendment_Article: |
+        amendment_article: |
           De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
-        Time_Article: |
+        time_article: |
           <p>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     draft_programma:
       bill_metadata:
-        Official_Title: ""
-        Quote_Title: ""
-        Subjects:
+        official_title: ""
+        quote_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1372,25 +1372,25 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
-        Jurisdictions:
+        jurisdictions:
           - omgevingsrecht
       bill_compact:
-        Preamble: |
+        preamble: |
           <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
-        Closing: |
+        closing: |
           <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
-        Signed: |
+        signed: |
           <p>Gedeputeerde Staten</p>
-        Amendment_Article: |
+        amendment_article: |
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
-        Time_Article: |
+        time_article: |
           <p>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</p>
 
     final_programma:
       bill_metadata:
-        Official_Title: ""
-        Quote_Title: ""
-        Subjects:
+        official_title: ""
+        quote_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1417,25 +1417,25 @@ publication:
           - netwerken
           - cultuur_en_recreatie
           - werkgelegenheid
-        Jurisdictions:
+        jurisdictions:
           - omgevingsrecht
       bill_compact:
-        Preamble: |
+        preamble: |
           <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
-        Closing: |
+        closing: |
           <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
-        Signed: |
+        signed: |
           <p>Gedeputeerde Staten</p>
-        Amendment_Article: |
+        amendment_article: |
           Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
-        Time_Article: |
+        time_article: |
           <p>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</p>
 
   announcement_defaults:
     draft_omgevingsvisie:
-      metadata:
-        Official_Title: ""
-        Subjects:
+      meta_data:
+        official_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1463,15 +1463,15 @@ publication:
           - cultuur_en_recreatie
           - werkgelegenheid
       contents:
-        Texts:
-          - Title: Ontwerp Omgevingsvisie Zuid-Holland
-            Description: |
+        texts:
+          - title: Ontwerp Omgevingsvisie Zuid-Holland
+            description: |
               <p>Hele mooie tekst</p>
 
     final_omgevingsvisie:
-      metadata:
-        Official_Title: ""
-        Subjects:
+      meta_data:
+        official_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1499,15 +1499,15 @@ publication:
           - cultuur_en_recreatie
           - werkgelegenheid
       contents:
-        Texts:
-          - Title: Ontwerp Omgevingsvisie Zuid-Holland
-            Description: |
+        texts:
+          - title: Ontwerp Omgevingsvisie Zuid-Holland
+            description: |
               <p>Tekst</p>
 
     draft_programma:
-      metadata:
-        Official_Title: ""
-        Subjects:
+      meta_data:
+        official_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1535,15 +1535,15 @@ publication:
           - cultuur_en_recreatie
           - werkgelegenheid
       contents:
-        Texts:
-          - Title: Ontwerp Programma Zuid-Holland
-            Description: |
+        texts:
+          - title: Ontwerp Programma Zuid-Holland
+            description: |
               <p>Tekst</p>
 
     final_programma:
-      metadata:
-        Official_Title: ""
-        Subjects:
+      meta_data:
+        official_title: ""
+        subjects:
           - water
           - ruimtelijke_ordening
           - waterbeheer
@@ -1571,7 +1571,7 @@ publication:
           - cultuur_en_recreatie
           - werkgelegenheid
       contents:
-        Texts:
-          - Title: Ontwerp Programma Zuid-Holland
-            Description: |
+        texts:
+          - title: Ontwerp Programma Zuid-Holland
+            description: |
               <p>Tekst</p>

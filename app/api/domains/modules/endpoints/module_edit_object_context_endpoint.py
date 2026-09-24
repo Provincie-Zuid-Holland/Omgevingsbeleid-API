@@ -44,12 +44,12 @@ def post_module_edit_object_context_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_edit_module_object_context,
         user,
-        whitelisted_uuids=[
-            module_object.ObjectStatics.Owner_1_UUID,
-            module_object.ObjectStatics.Owner_2_UUID,
-            module_object.ObjectStatics.Portfolio_Holder_1_UUID,
-            module_object.ObjectStatics.Portfolio_Holder_2_UUID,
-            module_object.ObjectStatics.Client_1_UUID,
+        whitelisted_ids=[
+            module_object.object_statics.owner_1_id,
+            module_object.object_statics.owner_2_id,
+            module_object.object_statics.portfolio_holder_1_id,
+            module_object.object_statics.portfolio_holder_2_id,
+            module_object.object_statics.client_1_id,
         ],
     )
 
@@ -70,8 +70,8 @@ def post_module_edit_object_context_endpoint(
     session.add(object_context)
 
     change_log: ChangeLogTable = ChangeLogTable(
-        object_type=object_context.Object_Type,
-        object_id=object_context.Object_ID,
+        object_type=object_context.object_type,
+        object_id=object_context.object_id,
         created_date=timepoint,
         created_by_id=user.UUID,
         action_type="module_edit_object_context",

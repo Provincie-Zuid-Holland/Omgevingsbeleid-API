@@ -13,8 +13,8 @@ class ObjectStaticRepository(BaseRepository):
     ) -> ObjectStaticsTable | None:
         stmt = (
             select(ObjectStaticsTable)
-            .filter(ObjectStaticsTable.Object_Type == object_type)
-            .filter(ObjectStaticsTable.Object_ID == object_id)
+            .filter(ObjectStaticsTable.object_type == object_type)
+            .filter(ObjectStaticsTable.object_id == object_id)
         )
         return self.fetch_first(session, stmt)
 
@@ -25,25 +25,25 @@ class ObjectStaticRepository(BaseRepository):
 
         if owner_uuid:
             type_filter = or_(
-                ObjectStaticsTable.Owner_1_UUID == owner_uuid,
-                ObjectStaticsTable.Owner_2_UUID == owner_uuid,
+                ObjectStaticsTable.owner_1_id == owner_uuid,
+                ObjectStaticsTable.owner_2_id == owner_uuid,
             )
             stmt = stmt.filter(type_filter)
 
         if object_type:
-            stmt = stmt.filter(ObjectStaticsTable.Object_Type == object_type)
+            stmt = stmt.filter(ObjectStaticsTable.object_type == object_type)
 
         return self.fetch_all(session, stmt)
 
     def get_by_source(self, session: Session, source_key: str) -> ObjectStaticsTable | None:
-        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Source_Identifier == source_key)
+        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.source_identifier == source_key)
         return self.fetch_first(session, stmt)
 
     def does_codes_exists(self, session: Session, codes: set[str]) -> tuple[bool, set[str]]:
         if not len(codes):
             return True, set()
 
-        stmt = select(ObjectStaticsTable.Code).where(ObjectStaticsTable.Code.in_(codes))
+        stmt = select(ObjectStaticsTable.code).where(ObjectStaticsTable.code.in_(codes))
         existing: set[str] = set(session.execute(stmt).scalars())
         missing: set[str] = set(codes) - existing
 

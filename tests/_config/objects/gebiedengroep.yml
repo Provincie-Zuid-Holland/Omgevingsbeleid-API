@@ -2,14 +2,14 @@ id: gebiedengroep
 object_type: gebiedengroep
 
 sort_allowed_columns: &sort_allowed_columns
-  - Object_ID
-  - Title
-  - Source_Title
+  - object_id
+  - title
+  - source_title
   - modified_date
 
 sort_default_title: &sort_default_title
   default:
-    column: Title
+    column: title
     order: asc
   allowed_columns: *sort_allowed_columns
 
@@ -28,16 +28,16 @@ api:
             path: /valid
             response_model: gebiedengroep_basic
             allowed_filter_columns:
-              - Title
-              - Source_Title
+              - title
+              - source_title
             sort: *sort_default_title
         - resolver: valid_list_lineage_tree
           resolver_data:
             path: /valid/{lineage_id}
             response_model: gebiedengroep_basic
             allowed_filter_columns:
-              - Title
-              - Source_Title
+              - title
+              - source_title
             sort: *sort_default_modified_date
         - resolver: object_version
           resolver_data:
@@ -72,8 +72,8 @@ api:
             path: /{lineage_id}
             response_model: gebiedengroep_extended
             allowed_filter_columns:
-              - Title
-              - Source_Title
+              - title
+              - source_title
             sort: *sort_default_modified_date
         - resolver: module_object_latest
           resolver_data:
@@ -98,43 +98,43 @@ api:
 
 fields:
   title:
-    name: Title
+    name: title
     type: str
     column: title
     validators:
       - id: none_to_default_value
   description:
-    name: Description
+    name: description
     type: str
     column: description
     validators:
       - id: none_to_default_value
   gebieden:
-    name: Gebieden
+    name: gebieden
     type: list_str
     column: gebieden
     validators:
       - id: none_to_default_value
   source_title:
-    name: Source_Title
+    name: source_title
     type: str
     column: source_title
     validators:
       - id: none_to_default_value
   source_uuid:
-    name: Source_UUID
+    name: source_uuid
     type: uuid
     column: source_uuid
     optional: true
 
   # Statics
   owner_1_uuid:
-    name: Owner_1_UUID
+    name: owner_1_id
     type: uuid
     column: owner_1_uuid
     optional: true
   owner_2_uuid:
-    name: Owner_2_UUID
+    name: owner_2_id
     type: uuid
     column: owner_2_uuid
     optional: true
@@ -145,7 +145,7 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
       source_title:
   gebiedengroep_basic:
@@ -153,7 +153,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -166,7 +166,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -187,16 +187,16 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   gebiedengroep_full:
     name: GebiedengroepFull
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -211,8 +211,8 @@ models:
       - user_short
     services:
       join_objects:
-        to_field: Gebieden_Statics
-        from_field: Gebieden
+        to_field: gebieden_statics
+        from_field: gebieden
       foreign_keys_extender:
         fields_map:
           - to_field: created_by
@@ -221,9 +221,9 @@ models:
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   gebiedengroep_patch:
     name: GebiedengroepPatch
@@ -258,9 +258,9 @@ models:
     services:
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   gebiedengroep_static_post:
     name: GebiedengroepStaticPost
@@ -275,8 +275,8 @@ models:
       - id: not_equal_root
         data:
           fields:
-            - Owner_1_UUID
-            - Owner_2_UUID
+            - owner_1_id
+            - owner_2_id
           allow_none: True
           error_message: Owners should vary
     fields:
@@ -286,7 +286,7 @@ models:
     name: GebiedengroepUUID
     fields:
       object_id:
-      uuid:
+      id:
   gebiedengroep_module_validate:
     name: GebiedengroepModuleValidate
     fields:

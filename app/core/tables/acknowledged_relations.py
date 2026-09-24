@@ -14,13 +14,13 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
     __tablename__ = "acknowledged_relations"
 
     version: Mapped[int] = mapped_column(default=1, nullable=False, primary_key=True)
-    requested_by_code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"))
-    from_code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
+    requested_by_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"))
+    from_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"), primary_key=True)
     from_acknowledged: Mapped[datetime | None]
     from_acknowledged_by_uuid: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
     from_explanation: Mapped[str] = mapped_column(default="")
 
-    to_code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
+    to_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"), primary_key=True)
     to_acknowledged: Mapped[datetime | None] = mapped_column(nullable=True)
     to_acknowledged_by_uuid: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
     to_explanation: Mapped[str] = mapped_column(default="")
@@ -34,7 +34,7 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
             object_id=self.from_object_id,
             object_type=self.from_object_type,
             acknowledged=self.from_acknowledged,
-            acknowledged_by_uuid=self.from_acknowledged_by_uuid,
+            acknowledged_by_id=self.from_acknowledged_by_uuid,
             title=self.from_title,
             explanation=self.from_explanation,
         )
@@ -45,7 +45,7 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
             object_id=self.to_object_id,
             object_type=self.to_object_type,
             acknowledged=self.to_acknowledged,
-            acknowledged_by_uuid=self.to_acknowledged_by_uuid,
+            acknowledged_by_id=self.to_acknowledged_by_uuid,
             title=self.to_title,
             explanation=self.to_explanation,
         )
@@ -56,12 +56,12 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
         elif code == self.to_code:
             return self.side_to
         else:
-            raise RuntimeError("Code does not belong to this acknowledged relation")
+            raise RuntimeError("code does not belong to this acknowledged relation")
 
     def _assign_side(self, side: AcknowledgedRelationSide, prefix: str):
         setattr(self, f"{prefix}_code", side.code)
         setattr(self, f"{prefix}_acknowledged", side.acknowledged_date)
-        setattr(self, f"{prefix}_acknowledged_by_uuid", side.acknowledged_by_uuid)
+        setattr(self, f"{prefix}_acknowledged_by_uuid", side.acknowledged_by_id)
         setattr(self, f"{prefix}_explanation", side.explanation)
 
     def with_sides(self, side_a: AcknowledgedRelationSide, side_b: AcknowledgedRelationSide):
@@ -75,7 +75,7 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
         elif side.code == self.to_code:
             self._assign_side(side, "to")
         else:
-            raise RuntimeError("Code does not belong to this acknowledged relation")
+            raise RuntimeError("code does not belong to this acknowledged relation")
 
     def deny(self):
         if self.denied is not None:
@@ -140,20 +140,20 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
 
     @hybrid_property
     def from_title(self):
-        return getattr(self.from_object_statics, "Cached_Title", None)
+        return getattr(self.from_object_statics, "cached_title", None)
 
     @hybrid_property
     def to_title(self):
-        return getattr(self.to_object_statics, "Cached_Title", None)
+        return getattr(self.to_object_statics, "cached_title", None)
 
     from_object_statics = relationship(
         "ObjectStaticsTable",
-        primaryjoin="AcknowledgedRelationsTable.from_code == ObjectStaticsTable.Code",
+        primaryjoin="AcknowledgedRelationsTable.from_code == ObjectStaticsTable.code",
         lazy="select",
     )
     to_object_statics = relationship(
         "ObjectStaticsTable",
-        primaryjoin="AcknowledgedRelationsTable.to_code == ObjectStaticsTable.Code",
+        primaryjoin="AcknowledgedRelationsTable.to_code == ObjectStaticsTable.code",
         lazy="select",
     )
 

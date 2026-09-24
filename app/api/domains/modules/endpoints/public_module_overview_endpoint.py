@@ -27,19 +27,19 @@ class PublicModuleObjectContextShort(BaseModel):
 
 
 class PublicModuleObjectShort(BaseModel):
-    Module_ID: int
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Code: str
-    Description: str
+    module_id: int
+    id: uuid.UUID
+    object_type: str
+    object_id: int
+    code: str
+    description: str
 
     modified_date: datetime
-    Title: str
+    title: str
 
-    ModuleObjectContext: PublicModuleObjectContextShort | None = None
+    module_object_context: PublicModuleObjectContextShort | None = None
 
-    @field_validator("Description", mode="before")
+    @field_validator("description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -47,8 +47,8 @@ class PublicModuleObjectShort(BaseModel):
 
 
 class PublicModuleOverview(BaseModel):
-    Module: PublicModuleShort
-    Objects: list[PublicModuleObjectShort]
+    module: PublicModuleShort
+    objects: list[PublicModuleObjectShort]
 
 
 @inject
@@ -60,29 +60,29 @@ def get_public_module_overview_endpoint(
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
 ) -> PublicModuleOverview:
-    if module.Current_Status not in PublicModuleStatusCode.values():
+    if module.current_status not in PublicModuleStatusCode.values():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid status for module")
 
-    status_snapshot_date = module.Status.created_date
-    subq = module_object_repository._build_snapshot_objects_query(module.Module_ID, status_snapshot_date).subquery()
+    status_snapshot_date = module.status.created_date
+    subq = module_object_repository._build_snapshot_objects_query(module.module_id, status_snapshot_date).subquery()
     aliased_subq = aliased(ModuleObjectsTable, subq)
     stmt = (
         select(aliased_subq)
-        .filter(subq.c._RowNumber == 1)
-        .filter(subq.c.Deleted == False)
+        .filter(subq.c._row_number == 1)
+        .filter(subq.c.deleted == False)
         .options(
             load_only(
-                aliased_subq.Module_ID,
-                aliased_subq.Object_Type,
-                aliased_subq.Object_ID,
-                aliased_subq.Code,
-                aliased_subq.UUID,
+                aliased_subq.module_id,
+                aliased_subq.object_type,
+                aliased_subq.object_id,
+                aliased_subq.code,
+                aliased_subq.id,
                 aliased_subq.modified_date,
                 aliased_subq.Title,
-                aliased_subq.Deleted,
+                aliased_subq.deleted,
             ),
-            joinedload(aliased_subq.ModuleObjectContext),
-            joinedload(aliased_subq.ObjectStatics),
+            joinedload(aliased_subq.module_object_context),
+            joinedload(aliased_subq.object_statics),
         )
     )
 
@@ -104,7 +104,7 @@ def get_public_module_overview_endpoint(
     objects: list[PublicModuleObjectShort] = event.payload.rows
 
     response = PublicModuleOverview(
-        Module=PublicModuleShort.model_validate(module),
-        Objects=objects,
+        module=PublicModuleShort.model_validate(module),
+        objects=objects,
     )
     return response

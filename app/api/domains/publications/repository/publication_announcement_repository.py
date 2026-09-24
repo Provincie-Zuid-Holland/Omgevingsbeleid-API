@@ -10,7 +10,7 @@ from app.core.tables.publications import PublicationAnnouncementTable
 
 class PublicationAnnouncementRepository(BaseRepository):
     def get_by_uuid(self, session: Session, uuidx: UUID) -> PublicationAnnouncementTable | None:
-        stmt = select(PublicationAnnouncementTable).where(PublicationAnnouncementTable.UUID == uuidx)
+        stmt = select(PublicationAnnouncementTable).where(PublicationAnnouncementTable.id == uuidx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
@@ -22,7 +22,7 @@ class PublicationAnnouncementRepository(BaseRepository):
     ) -> PaginatedQueryResult:
         filters = []
         if act_package_uuid is not None:
-            filters.append(and_(PublicationAnnouncementTable.Act_Package_UUID == act_package_uuid))
+            filters.append(and_(PublicationAnnouncementTable.act_package_id == act_package_uuid))
 
         stmt = select(PublicationAnnouncementTable).filter(*filters)
 

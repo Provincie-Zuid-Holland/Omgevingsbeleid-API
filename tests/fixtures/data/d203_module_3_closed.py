@@ -13,15 +13,15 @@ def load(col: Collector) -> None:
         modified_date=datetime(2025, 6, 3, tzinfo=UTC),
         created_by_id=col.ref(UserSpec, "admin"),
         modified_by_id=col.ref(UserSpec, "admin"),
-        Module_Manager_1_UUID=col.ref(UserSpec, "admin"),
+        module_manager_1_id=col.ref(UserSpec, "admin"),
     ):
         col.add(
             ModuleSpec(
                 key="module_3",
-                Module_ID=3,
-                Title="Title of Module 3",
-                Description="Description of Module 3",
-                Closed=True,
+                module_id=3,
+                title="Title of Module 3",
+                description="Description of Module 3",
+                closed=True,
             )
         )
         with col.in_module(3):

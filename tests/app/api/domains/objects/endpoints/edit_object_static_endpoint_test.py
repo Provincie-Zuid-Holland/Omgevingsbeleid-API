@@ -21,18 +21,18 @@ def _beleidsdoel_static(session: Session, lineage_id: int = 1) -> ObjectStaticsT
 def test_edit_updates_the_static_row(admin: TestClient, ctx: Context):
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
-    response = admin.post("/beleidsdoel/static/1", json={"Portfolio_Holder_1_UUID": str(viewer)})
+    response = admin.post("/beleidsdoel/static/1", json={"portfolio_holder_1_id": str(viewer)})
 
     assert response.status_code == 200, response.text
     assert response.json()["message"] == "OK"
-    assert _beleidsdoel_static(ctx.session).Portfolio_Holder_1_UUID == viewer
+    assert _beleidsdoel_static(ctx.session).portfolio_holder_1_id == viewer
 
 
 def test_edit_writes_a_changelog_entry(admin: TestClient, ctx: Context):
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
-    admin.post("/beleidsdoel/static/1", json={"Portfolio_Holder_1_UUID": str(viewer)})
+    admin.post("/beleidsdoel/static/1", json={"portfolio_holder_1_id": str(viewer)})
 
     change_log = ctx.session.scalar(
         select(ChangeLogTable)
@@ -55,7 +55,7 @@ def test_empty_body_returns_400(admin: TestClient):
 def test_unknown_lineage_returns_404(admin: TestClient, ctx: Context):
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
-    response = admin.post("/beleidsdoel/static/999", json={"Portfolio_Holder_1_UUID": str(viewer)})
+    response = admin.post("/beleidsdoel/static/999", json={"portfolio_holder_1_id": str(viewer)})
 
     assert response.status_code == 404
     assert response.json()["detail"] == "lineage_id does not exist"
@@ -66,7 +66,7 @@ def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context):
 
     response = admin.post(
         "/beleidsdoel/static/1",
-        json={"Owner_1_UUID": str(viewer), "Owner_2_UUID": str(viewer)},
+        json={"owner_1_id": str(viewer), "owner_2_id": str(viewer)},
     )
 
     assert response.status_code == 422
@@ -88,7 +88,7 @@ def test_edit_permission_matrix(
     test_client: TestClient = request.getfixturevalue(client_fixture)
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
-    response = test_client.post("/beleidsdoel/static/1", json={"Portfolio_Holder_1_UUID": str(viewer)})
+    response = test_client.post("/beleidsdoel/static/1", json={"portfolio_holder_1_id": str(viewer)})
 
     assert response.status_code == expected_status, response.text
     if expected_detail is not None:

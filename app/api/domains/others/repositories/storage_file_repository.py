@@ -18,15 +18,15 @@ class StorageFileSortColumn(str, Enum):
 
 class StorageFileRepository(BaseRepository):
     def get_by_uuid(self, session: Session, uuidx: UUID) -> StorageFileTable | None:
-        stmt = select(StorageFileTable).filter(StorageFileTable.UUID == uuidx)
+        stmt = select(StorageFileTable).filter(StorageFileTable.id == uuidx)
         return self.fetch_first(session, stmt)
 
     def get_by_checksum_uuid(self, session: Session, checksum: str) -> StorageFileTable | None:
         lookup: str = checksum[0:10]
         stmt = (
             select(StorageFileTable)
-            .filter(StorageFileTable.Lookup == lookup)
-            .filter(StorageFileTable.Checksum == checksum)
+            .filter(StorageFileTable.lookup == lookup)
+            .filter(StorageFileTable.checksum == checksum)
         )
         return self.fetch_first(session, stmt)
 
@@ -39,7 +39,7 @@ class StorageFileRepository(BaseRepository):
     ) -> PaginatedQueryResult:
         filters = []
         if filter_filename is not None:
-            filters.append(and_(StorageFileTable.Filename.like(filter_filename)))
+            filters.append(and_(StorageFileTable.filename.like(filter_filename)))
 
         if mine is not None:
             filters.append(and_(StorageFileTable.created_by_id == mine))
