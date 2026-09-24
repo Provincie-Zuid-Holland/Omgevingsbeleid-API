@@ -214,11 +214,14 @@ class OwObjectStatus(str, Enum):
     deleted = "deleted"
 
 
-class BaseOwObject(BaseModel):
+class StrictBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+
+class BaseOwObject(StrictBase):
     identification: str
     object_status: OwObjectStatus = Field(OwObjectStatus.unchanged)
     procedure_status: str | None = Field(None)
-    model_config = ConfigDict(from_attributes=True)
 
 
 class OwAmbtsgebied(BaseOwObject):
@@ -227,7 +230,6 @@ class OwAmbtsgebied(BaseOwObject):
     domain: str
     valid_on: str
     title: str
-    model_config = ConfigDict(from_attributes=True)
 
     def __hash__(self):
         return hash(("ambtsgebied",))
@@ -300,7 +302,7 @@ class OwTekstdeel(BaseOwObject):
         return hash((self.source_code,))
 
 
-class OwState(BaseModel):
+class OwState(StrictBase):
     ambtsgebieden: list[OwAmbtsgebied] = Field(default_factory=list)
     regelingsgebieden: list[OwRegelingsgebied] = Field(default_factory=list)
     gebieden: list[OwGebied] = Field(default_factory=list)
@@ -309,7 +311,6 @@ class OwState(BaseModel):
     divisies: list[OwDivisie] = Field(default_factory=list)
     divisieteksten: list[OwDivisietekst] = Field(default_factory=list)
     tekstdelen: list[OwTekstdeel] = Field(default_factory=list)
-    model_config = ConfigDict(from_attributes=True)
 
 
 # Acts

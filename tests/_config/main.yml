@@ -1,4 +1,3 @@
-
 model_map: &model_map
   beleidsdoel: beleidsdoel_basic
   beleidskeuze: beleidskeuze_basic
@@ -43,9 +42,27 @@ api:
       endpoints:
         - resolver: create_hoofdlijn
         - resolver: list_hoofdlijnen
+          resolver_data:
+            sort:
+              default:
+                column: Created_Date
+                order: desc
+              allowed_columns:
+                - Created_Date
+                - Name
+                - Type
     - prefix: /hoofdlijnen/search
       endpoints:
         - resolver: search_hoofdlijn
+          resolver_data:
+            sort:
+              default:
+                column: Created_Date
+                order: desc
+              allowed_columns:
+                - Created_Date
+                - Name
+                - Type
     - prefix: /hoofdlijnen/{hoofdlijn_uuid}
       endpoints:
         - resolver: delete_hoofdlijn
@@ -325,11 +342,11 @@ columns:
     deserializers: []
     nullable: true
 
-
-required_object_fields_rule: {}
-
-publication_required_object_fields_rule: {}
-
+validate_rules:
+  module:
+    required_object_fields: {}
+  publication:
+    required_object_fields: {}
 
 users_permissions:
   "Behandelend Ambtenaar":

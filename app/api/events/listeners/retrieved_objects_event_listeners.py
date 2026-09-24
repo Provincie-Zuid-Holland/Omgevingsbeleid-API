@@ -45,6 +45,12 @@ from app.api.domains.objects.services.resolve_child_objects_via_hierarchy_servic
     ResolveChildObjectsViaHierarchyConfig,
     ResolveChildObjectsViaHierarchyService,
 )
+from app.api.domains.others.services.join_hoofdlijnen import (
+    JoinHoofdlijnenConfig,
+    JoinHoofdlijnenService,
+    JoinHoofdlijnenServiceFactory,
+)
+from app.api.domains.werkingsgebieden.services import JoinGebiedsaanwijzingenServiceFactory
 from app.api.domains.werkingsgebieden.services.join_gebiedengroepen import (
     JoinGebiedenGroepenConfig,
     JoinGebiedenGroepenService,
@@ -526,3 +532,41 @@ class JoinRelatedFilesToObjectsListener(ApiListener[RetrievedObjectsEvent]):
             to_field=to_field,
             object_codes=object_codes,
         )
+
+
+class JoinHoofdlijnenBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedModuleObjectsEvent](ApiListener[EventRMO]):
+    def __init__(self, service_factory: JoinHoofdlijnenServiceFactory):
+        self._service_factory: JoinHoofdlijnenServiceFactory = service_factory
+
+    def handle_event(
+        self, session: Session, event: RetrievedObjectsEvent | RetrievedModuleObjectsEvent
+    ) -> RetrievedObjectsEvent | RetrievedModuleObjectsEvent | None:
+        config: JoinHoofdlijnenConfig | None = self._collect_config(event)
+        if not config:
+            return event
+
+        service: JoinHoofdlijnenService = self._service_factory.create_service(session, config)
+        result_rows: list[BaseModel] = service.join_hoofdlijnen(event.payload.rows)
+        event.payload.rows = result_rows
+        return event
+
+    def _collect_config(
+        self, event: RetrievedObjectsEvent | RetrievedModuleObjectsEvent
+    ) -> JoinHoofdlijnenConfig | None:
+        response_model: Model = event.context.response_model
+        if not isinstance(response_model, DynamicObjectModel):
+            return None
+        if "join_hoofdlijnen" not in response_model.service_config:
+            return None
+
+        config_dict: dict = response_model.service_config.get("join_hoofdlijnen", {})
+        to_field: str = config_dict["to_field"]
+        from_fields: list[str] = config_dict["from_fields"]
+        return JoinHoofdlijnenConfig(
+            to_field=to_field,
+            from_fields=set(from_fields),
+        )
+
+
+class JoinHoofdlijnenForObjectListener(JoinHoofdlijnenBaseListener[RetrievedObjectsEvent]):
+    pass

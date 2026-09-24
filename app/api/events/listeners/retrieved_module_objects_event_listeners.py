@@ -11,6 +11,7 @@ from app.api.events.listeners.retrieved_objects_event_listeners import (
     JoinDocumentsListenerBase,
     JoinGebiedenGroepBaseListener,
     JoinGebiedsaanwijzingenBaseListener,
+    JoinHoofdlijnenBaseListener,
     JoinObjectsBaseListener,
     ResolveChildObjectsViaHierarchyListenerBase,
 )
@@ -75,4 +76,8 @@ class JoinGebiedenGroepForModuleObjectListener(JoinGebiedenGroepBaseListener[Ret
 
 
 class JoinGebiedsaanwijzingenForModuleObjectListener(JoinGebiedsaanwijzingenBaseListener[RetrievedModuleObjectsEvent]):
+    pass
+
+
+class JoinHoofdlijnenForModuleObjectListener(JoinHoofdlijnenBaseListener[RetrievedModuleObjectsEvent]):
     pass

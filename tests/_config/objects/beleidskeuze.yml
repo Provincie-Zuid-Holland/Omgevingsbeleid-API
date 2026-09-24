@@ -149,6 +149,12 @@ fields:
     column: themas
     validators:
       - id: none_to_default_value
+  hoofdlijnen:
+    name: Hoofdlijnen
+    type: list_str
+    column: hoofdlijnen
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_uuid:
@@ -215,6 +221,7 @@ models:
       hierarchy_code:
       gebiedengroep_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
     services:
@@ -253,6 +260,7 @@ models:
       hierarchy_code:
       gebiedengroep_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
       - hierarchy_statics
@@ -273,6 +281,7 @@ models:
         to_model: gebied_basic
         from_fields:
           - Description
+          - Explanation
         columns:
           - Target_Codes
           - Gebieden
@@ -287,6 +296,10 @@ models:
           - Area_UUID
           - Start_Validity
           - End_Validity
+      join_hoofdlijnen:
+        to_field: Hoofdlijnen_Statics
+        from_fields:
+          - Hoofdlijnen
       insert_assets:
         fields:
           - Description
@@ -384,6 +397,8 @@ models:
                 - gebiedengroep
           - id: object_code_exists
       themas:
+        optional: true
+      hoofdlijnen:
         optional: true
     services:
       extract_assets:

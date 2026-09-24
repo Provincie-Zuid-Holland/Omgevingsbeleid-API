@@ -6,8 +6,10 @@ from sqlalchemy.orm import sessionmaker
 
 import app.api.domains.modules as module_domain
 import app.api.domains.modules.services as module_services
+import app.api.domains.modules.services.validate_module as validate_module_services
 import app.api.domains.objects.repositories as object_repositories
 import app.api.domains.objects.services as object_services
+import app.api.domains.others.services as others_services
 import app.api.domains.users as user_domain
 import app.api.domains.werkingsgebieden.repositories as werkingsgebieden_repositories
 import app.api.domains.werkingsgebieden.services as werkingsgebied_services
@@ -20,7 +22,6 @@ from app.api.domains.others.repositories import (
     object_related_file_repository,
     storage_file_repository,
 )
-from app.api.domains.others.services import PdfMetaService
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.events import event_manager
 from app.api.services import permission_service
@@ -52,7 +53,7 @@ class ApiContainer(containers.DeclarativeContainer):
         main_config=main_config,
     )
 
-    pdf_meta_service = providers.Singleton(PdfMetaService)
+    pdf_meta_service = providers.Singleton(others_services.PdfMetaService)
 
     input_geo_werkingsgebieden_repository = providers.Singleton(
         werkingsgebieden_repositories.InputGeoWerkingsgebiedenRepository
@@ -115,13 +116,14 @@ class ApiContainer(containers.DeclarativeContainer):
         PublicationContainer,
         config=config,
         main_config=main_config,
-        area_repository=area_repository,
-        area_geometry_repository=area_geometry_repository,
-        storage_file_repository=storage_file_repository,
-        asset_repository=asset_repository,
+        dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
         object_field_mapping_provider=object_field_mapping_provider,
         publication_required_object_fields_rule_mapping=publication_required_object_fields_rule_mapping,
-        dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
+        area_geometry_repository=area_geometry_repository,
+        area_repository=area_repository,
+        asset_repository=asset_repository,
+        hoofdlijn_repository=hoofdlijn_repository,
+        dso_thema_factory=dso_thema_factory,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -172,6 +174,9 @@ class ApiContainer(containers.DeclarativeContainer):
         gebiedsaanwijzing_service,
         advanced_objects_resolver_factory,
     )
+    join_hoofdlijnen_service_factory = providers.Singleton(
+        others_services.JoinHoofdlijnenServiceFactory,
+    )
     column_image_inserter_factory = providers.Singleton(
         object_services.ColumnImageInserterFactory,
         asset_repository=asset_repository,
@@ -204,42 +209,51 @@ class ApiContainer(containers.DeclarativeContainer):
     )
 
     validate_module_service = providers.Singleton(
-        module_services.ValidateModuleService,
+        validate_module_services.ValidateModuleService,
         rules=providers.List(
             providers.Singleton(
-                module_services.RequiredObjectFieldsRule,
+                validate_module_services.RequiredObjectFieldsRule,
                 object_map=required_object_fields_rule_mapping,
             ),
             providers.Singleton(
-                module_services.RequireExistingHierarchyCodeRule,
+                validate_module_services.RequireExistingHierarchyCodeRule,
+                main_config=main_config,
                 repository=publication.object_repository,
             ),
             providers.Singleton(
-                module_services.NewestInputGeoOnderverdelingUsedRule,
-                input_geo_onderverdeling_repository=input_geo_onderverdeling_repository,
+                validate_module_services.NewestInputGeoOnderverdelingUsedRule,
+                main_config=main_config,
+                repository=input_geo_onderverdeling_repository,
             ),
             providers.Singleton(
-                module_services.ForbidEmptyHtmlNodesRule,
+                validate_module_services.ForbidEmptyHtmlNodesRule,
                 main_config=main_config,
             ),
             providers.Singleton(
-                module_services.ForbiddenHtmlTagsRule,
+                validate_module_services.ForbiddenHtmlTagsRule,
                 main_config=main_config,
             ),
             providers.Singleton(
-                module_services.AreaDesignationRefCheckRule,
+                validate_module_services.AreaDesignationRefCheckRule,
+                main_config=main_config,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),
             providers.Singleton(
-                module_services.ThemasCheckRule,
+                validate_module_services.ThemasCheckRule,
+                main_config=main_config,
                 dso_thema_factory=dso_thema_factory,
             ),
-            providers.Singleton(module_services.CheckEmptyAreaDesignationTextRule, main_config=main_config),
+            providers.Singleton(
+                validate_module_services.HoofdlijnenCheckRule,
+                main_config=main_config,
+                hoofdlijn_repository=hoofdlijn_repository,
+            ),
+            providers.Singleton(validate_module_services.CheckEmptyAreaDesignationTextRule, main_config=main_config),
         ),
     )
 
     validate_module_runner = providers.Singleton(
-        module_services.ValidateModuleRunner,
+        validate_module_services.ValidateModuleRunner,
         module_object_repository=module_object_repository,
         validate_module_service=validate_module_service,
     )
@@ -320,6 +334,10 @@ class ApiContainer(containers.DeclarativeContainer):
                 event_listeners.JoinRelatedFilesToObjectsListener,
                 service_factory=join_related_files_service_factory,
             ),
+            providers.Factory(
+                event_listeners.JoinHoofdlijnenForObjectListener,
+                service_factory=join_hoofdlijnen_service_factory,
+            ),
             # RetrievedModuleObjectsEvent
             providers.Factory(
                 event_listeners.InsertHtmlImagesForModuleListener,
@@ -361,6 +379,10 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Factory(
                 event_listeners.ResolveChildObjectsViaHierarchyToModuleObjectListener,
                 service_factory=resolve_child_objects_via_hierarchy_service_factory,
+            ),
+            providers.Factory(
+                event_listeners.JoinHoofdlijnenForModuleObjectListener,
+                service_factory=join_hoofdlijnen_service_factory,
             ),
             # BeforeSelectExecutionEvent
             providers.Factory(event_listeners.OptimizeSelectQueryListener),

@@ -1,26 +1,25 @@
 from fastapi.testclient import TestClient
 
 from app.api.domains.others.types import ObjectRelatedFileResponse
+from tests.assert_helpers import get_uuids_from_spec
 from tests.conftest import Context
 from tests.fixtures.internal.spec.object_related_file_spec import ObjectRelatedFileSpec
 from tests.fixtures.internal.types import Ref
-
-
-def _uuids(ctx: Context, keys: list[str]) -> list[str]:
-    return [str(ctx.f.primary_key_uuid(Ref(ObjectRelatedFileSpec, key))) for key in keys]
 
 
 def test_lists_the_files_of_the_requested_lineage_newest_first(client: TestClient, ctx: Context):
     response = client.get("/beleidsdoel/1/object-related-files")
 
     assert response.status_code == 200
-    assert [r["UUID"] for r in response.json()] == _uuids(ctx, ["bd1_file2", "bd1_file1"])
+    assert [r["UUID"] for r in response.json()] == get_uuids_from_spec(
+        ctx, ObjectRelatedFileSpec, ["bd1_file2", "bd1_file1"]
+    )
 
 
 def test_files_of_another_lineage_are_listed_separately(client: TestClient, ctx: Context):
     results = client.get("/beleidsdoel/2/object-related-files").json()
 
-    assert [r["UUID"] for r in results] == _uuids(ctx, ["bd2_file1"])
+    assert [r["UUID"] for r in results] == get_uuids_from_spec(ctx, ObjectRelatedFileSpec, ["bd2_file1"])
 
 
 def test_lineage_without_files_returns_an_empty_list(client: TestClient):

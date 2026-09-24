@@ -15,7 +15,9 @@ from app.api.domains.publications.exceptions import DSOConfigurationException, D
 from app.api.domains.publications.services.act_package.act_package_builder import ActPackageBuilder
 from app.api.domains.publications.services.act_package.act_package_builder_factory import ActPackageBuilderFactory
 from app.api.domains.publications.services.publication_version_validator import PublicationVersionValidator
-from app.api.domains.publications.services.validate_publication_service import ValidatePublicationException
+from app.api.domains.publications.services.validate_publication.validate_publication_service import (
+    ValidatePublicationException,
+)
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, Purpose
 from app.api.domains.publications.types.enums import (
     PackageType,

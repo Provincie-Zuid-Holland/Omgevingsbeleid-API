@@ -1,6 +1,5 @@
 import uuid
 from collections.abc import Generator
-from dataclasses import dataclass
 
 import pytest
 from dependency_injector import providers
@@ -21,7 +20,7 @@ from app.core.db.session import _enable_sqlite_load_extension
 from app.core.services.models_provider import ModelsProvider
 from tests.fixtures.internal.fixtures_service import FixturesService
 from tests.fixtures.internal.spec.user_spec import UserSpec
-from tests.fixtures.internal.types import FixtureData, Ref
+from tests.fixtures.internal.types import Context, FixtureData, Ref
 
 # Fixtures live in 2025; the suite runs as if it were this moment.
 FROZEN_NOW = "2026-01-01"
@@ -31,25 +30,6 @@ FROZEN_NOW = "2026-01-01"
 def _frozen_time() -> Generator[None]:
     with freeze_time(FROZEN_NOW):
         yield
-
-
-@dataclass
-class Context:
-    session: Session
-    fixtures: FixtureData
-    models_provider: ModelsProvider
-
-    @property
-    def s(self) -> Session:
-        return self.session
-
-    @property
-    def f(self) -> FixtureData:
-        return self.fixtures
-
-    @property
-    def m(self) -> ModelsProvider:
-        return self.models_provider
 
 
 @pytest.fixture(scope="session")

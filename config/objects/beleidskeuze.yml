@@ -177,6 +177,8 @@ fields:
     name: Hoofdlijnen
     type: list_str
     column: hoofdlijnen
+    validators:
+      - id: none_to_default_value
   themas:
     name: Themas
     type: list_str
@@ -250,6 +252,7 @@ models:
       werkingsgebied_code:
       gebiedengroep_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
     services:
@@ -291,6 +294,7 @@ models:
       werkingsgebied_code:
       gebiedengroep_code:
       themas:
+      hoofdlijnen:
     dependency_model_ids:
       - user_short
       - werkingsgebied_basic
@@ -322,6 +326,10 @@ models:
           - Cause
           - Provincial_Interest
           - Explanation
+      join_hoofdlijnen:
+        to_field: Hoofdlijnen_Statics
+        from_fields:
+          - Hoofdlijnen
       insert_assets:
         fields:
           - Description
@@ -475,6 +483,8 @@ models:
                 - gebiedengroep
           - id: object_code_exists
       themas:
+        optional: true
+      hoofdlijnen:
         optional: true
     services:
       extract_assets:
