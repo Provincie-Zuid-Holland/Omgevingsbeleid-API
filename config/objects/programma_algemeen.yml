@@ -215,6 +215,9 @@ models:
         to_field: Gebiedsaanwijzingen_Statics
         from_fields:
           - Description
+        columns:
+          - Target_Codes
+          - Gebieden
   programma_algemeen_patch:
     name: ProgrammaAlgemeenPatch
     fields:

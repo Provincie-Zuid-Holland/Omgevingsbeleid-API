@@ -329,6 +329,9 @@ models:
         from_fields:
           - Description
           - Effect
+        columns:
+          - Target_Codes
+          - Gebieden
       join_hoofdlijnen:
         to_field: Hoofdlijnen_Statics
         from_fields:

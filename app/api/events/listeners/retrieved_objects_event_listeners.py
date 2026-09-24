@@ -50,7 +50,6 @@ from app.api.domains.others.services.join_hoofdlijnen import (
     JoinHoofdlijnenService,
     JoinHoofdlijnenServiceFactory,
 )
-from app.api.domains.werkingsgebieden.services import JoinGebiedsaanwijzingenServiceFactory
 from app.api.domains.werkingsgebieden.services.join_gebiedengroepen import (
     JoinGebiedenGroepenConfig,
     JoinGebiedenGroepenService,
@@ -473,7 +472,7 @@ class JoinGebiedsaanwijzingenBaseListener[EventRMO: RetrievedObjectsEvent | Retr
         config_dict: dict = response_model.service_config.get("join_gebiedsaanwijzingen", {})
         to_field: str = config_dict["to_field"]
         from_fields: set[str] = config_dict["from_fields"]
-        columns: set[str] = config_dict["columns"]
+        columns: set[str] = set(config_dict["columns"])
 
         include_modules: IncludeModulesConfig | None = None
         if isinstance(event, RetrievedModuleObjectsEvent) and event.context.module_id:
@@ -482,12 +481,14 @@ class JoinGebiedsaanwijzingenBaseListener[EventRMO: RetrievedObjectsEvent | Retr
                 has_user=bool(event.context.user),
             )
 
-        to_model_type: type[BaseModel] = self._models_provider.get_pydantic_model(config_dict["to_model"])
+        to_model: Model = self._models_provider.get_model(config_dict["to_model"])
+        if isinstance(to_model, DynamicObjectModel):
+            columns = columns.union({column.name for column in to_model.columns})
 
         return JoinGebiedsaanwijzingenConfig(
             to_field=to_field,
             from_fields=from_fields,
-            to_model=to_model_type,
+            to_model=to_model.pydantic_model,
             columns=columns,
             include_modules=include_modules,
         )
@@ -538,9 +539,7 @@ class JoinHoofdlijnenBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedMod
     def __init__(self, service_factory: JoinHoofdlijnenServiceFactory):
         self._service_factory: JoinHoofdlijnenServiceFactory = service_factory
 
-    def handle_event(
-        self, session: Session, event: RetrievedObjectsEvent | RetrievedModuleObjectsEvent
-    ) -> RetrievedObjectsEvent | RetrievedModuleObjectsEvent | None:
+    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
         config: JoinHoofdlijnenConfig | None = self._collect_config(event)
         if not config:
             return event

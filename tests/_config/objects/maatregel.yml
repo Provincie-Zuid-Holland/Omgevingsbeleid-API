@@ -299,17 +299,6 @@ models:
         columns:
           - Target_Codes
           - Gebieden
-          # These are all from gebied_basic, we should just inheric those
-          - Object_ID
-          - Code
-          - UUID
-          - Adjust_On
-          - Created_Date
-          - Modified_Date
-          - Title
-          - Area_UUID
-          - Start_Validity
-          - End_Validity
       join_hoofdlijnen:
         to_field: Hoofdlijnen_Statics
         from_fields:

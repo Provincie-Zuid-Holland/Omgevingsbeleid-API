@@ -218,6 +218,9 @@ models:
         to_model: gebied_basic
         from_fields:
           - Description
+        columns:
+          - Target_Codes
+          - Gebieden
   visie_algemeen_patch:
     name: VisieAlgemeenPatch
     fields:

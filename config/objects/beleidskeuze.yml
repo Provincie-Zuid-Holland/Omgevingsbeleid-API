@@ -326,6 +326,9 @@ models:
           - Cause
           - Provincial_Interest
           - Explanation
+        columns:
+          - Target_Codes
+          - Gebieden
       join_hoofdlijnen:
         to_field: Hoofdlijnen_Statics
         from_fields:
