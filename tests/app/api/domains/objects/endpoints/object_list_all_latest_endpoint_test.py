@@ -82,7 +82,7 @@ def test_past_end_validity_is_still_returned(client: TestClient, ctx: Context):
 
 
 def test_owner_uuid_filters_across_static_owner_columns(client: TestClient, ctx: Context):
-    owner_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "owner-1"))
+    owner_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "owner_1"))
     body = client.get(f"/objects/valid?owner_uuid={owner_uuid}").json()
     found_results = sorted((r["Object_Type"], r["Model"]["Object_ID"]) for r in body["results"])
 

@@ -104,7 +104,18 @@ def load(col: Collector) -> None:
                         Title="Beleidskeuze 510 from module 5",
                         Description="Description of beleidskeuze 510",
                         Explanation="Explanation of beleidskeuze 510",
-                        Owner_1_UUID=col.ref(UserSpec, "owner-1"),
+                        Owner_1_UUID=col.ref(UserSpec, "owner_1"),
+                    ),
+                    # We add for testing resolve of gebied
+                    ModuleMaatregelSpec(
+                        key="maatregel_6_mod_5",
+                        Object_ID=6,
+                    ),
+                    # This changed Target_Codes from gebiedengroep-1 to gebied-3
+                    ModuleGebiedsaanwijzingSpec(
+                        key="gebiedsaanwijzing_1_mod_5",
+                        Object_ID=1,
+                        Target_Codes=["gebied-3"],
                     ),
                 ]
             )

@@ -1,9 +1,12 @@
+from uuid import UUID
+
 import pytest
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
+from pytest import FixtureRequest
 
 from tests.conftest import Context
-from tests.fixtures.internal.spec.objects import BaseObjectSpec, BeleidsdoelSpec, MaatregelSpec
+from tests.fixtures.internal.spec.objects import BaseObjectSpec, BeleidsdoelSpec, GebiedSpec, MaatregelSpec
 from tests.fixtures.internal.types import Ref
 
 
@@ -54,20 +57,29 @@ def test_response_matches_the_full_model_shape(client: TestClient, ctx: Context)
 
 
 @pytest.mark.parametrize(
-    "prefix, ref, user_id, expected_gebied_keys",
+    "url_prefix, object_ref, user, expected_gebied_refs",
     [
         pytest.param(
-            "/maatregelen",
+            "/maatregelen/version",
             Ref(MaatregelSpec, "maatregel_6_initial"),
-            None,
-            ["nature-west-v1", "nature-east-v1"],
+            "client",
+            [Ref(GebiedSpec, "nature_west_v1"), Ref(GebiedSpec, "nature_east_v1")],
             id="vigerend-non-auth",
         ),
     ],
 )
-def test_gebiedsaanwijzingen_from_text(client: TestClient, ctx: Context):
-    source_object: MaatregelSpec = ctx.f.find(Ref(MaatregelSpec, "maatregel_6_initial")).spec
+def test_gebiedsaanwijzingen_from_text(
+    request: FixtureRequest, ctx: Context, url_prefix: str, object_ref: Ref, user: str, expected_gebied_refs: list[Ref]
+):
+    client: TestClient = request.getfixturevalue(user)
+    source_object: MaatregelSpec = ctx.f.find(object_ref).spec
+    expected_gebied_uuids: set[str] = {str(ctx.f.primary_key_uuid(gebied_key)) for gebied_key in expected_gebied_refs}
 
-    body: dict = client.get(f"/maatregelen/version/{source_object.UUID}").json()
+    url = f"{url_prefix}/{source_object.UUID}"
+    response = client.get(url)
+    assert response.status_code == 200
 
-    assert body == {}
+    body: dict = response.json()
+    gebieden_uuids: set[UUID] = {gebied["UUID"] for gebied in body.get("Gebiedsaanwijzingen_Gebieden", [])}
+
+    assert gebieden_uuids == expected_gebied_uuids
