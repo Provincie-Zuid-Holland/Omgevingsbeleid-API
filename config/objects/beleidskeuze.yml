@@ -219,14 +219,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   beleidskeuze_basic:
     name: BeleidskeuzeBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -241,7 +241,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -279,7 +279,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -544,10 +544,10 @@ models:
       portfolio_holder_2_id:
       client_1_id:
   beleidskeuze_id:
-    name: BeleidskeuzeUUID
+    name: BeleidskeuzeID
     fields:
       object_id:
-      uuid:
+      id:
   beleidskeuze_module_validate:
     name: BeleidskeuzeModuleValidate
     fields:

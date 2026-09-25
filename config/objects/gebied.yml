@@ -118,14 +118,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   gebied_basic:
     name: GebiedBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -138,7 +138,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -166,7 +166,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -242,10 +242,10 @@ models:
       owner_1_id:
       owner_2_id:
   gebied_id:
-    name: GebiedUUID
+    name: GebiedID
     fields:
       object_id:
-      uuid:
+      id:
   gebied_module_validate:
     name: GebiedModuleValidate
     fields:

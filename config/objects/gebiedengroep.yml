@@ -145,7 +145,7 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
       source_title:
   gebiedengroep_basic:
@@ -153,7 +153,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -166,7 +166,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -196,7 +196,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -283,10 +283,10 @@ models:
       owner_1_id:
       owner_2_id:
   gebiedengroep_id:
-    name: GebiedengroepUUID
+    name: GebiedengroepID
     fields:
       object_id:
-      uuid:
+      id:
   gebiedengroep_module_validate:
     name: GebiedengroepModuleValidate
     fields:

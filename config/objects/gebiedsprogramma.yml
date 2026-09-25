@@ -162,14 +162,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   gebiedsprogramma_basic:
     name: GebiedsprogrammaBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -190,7 +190,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -229,7 +229,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -374,4 +374,4 @@ models:
     name: GebiedsprogrammaUUID
     fields:
       object_id:
-      uuid:
+      id:

@@ -137,14 +137,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   werkingsgebied_basic:
     name: WerkingsgebiedBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -157,7 +157,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -185,7 +185,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -271,7 +271,7 @@ models:
     name: WerkingsgebiedUUID
     fields:
       object_id:
-      uuid:
+      id:
   werkingsgebied_module_validate:
     name: WerkingsgebiedModuleValidate
     fields:

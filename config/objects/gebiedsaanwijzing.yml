@@ -130,14 +130,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   gebiedsaanwijzing_basic:
     name: GebiedsaanwijzingBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -149,7 +149,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -179,7 +179,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -265,10 +265,10 @@ models:
       owner_1_id:
       owner_2_id:
   gebiedsaanwijzing_id:
-    name: GebiedsaanwijzingUUID
+    name: GebiedsaanwijzingID
     fields:
       object_id:
-      uuid:
+      id:
   gebiedsaanwijzing_module_validate:
     name: GebiedsaanwijzingModuleValidate
     fields:

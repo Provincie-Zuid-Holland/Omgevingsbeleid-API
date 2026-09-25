@@ -96,7 +96,7 @@ models:
       object_type:
       object_id:
       code:
-      uuid:
+      id:
       created_date:
       modified_date:
       title:
@@ -106,7 +106,7 @@ models:
       object_type:
       object_id:
       code:
-      uuid:
+      id:
       created_date:
       modified_date:
       title:
@@ -116,7 +116,7 @@ models:
       object_type:
       object_id:
       code:
-      uuid:
+      id:
       created_date:
       modified_date:
       title:
@@ -139,7 +139,7 @@ models:
       object_type:
       object_id:
       code:
-      uuid:
+      id:
       created_date:
       modified_date:
       title:
@@ -265,4 +265,4 @@ models:
     name: VerplichtProgrammaUUID
     fields:
       object_id:
-      uuid:
+      id:

@@ -223,14 +223,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   maatregel_basic:
     name: MaatregelBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -245,7 +245,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -283,7 +283,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -513,10 +513,10 @@ models:
       portfolio_holder_2_id:
       client_1_id:
   maatregel_id:
-    name: MaatregelUUID
+    name: MaatregelID
     fields:
       object_id:
-      uuid:
+      id:
   maatregel_module_validate:
     name: MaatregelModuleValidate
     fields:

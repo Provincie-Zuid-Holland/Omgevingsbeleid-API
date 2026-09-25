@@ -167,14 +167,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   ambitie_basic:
     name: AmbitieBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -189,7 +189,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -224,7 +224,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -370,7 +370,7 @@ models:
     name: AmbitieID
     fields:
       object_id:
-      uuid:
+      id:
   ambitie_module_validate:
     name: AmbitieModuleValidate
     fields:

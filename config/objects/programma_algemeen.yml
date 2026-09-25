@@ -132,14 +132,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   programma_algemeen_basic:
     name: ProgrammaAlgemeenBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -154,7 +154,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -181,7 +181,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -282,7 +282,7 @@ models:
     name: ProgrammaAlgemeenUUID
     fields:
       object_id:
-      uuid:
+      id:
   programma_module_validate:
     name: ProgrammaModuleValidate
     fields:

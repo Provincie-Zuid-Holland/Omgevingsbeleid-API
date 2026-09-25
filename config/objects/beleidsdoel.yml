@@ -181,14 +181,14 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
   beleidsdoel_basic:
     name: BeleidsdoelBasic
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -203,7 +203,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -240,7 +240,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -404,10 +404,10 @@ models:
       portfolio_holder_2_id:
       client_1_id:
   beleidsdoel_id:
-    name: BeleidsdoelUUID
+    name: BeleidsdoelID
     fields:
       object_id:
-      uuid:
+      id:
   beleidsdoel_module_validate:
     name: BeleidsdoelModuleValidate
     fields:

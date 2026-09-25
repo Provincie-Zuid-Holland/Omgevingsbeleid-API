@@ -141,7 +141,7 @@ models:
     fields:
       object_type:
       object_id:
-      uuid:
+      id:
       title:
       filename:
   document_basic:
@@ -149,7 +149,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -166,7 +166,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -195,7 +195,7 @@ models:
     fields:
       object_id:
       code:
-      uuid:
+      id:
       adjust_on:
       created_date:
       modified_date:
@@ -286,7 +286,7 @@ models:
     name: DocumentUUID
     fields:
       object_id:
-      uuid:
+      id:
   document_module_validate:
     name: DocumentModuleValidate
     fields:
