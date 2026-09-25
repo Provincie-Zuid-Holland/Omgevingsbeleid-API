@@ -61,8 +61,8 @@ def post_edit_version_endpoint(
             value = value.model_dump()
         setattr(version, key, value)
 
-    version.Modified_By_UUID = user.UUID
-    version.Modified_Date = datetime.now(UTC)
+    version.modified_by_id = user.UUID
+    version.modified_date = datetime.now(UTC)
 
     session.add(version)
     session.flush()
@@ -78,7 +78,7 @@ def post_edit_version_endpoint(
 
 
 def _guard_locked(version: PublicationVersionTable):
-    if not version.Publication.Module.is_active:
+    if not version.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
-    if not version.Publication.Act.Is_Active:
+    if not version.publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")

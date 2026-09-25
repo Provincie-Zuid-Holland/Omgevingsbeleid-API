@@ -72,27 +72,27 @@ def post_upload_attachment_endpoint(
     session.flush()
 
     attachment = PublicationVersionAttachmentTable(
-        Publication_Version_UUID=version.UUID,
-        File_UUID=file_table.UUID,
-        Filename=file_data.normalize_filename(),
-        Title=title,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_Date=timepoint,
-        Modified_By_UUID=user.UUID,
+        publication_version_id=version.id,
+        file_id=file_table.id,
+        filename=file_data.normalize_filename(),
+        title=title,
+        created_date=timepoint,
+        created_by_id=user.UUID,
+        modified_date=timepoint,
+        modified_by_id=user.UUID,
     )
     session.add(attachment)
     session.flush()
     session.commit()
 
-    response: UploadAttachmentResponse = UploadAttachmentResponse(ID=attachment.ID)
+    response: UploadAttachmentResponse = UploadAttachmentResponse(ID=attachment.id)
     return response
 
 
 def _guard_upload(version: PublicationVersionTable, uploaded_file: UploadFile):
-    if not version.Publication.Act.Is_Active:
+    if not version.publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
-    if version.Is_Locked:
+    if version.is_locked:
         raise HTTPException(status.HTTP_409_CONFLICT, "This publication version is locked")
     if uploaded_file.file is None or uploaded_file.filename is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "No file uploaded.")
@@ -115,14 +115,14 @@ def _store_file(
         return existing_file_table
 
     file_table: PublicationStorageFileTable = PublicationStorageFileTable(
-        UUID=uuid.uuid4(),
-        Lookup=file_data.get_lookup(),
-        Checksum=file_data.get_checksum(),
-        Filename=file_data.normalize_filename(),
-        Content_Type=file_data.get_content_type() or "",
-        Size=file_data.get_size(),
-        Binary=file_data.get_binary(),
-        Created_Date=timepoint,
-        Created_By_UUID=user_uuid,
+        id=uuid.uuid4(),
+        lookup=file_data.get_lookup(),
+        checksum=file_data.get_checksum(),
+        filename=file_data.normalize_filename(),
+        content_type=file_data.get_content_type() or "",
+        size=file_data.get_size(),
+        binary=file_data.get_binary(),
+        created_date=timepoint,
+        created_by_id=user_uuid,
     )
     return file_table

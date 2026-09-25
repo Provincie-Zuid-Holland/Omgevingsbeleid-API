@@ -37,27 +37,27 @@ def view_module_object_version_endpoint(
     user: Annotated[UsersTable | None, Depends(depends_optional_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ModuleObjectVersionEndpointContext, Depends()],
-    object_uuid: uuid.UUID,
+    object_id: uuid.UUID,
 ) -> BaseModel:
     if context.require_auth:
         if not user:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
 
     if not user and context.minimum_status:
-        if module.Current_Status not in ModuleStatusCode.after(context.minimum_status):
+        if module.current_status not in ModuleStatusCode.after(context.minimum_status):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "module objects lacks the minimum status for view.")
 
-    module_object: ModuleObjectsTable | None = module_object_repository.get_by_module_id_object_type_and_uuid(
+    module_object: ModuleObjectsTable | None = module_object_repository.get_by_module_id_object_type_and_id(
         session,
-        module.Module_ID,
+        module.module_id,
         context.object_type,
-        object_uuid,
+        object_id,
     )
     if not module_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module Object niet gevonden")
 
-    object_context: ModuleObjectContextTable = module_object.ModuleObjectContext
-    if object_context.Hidden:
+    object_context: ModuleObjectContextTable = module_object.module_object_context
+    if object_context.hidden:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module Object Context is verwijderd")
 
     row: BaseModel = context.response_config_model.pydantic_model.model_validate(module_object)

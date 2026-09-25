@@ -28,7 +28,7 @@ class JoinRelatedFilesService:
         files_map: dict[str, list[ObjectRelatedFileResponse]] = self._fetch()
 
         for row in self._rows:
-            code: str = row.Code
+            code: str = row.code
             setattr(row, self._config.to_field, files_map.get(code, []))
 
         return self._rows
@@ -36,8 +36,8 @@ class JoinRelatedFilesService:
     def _fetch(self) -> dict[str, list[ObjectRelatedFileResponse]]:
         stmt = (
             select(ObjectRelatedFileTable)
-            .filter(ObjectRelatedFileTable.Code.in_(self._config.object_codes))
-            .order_by(ObjectRelatedFileTable.Created_Date.desc())
+            .filter(ObjectRelatedFileTable.code.in_(self._config.object_codes))
+            .order_by(ObjectRelatedFileTable.created_date.desc())
         )
 
         db_rows = self._session.execute(stmt).scalars().all()
@@ -45,7 +45,7 @@ class JoinRelatedFilesService:
         files_map: dict[str, list[ObjectRelatedFileResponse]] = defaultdict(list)
         for db_row in db_rows:
             response = ObjectRelatedFileResponse.model_validate(db_row)
-            files_map[db_row.Code].append(response)
+            files_map[db_row.code].append(response)
 
         return files_map
 

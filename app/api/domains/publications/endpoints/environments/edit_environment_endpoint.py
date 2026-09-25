@@ -15,19 +15,19 @@ from app.core.tables.users import UsersTable
 
 
 class EnvironmentEdit(BaseModel):
-    Title: str | None = None
-    Description: str | None = None
+    title: str | None = None
+    description: str | None = None
 
-    Province_ID: str | None = None
-    Authority_ID: str | None = None
-    Submitter_ID: str | None = None
+    province_id: str | None = None
+    authority_id: str | None = None
+    submitter_id: str | None = None
 
-    Frbr_Country: str | None = None
-    Frbr_Language: str | None = None
+    frbr_country: str | None = None
+    frbr_language: str | None = None
 
-    Is_Active: bool | None = None
-    Can_Validate: bool | None = None
-    Can_Publicate: bool | None = None
+    is_active: bool | None = None
+    can_validate: bool | None = None
+    can_publicate: bool | None = None
 
 
 def post_edit_environment_endpoint(
@@ -50,8 +50,8 @@ def post_edit_environment_endpoint(
     for key, value in changes.items():
         setattr(environment, key, value)
 
-    environment.Modified_By_UUID = user.UUID
-    environment.Modified_Date = datetime.now(UTC)
+    environment.modified_by_id = user.UUID
+    environment.modified_date = datetime.now(UTC)
 
     session.add(environment)
     session.flush()

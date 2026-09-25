@@ -36,7 +36,7 @@ class AddWerkingsgebiedRelatedObjectsService:
         related_objects_map: dict[str, WerkingsgebiedRelatedObjects] = self._fetch()
 
         for row in self._rows:
-            werkingsgebied_code: str = row.Code
+            werkingsgebied_code: str = row.code
             if werkingsgebied_code in related_objects_map:
                 setattr(row, self._config.to_field, related_objects_map[werkingsgebied_code])
 
@@ -55,8 +55,8 @@ class AddWerkingsgebiedRelatedObjectsService:
             )
 
             result[werkingsgebied_code] = WerkingsgebiedRelatedObjects(
-                Valid_Objects=found_valid_objects,
-                Module_Objects=found_module_objects,
+                valid_objects=found_valid_objects,
+                module_objects=found_module_objects,
             )
 
         return result
@@ -65,37 +65,37 @@ class AddWerkingsgebiedRelatedObjectsService:
         row_number = (
             func.row_number()
             .over(
-                partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                partition_by=ObjectsTable.code,
+                order_by=desc(ObjectsTable.modified_date),
             )
-            .label("_RowNumber")
+            .label("_row_number")
         )
 
         subq = (
             select(
                 row_number,
-                ObjectsTable.UUID.label("UUID"),
-                ObjectsTable.Object_ID.label("Object_ID"),
-                ObjectsTable.Object_Type.label("Object_Type"),
+                ObjectsTable.id.label("UUID"),
+                ObjectsTable.object_id.label("object_id"),
+                ObjectsTable.object_type.label("object_type"),
                 ObjectsTable.Title.label("Title"),
-                ObjectsTable.Code,
+                ObjectsTable.code,
                 ObjectsTable.Werkingsgebied_Code.label("Werkingsgebied_Code"),
-                ObjectsTable.Modified_Date,
-                ObjectsTable.Start_Validity,
-                ObjectsTable.End_Validity,
+                ObjectsTable.modified_date,
+                ObjectsTable.start_validity,
+                ObjectsTable.end_validity,
             )
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
             .subquery()
         )
 
         stmt = (
             select(subq)
-            .filter(subq.c._RowNumber == 1)
-            .filter(subq.c.Werkingsgebied_Code.in_(self._config.werkingsgebied_codes))
+            .filter(subq.c._row_number == 1)
+            .filter(subq.c.werkingsgebied_code.in_(self._config.werkingsgebied_codes))
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(UTC),
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > datetime.now(UTC),
+                    subq.c.end_validity.is_(None),
                 )
             )
         )
@@ -104,58 +104,58 @@ class AddWerkingsgebiedRelatedObjectsService:
         valid_objects_map: dict[str, list[WerkingsgebiedRelatedObjectShort]] = defaultdict(list)
         for db_row in db_result:
             valid_object: WerkingsgebiedRelatedObjectShort = WerkingsgebiedRelatedObjectShort.model_validate(db_row)
-            valid_objects_map[valid_object.Werkingsgebied_Code].append(valid_object)
+            valid_objects_map[valid_object.werkingsgebied_code].append(valid_object)
 
         return valid_objects_map
 
     def _fetch_module_objects(self) -> dict[str, list[WerkingsgebiedRelatedModuleObjectShort]]:
         subq = (
             select(
-                ModuleObjectsTable.UUID.label("UUID"),
-                ModuleObjectsTable.Object_ID.label("Object_ID"),
-                ModuleObjectsTable.Object_Type.label("Object_Type"),
+                ModuleObjectsTable.id.label("UUID"),
+                ModuleObjectsTable.object_id.label("object_id"),
+                ModuleObjectsTable.object_type.label("object_type"),
                 ModuleObjectsTable.Title.label("Title"),
-                ModuleObjectsTable.Code,
+                ModuleObjectsTable.code,
                 ModuleObjectsTable.Werkingsgebied_Code.label("Werkingsgebied_Code"),
-                ModuleObjectsTable.Modified_Date,
-                ModuleTable.Module_ID.label("Module_ID"),
-                ModuleTable.Title.label("Module_Title"),
-                ModuleObjectContextTable.Action.label("context_action"),
+                ModuleObjectsTable.modified_date,
+                ModuleTable.module_id.label("module_id"),
+                ModuleTable.title.label("Module_Title"),
+                ModuleObjectContextTable.action.label("context_action"),
                 func.row_number()
                 .over(
-                    partition_by=(ModuleObjectsTable.Module_ID, ModuleObjectsTable.Code),
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    partition_by=(ModuleObjectsTable.module_id, ModuleObjectsTable.code),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ModuleObjectsTable)
-            .join(ModuleTable, ModuleObjectsTable.Module_ID == ModuleTable.Module_ID)
+            .join(ModuleTable, ModuleObjectsTable.module_id == ModuleTable.module_id)
             .join(
                 ModuleObjectContextTable,
                 and_(
-                    ModuleObjectsTable.Module_ID == ModuleObjectContextTable.Module_ID,
-                    ModuleObjectsTable.Code == ModuleObjectContextTable.Code,
+                    ModuleObjectsTable.module_id == ModuleObjectContextTable.module_id,
+                    ModuleObjectsTable.code == ModuleObjectContextTable.code,
                 ),
             )
-            .where(ModuleTable.Activated == 1)
-            .where(ModuleTable.Closed == 0)
-            .where(ModuleObjectContextTable.Action != ModuleObjectActionFull.Terminate)
-            .where(ModuleObjectContextTable.Hidden == False)
+            .where(ModuleTable.activated == 1)
+            .where(ModuleTable.closed == 0)
+            .where(ModuleObjectContextTable.action != ModuleObjectActionFull.Terminate)
+            .where(ModuleObjectContextTable.hidden == False)
         ).subquery("LatestModuleObjects")
 
         stmt = (
             select(
-                subq.c.UUID,
-                subq.c.Object_ID,
-                subq.c.Object_Type,
-                subq.c.Title,
-                subq.c.Werkingsgebied_Code,
-                subq.c.Module_ID,
-                subq.c.Module_Title,
+                subq.c.id,
+                subq.c.object_id,
+                subq.c.object_type,
+                subq.c.title,
+                subq.c.werkingsgebied_code,
+                subq.c.module_id,
+                subq.c.module_title,
             )
-            .where(subq.c._RowNumber == 1)
-            .where(subq.c.Werkingsgebied_Code.in_(self._config.werkingsgebied_codes))
-            .order_by(desc(subq.c.Modified_Date))
+            .where(subq.c._row_number == 1)
+            .where(subq.c.werkingsgebied_code.in_(self._config.werkingsgebied_codes))
+            .order_by(desc(subq.c.modified_date))
         )
 
         db_result = self._session.execute(stmt).mappings().all()
@@ -164,7 +164,7 @@ class AddWerkingsgebiedRelatedObjectsService:
             module_object: WerkingsgebiedRelatedModuleObjectShort = (
                 WerkingsgebiedRelatedModuleObjectShort.model_validate(db_row)
             )
-            module_objects_map[module_object.Werkingsgebied_Code].append(module_object)
+            module_objects_map[module_object.werkingsgebied_code].append(module_object)
 
         return module_objects_map
 

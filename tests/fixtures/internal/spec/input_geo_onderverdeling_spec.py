@@ -88,7 +88,7 @@ class InputGeoOnderverdelingPersistHandler(BasePersistHandler[InputGeoOnderverde
                 Description=spec.Description,
                 Symbol=spec.Symbol,
                 Geometry=spec.Geometry,
-                Geometry_Hash=spec.Geometry_Hash,
+                Geometry_Hash=spec.Geometry_Hash[:64],
                 GML=spec.GML,
             )
         ]

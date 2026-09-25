@@ -105,10 +105,10 @@ class DsoActInputDataBuilder:
         self._act_frbr: ActFrbr = api_input_data.Act_Frbr
         self._consolidation_purpose: Purpose = api_input_data.Consolidation_Purpose
         self._publication_data: PublicationData = api_input_data.Publication_Data
-        self._publication: PublicationTable = api_input_data.Publication_Version.Publication
-        self._environment: PublicationEnvironmentTable = api_input_data.Publication_Version.Publication.Environment
-        self._act: PublicationActTable = api_input_data.Publication_Version.Publication.Act
-        self._template: PublicationTemplateTable = self._publication.Template
+        self._publication: PublicationTable = api_input_data.Publication_Version.publication
+        self._environment: PublicationEnvironmentTable = api_input_data.Publication_Version.publication.environment
+        self._act: PublicationActTable = api_input_data.Publication_Version.publication.act
+        self._template: PublicationTemplateTable = self._publication.template
         self._act_mutation: ActMutation | None = api_input_data.Act_Mutation
         self._mutation_strategy: MutationStrategy = api_input_data.Mutation_Strategy
         self._ow_state_json: str | None = api_input_data.Ow_State
@@ -131,27 +131,27 @@ class DsoActInputDataBuilder:
         return input_data
 
     def _get_publication_settings(self) -> dso_models.PublicationSettings:
-        dso_document_type: DSODocumentType = DOCUMENT_TYPE_MAP[self._publication.Document_Type]
+        dso_document_type: DSODocumentType = DOCUMENT_TYPE_MAP[self._publication.document_type]
         dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._package_type]
 
         publication_settings = dso_models.PublicationSettings(
             document_type=dso_document_type,
-            datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
-            provincie_id=self._environment.Province_ID,
+            datum_bekendmaking=self._publication_version.announcement_date.strftime("%Y-%m-%d"),
+            provincie_id=self._environment.province_id,
             soort_bestuursorgaan=self._get_soort_bestuursorgaan(),
             regeling_componentnaam=self._get_componentnaam(),
-            provincie_ref=f"/tooi/id/provincie/{self._environment.Province_ID}",
+            provincie_ref=f"/tooi/id/provincie/{self._environment.province_id}",
             opdracht=dso_models.PublicatieOpdracht(
                 opdracht_type=dso_opdracht_type,
                 id_levering=str(uuid.uuid4()),
-                id_bevoegdgezag=self._environment.Authority_ID,
-                id_aanleveraar=self._environment.Submitter_ID,
+                id_bevoegdgezag=self._environment.authority_id,
+                id_aanleveraar=self._environment.submitter_id,
                 publicatie_bestand=self._get_akn_filename(),
-                datum_bekendmaking=self._publication_version.Announcement_Date.strftime("%Y-%m-%d"),
+                datum_bekendmaking=self._publication_version.announcement_date.strftime("%Y-%m-%d"),
             ).model_dump(),
             instelling_doel=self._get_instelling_doel(),
             besluit_frbr=dso_models.BillFRBR(
-                Work_Province_ID=self._environment.Province_ID,
+                Work_Province_ID=self._environment.province_id,
                 Work_Country=self._bill_frbr.Work_Country,
                 Work_Date=self._bill_frbr.Work_Date,
                 Work_Other=self._bill_frbr.Work_Other,
@@ -160,7 +160,7 @@ class DsoActInputDataBuilder:
                 Expression_Version=self._bill_frbr.Expression_Version,
             ),
             regeling_frbr=dso_models.ActFRBR(
-                Work_Province_ID=self._environment.Province_ID,
+                Work_Province_ID=self._environment.province_id,
                 Work_Country=self._act_frbr.Work_Country,
                 Work_Date=self._act_frbr.Work_Date,
                 Work_Other=self._act_frbr.Work_Other,
@@ -174,25 +174,25 @@ class DsoActInputDataBuilder:
 
     def _get_akn_filename(self) -> str:
         package_type: str = (self._package_type[:3]).lower()
-        filename: str = f"akn_nl_bill_{self._environment.Province_ID}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
+        filename: str = f"akn_nl_bill_{self._environment.province_id}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
         return filename
 
     def _get_besluit(self) -> Besluit:
-        api_procedure_type: APIProcedureType = APIProcedureType(self._publication.Procedure_Type)
+        api_procedure_type: APIProcedureType = APIProcedureType(self._publication.procedure_type)
         dso_procedure_type: DSOProcedureType = PROCEDURE_TYPE_MAP[api_procedure_type]
 
         besluit = Besluit(
-            officiele_titel=self._publication_version.Bill_Metadata["Official_Title"],
-            citeertitel=self._publication_version.Bill_Metadata["Quote_Title"],
-            aanhef=self._publication_version.Bill_Compact["Preamble"],
+            officiele_titel=self._publication_version.bill_metadata["Official_Title"],
+            citeertitel=self._publication_version.bill_metadata["Quote_Title"],
+            aanhef=self._publication_version.bill_compact["Preamble"],
             wijzig_artikel=self._get_wijzigingsartikel(),
             wijzig_bijlage=self._get_amendment_appendix(),
             tekst_artikelen=self._get_text_articles(),
             tijd_artikel=self._get_time_article(),
             sluiting=self._get_closing_text(),
-            ondertekening=self._publication_version.Bill_Compact.get("Signed", ""),
-            rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.Bill_Metadata["Jurisdictions"]),
-            onderwerpen=self._as_dso_onderwerpen(self._publication_version.Bill_Metadata["Subjects"]),
+            ondertekening=self._publication_version.bill_compact.get("Signed", ""),
+            rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.bill_metadata["Jurisdictions"]),
+            onderwerpen=self._as_dso_onderwerpen(self._publication_version.bill_metadata["Subjects"]),
             soort_procedure=dso_procedure_type,
             bijlagen=self._get_appendices(),
             motivering=self._get_motivering(),
@@ -202,11 +202,11 @@ class DsoActInputDataBuilder:
     def _get_regeling(self) -> Regeling:
         regeling = Regeling(
             versienummer=str(self._act_frbr.Expression_Version),
-            officiele_titel=self._act.Metadata["Official_Title"],
-            citeertitel=self._act.Metadata["Quote_Title"],
-            is_officieel=("true" if self._publication.Procedure_Type == APIProcedureType.FINAL else "false"),
-            rechtsgebieden=self._as_dso_rechtsgebieden(self._act.Metadata["Jurisdictions"]),
-            onderwerpen=self._as_dso_onderwerpen(self._act.Metadata["Subjects"]),
+            officiele_titel=self._act.meta_data["Official_Title"],
+            citeertitel=self._act.meta_data["Quote_Title"],
+            is_officieel=("true" if self._publication.procedure_type == APIProcedureType.FINAL else "false"),
+            rechtsgebieden=self._as_dso_rechtsgebieden(self._act.meta_data["Jurisdictions"]),
+            onderwerpen=self._as_dso_onderwerpen(self._act.meta_data["Subjects"]),
         )
         return regeling
 
@@ -218,8 +218,8 @@ class DsoActInputDataBuilder:
         )
 
         datum: str | None = None
-        if self._publication.Procedure_Type == APIProcedureType.FINAL.value:
-            datum = self._publication_version.Effective_Date.strftime("%Y-%m-%d")
+        if self._publication.procedure_type == APIProcedureType.FINAL.value:
+            datum = self._publication_version.effective_date.strftime("%Y-%m-%d")
 
         result = dso_models.InstellingDoel(
             frbr=frbr,
@@ -237,7 +237,7 @@ class DsoActInputDataBuilder:
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
         steps: list[dso_models.ProcedureStap] = []
 
-        enactment_date: str | None = self._publication_version.Procedural.get("Enactment_Date", None)
+        enactment_date: str | None = self._publication_version.procedural.get("Enactment_Date", None)
         if enactment_date is not None:
             steps.append(
                 dso_models.ProcedureStap(
@@ -246,7 +246,7 @@ class DsoActInputDataBuilder:
                 )
             )
 
-        signed_date: str | None = self._publication_version.Procedural.get("Signed_Date", None)
+        signed_date: str | None = self._publication_version.procedural.get("Signed_Date", None)
         if signed_date is not None:
             steps.append(
                 dso_models.ProcedureStap(
@@ -257,15 +257,15 @@ class DsoActInputDataBuilder:
 
         procedure_verloop = dso_models.ProcedureVerloop(
             # @todo: This should be its own date
-            bekend_op=self._publication_version.Procedural["Procedural_Announcement_Date"],
+            bekend_op=self._publication_version.procedural["Procedural_Announcement_Date"],
             stappen=steps,
         )
         return procedure_verloop
 
     def _get_wijzigingsartikel(self) -> Artikel:
-        text: str = self._publication_version.Bill_Compact["Amendment_Article"]
+        text: str = self._publication_version.bill_compact["Amendment_Article"]
 
-        enactment_date: str | None = self._publication_version.Procedural.get("Enactment_Date", None)
+        enactment_date: str | None = self._publication_version.procedural.get("Enactment_Date", None)
         if enactment_date is not None:
             date_readable: str = self._get_readable_date_from_str(enactment_date)
             text = text.replace("[[ENACTMENT_DATE]]", date_readable)
@@ -277,7 +277,7 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_amendment_appendix(self) -> WijzigBijlage:
-        data: dict = self._publication_version.Bill_Compact.get("Amendment_Appendix", {})
+        data: dict = self._publication_version.bill_compact.get("Amendment_Appendix", {})
         number = data.get("Number", "A")
         title = data.get("Title", "bij Artikel I")
 
@@ -289,7 +289,7 @@ class DsoActInputDataBuilder:
 
     def _get_text_articles(self) -> list[Artikel]:
         result: list[Artikel] = []
-        for custom_article in self._publication_version.Bill_Compact.get("Custom_Articles", []):
+        for custom_article in self._publication_version.bill_compact.get("Custom_Articles", []):
             article: Artikel = Artikel(
                 nummer=custom_article["Number"],
                 inhoud=custom_article["Content"],
@@ -298,7 +298,7 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_appendices(self) -> list[Bijlage]:
-        appendices: list[dict] = self._publication_version.Bill_Compact.get("Appendices", [])
+        appendices: list[dict] = self._publication_version.bill_compact.get("Appendices", [])
         result: list[Bijlage] = []
 
         for appendix in appendices:
@@ -311,7 +311,7 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_motivering(self) -> Motivering | None:
-        motivation: dict | None = self._publication_version.Bill_Compact.get("Motivation", None)
+        motivation: dict | None = self._publication_version.bill_compact.get("Motivation", None)
         if motivation is None:
             return None
 
@@ -347,7 +347,7 @@ class DsoActInputDataBuilder:
     def _get_policy_object_repository(self) -> PolicyObjectRepository:
         repository = PolicyObjectRepository()
         for o in self._publication_data.used_objects:
-            repository.add(o["Code"], o)
+            repository.add(o["code"], o)
         return repository
 
     def _get_asset_repository(self) -> DSOAssetRepository:
@@ -425,7 +425,7 @@ class DsoActInputDataBuilder:
         return repository
 
     def _get_object_template_repository(self) -> ObjectTemplateRepository:
-        repository = ObjectTemplateRepository(self._template.Object_Templates)
+        repository = ObjectTemplateRepository(self._template.object_templates)
         return repository
 
     def _get_ambtsgebied(self) -> Ambtsgebied:
@@ -440,7 +440,7 @@ class DsoActInputDataBuilder:
         return ambtsgebied
 
     def _get_soort_bestuursorgaan(self) -> BestuursorgaanType:
-        bestuursorgaan: BestuursorgaanType = BestuursorgaanType[self._environment.Governing_Body_Type]
+        bestuursorgaan: BestuursorgaanType = BestuursorgaanType[self._environment.governing_body_type]
         return bestuursorgaan
 
     def _as_dso_onderwerpen(self, values: list[str]) -> list[OnderwerpType]:
@@ -456,11 +456,11 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_closing_text(self) -> str:
-        text: str = self._publication_version.Bill_Compact.get("Closing", "")
+        text: str = self._publication_version.bill_compact.get("Closing", "")
         if text == "":
             return text
 
-        signed_date: str | None = self._publication_version.Procedural.get("Signed_Date", None)
+        signed_date: str | None = self._publication_version.procedural.get("Signed_Date", None)
         if signed_date is not None:
             signed_date_readable: str = self._get_readable_date_from_str(signed_date)
             text = text.replace("[[SIGNED_DATE]]", signed_date_readable)
@@ -468,10 +468,10 @@ class DsoActInputDataBuilder:
         return text
 
     def _get_time_article_content(self) -> str:
-        text: str = self._publication_version.Bill_Compact.get("Time_Article", "")
+        text: str = self._publication_version.bill_compact.get("Time_Article", "")
 
-        if self._publication_version.Effective_Date is not None:
-            effective_date_readable: str = self._get_readable_date(self._publication_version.Effective_Date)
+        if self._publication_version.effective_date is not None:
+            effective_date_readable: str = self._get_readable_date(self._publication_version.effective_date)
             text = text.replace("[[EFFECTIVE_DATE]]", effective_date_readable)
 
         return text
@@ -489,10 +489,10 @@ class DsoActInputDataBuilder:
         if self._act_mutation is None:
             return None
 
-        if self._environment.Code is None:
-            raise RuntimeError("Expecting Environment.Code to be set")
+        if self._environment.code is None:
+            raise RuntimeError("Expecting Environment.code to be set")
 
-        renvooi: KoopSettings | None = self._koop_settings.get(self._environment.Code)
+        renvooi: KoopSettings | None = self._koop_settings.get(self._environment.code)
         if renvooi is None:
             raise RuntimeError("Missing runtime environment settings for this PublicationEnvironment")
 

@@ -7,15 +7,15 @@ from app.core.tables.modules import ModuleStatusHistoryTable
 
 class ModuleStatusRepository(BaseRepository):
     def get_all_by_module_id(self, session: Session, module_id: int) -> list[ModuleStatusHistoryTable]:
-        stmt = select(ModuleStatusHistoryTable).filter(ModuleStatusHistoryTable.Module_ID == module_id)
+        stmt = select(ModuleStatusHistoryTable).filter(ModuleStatusHistoryTable.module_id == module_id)
         statuses: list[ModuleStatusHistoryTable] = session.scalars(stmt).all()
         return statuses
 
     def get_by_id(self, session: Session, module_id: int, status_id: int) -> ModuleStatusHistoryTable | None:
         stmt = (
             select(ModuleStatusHistoryTable)
-            .filter(ModuleStatusHistoryTable.ID == status_id)
-            .filter(ModuleStatusHistoryTable.Module_ID == module_id)
+            .filter(ModuleStatusHistoryTable.id == status_id)
+            .filter(ModuleStatusHistoryTable.module_id == module_id)
         )
         maybe_status = session.scalars(stmt).first()
         return maybe_status
@@ -23,8 +23,8 @@ class ModuleStatusRepository(BaseRepository):
     def get_latest_for_module(self, session: Session, module_id: int) -> ModuleStatusHistoryTable | None:
         stmt = (
             select(ModuleStatusHistoryTable)
-            .filter(ModuleStatusHistoryTable.Module_ID == module_id)
-            .order_by(desc(ModuleStatusHistoryTable.Created_Date))
+            .filter(ModuleStatusHistoryTable.module_id == module_id)
+            .order_by(desc(ModuleStatusHistoryTable.created_date))
         )
         maybe_status = session.scalars(stmt).first()
 

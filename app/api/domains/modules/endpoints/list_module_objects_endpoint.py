@@ -34,13 +34,13 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleObjectsResponse[TModel: BaseModel](BaseModel):
-    Module_ID: int
-    Module_Latest_Status: str
+    module_id: int
+    module_latest_status: str
 
-    Object_Type: str
-    ObjectStatics: ObjectStaticShort
-    ModuleObjectContext: ModuleObjectContextShort
-    Model: TModel
+    object_type: str
+    object_statics: ObjectStaticShort
+    module_object_context: ModuleObjectContextShort
+    model: TModel
 
     model_config = ConfigDict(from_attributes=True, title="ModuleObjectsResponse")
 
@@ -69,7 +69,7 @@ def get_list_module_objects_endpoint(
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
     object_types: Annotated[list[str], Query()] = [],  # noqa: B006
-    owner_uuid: uuid.UUID | None = None,
+    owner_id: uuid.UUID | None = None,
     owner_type: OwnerType = OwnerType.ALL,
     minimum_status: ModuleStatusCode | None = None,
     only_active_modules: bool = True,
@@ -81,17 +81,17 @@ def get_list_module_objects_endpoint(
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     owner_filter: OwnerFilter | None = None
-    match (owner_type, owner_uuid):
+    match (owner_type, owner_id):
         case (OwnerType.MINE, uuid.UUID()):
-            owner_filter = OwnerFilter(is_mine=True, owner_uuid=owner_uuid)
+            owner_filter = OwnerFilter(is_mine=True, owner_id=owner_id)
         case (OwnerType.OTHERS, uuid.UUID()):
-            owner_filter = OwnerFilter(is_mine=False, owner_uuid=owner_uuid)
+            owner_filter = OwnerFilter(is_mine=False, owner_id=owner_id)
         case (OwnerType.ALL, _):
             pass
         case _:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                "owner_uuid is required when owner_type is 'Mine' or 'Others'",
+                "owner_id is required when owner_type is 'Mine' or 'Others'",
             )
 
     paginated_result: PaginatedQueryResult = module_object_repository.get_all_latest(
@@ -113,12 +113,12 @@ def get_list_module_objects_endpoint(
     for object_table, object_static, module_object_context, module_status in paginated_items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_table, context.model_map)
         response: ModuleObjectsResponse = ModuleObjectsResponse(
-            Module_ID=module_object_context.Module_ID,
-            Module_Latest_Status=module_status,
-            Model=parsed_model,
-            ObjectStatics=ObjectStaticShort.model_validate(object_static),
-            ModuleObjectContext=ModuleObjectContextShort.model_validate(module_object_context),
-            Object_Type=object_table.Object_Type,
+            module_id=module_object_context.module_id,
+            module_latest_status=module_status,
+            model=parsed_model,
+            object_statics=ObjectStaticShort.model_validate(object_static),
+            module_object_context=ModuleObjectContextShort.model_validate(module_object_context),
+            object_type=object_table.object_type,
         )
         rows.append(response)
 

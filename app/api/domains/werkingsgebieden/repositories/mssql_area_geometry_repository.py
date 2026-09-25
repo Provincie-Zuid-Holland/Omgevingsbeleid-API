@@ -10,8 +10,8 @@ class MssqlAreaGeometryRepository(AreaGeometryRepository):
     def _shape_to_text(self, column: str) -> str:
         return f"{column}.STAsText()"
 
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
-        return str(uuidx)
+    def _format_uuid(self, idx: uuid.UUID) -> str:
+        return str(idx)
 
     def _calculate_hex(self, column: str) -> str:
         return f"CONVERT(varchar(max), {column}.STAsBinary(), 2)"

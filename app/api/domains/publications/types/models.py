@@ -18,156 +18,167 @@ class Waardelijsten(BaseModel):
 
 
 class PublicationTemplate(BaseModel):
-    UUID: uuid.UUID
-    Title: str
-    Description: str
-    Is_Active: bool
-    Document_Type: str
-    Object_Types: Any = None
-    Text_Template: str
-    Object_Templates: Any = None
-    Object_Field_Map: Any = None
+    id: uuid.UUID
+    title: str
+    description: str
+    is_active: bool
+    document_type: str
+    object_types: Any = None
+    text_template: str
+    object_templates: Any = None
+    object_field_map: Any = None
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationEnvironment(BaseModel):
-    UUID: uuid.UUID
-    Title: str
-    Description: str
-    Province_ID: str
-    Authority_ID: str
-    Submitter_ID: str
-    Governing_Body_Type: str
-    Frbr_Country: str
-    Frbr_Language: str
-    Is_Active: bool
-    Has_State: bool
-    Can_Validate: bool
-    Can_Publicate: bool
-    Is_Locked: bool
-    Created_Date: datetime
-    Modified_Date: datetime
+    id: uuid.UUID
+    title: str
+    description: str
+    province_id: str
+    authority_id: str
+    submitter_id: str
+    governing_body_type: str
+    frbr_country: str
+    frbr_language: str
+    is_active: bool
+    has_state: bool
+    can_validate: bool
+    can_publicate: bool
+    is_locked: bool
+
+    created_date: datetime
+    modified_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAOJ(BaseModel):
-    UUID: uuid.UUID
-    Administrative_Borders_ID: str
-    Administrative_Borders_Domain: str
-    Administrative_Borders_Date: date
-    Created_Date: datetime
+    id: uuid.UUID
+    administrative_borders_id: str
+    administrative_borders_domain: str
+    administrative_borders_date: date
+    created_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAct(BaseModel):
-    UUID: uuid.UUID
-    Title: str
-    Is_Active: bool
-    Environment: PublicationEnvironment
-    Document_Type: str
-    Metadata: dict
+    id: uuid.UUID
+    title: str
+    is_active: bool
+    environment: PublicationEnvironment
+    document_type: str
+    meta_data: dict
 
-    Work_Province_ID: str
-    Work_Country: str
-    Work_Date: str
-    Work_Other: str
+    work_province_id: str
+    work_country: str
+    work_date: str
+    work_other: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationActShort(BaseModel):
-    UUID: uuid.UUID
-    Title: str
-    Is_Active: bool
-    Environment_UUID: uuid.UUID
-    Document_Type: str
+    id: uuid.UUID
+    title: str
+    is_active: bool
+    environment_id: uuid.UUID
+    document_type: str
 
-    Work_Province_ID: str
-    Work_Country: str
-    Work_Date: str
-    Work_Other: str
+    work_province_id: str
+    work_country: str
+    work_date: str
+    work_other: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class Publication(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Module_ID: int
-    Is_Locked: bool
-    Document_Type: str
-    Procedure_Type: str
-    Template_UUID: uuid.UUID | None = None
-    Environment_UUID: uuid.UUID | None = None
-    Act_UUID: uuid.UUID | None = None
+    module_id: int
+    is_locked: bool
+    document_type: str
+    procedure_type: str
+    template_id: uuid.UUID | None = None
+    environment_id: uuid.UUID | None = None
+    act_id: uuid.UUID | None = None
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationShort(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
+    module_id: int
+    is_locked: bool
+    document_type: str
+    procedure_type: str
+    template_id: uuid.UUID | None = None
+    environment_id: uuid.UUID | None = None
+    act_id: uuid.UUID | None = None
 
-    Module_ID: int
-    Is_Locked: bool
-    Document_Type: str
-    Procedure_Type: str
-    Template_UUID: uuid.UUID | None = None
-    Environment_UUID: uuid.UUID | None = None
-    Act_UUID: uuid.UUID | None = None
+    created_date: datetime
+    modified_date: datetime
 
-    Created_Date: datetime
-    Modified_Date: datetime
     model_config = ConfigDict(from_attributes=True)
 
 
 class Article(BaseModel):
-    Label: str = Field("")  # @deprecated
-    Number: str
-    Content: str
+    label: str = Field("")  # @deprecated
+    number: str
+    content: str
 
 
 class BillMetadata(BaseModel):
-    Official_Title: str = Field("")
-    Quote_Title: str = Field("")
-    Subjects: list[str] = Field([])
-    Jurisdictions: list[str] = Field([])
+    official_title: str = Field("")
+    quote_title: str = Field("")
+    subjects: list[str] = Field([])
+    jurisdictions: list[str] = Field([])
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class Appendix(BaseModel):
-    Number: str
-    Title: str
-    Content: str
+    number: str
+    title: str
+    content: str
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class Paragraph(BaseModel):
-    Content: str
+    content: str
 
 
 ParagraphClass = Paragraph
 
 
 class Motivation(BaseModel):
-    Number: str | None = Field(None)
-    Title: str
-    Content: str
-    Appendices: list[Appendix] = Field(default_factory=list)
+    number: str | None = Field(None)
+    title: str
+    content: str
+    appendices: list[Appendix] = Field(default_factory=list)
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class AmendmentAppendix(BaseModel):
-    Number: str
-    Title: str
+    number: str
+    title: str
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -175,30 +186,31 @@ MotivationClass = Motivation
 
 
 class BillCompact(BaseModel):
-    Preamble: str = Field("")
-    Closing: str = Field("")
-    Signed: str = Field("")
-    Amendment_Article: str = Field("")
-    Amendment_Appendix: AmendmentAppendix = Field(
+    preamble: str = Field("")
+    closing: str = Field("")
+    signed: str = Field("")
+    amendment_article: str = Field("")
+    amendment_appendix: AmendmentAppendix = Field(
         AmendmentAppendix(
-            Number="A",
-            Title="bij Artikel I",
+            number="A",
+            title="bij Artikel I",
         )
     )
-    Time_Article: str = Field("")
-    Custom_Articles: list[Article] = Field([])
+    time_article: str = Field("")
+    custom_articles: list[Article] = Field([])
 
-    Appendices: list[Appendix] = Field([])
-    Motivation: MotivationClass | None = Field(None)
+    appendices: list[Appendix] = Field([])
+    motivation: MotivationClass | None = Field(None)
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class Procedural(BaseModel):
-    Enactment_Date: str | None = Field(None)
-    Signed_Date: str | None = Field(None)
-    Procedural_Announcement_Date: str | None = Field(None)
+    enactment_date: str | None = Field(None)
+    signed_date: str | None = Field(None)
+    procedural_announcement_date: str | None = Field(None)
 
-    @field_validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
+    @field_validator("enactment_date", "signed_date", "procedural_announcement_date")
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -214,11 +226,11 @@ ProceduralClass = Procedural
 
 
 class ProceduralValidated(BaseModel):
-    Enactment_Date: str | None = Field(None)
-    Signed_Date: str
-    Procedural_Announcement_Date: str
+    enactment_date: str | None = Field(None)
+    signed_date: str
+    procedural_announcement_date: str
 
-    @field_validator("Enactment_Date", "Signed_Date", "Procedural_Announcement_Date")
+    @field_validator("enactment_date", "signed_date", "procedural_announcement_date")
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -231,174 +243,186 @@ class ProceduralValidated(BaseModel):
 
 
 class ActMetadata(BaseModel):
-    Official_Title: str = Field("")
-    Quote_Title: str = Field("")
-    Subjects: list[str] = Field([])
-    Jurisdictions: list[str] = Field([])
+    official_title: str = Field("")
+    quote_title: str = Field("")
+    subjects: list[str] = Field([])
+    jurisdictions: list[str] = Field([])
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationVersionFinalValidated(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Bill_Metadata: BillMetadata
-    Bill_Compact: BillCompact
-    Procedural: ProceduralValidated
+    bill_metadata: BillMetadata
+    bill_compact: BillCompact
+    procedural: ProceduralValidated
 
-    Effective_Date: date
-    Announcement_Date: date
+    effective_date: date
+    announcement_date: date
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationVersionDraftValidated(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Bill_Metadata: BillMetadata
-    Bill_Compact: BillCompact
-    Procedural: ProceduralValidated
+    bill_metadata: BillMetadata
+    bill_compact: BillCompact
+    procedural: ProceduralValidated
 
-    Announcement_Date: date
+    announcement_date: date
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class AttachmentShort(BaseModel):
-    ID: int
-    File_UUID: uuid.UUID
-    Filename: str
-    Title: str
-    Created_Date: datetime
-    Modified_Date: datetime
+    id: int
+    file_id: uuid.UUID
+    filename: str
+    title: str
+    created_date: datetime
+    modified_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationVersion(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Publication: PublicationShort
-    Module_Status: ModuleStatus
+    publication: PublicationShort
+    module_status: ModuleStatus
 
-    Bill_Metadata: dict
-    Bill_Compact: dict
-    Procedural: dict
-    Effective_Date: date | None = None
-    Announcement_Date: date | None = None
-    Is_Locked: bool
-    Status: PublicationVersionStatus
-    Mutation_Strategy: MutationStrategy
+    bill_metadata: dict
+    bill_compact: dict
+    procedural: dict
+    effective_date: date | None = None
+    announcement_date: date | None = None
+    is_locked: bool
+    status: PublicationVersionStatus
+    mutation_strategy: MutationStrategy
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
 
-    Attachments: list[AttachmentShort]
+    attachments: list[AttachmentShort]
 
-    Errors: list[ErrorDetails] = Field([])
+    errors: list[ErrorDetails] = Field([])
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationPackageShort(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Package_Type: str
-    Report_Status: str
-    Delivery_ID: str
+    package_type: str
+    report_status: str
+    delivery_id: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
+
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
 class PublicationVersionShort(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Publication_UUID: uuid.UUID
-    Module_Status: ModuleStatus
+    publication_id: uuid.UUID
+    module_status: ModuleStatus
 
-    Bill_Metadata: dict
+    bill_metadata: dict
 
-    Effective_Date: date | None = None
-    Announcement_Date: date | None = None
-    Is_Locked: bool
-    Status: PublicationVersionStatus
-    Procedural: ProceduralClass | None = None
+    effective_date: date | None = None
+    announcement_date: date | None = None
+    is_locked: bool
+    status: PublicationVersionStatus
+    procedural: ProceduralClass | None = None
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
 
-    Act_Packages: list[PublicationPackageShort]
+    act_packages: list[PublicationPackageShort]
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationActPackageReportShort(BaseModel):
-    UUID: uuid.UUID
-    Act_Package_UUID: uuid.UUID
+    id: uuid.UUID
+    act_package_id: uuid.UUID
 
-    Report_Status: str
-    Filename: str
-    Main_Outcome: str
+    report_status: str
+    filename: str
+    main_outcome: str
 
-    Created_Date: datetime
+    created_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationActPackageReport(BaseModel):
-    UUID: uuid.UUID
-    Act_Package_UUID: uuid.UUID
+    id: uuid.UUID
+    act_package_id: uuid.UUID
 
-    Report_Status: str
-    Filename: str
-    Source_Document: str
-    Main_Outcome: str
-    Sub_Delivery_ID: str
-    Sub_Progress: str
-    Sub_Outcome: str
+    report_status: str
+    filename: str
+    source_document: str
+    main_outcome: str
+    sub_delivery_id: str
+    sub_progress: str
+    sub_outcome: str
 
-    Created_Date: datetime
+    created_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PackageZipShort(BaseModel):
-    UUID: uuid.UUID
-    Filename: str
-    Latest_Download_Date: datetime | None = None
-    Latest_Download_By_UUID: uuid.UUID | None = None
+    id: uuid.UUID
+    filename: str
+    latest_download_date: datetime | None = None
+    latest_download_by_id: uuid.UUID | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationPackage(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Package_Type: str
-    Report_Status: str
-    Delivery_ID: str
+    package_type: str
+    report_status: str
+    delivery_id: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
 
-    Zip: PackageZipShort
+    zip: PackageZipShort
+
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
 class PublicationActPackage(PublicationPackage):
-    Module_ID: int | None = None
-    Module_Status: ModuleStatus | None = None
+    module_id: int | None = None
+    module_status: ModuleStatus | None = None
 
 
 class AnnouncementMetadata(BaseModel):
-    Official_Title: str = Field("")
-    Subjects: list[str] = Field([])
+    official_title: str = Field("")
+    subjects: list[str] = Field([])
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class AnnouncementProcedural(BaseModel):
-    Procedural_Announcement_Date: str | None = Field(None)
-    Begin_Inspection_Period_Date: str | None = Field(None)
-    End_Inspection_Period_Date: str | None = Field(None)
+    procedural_announcement_date: str | None = Field(None)
+    begin_inspection_period_date: str | None = Field(None)
+    end_inspection_period_date: str | None = Field(None)
 
-    @field_validator("Procedural_Announcement_Date", "Begin_Inspection_Period_Date", "End_Inspection_Period_Date")
+    @field_validator("procedural_announcement_date", "begin_inspection_period_date", "end_inspection_period_date")
     def validate_date(cls, value):
         if value is not None:
             try:
@@ -411,68 +435,72 @@ class AnnouncementProcedural(BaseModel):
 
 
 class AnnouncementText(BaseModel):
-    Title: str | None
-    Description: str
+    title: str | None
+    description: str
 
 
 class AnnouncementContent(BaseModel):
-    Texts: list[AnnouncementText]
+    texts: list[AnnouncementText]
 
 
 class PublicationAnnouncement(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Act_Package: PublicationPackageShort
-    Publication: PublicationShort
+    act_package: PublicationPackageShort
+    publication: PublicationShort
 
-    Metadata: dict
-    Procedural: dict
-    Content: dict
+    meta_data: dict
+    procedural: dict
+    content: dict
 
-    Announcement_Date: date | None = None
-    Is_Locked: bool
+    announcement_date: date | None = None
+    is_locked: bool
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAnnouncementShort(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
-    Metadata: dict
+    meta_data: dict
 
-    Announcement_Date: date | None = None
-    Is_Locked: bool
+    announcement_date: date | None = None
+    is_locked: bool
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAnnouncementPackageReportShort(BaseModel):
-    UUID: uuid.UUID
-    Announcement_Package_UUID: uuid.UUID
+    id: uuid.UUID
+    announcement_package_id: uuid.UUID
 
-    Report_Status: str
-    Filename: str
-    Main_Outcome: str
+    report_status: str
+    filename: str
+    main_outcome: str
 
-    Created_Date: datetime
+    created_date: datetime
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationAnnouncementPackageReport(BaseModel):
-    UUID: uuid.UUID
-    Announcement_Package_UUID: uuid.UUID
+    id: uuid.UUID
+    announcement_package_id: uuid.UUID
 
-    Report_Status: str
-    Filename: str
-    Source_Document: str
-    Main_Outcome: str
-    Sub_Delivery_ID: str
-    Sub_Progress: str
-    Sub_Outcome: str
+    report_status: str
+    filename: str
+    source_document: str
+    main_outcome: str
+    sub_delivery_id: str
+    sub_progress: str
+    sub_outcome: str
 
-    Created_Date: datetime
+    created_date: datetime
+
     model_config = ConfigDict(from_attributes=True)

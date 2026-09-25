@@ -78,7 +78,7 @@ def depends_publication_version(
     maybe_version: PublicationVersionTable | None = repository.get_by_uuid(session, version_uuid)
     if not maybe_version:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication version niet gevonden")
-    if maybe_version.Deleted_At:
+    if maybe_version.deleted_at:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication version is verwijderd")
     return maybe_version
 
@@ -192,7 +192,7 @@ def depends_publication_act_report(
         PublicationActReportRepository, Depends(Provide[ApiContainer.publication.act_report_repository])
     ],
 ) -> PublicationActPackageReportTable:
-    report: PublicationActPackageReportTable | None = repository.get_by_uuid(session, act_report_uuid)
+    report: PublicationActPackageReportTable | None = repository.get_by_id(session, act_report_uuid)
     if report is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Package report not found")
     return report
@@ -227,6 +227,6 @@ def depends_publication_act(
 def depends_publication_act_active(
     act: Annotated[PublicationActTable, Depends(depends_publication_act)],
 ) -> PublicationActTable:
-    if not act.Is_Active:
+    if not act.is_active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publicatie regeling is gesloten")
     return act

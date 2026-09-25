@@ -43,25 +43,25 @@ def post_create_announcement_endpoint(
 ) -> AnnouncementCreatedResponse:
     _guard_can_create_announcement(act_package)
 
-    publication: PublicationTable = act_package.Publication_Version.Publication
-    metadata = defaults_provider.get_metadata(publication.Document_Type, publication.Procedure_Type)
+    publication: PublicationTable = act_package.publication_version.publication
+    metadata = defaults_provider.get_metadata(publication.document_type, publication.procedure_type)
     procedural = defaults_provider.get_procedural()
-    content = defaults_provider.get_content(publication.Document_Type, publication.Procedure_Type)
+    content = defaults_provider.get_content(publication.document_type, publication.procedure_type)
 
     timepoint: datetime = datetime.now(UTC)
     announcement = PublicationAnnouncementTable(
-        UUID=uuid.uuid4(),
-        Act_Package_UUID=act_package.UUID,
-        Publication_UUID=publication.UUID,
-        Metadata=metadata.model_dump(),
-        Procedural=procedural.model_dump(),
-        Content=content.model_dump(),
-        Announcement_Date=None,
-        Is_Locked=False,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
+        id=uuid.uuid4(),
+        act_package_id=act_package.id,
+        publication_id=publication.id,
+        meta_data=metadata.model_dump(),
+        procedural=procedural.model_dump(),
+        content=content.model_dump(),
+        announcement_date=None,
+        is_locked=False,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.UUID,
+        modified_by_id=user.UUID,
     )
 
     session.add(announcement)
@@ -69,21 +69,21 @@ def post_create_announcement_endpoint(
     session.commit()
 
     return AnnouncementCreatedResponse(
-        UUID=announcement.UUID,
+        UUID=announcement.id,
     )
 
 
 def _guard_can_create_announcement(act_package: PublicationActPackageTable):
-    if not act_package.Publication_Version.Publication.Module.is_active:
+    if not act_package.publication_version.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
-    if not act_package.Publication_Version.Publication.Environment.Has_State:
+    if not act_package.publication_version.publication.environment.has_state:
         return
-    if act_package.Report_Status != ReportStatusType.VALID:
+    if act_package.report_status != ReportStatusType.VALID:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
             "Can not create an announcement for act package that is not successful",
         )
-    if not act_package.Act_Version.Act.Is_Active:
+    if not act_package.act_version.act.is_active:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
             "Can not create an announcement for act that is not active",

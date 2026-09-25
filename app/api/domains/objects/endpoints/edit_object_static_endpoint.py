@@ -55,11 +55,11 @@ def edit_object_static_endpoint(
         Permissions.can_patch_object_static,
         user,
         [
-            object_static.Owner_1_UUID,
-            object_static.Owner_2_UUID,
-            object_static.Portfolio_Holder_1_UUID,
-            object_static.Portfolio_Holder_2_UUID,
-            object_static.Client_1_UUID,
+            object_static.owner_1_id,
+            object_static.owner_2_id,
+            object_static.portfolio_holder_1_id,
+            object_static.portfolio_holder_2_id,
+            object_static.client_1_id,
         ],
     )
 
@@ -76,14 +76,14 @@ def edit_object_static_endpoint(
         raise RequestValidationError(e.errors()) from e
 
     change_log: ChangeLogTable = ChangeLogTable(
-        Object_Type=context.object_type,
-        Object_ID=lineage_id,
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=user.UUID,
-        Action_Type="edit_object_static",
-        Action_Data=object_in.model_dump_json(),
-        Before=log_before,
-        After=json.dumps(object_static.to_dict()),
+        object_type=context.object_type,
+        object_id=lineage_id,
+        created_date=datetime.now(UTC),
+        created_by_id=user.UUID,
+        action_type="edit_object_static",
+        action_data=object_in.model_dump_json(),
+        before=log_before,
+        after=json.dumps(object_static.to_dict()),
     )
     session.add(change_log)
 

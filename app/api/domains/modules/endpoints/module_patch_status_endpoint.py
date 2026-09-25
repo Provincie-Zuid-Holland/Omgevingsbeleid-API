@@ -22,7 +22,7 @@ from app.core.tables.users import UsersTable
 
 
 class ModulePatchStatus(BaseModel):
-    Status: ModuleStatusCode
+    status: ModuleStatusCode
     model_config = ConfigDict(use_enum_values=True)
 
 
@@ -38,25 +38,25 @@ def post_module_patch_status_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_patch_module_status,
         user,
-        whitelisted_uuids=[
-            module.Module_Manager_1_UUID,
-            module.Module_Manager_2_UUID,
+        whitelisted_ids=[
+            module.module_manager_1_id,
+            module.module_manager_2_id,
         ],
     )
     guard_module_is_locked(module)
 
-    if object_in.Status == ModuleStatusCode.Vastgesteld:
-        result: ValidateModuleResult = validate_module_runner.run(session, module.Module_ID)
+    if object_in.status == ModuleStatusCode.Vastgesteld:
+        result: ValidateModuleResult = validate_module_runner.run(session, module.module_id)
         if len(result.errors) > 0:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST, "Please run the module validator, there seems to be a problem."
             )
 
     module_status_history = ModuleStatusHistoryTable(
-        Module_ID=module.Module_ID,
-        Status=object_in.Status,
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=user.UUID,
+        module_id=module.module_id,
+        status=object_in.status,
+        created_date=datetime.now(UTC),
+        created_by_id=user.UUID,
     )
     session.add(module_status_history)
     session.flush()

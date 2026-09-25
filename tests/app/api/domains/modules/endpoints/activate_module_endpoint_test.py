@@ -18,7 +18,7 @@ def _status_count(session: Session, module_id: int) -> int:
         session.scalar(
             select(func.count())
             .select_from(ModuleStatusHistoryTable)
-            .where(ModuleStatusHistoryTable.Module_ID == module_id)
+            .where(ModuleStatusHistoryTable.module_id == module_id)
         )
         or 0
     )
@@ -27,8 +27,8 @@ def _status_count(session: Session, module_id: int) -> int:
 def _latest_status(session: Session, module_id: int) -> ModuleStatusHistoryTable | None:
     return session.scalar(
         select(ModuleStatusHistoryTable)
-        .where(ModuleStatusHistoryTable.Module_ID == module_id)
-        .order_by(desc(ModuleStatusHistoryTable.Created_Date), desc(ModuleStatusHistoryTable.ID))
+        .where(ModuleStatusHistoryTable.module_id == module_id)
+        .order_by(desc(ModuleStatusHistoryTable.created_date), desc(ModuleStatusHistoryTable.id))
     )
 
 
@@ -42,8 +42,8 @@ def test_activates_an_inactive_module(admin: TestClient, ctx: Context):
 
     module = ctx.session.get(ModuleTable, 2)
     assert module
-    assert module.Activated is True
-    assert module.Modified_By_UUID == admin_uuid
+    assert module.activated is True
+    assert module.modified_by_id == admin_uuid
 
 
 def test_creates_a_module_status_history_record(admin: TestClient, ctx: Context):
@@ -57,8 +57,8 @@ def test_creates_a_module_status_history_record(admin: TestClient, ctx: Context)
 
     latest = _latest_status(ctx.session, 2)
     assert latest
-    assert latest.Status == ModuleStatusCode.Ontwerp_GS_Concept
-    assert latest.Created_By_UUID == admin_uuid
+    assert latest.status == ModuleStatusCode.Ontwerp_GS_Concept
+    assert latest.created_by_id == admin_uuid
 
 
 def test_already_activated_module_returns_400(admin: TestClient, ctx: Context):

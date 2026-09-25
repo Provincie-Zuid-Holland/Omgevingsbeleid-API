@@ -11,7 +11,7 @@ from app.core.tables.publications import PublicationTable
 
 class PublicationRepository(BaseRepository):
     def get_by_uuid(self, session: Session, uuid: UUID) -> PublicationTable | None:
-        stmt = select(PublicationTable).where(PublicationTable.UUID == uuid)
+        stmt = select(PublicationTable).where(PublicationTable.id == uuid)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
@@ -24,9 +24,9 @@ class PublicationRepository(BaseRepository):
     ) -> PaginatedQueryResult:
         filters = []
         if document_type is not None:
-            filters.append(and_(PublicationTable.Document_Type == document_type))
+            filters.append(and_(PublicationTable.document_type == document_type))
         if module_id is not None:
-            filters.append(and_(PublicationTable.Module_ID == module_id))
+            filters.append(and_(PublicationTable.module_id == module_id))
 
         stmt = select(PublicationTable).filter(*filters)
 
@@ -35,6 +35,6 @@ class PublicationRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationTable.Modified_Date, SortOrder.DESC),
+            sort=(PublicationTable.modified_date, SortOrder.DESC),
         )
         return paged_result

@@ -76,8 +76,8 @@ class SourceWerkingsgebiedenTable(Base):
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
-    Start_Validity: Mapped[datetime] = mapped_column(name="Begin_Geldigheid")
-    End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
+    start_validity: Mapped[datetime] = mapped_column(name="Begin_Geldigheid")
+    end_validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
 
     Title: Mapped[str] = mapped_column(name="Werkingsgebied")
     SHAPE: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
@@ -105,8 +105,8 @@ class OnderverdelingTable(Base):
     Created_Date: Mapped[datetime]
     Modified_Date: Mapped[datetime]
 
-    Start_Validity: Mapped[datetime] = mapped_column(name="Begin_Geldigheid")
-    End_Validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
+    start_validity: Mapped[datetime] = mapped_column(name="Begin_Geldigheid")
+    end_validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
 
     def __repr__(self) -> str:
         return f"Onderverdeling(UUID={self.UUID!r}, Title={self.Title!r})"

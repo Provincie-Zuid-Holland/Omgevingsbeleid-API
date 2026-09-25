@@ -10,8 +10,8 @@ from app.core.tables.publications import PublicationActPackageReportTable
 
 
 class PublicationActReportRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationActPackageReportTable | None:
-        stmt = select(PublicationActPackageReportTable).where(PublicationActPackageReportTable.UUID == uuidx)
+    def get_by_id(self, session: Session, idx: uuid.UUID) -> PublicationActPackageReportTable | None:
+        stmt = select(PublicationActPackageReportTable).where(PublicationActPackageReportTable.id == idx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
@@ -25,11 +25,11 @@ class PublicationActReportRepository(BaseRepository):
     ) -> PaginatedQueryResult:
         filters = []
         if act_package_uuid is not None:
-            filters.append(and_(PublicationActPackageReportTable.Act_Package_UUID == act_package_uuid))
+            filters.append(and_(PublicationActPackageReportTable.act_package_id == act_package_uuid))
         if filename is not None:
-            filters.append(and_(PublicationActPackageReportTable.Filename == filename))
+            filters.append(and_(PublicationActPackageReportTable.filename == filename))
         if report_status is not None:
-            filters.append(and_(PublicationActPackageReportTable.Report_Status == report_status.value))
+            filters.append(and_(PublicationActPackageReportTable.report_status == report_status.value))
 
         stmt = select(PublicationActPackageReportTable).filter(*filters)
 
@@ -38,6 +38,6 @@ class PublicationActReportRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationActPackageReportTable.Created_Date, SortOrder.DESC),
+            sort=(PublicationActPackageReportTable.created_date, SortOrder.DESC),
         )
         return paged_result

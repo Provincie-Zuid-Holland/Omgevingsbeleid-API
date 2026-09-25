@@ -37,7 +37,7 @@ def view_module_object_latest_endpoint(
 ) -> BaseModel:
     module_object: ModuleObjectsTable | None = module_object_repository.get_latest_by_id(
         session,
-        module.Module_ID,
+        module.module_id,
         context.object_type,
         lineage_id,
     )

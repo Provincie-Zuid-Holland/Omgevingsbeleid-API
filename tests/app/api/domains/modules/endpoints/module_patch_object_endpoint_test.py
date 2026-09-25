@@ -29,32 +29,32 @@ def test_patch_adds_a_new_draft_to_the_lineage(admin: TestClient, ctx: Context):
     ).spec
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
 
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"Title": "Patched via module 5"})
+    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Patched via module 5"})
 
     assert response.status_code == 200, response.text
     body: dict[str, Any] = response.json()
-    assert set(body.keys()) == {"Object_ID", "UUID"}
-    assert body["Object_ID"] == 1
-    assert body["UUID"] != str(previous_draft.UUID)
+    assert set(body.keys()) == {"object_id", "id"}
+    assert body["object_id"] == 1
+    assert body["id"] != str(previous_draft.id)
 
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(body["UUID"]))
-    assert new_draft.Module_ID == 5
-    assert new_draft.Code == previous_draft.Code
-    assert new_draft.Adjust_On == previous_draft.UUID
-    assert new_draft.Title == "Patched via module 5"
-    assert new_draft.Modified_By_UUID == admin_uuid
-    assert_same_datetime(new_draft.Modified_Date)
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(body["id"]))
+    assert new_draft.module_id == 5
+    assert new_draft.code == previous_draft.code
+    assert new_draft.adjust_on == previous_draft.id
+    assert new_draft.title == "Patched via module 5"
+    assert new_draft.modified_by_id == admin_uuid
+    assert_same_datetime(new_draft.modified_date)
 
     all_drafts: list[ModuleObjectsTable] = list(
         ctx.session.scalars(
             select(ModuleObjectsTable)
-            .where(ModuleObjectsTable.Module_ID == 5)
-            .where(ModuleObjectsTable.Code == previous_draft.Code)
+            .where(ModuleObjectsTable.module_id == 5)
+            .where(ModuleObjectsTable.code == previous_draft.code)
         )
     )
-    assert {draft.UUID for draft in all_drafts} == {
-        previous_draft.UUID,
-        new_draft.UUID,
+    assert {draft.id for draft in all_drafts} == {
+        previous_draft.id,
+        new_draft.id,
     }
 
 
@@ -63,24 +63,24 @@ def test_fields_left_out_are_copied_from_the_previous_draft(admin: TestClient, c
         Ref(ModuleBeleidskeuzeSpec, "mod_5_beleidskeuze_1_first_entry")
     ).spec
 
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"Title": "Only the title changes"})
+    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Only the title changes"})
 
     assert response.status_code == 200, response.text
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["UUID"]))
-    assert new_draft.Description == previous_draft.Description
-    assert new_draft.Explanation == previous_draft.Explanation
-    assert new_draft.Hierarchy_Code == previous_draft.Hierarchy_Code
-    assert_same_datetime(new_draft.Start_Validity, previous_draft.Start_Validity)
-    assert_same_datetime(new_draft.Created_Date, previous_draft.Created_Date)
-    assert new_draft.Created_By_UUID == previous_draft.Created_By_UUID
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    assert new_draft.description == previous_draft.description
+    assert new_draft.explanation == previous_draft.explanation
+    assert new_draft.hierarchy_code == previous_draft.hierarchy_code
+    assert_same_datetime(new_draft.start_validity, previous_draft.start_validity)
+    assert_same_datetime(new_draft.created_date, previous_draft.created_date)
+    assert new_draft.created_by_id == previous_draft.created_by_id
 
 
 def test_patch_accepts_a_list_field(admin: TestClient, ctx: Context):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"Themas": ["natuur", "water"]})
+    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"themas": ["natuur", "water"]})
 
     assert response.status_code == 200, response.text
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["UUID"]))
-    assert new_draft.Themas == ["natuur", "water"]
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    assert new_draft.themas == ["natuur", "water"]
 
 
 @pytest.mark.parametrize(
@@ -100,24 +100,24 @@ def test_title_is_cached_on_the_static_only_without_a_live_version(
     draft: ModuleBeleidskeuzeSpec = ctx.f.find(Ref(ModuleBeleidskeuzeSpec, fixture_key)).spec
     new_title: str = "Title used for the cache check"
 
-    object_static: ObjectStaticsTable | None = ctx.session.get(ObjectStaticsTable, draft.Code)
+    object_static: ObjectStaticsTable | None = ctx.session.get(ObjectStaticsTable, draft.code)
     assert object_static
-    object_static.Cached_Title = "Title before the patch"
+    object_static.cached_title = "Title before the patch"
     ctx.session.flush()
 
-    response: Response = admin.patch(f"/modules/5/object/beleidskeuze/{lineage_id}", json={"Title": new_title})
+    response: Response = admin.patch(f"/modules/5/object/beleidskeuze/{lineage_id}", json={"title": new_title})
 
     assert response.status_code == 200, response.text
     ctx.session.expire_all()
-    assert object_static.Cached_Title == (new_title if expect_cached_title else "Title before the patch")
+    assert object_static.cached_title == (new_title if expect_cached_title else "Title before the patch")
 
 
 def test_hierarchy_code_can_be_changed(admin: TestClient, ctx: Context):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"Hierarchy_Code": "beleidsdoel-2"})
+    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"hierarchy_code": "beleidsdoel-2"})
 
     assert response.status_code == 200, response.text
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["UUID"]))
-    assert new_draft.Hierarchy_Code == "beleidsdoel-2"
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    assert new_draft.hierarchy_code == "beleidsdoel-2"
 
 
 @pytest.mark.parametrize(
@@ -140,24 +140,24 @@ def test_hierarchy_code_can_be_changed(admin: TestClient, ctx: Context):
     ],
 )
 def test_roles_validation(admin: TestClient, ctx: Context, roles: list[str], expected_status: int):
-    response: Response = admin.patch("/modules/5/object/maatregel/1", json={"Roles": roles})
+    response: Response = admin.patch("/modules/5/object/maatregel/1", json={"roles": roles})
 
     assert response.status_code == expected_status, response.text
     if expected_status >= 300:
         return
 
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["UUID"]))
-    assert new_draft.Roles == roles
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    assert new_draft.roles == roles
 
 
 @pytest.mark.parametrize(
     "payload, invalid_field",
     [
-        pytest.param({"Title": "<b>Bold</b> title"}, "Title", id="html-in-plain-text-field"),
-        pytest.param({"Description": "<script>alert(1)</script>"}, "Description", id="forbidden-html-tag"),
-        pytest.param({"Hierarchy_Code": "maatregel-1"}, "Hierarchy_Code", id="code-of-a-disallowed-type"),
-        pytest.param({"Hierarchy_Code": "beleidsdoel-999999"}, "Hierarchy_Code", id="code-that-does-not-exist"),
-        pytest.param({"Gebiedengroep_Code": "beleidsdoel-1"}, "Gebiedengroep_Code", id="wrong-type-for-gebiedengroep"),
+        pytest.param({"title": "<b>Bold</b> title"}, "title", id="html-in-plain-text-field"),
+        pytest.param({"description": "<script>alert(1)</script>"}, "description", id="forbidden-html-tag"),
+        pytest.param({"hierarchy_code": "maatregel-1"}, "hierarchy_code", id="code-of-a-disallowed-type"),
+        pytest.param({"hierarchy_code": "beleidsdoel-999999"}, "hierarchy_code", id="code-that-does-not-exist"),
+        pytest.param({"gebiedengroep_code": "beleidsdoel-1"}, "gebiedengroep_code", id="wrong-type-for-gebiedengroep"),
     ],
 )
 def test_invalid_body_returns_422(admin: TestClient, payload: dict[str, Any], invalid_field: str):
@@ -178,11 +178,11 @@ def test_invalid_body_returns_422(admin: TestClient, payload: dict[str, Any], in
     ],
 )
 def test_target_codes_accepts_vigerend_and_own_module_codes(admin: TestClient, ctx: Context, target_codes: list[str]):
-    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"Target_Codes": target_codes})
+    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes})
 
     assert response.status_code == 200, response.text
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["UUID"]))
-    assert new_draft.Target_Codes == target_codes
+    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    assert new_draft.target_codes == target_codes
 
 
 @pytest.mark.parametrize(
@@ -200,10 +200,10 @@ def test_target_codes_accepts_vigerend_and_own_module_codes(admin: TestClient, c
 def test_target_codes_rejects_codes_not_usable_in_the_module(
     admin: TestClient, target_codes: list[str], invalid_codes: list[str]
 ):
-    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"Target_Codes": target_codes})
+    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes})
 
     assert response.status_code == 422, response.text
-    errors: list[dict[str, Any]] = [error for error in response.json()["detail"] if error["loc"][-1] == "Target_Codes"]
+    errors: list[dict[str, Any]] = [error for error in response.json()["detail"] if error["loc"][-1] == "target_codes"]
     assert len(errors) == 1
     message: str = errors[0]["msg"]
     for invalid_code in invalid_codes:
@@ -231,7 +231,7 @@ def test_target_codes_are_scoped_to_the_patched_module(
     expected_status: int,
 ):
     response: Response = admin.patch(
-        f"/modules/{module_id}/object/gebiedsaanwijzing/{lineage_id}", json={"Target_Codes": target_codes}
+        f"/modules/{module_id}/object/gebiedsaanwijzing/{lineage_id}", json={"target_codes": target_codes}
     )
 
     assert response.status_code == expected_status, response.text
@@ -246,16 +246,16 @@ def test_target_codes_are_scoped_to_the_patched_module(
     ],
 )
 def test_target_codes_rejects_invalid_values(admin: TestClient, target_codes: list[str] | None, expected_message: str):
-    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"Target_Codes": target_codes})
+    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes})
 
     assert response.status_code == 422, response.text
-    errors: list[dict[str, Any]] = [error for error in response.json()["detail"] if error["loc"][-1] == "Target_Codes"]
+    errors: list[dict[str, Any]] = [error for error in response.json()["detail"] if error["loc"][-1] == "target_codes"]
     assert len(errors) == 1
     assert expected_message in errors[0]["msg"]
 
 
 def test_lineage_outside_the_module_returns_404(admin: TestClient):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/3", json={"Title": "Not in this module"})
+    response: Response = admin.patch("/modules/5/object/beleidskeuze/3", json={"title": "Not in this module"})
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Module object niet gevonden"
@@ -269,7 +269,7 @@ def test_empty_body_returns_400(admin: TestClient):
 
 
 def test_unknown_lineage_returns_404(admin: TestClient):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/999999", json={"Title": "Does not exist"})
+    response: Response = admin.patch("/modules/5/object/beleidskeuze/999999", json={"title": "Does not exist"})
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Object static niet gevonden"
@@ -278,10 +278,10 @@ def test_unknown_lineage_returns_404(admin: TestClient):
 def test_locked_module_returns_400(admin: TestClient, ctx: Context):
     module: ModuleTable | None = ctx.session.get(ModuleTable, 5)
     assert module
-    module.Temporary_Locked = True
+    module.temporary_locked = True
     ctx.session.flush()
 
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"Title": "Locked out"})
+    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Locked out"})
 
     assert response.status_code == 400
     assert response.json()["detail"] == "The module is locked"
@@ -295,7 +295,7 @@ def test_locked_module_returns_400(admin: TestClient, ctx: Context):
     ],
 )
 def test_inaccessible_module_returns_404(admin: TestClient, module_id: int, detail: str):
-    response: Response = admin.patch(f"/modules/{module_id}/object/beleidskeuze/1", json={"Title": "Not allowed"})
+    response: Response = admin.patch(f"/modules/{module_id}/object/beleidskeuze/1", json={"title": "Not allowed"})
 
     assert response.status_code == 404
     assert response.json()["detail"] == detail
@@ -317,7 +317,7 @@ def test_permission_matrix(
     expected_detail: str | None,
 ):
     test_client: TestClient = request.getfixturevalue(client_fixture)
-    response: Response = test_client.patch("/modules/5/object/beleidskeuze/1", json={"Title": "Patched by a role"})
+    response: Response = test_client.patch("/modules/5/object/beleidskeuze/1", json={"title": "Patched by a role"})
 
     assert response.status_code == expected_status, response.text
     if expected_detail is not None:
@@ -333,7 +333,7 @@ def test_permission_matrix(
 )
 def test_owner_may_patch_without_the_role_permission(owner_1: TestClient, lineage_id: int, expected_status: int):
     response: Response = owner_1.patch(
-        f"/modules/5/object/beleidskeuze/{lineage_id}", json={"Title": "Patched by the owner"}
+        f"/modules/5/object/beleidskeuze/{lineage_id}", json={"title": "Patched by the owner"}
     )
 
     assert response.status_code == expected_status, response.text

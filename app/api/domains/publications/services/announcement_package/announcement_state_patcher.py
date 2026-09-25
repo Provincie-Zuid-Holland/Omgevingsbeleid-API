@@ -14,7 +14,7 @@ class AnnouncementStatePatcher:
         self._api_input_data: ApiAnnouncementInputData = api_input_data
         self._dso_builder: Builder = dso_builder
         self._announcement: PublicationAnnouncementTable = api_input_data.Announcement
-        self._publication: PublicationTable = api_input_data.Announcement.Publication
+        self._publication: PublicationTable = api_input_data.Announcement.publication
 
     def apply(self, source_state: ActiveState) -> ActiveState:
         state: ActiveState = deepcopy(source_state)
@@ -54,8 +54,8 @@ class AnnouncementStatePatcher:
             Doc_Frbr=doc_frbr,
             About_Bill_Frbr=about_bill_frbr,
             About_Act_Frbr=about_act_frbr,
-            Document_Type=self._api_input_data.Announcement.Publication.Document_Type,
-            Procedure_Type=self._api_input_data.Announcement.Publication.Procedure_Type,
+            Document_Type=self._api_input_data.Announcement.publication.document_type,
+            Procedure_Type=self._api_input_data.Announcement.publication.procedure_type,
         )
         state.handle_action(action)
         return state

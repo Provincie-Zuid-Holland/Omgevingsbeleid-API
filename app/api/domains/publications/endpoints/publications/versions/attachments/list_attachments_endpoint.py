@@ -32,7 +32,7 @@ def get_list_attachments_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> list[AttachmentShort]:
     attachments: list[PublicationVersionAttachmentTable] = (
-        publication_version_attachment_repository.get_by_version_uuid(session, version.UUID)
+        publication_version_attachment_repository.get_by_version_uuid(session, version.id)
     )
     response: list[AttachmentShort] = [AttachmentShort.model_validate(r) for r in attachments]
     return response

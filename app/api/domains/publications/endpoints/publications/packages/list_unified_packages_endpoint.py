@@ -25,12 +25,12 @@ class ListUnifiedPackagesEndpointContext(BaseEndpointContext):
 class UnifiedPackage(BaseModel):
     Publication_Type: str
     UUID: uuid.UUID
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
     Package_Type: str
     Report_Status: str
     Delivery_ID: str
-    Module_ID: int
+    module_id: int
     Module_Title: str
     Document_Type: str
     Environment_UUID: uuid.UUID

@@ -24,8 +24,8 @@ class EndpointHandler:
         edges = edges + self._get_other_edges()
 
         return GraphResponse(
-            Vertices=vertices,
-            Edges=edges,
+            vertices=vertices,
+            edges=edges,
         )
 
     def _get_other_edges(self) -> list[GraphEdge]:
@@ -39,9 +39,9 @@ class EndpointHandler:
         rows: Sequence[RelationsTable] = self._session.execute(stmt).scalars().all()
         edges: list[GraphEdge] = [
             GraphEdge(
-                Type=GraphEdgeType.relation,
-                Vertice_A_Code=r.From_Code,
-                Vertice_B_Code=r.To_Code,
+                type=GraphEdgeType.relation,
+                vertice_a_code=r.from_code,
+                vertice_b_code=r.to_code,
             )
             for r in rows
         ]
@@ -50,21 +50,21 @@ class EndpointHandler:
     def _get_valid_acknowledged_relations(self) -> list[GraphEdge]:
         stmt = (
             select(AcknowledgedRelationsTable)
-            .filter(AcknowledgedRelationsTable.From_Acknowledged.is_not(None))
-            .filter(AcknowledgedRelationsTable.To_Acknowledged.is_not(None))
+            .filter(AcknowledgedRelationsTable.from_acknowledged.is_not(None))
+            .filter(AcknowledgedRelationsTable.to_acknowledged.is_not(None))
             .options(
                 load_only(
-                    AcknowledgedRelationsTable.From_Code,
-                    AcknowledgedRelationsTable.To_Code,
+                    AcknowledgedRelationsTable.from_code,
+                    AcknowledgedRelationsTable.to_code,
                 )
             )
         )
         rows: Sequence[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
         edges: list[GraphEdge] = [
             GraphEdge(
-                Type=GraphEdgeType.acknowledged_relation,
-                Vertice_A_Code=r.From_Code,
-                Vertice_B_Code=r.To_Code,
+                type=GraphEdgeType.acknowledged_relation,
+                vertice_a_code=r.from_code,
+                vertice_b_code=r.to_code,
             )
             for r in rows
         ]
@@ -76,35 +76,35 @@ class EndpointHandler:
                 ObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
+                    partition_by=ObjectsTable.code,
+                    order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ObjectsTable)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
             .subquery()
         )
 
         aliased_subq = aliased(ObjectsTable, subq)
         stmt = (
             select(aliased_subq)
-            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c._row_number == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(UTC),
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > datetime.now(UTC),
+                    subq.c.end_validity.is_(None),
                 )
             )
-            .order_by(desc(subq.c.Modified_Date))
+            .order_by(desc(subq.c.modified_date))
             .options(
                 load_only(
-                    aliased_subq.Object_Type,
-                    aliased_subq.Object_ID,
-                    aliased_subq.Code,
-                    aliased_subq.UUID,
-                    aliased_subq.Title,
-                    aliased_subq.Hierarchy_Code,
+                    aliased_subq.object_type,
+                    aliased_subq.object_id,
+                    aliased_subq.code,
+                    aliased_subq.id,
+                    aliased_subq.title,
+                    aliased_subq.hierarchy_code,
                 ),
             )
         )
@@ -112,16 +112,16 @@ class EndpointHandler:
         rows: list[ObjectsTable] = list(self._session.execute(stmt).scalars().all())
         vertices: list[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
 
-        # Use the same rows to build hierarcy_code edges
+        # Use the same rows to build hierarchy_code edges
         hierarchy_code_edges: list[GraphEdge] = []
         for row in rows:
-            if not row.Hierarchy_Code:
+            if not row.hierarchy_code:
                 continue
             hierarchy_code_edges.append(
                 GraphEdge(
-                    Type=GraphEdgeType.hierarchy_code,
-                    Vertice_A_Code=row.Code,
-                    Vertice_B_Code=row.Hierarchy_Code,
+                    type=GraphEdgeType.hierarchy_code,
+                    vertice_a_code=row.code,
+                    vertice_b_code=row.hierarchy_code,
                 )
             )
 

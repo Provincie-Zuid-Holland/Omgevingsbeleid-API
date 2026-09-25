@@ -24,13 +24,13 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleAddExistingObject(BaseModel):
-    Object_UUID: uuid.UUID
+    object_uuid: uuid.UUID
 
-    Action: ModuleObjectAction
-    Explanation: str = Field("")
-    Conclusion: str = Field("")
+    action: ModuleObjectAction
+    explanation: str = Field("")
+    conclusion: str = Field("")
 
-    @field_validator("Explanation", "Conclusion", mode="before")
+    @field_validator("explanation", "conclusion", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -63,31 +63,31 @@ class ModuleAddExistingObjectService:
         self._timepoint: datetime = datetime.now(UTC)
 
     def process(self):
-        object_data: dict | None = self._object_provider.get_by_uuid(self._session, self._object_in.Object_UUID)
+        object_data: dict | None = self._object_provider.get_by_id(self._session, self._object_in.object_uuid)
         if object_data is None:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unknown object for uuid")
 
-        object_type: str = object_data["Object_Type"]
-        object_id: int = object_data["Object_ID"]
+        object_type: str = object_data["object_type"]
+        object_id: int = object_data["object_id"]
 
         if object_type not in self._context.allowed_object_types:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                f"Invalid Object_Type, accepted object_type are: {self._context.allowed_object_types}",
+                f"Invalid object_type, accepted object_type are: {self._context.allowed_object_types}",
             )
 
         maybe_object_context: ModuleObjectContextTable | None = self._object_context_repository.get_by_ids(
             self._session,
-            self._module.Module_ID,
+            self._module.module_id,
             object_type,
             object_id,
         )
 
         try:
             if maybe_object_context is None:
-                # If we never seen this object code before then we can just create the context
+                # If we never see this object code before then we can just create the context
                 self._create_object_context(object_data)
-            elif maybe_object_context.Hidden:
+            elif maybe_object_context.hidden:
                 # If the context is hidden, then we knew this object, but is has been removed
                 # We can just un-Hidden the context and set some additional properties
                 self._update_object_context(maybe_object_context, object_data)
@@ -106,29 +106,29 @@ class ModuleAddExistingObjectService:
 
     def _create_object_context(self, object_data: dict):
         object_context: ModuleObjectContextTable = ModuleObjectContextTable(
-            Module_ID=self._module.Module_ID,
-            Object_Type=object_data["Object_Type"],
-            Object_ID=object_data["Object_ID"],
-            Code=object_data["Code"],
-            Created_Date=self._timepoint,
-            Modified_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
-            Modified_By_UUID=self._user.UUID,
-            Original_Adjust_On=object_data["UUID"],
-            Action=self._object_in.Action,
-            Explanation=self._object_in.Explanation,
-            Conclusion=self._object_in.Conclusion,
+            module_id=self._module.module_id,
+            object_type=object_data["object_type"],
+            object_id=object_data["object_id"],
+            code=object_data["code"],
+            created_date=self._timepoint,
+            modified_date=self._timepoint,
+            created_by_id=self._user.UUID,
+            modified_by_id=self._user.UUID,
+            original_adjust_on=object_data["id"],
+            action=self._object_in.action,
+            explanation=self._object_in.explanation,
+            conclusion=self._object_in.conclusion,
         )
         self._session.add(object_context)
 
     def _update_object_context(self, object_context: ModuleObjectContextTable, object_data: dict):
-        object_context.Hidden = False
-        object_context.Modified_Date = self._timepoint
-        object_context.Modified_By_UUID = self._user.UUID
-        object_context.Original_Adjust_On = object_data["UUID"]
-        object_context.Action = self._object_in.Action
-        object_context.Explanation = self._object_in.Explanation
-        object_context.Conclusion = self._object_in.Conclusion
+        object_context.hidden = False
+        object_context.modified_date = self._timepoint
+        object_context.modified_by_id = self._user.UUID
+        object_context.original_adjust_on = object_data["id"]
+        object_context.action = self._object_in.action
+        object_context.explanation = self._object_in.explanation
+        object_context.conclusion = self._object_in.conclusion
         self._session.add(object_context)
 
     def _create_object(self, object_data: dict):
@@ -137,11 +137,11 @@ class ModuleAddExistingObjectService:
         for key, value in object_data.items():
             setattr(module_object, key, value)
 
-        module_object.Module_ID = self._module.Module_ID
-        module_object.Adjust_On = object_data["UUID"]
-        module_object.UUID = uuid.uuid4()
-        module_object.Modified_Date = self._timepoint
-        module_object.Modified_By_UUID = self._user.UUID
+        module_object.module_id = self._module.module_id
+        module_object.adjust_on = object_data["id"]
+        module_object.id = uuid.uuid4()
+        module_object.modified_date = self._timepoint
+        module_object.modified_by_id = self._user.UUID
 
         self._session.add(module_object)
 
@@ -162,7 +162,7 @@ def post_module_add_existing_object_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_add_existing_object_to_module,
         user,
-        [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
+        [module.module_manager_1_id, module.module_manager_2_id],
     )
     guard_module_not_locked(module)
 

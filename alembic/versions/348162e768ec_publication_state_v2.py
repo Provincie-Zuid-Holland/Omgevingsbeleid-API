@@ -5,13 +5,13 @@ Revises: 8455fd1c7d2d
 Create Date: 2024-08-06 12:37:27.446619
 
 """
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
+from app.core.db import table_metadata  ## noqa 
 
 # We need these to load all sqlalchemy tables
 from app.main import app  ## noqa 
-from app.core.db import table_metadata  ## noqa 
-
 
 # revision identifiers, used by Alembic.
 revision = '348162e768ec'
@@ -28,20 +28,20 @@ def upgrade() -> None:
 
     # Update column data where possible
     op.execute(
-        "UPDATE publication_area_of_jurisdictions SET Administrative_Borders_ID = 'PV28' WHERE Administrative_Borders_ID = '002000000000000000099928';"
+        """UPDATE publication_area_of_jurisdictions SET "Administrative_Borders_ID" = 'PV28' WHERE "Administrative_Borders_ID" = '002000000000000000099928';"""
     )
     op.execute(
-        "UPDATE publication_area_of_jurisdictions SET Title = 'Provincie Zuid-Holland' WHERE Title = '';"
+        """UPDATE publication_area_of_jurisdictions SET "Title" = 'Provincie Zuid-Holland' WHERE "Title" = '';"""
     )
     op.execute(
         """
         UPDATE publication_environments
-        SET Code = CASE
-            WHEN Title = 'PlanoView' THEN 'PLAN'
-            WHEN Title = 'Pre-Prod' THEN 'PRE'
-            WHEN Title = 'Prod' THEN 'PROD'
+        SET "Code" = CASE
+            WHEN "Title" = 'PlanoView' THEN 'PLAN'
+            WHEN "Title" = 'Pre-Prod' THEN 'PRE'
+            WHEN "Title" = 'Prod' THEN 'PROD'
         END
-        WHERE Code IS NULL;
+        WHERE "Code" IS NULL;
         """
     )
     # ### end Alembic commands ###

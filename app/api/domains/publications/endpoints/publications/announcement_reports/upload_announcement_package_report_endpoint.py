@@ -42,12 +42,12 @@ class FileParser:
         self,
         debug: bool,
         announcement_package: PublicationAnnouncementPackageTable,
-        created_by_uuid: uuid.UUID,
+        created_by_id: uuid.UUID,
         timepoint: datetime,
     ):
         self._debug: bool = debug
         self._announcement_package: PublicationAnnouncementPackageTable = announcement_package
-        self._created_by_uuid: uuid.UUID = created_by_uuid
+        self._created_by_uuid: uuid.UUID = created_by_id
         self._timepoint: datetime = timepoint
         self._namespaces: dict[str, str] = {
             "lvbb": "http://www.overheid.nl/2017/lvbb",
@@ -59,7 +59,7 @@ class FileParser:
         file.file.close()
 
         report: PublicationAnnouncementPackageReportTable = self._parse_report_xml(content, file.filename or "")
-        if not self._debug and report.Sub_Delivery_ID != self._announcement_package.Delivery_ID:
+        if not self._debug and report.sub_delivery_id != self._announcement_package.delivery_id:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Report idLevering does not match publication package UUID")
 
         return report
@@ -88,17 +88,17 @@ class FileParser:
                 report_status = ReportStatusType.VALID
 
             report_table = PublicationAnnouncementPackageReportTable(
-                UUID=uuid.uuid4(),
-                Announcement_Package_UUID=self._announcement_package.UUID,
-                Report_Status=report_status,
-                Filename=filename,
-                Source_Document=content.decode("utf-8"),
-                Main_Outcome=main_outcome,
-                Sub_Delivery_ID=sub_delivery_id,
-                Sub_Progress=maybe_sub_progress or "",
-                Sub_Outcome=maybe_sub_outcome or "",
-                Created_Date=self._timepoint,
-                Created_By_UUID=self._created_by_uuid,
+                id=uuid.uuid4(),
+                announcement_package_id=self._announcement_package.id,
+                report_status=report_status,
+                filename=filename,
+                source_document=content.decode("utf-8"),
+                main_outcome=main_outcome,
+                sub_delivery_id=sub_delivery_id,
+                sub_progress=maybe_sub_progress or "",
+                sub_outcome=maybe_sub_outcome or "",
+                created_date=self._timepoint,
+                created_by_id=self._created_by_uuid,
             )
             return report_table
         except Exception:
@@ -127,11 +127,11 @@ class EndpointHandler:
         self._uploaded_files: list[UploadFile] = uploaded_files
         self._announcement_package: PublicationAnnouncementPackageTable = announcement_package
         self._timepoint: datetime = datetime.now(UTC)
-        self._starting_status: ReportStatusType = ReportStatusType(self._announcement_package.Report_Status)
+        self._starting_status: ReportStatusType = ReportStatusType(self._announcement_package.report_status)
         self._file_parser: FileParser = FileParser(
             debug=debug,
             announcement_package=announcement_package,
-            created_by_uuid=user.UUID,
+            created_by_id=user.UUID,
             timepoint=self._timepoint,
         )
 
@@ -143,13 +143,13 @@ class EndpointHandler:
 
         duplicate_count: int = 0
         running_status: RunningStatus = RunningStatus(
-            Status=ReportStatusType(self._announcement_package.Report_Status),
+            Status=ReportStatusType(self._announcement_package.report_status),
             Is_Conclusive=False,
         )
         for file in self._uploaded_files:
             existing_data: PaginatedQueryResult = self._report_repository.get_with_filters(
                 self._session,
-                announcement_package_uuid=self._announcement_package.UUID,
+                announcement_package_uuid=self._announcement_package.id,
                 filename=file.filename,
                 limit=1,
             )
@@ -163,21 +163,21 @@ class EndpointHandler:
 
         self._handle_conclusive_status(running_status)
 
-        self._announcement_package.Modified_By_UUID = self._user.UUID
-        self._announcement_package.Modified_Date = self._timepoint
+        self._announcement_package.modified_by_id = self._user.UUID
+        self._announcement_package.modified_date = self._timepoint
 
         self._session.add(self._announcement_package)
         self._session.flush()
         self._session.commit()
 
         response: UploadPackageReportResponse = UploadPackageReportResponse(
-            Status=ReportStatusType(self._announcement_package.Report_Status),
+            Status=ReportStatusType(self._announcement_package.report_status),
             Duplicate_Count=duplicate_count,
         )
         return response
 
     def _guard_can_upload_files(self):
-        if not self._announcement_package.Announcement.Publication.Environment.Has_State:
+        if not self._announcement_package.announcement.publication.environment.has_state:
             raise HTTPException(status_code=400, detail="Can not upload packages for stateless environment")
 
     def _update_running_status(
@@ -185,22 +185,22 @@ class EndpointHandler:
         running_status: RunningStatus,
         report: PublicationAnnouncementPackageReportTable,
     ):
-        if self._announcement_package.Report_Status == ReportStatusType.ABORTED:
+        if self._announcement_package.report_status == ReportStatusType.ABORTED:
             running_status.Status = ReportStatusType.ABORTED
             running_status.Is_Conclusive = True
             return running_status
 
-        if self._announcement_package.Report_Status == ReportStatusType.FAILED:
+        if self._announcement_package.report_status == ReportStatusType.FAILED:
             running_status.Status = ReportStatusType.FAILED
             running_status.Is_Conclusive = True
             return running_status
 
-        if report.Report_Status == ReportStatusType.FAILED:
+        if report.report_status == ReportStatusType.FAILED:
             running_status.Status = ReportStatusType.FAILED
             running_status.Is_Conclusive = True
             return running_status
 
-        if report.Report_Status == ReportStatusType.VALID and report.Sub_Outcome:
+        if report.report_status == ReportStatusType.VALID and report.sub_outcome:
             running_status.Status = ReportStatusType.VALID
             running_status.Is_Conclusive = True
             return running_status
@@ -219,14 +219,14 @@ class EndpointHandler:
         if not running_status.Is_Conclusive:
             return
 
-        self._announcement_package.Report_Status = running_status.Status
+        self._announcement_package.report_status = running_status.Status
 
         # If we did not create a new state (for example on validation)
         # Then we do not really have to do anything
-        if self._announcement_package.Created_Environment_State_UUID is None:
+        if self._announcement_package.created_environment_state_id is None:
             return
 
-        match self._announcement_package.Report_Status:
+        match self._announcement_package.report_status:
             case ReportStatusType.FAILED:
                 return self._handle_conclusive_failed()
             case ReportStatusType.VALID:
@@ -234,12 +234,12 @@ class EndpointHandler:
 
     def _handle_conclusive_failed(self):
         # On failed we just unlock the environment
-        self._announcement_package.Announcement.Publication.Environment.Is_Locked = False
-        self._session.add(self._announcement_package.Announcement.Publication.Environment)
+        self._announcement_package.announcement.publication.environment.is_locked = False
+        self._session.add(self._announcement_package.announcement.publication.environment)
 
     def _handle_conclusive_valid(self):
-        environment: PublicationEnvironmentTable = self._announcement_package.Announcement.Publication.Environment
-        new_state: PublicationEnvironmentStateTable = self._announcement_package.Created_Environment_State
+        environment: PublicationEnvironmentTable = self._announcement_package.announcement.publication.environment
+        new_state: PublicationEnvironmentStateTable = self._announcement_package.created_environment_state
 
         # On success we have to:
         # - Activate the new state
@@ -247,23 +247,23 @@ class EndpointHandler:
         # - Unlock the environment
         # - Lock the Publication Version if the package was a Publication
         # - Complete the publication version Status
-        new_state.Is_Activated = True
-        new_state.Activated_Datetime = self._timepoint
+        new_state.is_activated = True
+        new_state.activated_datetime = self._timepoint
         self._session.add(new_state)
 
-        environment.Active_State_UUID = new_state.UUID
-        environment.Is_Locked = False
-        environment.Modified_Date = self._timepoint
-        environment.Modified_By_UUID = self._user.UUID
+        environment.active_state_id = new_state.id
+        environment.is_locked = False
+        environment.modified_date = self._timepoint
+        environment.modified_by_id = self._user.UUID
         self._session.add(environment)
 
-        if self._announcement_package.Package_Type == PackageType.PUBLICATION.value:
-            self._announcement_package.Announcement.Is_Locked = True
-            self._announcement_package.Announcement.Act_Package.Publication_Version.Status = (
+        if self._announcement_package.package_type == PackageType.PUBLICATION.value:
+            self._announcement_package.announcement.is_locked = True
+            self._announcement_package.announcement.act_package.publication_version.status = (
                 PublicationVersionStatus.COMPLETED
             )
 
-            self._session.add(self._announcement_package.Announcement)
+            self._session.add(self._announcement_package.announcement)
 
 
 @inject

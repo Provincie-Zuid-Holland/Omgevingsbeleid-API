@@ -20,10 +20,10 @@ from app.core.tables.users import UsersTable
 
 
 class ActCreate(BaseModel):
-    Environment_UUID: uuid.UUID
-    Document_Type: DocumentType
-    Title: str
-    Work_Other: str | None = None
+    environment_id: uuid.UUID
+    document_type: DocumentType
+    title: str
+    work_other: str | None = None
 
 
 class ActCreatedResponse(BaseModel):
@@ -48,30 +48,30 @@ def post_create_act_endpoint(
     object_in: ActCreate,
 ) -> ActCreatedResponse:
     environment: PublicationEnvironmentTable = _get_environment(
-        session, environment_repository, object_in.Environment_UUID
+        session, environment_repository, object_in.environment_id
     )
 
-    metadata = defaults_provider.get_metadata(object_in.Document_Type.value)
-    work_other: str = object_in.Work_Other or _get_work_other(session, object_in)
+    meta_data = defaults_provider.get_metadata(object_in.document_type.value)
+    work_other: str = object_in.work_other or _get_work_other(session, object_in)
 
     timepoint: datetime = datetime.now(UTC)
     act: PublicationActTable = PublicationActTable(
-        UUID=uuid.uuid4(),
-        Environment_UUID=environment.UUID,
-        Document_Type=object_in.Document_Type.value,
-        Title=object_in.Title,
-        Is_Active=True,
-        Metadata=metadata.model_dump(),
-        Metadata_Is_Locked=False,
-        Work_Province_ID=environment.Province_ID,
-        Work_Country=environment.Frbr_Country,
-        Work_Date=str(timepoint.year),
-        Work_Other=work_other,
-        Withdrawal_Purpose_UUID=None,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
+        id=uuid.uuid4(),
+        environment_id=environment.id,
+        document_type=object_in.document_type.value,
+        title=object_in.title,
+        is_active=True,
+        meta_data=meta_data.model_dump(),
+        meta_data_is_locked=False,
+        work_province_id=environment.province_id,
+        work_country=environment.frbr_country,
+        work_date=str(timepoint.year),
+        work_other=work_other,
+        withdrawal_purpose_id=None,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.UUID,
+        modified_by_id=user.UUID,
     )
 
     session.add(act)
@@ -79,7 +79,7 @@ def post_create_act_endpoint(
     session.commit()
 
     return ActCreatedResponse(
-        UUID=act.UUID,
+        UUID=act.uuid,
     )
 
 
@@ -94,7 +94,7 @@ def _get_environment(
     )
     if environment is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Environment niet gevonden")
-    if not environment.Is_Active:
+    if not environment.is_active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Environment is in actief")
 
     return environment
@@ -107,17 +107,17 @@ def _get_work_other(
     stmt = (
         select(func.count())
         .select_from(PublicationActTable)
-        .filter(PublicationActTable.Environment_UUID == object_in.Environment_UUID)
-        .filter(PublicationActTable.Document_Type == object_in.Document_Type.value)
+        .filter(PublicationActTable.environment_id == object_in.environment_id)
+        .filter(PublicationActTable.document_type == object_in.document_type.value)
         .filter(
             or_(
-                PublicationActTable.Procedure_Type == ProcedureType.FINAL,
-                PublicationActTable.Procedure_Type.is_(None),
+                PublicationActTable.procedure_type == ProcedureType.FINAL,
+                PublicationActTable.procedure_type.is_(None),
             ).self_group()
         )
     )
     count: int = (session.execute(stmt).scalar() or 0) + 1
     id_suffix: str = f"{count}"
 
-    work_other: str = f"{object_in.Document_Type.value.lower()}-{id_suffix}"
+    work_other: str = f"{object_in.document_type.value.lower()}-{id_suffix}"
     return work_other

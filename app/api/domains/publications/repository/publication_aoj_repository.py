@@ -11,7 +11,7 @@ from app.core.tables.publications import PublicationAreaOfJurisdictionTable
 
 class PublicationAOJRepository(BaseRepository):
     def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationAreaOfJurisdictionTable | None:
-        stmt = select(PublicationAreaOfJurisdictionTable).where(PublicationAreaOfJurisdictionTable.UUID == uuidx)
+        stmt = select(PublicationAreaOfJurisdictionTable).where(PublicationAreaOfJurisdictionTable.id == uuidx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
@@ -27,7 +27,7 @@ class PublicationAOJRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationAreaOfJurisdictionTable.Created_Date, SortOrder.DESC),
+            sort=(PublicationAreaOfJurisdictionTable.created_date, SortOrder.DESC),
         )
         return paged_result
 
@@ -36,9 +36,9 @@ class PublicationAOJRepository(BaseRepository):
     ) -> PublicationAreaOfJurisdictionTable | None:
         stmt = (
             select(PublicationAreaOfJurisdictionTable)
-            .order_by(desc(PublicationAreaOfJurisdictionTable.Created_Date))
+            .order_by(desc(PublicationAreaOfJurisdictionTable.created_date))
             .limit(1)
         )
         if before_datetime:
-            stmt = stmt.where(PublicationAreaOfJurisdictionTable.Created_Date <= before_datetime)
+            stmt = stmt.where(PublicationAreaOfJurisdictionTable.created_date <= before_datetime)
         return self.fetch_first(session, stmt)

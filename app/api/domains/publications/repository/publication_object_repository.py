@@ -11,13 +11,13 @@ from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 from app.core.tables.objects import ObjectsTable
 
 PUBLICATION_BASE_FIELDS: Final[set[str]] = {
-    "UUID",
-    "Object_Type",
-    "Object_ID",
-    "Code",
-    "Hierarchy_Code",
-    "Created_Date",
-    "Modified_Date",
+    "id",
+    "object_type",
+    "object_id",
+    "code",
+    "hierarchy_code",
+    "created_date",
+    "modified_date",
 }
 
 
@@ -46,38 +46,38 @@ class PublicationObjectRepository(BaseRepository):
         row_number = (
             func.row_number()
             .over(
-                partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                partition_by=ObjectsTable.code,
+                order_by=desc(ObjectsTable.modified_date),
             )
-            .label("_RowNumber")
+            .label("_row_number")
         )
 
         subq = (
             select(ObjectsTable, row_number)
-            .options(selectinload(ObjectsTable.ObjectStatics))
-            .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Start_Validity < timepoint)
+            .options(selectinload(ObjectsTable.object_statics))
+            .join(ObjectsTable.object_statics)
+            .filter(ObjectsTable.start_validity < timepoint)
         )
 
         if object_types:
-            subq = subq.filter(ObjectsTable.Object_Type.in_(object_types))
+            subq = subq.filter(ObjectsTable.object_type.in_(object_types))
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
         stmt = (
             select(
-                literal(0).label("Module_ID"),
+                literal(0).label("module_id"),
                 literal(0).label("_Terminated"),
                 *[getattr(aliased_objects, f) for f in field_map],
             )
-            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c._row_number == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity >= timepoint,
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity >= timepoint,
+                    subq.c.end_validity.is_(None),
                 )
             )
-            .order_by(desc(subq.c.Modified_Date))
+            .order_by(desc(subq.c.modified_date))
         )
         return stmt
 
@@ -93,33 +93,33 @@ class PublicationObjectRepository(BaseRepository):
                 ModuleObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=ModuleObjectsTable.Code,
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    partition_by=ModuleObjectsTable.code,
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
-                case((ModuleObjectContextTable.Action == "Terminate", 1), else_=0).label("_Terminated"),
+                .label("_row_number"),
+                case((ModuleObjectContextTable.action == "Terminate", 1), else_=0).label("_Terminated"),
             )
             .select_from(ModuleObjectsTable)
-            .join(ModuleObjectsTable.ModuleObjectContext)
-            .filter(ModuleObjectsTable.Module_ID == module_id)
-            .filter(ModuleObjectsTable.Modified_Date < timepoint)
-            .filter(ModuleObjectContextTable.Hidden == False)
+            .join(ModuleObjectsTable.module_object_context)
+            .filter(ModuleObjectsTable.module_id == module_id)
+            .filter(ModuleObjectsTable.modified_date < timepoint)
+            .filter(ModuleObjectContextTable.hidden == False)
         )
 
         if object_types:
-            query = query.filter(ModuleObjectsTable.Object_Type.in_(object_types))
+            query = query.filter(ModuleObjectsTable.object_type.in_(object_types))
 
         subq = query.subquery()
 
         aliased_objects = aliased(ModuleObjectsTable, subq)
         stmt = (
             select(
-                aliased_objects.Module_ID,
+                aliased_objects.module_id,
                 subq.c._Terminated,
                 *[getattr(aliased_objects, f) for f in field_map],
             )
-            .filter(subq.c._RowNumber == 1)
-            .filter(subq.c.Deleted == False)
+            .filter(subq.c._row_number == 1)
+            .filter(subq.c.deleted == False)
         )
         return stmt
 
@@ -142,17 +142,17 @@ class PublicationObjectRepository(BaseRepository):
         ).alias("combined")
 
         row_number_query = select(
-            union_query.c.Module_ID,
+            union_query.c.module_id,
             union_query.c._Terminated,
             *[getattr(union_query.c, f) for f in field_map],
             func.row_number()
-            .over(partition_by=union_query.c.Code, order_by=desc(union_query.c.Module_ID))
+            .over(partition_by=union_query.c.code, order_by=desc(union_query.c.module_id))
             .label("rnk"),
         ).alias("ranked_results")
 
         final_query = (
             select(
-                row_number_query.c.Module_ID,
+                row_number_query.c.module_id,
                 *[getattr(row_number_query.c, f) for f in field_map],
             )
             .filter(row_number_query.c.rnk == 1)

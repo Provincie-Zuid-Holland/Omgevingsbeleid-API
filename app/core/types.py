@@ -28,54 +28,54 @@ class DynamicObjectModel(Model):
 
 
 class AcknowledgedRelationBase(BaseModel):
-    Object_ID: int
-    Object_Type: str
-    Explanation: str | None = Field(None)
+    object_id: int
+    object_type: str
+    explanation: str | None = Field(None)
 
     @property
-    def Code(self) -> str:
-        return f"{self.Object_Type}-{self.Object_ID}"
+    def code(self) -> str:
+        return f"{self.object_type}-{self.object_id}"
 
 
 class AcknowledgedRelationSide(AcknowledgedRelationBase):
-    Acknowledged: datetime | None = None
-    Acknowledged_By_UUID: uuid.UUID | None = None
-    Title: str | None = None
-    Explanation: str | None = None
+    acknowledged: datetime | None = None
+    acknowledged_by_id: uuid.UUID | None = None
+    title: str | None = None
+    explanation: str | None = None
 
     @property
-    def Is_Acknowledged(self) -> bool:
-        return self.Acknowledged is not None
+    def is_acknowledged(self) -> bool:
+        return self.acknowledged is not None
 
     @property
-    def Acknowledged_Date(self) -> datetime:
-        return self.Acknowledged
+    def acknowledged_date(self) -> datetime:
+        return self.acknowledged
 
     def disapprove(self):
-        self.Acknowledged = None
+        self.acknowledged = None
 
     def approve(self, user_uuid: uuid.UUID, timepoint: datetime | None = None):
         timepoint = timepoint or datetime.now(UTC)
-        if self.Is_Acknowledged:
+        if self.is_acknowledged:
             return
 
-        self.Acknowledged_By_UUID = user_uuid
-        self.Acknowledged = timepoint
+        self.acknowledged_by_id = user_uuid
+        self.acknowledged = timepoint
 
 
 class WerkingsgebiedRelatedObjectShort(BaseModel):
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Title: str | None
-    Werkingsgebied_Code: str
+    id: uuid.UUID
+    object_type: str
+    object_id: int
+    title: str | None
+    werkingsgebied_code: str
 
 
 class WerkingsgebiedRelatedModuleObjectShort(WerkingsgebiedRelatedObjectShort):
-    Module_ID: int | None = None
-    Module_Title: str | None = None
+    module_id: int | None = None
+    module_title: str | None = None
 
 
 class WerkingsgebiedRelatedObjects(BaseModel):
-    Valid_Objects: list[WerkingsgebiedRelatedObjectShort]
-    Module_Objects: list[WerkingsgebiedRelatedModuleObjectShort]
+    valid_objects: list[WerkingsgebiedRelatedObjectShort]
+    module_objects: list[WerkingsgebiedRelatedModuleObjectShort]

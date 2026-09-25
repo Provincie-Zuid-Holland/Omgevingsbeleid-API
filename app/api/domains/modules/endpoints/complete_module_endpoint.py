@@ -51,7 +51,7 @@ def _get_validities(
     end_validity: datetime | None = None
 
     # If the object action is "Terminate" then we set the default end_validity to now
-    if module_object_context and module_object_context.Action == ModuleObjectAction.Terminate:
+    if module_object_context and module_object_context.action == ModuleObjectAction.Terminate:
         end_validity = start_validity
 
     return ObjectValidities(
@@ -70,7 +70,7 @@ def _create_objects(
 ) -> None:
     module_objects: list[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
         session,
-        module.Module_ID,
+        module.module_id,
         timepoint,
     )
 
@@ -80,28 +80,28 @@ def _create_objects(
 
         # Copy module object into the new object
         for key, value in module_object_dict.items():
-            if key in ["Module_ID"]:
+            if key in ["module_id"]:
                 continue
             setattr(new_object, key, copy(value))
 
-        new_object.Adjust_On = module_object_dict["UUID"]
-        new_object.UUID = uuid.uuid4()
+        new_object.adjust_on = module_object_dict["id"]
+        new_object.id = uuid.uuid4()
 
-        new_object.Modified_By_UUID = user.UUID
-        new_object.Modified_Date = timepoint
+        new_object.modified_by_id = user.UUID
+        new_object.modified_date = timepoint
 
         validities: ObjectValidities = _get_validities(
             object_in,
-            module_object_table.ModuleObjectContext,
+            module_object_table.module_object_context,
             timepoint,
         )
-        new_object.Start_Validity = validities.start
-        new_object.End_Validity = validities.end
+        new_object.start_validity = validities.start
+        new_object.end_validity = validities.end
 
         statics: ObjectStaticsTable = (
-            session.query(ObjectStaticsTable).filter(ObjectStaticsTable.Code == new_object.Code).one()
+            session.query(ObjectStaticsTable).filter(ObjectStaticsTable.code == new_object.code).one()
         )
-        statics.Cached_Title = new_object.Title
+        statics.cached_title = new_object.Title
         session.add(new_object)
         session.add(statics)
 
@@ -120,28 +120,28 @@ def post_complete_module_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_activate_module,
         user,
-        [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
+        [module.module_manager_1_id, module.module_manager_2_id],
     )
     guard_module_is_locked(module)
-    _guard_status_vastgesteld(module.Current_Status)
+    _guard_status_vastgesteld(module.current_status)
 
     timepoint: datetime = datetime.now(UTC)
 
     try:
         status = ModuleStatusHistoryTable(
-            Module_ID=module.Module_ID,
-            Status=ModuleStatusCodeInternal.Module_afgerond,
-            Created_Date=timepoint,
-            Created_By_UUID=user.UUID,
+            module_id=module.module_id,
+            status=ModuleStatusCodeInternal.Module_afgerond,
+            created_date=timepoint,
+            created_by_id=user.UUID,
         )
         session.add(status)
 
         _create_objects(session, module_object_repository, user, module, object_in, timepoint)
 
-        module.Closed = True
-        module.Successful = True
-        module.Modified_By_UUID = user.UUID
-        module.Modified_Date = timepoint
+        module.closed = True
+        module.successful = True
+        module.modified_by_id = user.UUID
+        module.modified_date = timepoint
         session.add(module)
 
         session.flush()

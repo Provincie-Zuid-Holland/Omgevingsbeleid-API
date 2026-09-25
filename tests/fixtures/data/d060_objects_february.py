@@ -8,26 +8,26 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 def load(col: Collector) -> None:
     with col.with_defaults(
         # We explicitly do not set a default Created_Data
-        # this way the Created_Date of the previous version will be used
+        # this way the created_date of the previous version will be used
         # as this is the same behaviour as the real code
-        Modified_Date=datetime(2025, 2, 1, tzinfo=UTC),
-        Start_Validity=datetime(2025, 2, 1, tzinfo=UTC),
-        Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
+        modified_date=datetime(2025, 2, 1, tzinfo=UTC),
+        start_validity=datetime(2025, 2, 1, tzinfo=UTC),
+        modified_by_id=col.ref(UserSpec, "ambtenaar"),
     ):
         # Beleidsdoel
         col.adds(
             [
                 BeleidsdoelSpec(
-                    Object_ID=1,
-                    Title="Beleidsdoel 1 from februari",
+                    object_id=1,
+                    title="Beleidsdoel 1 from februari",
                 ),
                 BeleidsdoelSpec(
-                    Object_ID=2,
-                    Title="Beleidsdoel 2 from februari",
+                    object_id=2,
+                    title="Beleidsdoel 2 from februari",
                 ),
                 BeleidsdoelSpec(
-                    Object_ID=3,
-                    Title="Beleidsdoel 3 from februari",
+                    object_id=3,
+                    title="Beleidsdoel 3 from februari",
                 ),
             ]
         )
@@ -37,21 +37,21 @@ def load(col: Collector) -> None:
             [
                 # Attached to beleidsdoel-1
                 BeleidskeuzeSpec(
-                    Object_ID=1,
-                    Title="Beleidskeuze 1 from februari",
+                    object_id=1,
+                    title="Beleidskeuze 1 from februari",
                 ),
                 BeleidskeuzeSpec(
-                    Object_ID=2,
-                    Title="Beleidskeuze 2 from februari",
+                    object_id=2,
+                    title="Beleidskeuze 2 from februari",
                 ),
                 # Attached to beleidsdoel-2
                 BeleidskeuzeSpec(
-                    Object_ID=3,
-                    Title="Beleidskeuze 3 from februari",
+                    object_id=3,
+                    title="Beleidskeuze 3 from februari",
                 ),
                 BeleidskeuzeSpec(
-                    Object_ID=4,
-                    Title="Beleidskeuze 4 from februari",
+                    object_id=4,
+                    title="Beleidskeuze 4 from februari",
                 ),
             ]
         )
@@ -61,30 +61,30 @@ def load(col: Collector) -> None:
             [
                 # Attached to beleidskeuze-1
                 MaatregelSpec(
-                    Object_ID=1,
-                    Title="Maatregel 1 from februari",
+                    object_id=1,
+                    title="Maatregel 1 from februari",
                 ),
                 # Attached to beleidskeuze-2
                 MaatregelSpec(
-                    Object_ID=2,
-                    Title="Maatregel 2 from februari",
+                    object_id=2,
+                    title="Maatregel 2 from februari",
                 ),
                 MaatregelSpec(
-                    Object_ID=3,
-                    Title="Maatregel 3 from februari",
+                    object_id=3,
+                    title="Maatregel 3 from februari",
                 ),
                 # Attached to beleidskeuze-3
                 MaatregelSpec(
-                    Object_ID=4,
-                    Title="Maatregel 4 from februari",
+                    object_id=4,
+                    title="Maatregel 4 from februari",
                 ),
                 MaatregelSpec(
-                    Object_ID=5,
-                    Title="Maatregel 5 from februari",
+                    object_id=5,
+                    title="Maatregel 5 from februari",
                 ),
                 MaatregelSpec(
-                    Object_ID=6,
-                    Title="Maatregel 6 from februari",
+                    object_id=6,
+                    title="Maatregel 6 from februari",
                 ),
             ]
         )

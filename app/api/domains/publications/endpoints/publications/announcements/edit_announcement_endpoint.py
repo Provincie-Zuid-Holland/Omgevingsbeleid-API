@@ -47,8 +47,8 @@ def post_edit_announcement_endpoint(
             value = value.model_dump()
         setattr(announcement, key, value)
 
-    announcement.Modified_By_UUID = user.UUID
-    announcement.Modified_Date = datetime.now(UTC)
+    announcement.modified_by_id = user.UUID
+    announcement.modified_date = datetime.now(UTC)
 
     session.add(announcement)
     session.flush()
@@ -58,9 +58,9 @@ def post_edit_announcement_endpoint(
 
 
 def _guard_locked(announcement: PublicationAnnouncementTable) -> None:
-    if not announcement.Publication.Module.is_active:
+    if not announcement.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
-    if announcement.Is_Locked:
+    if announcement.is_locked:
         raise HTTPException(status.HTTP_409_CONFLICT, "This announcement is locked")
-    if not announcement.Publication.Act.Is_Active:
+    if not announcement.publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")

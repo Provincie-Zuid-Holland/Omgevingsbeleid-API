@@ -139,7 +139,7 @@ class StateV2Upgrader(StateUpgrader):
 
         act_package: PublicationActPackageTable | None = self._act_package_repository.get_by_act_version(
             session,
-            act_version.UUID,
+            act_version.id,
         )
         if act_package is None:
             raise RuntimeError("PublicationActPackageTable not found while upgrading state1 to state2")
@@ -233,7 +233,7 @@ class StateV2Upgrader(StateUpgrader):
         # Gebieden
         for werkingsgebied_code, ow_id in old_id_mapping.get("gebieden", {}).items():
             original_werkingsgebied: dict | None = next(
-                (w for w in original_data.werkingsgebieden if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
+                (w for w in original_data.werkingsgebieden if w["code"] == werkingsgebied_code), unknown_werkingsgebied
             )
 
             ow = {
@@ -250,7 +250,7 @@ class StateV2Upgrader(StateUpgrader):
         # Gebiedengroep
         for werkingsgebied_code, ow_id in old_id_mapping.get("gebiedengroep", {}).items():
             original_werkingsgebied: dict | None = next(
-                (w for w in original_data.werkingsgebieden if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
+                (w for w in original_data.werkingsgebieden if w["code"] == werkingsgebied_code), unknown_werkingsgebied
             )
             gebied_ow_id: str | None = old_id_mapping.get("gebieden", {}).get(werkingsgebied_code)
             gebieden_ow_ids = [gebied_ow_id] if gebied_ow_id else []

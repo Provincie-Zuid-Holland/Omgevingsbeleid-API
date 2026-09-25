@@ -29,7 +29,7 @@ class AddPublicRevisionsService:
         public_revisions_map: dict[str, list[PublicModuleObjectRevision]] = self._fetch()
 
         for row in self._rows:
-            code: str = row.Code
+            code: str = row.code
             if code in public_revisions_map:
                 setattr(row, self._config.to_field, public_revisions_map[code])
 
@@ -40,41 +40,41 @@ class AddPublicRevisionsService:
         latest_status_subq = (
             select(
                 ModuleStatusHistoryTable,
-                ModuleTable.Title,
+                ModuleTable.title,
                 func.row_number()
-                .over(partition_by=ModuleStatusHistoryTable.Module_ID, order_by=desc(ModuleStatusHistoryTable.ID))
-                .label("_StatusRowNumber"),
+                .over(partition_by=ModuleStatusHistoryTable.module_id, order_by=desc(ModuleStatusHistoryTable.id))
+                .label("_status_row_number"),
             )
-            .join(ModuleStatusHistoryTable.Module)
+            .join(ModuleStatusHistoryTable.module)
             .filter(ModuleTable.is_active)
-            .filter(ModuleStatusHistoryTable.Status.in_(self._config.allowed_status_list))
+            .filter(ModuleStatusHistoryTable.status.in_(self._config.allowed_status_list))
             .subquery("latest_status_subq")
         )
 
         # rank latest mod objects for this status
         module_objects_filtered_subq = (
             select(
-                ModuleObjectsTable.Module_ID,
-                ModuleObjectsTable.UUID,
-                ModuleObjectsTable.Code,
-                ModuleObjectsTable.Modified_Date,
-                latest_status_subq.c.Status,
-                latest_status_subq.c.Title,
-                ModuleObjectContextTable.Action,
+                ModuleObjectsTable.module_id,
+                ModuleObjectsTable.id,
+                ModuleObjectsTable.code,
+                ModuleObjectsTable.modified_date,
+                latest_status_subq.c.status,
+                latest_status_subq.c.title,
+                ModuleObjectContextTable.action,
                 func.row_number()
                 .over(
-                    partition_by=(ModuleObjectsTable.Module_ID, ModuleObjectsTable.Code),
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    partition_by=(ModuleObjectsTable.module_id, ModuleObjectsTable.code),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
-                .label("_ObjectRowNumber"),
+                .label("_object_row_number"),
             )
-            .join(latest_status_subq, ModuleObjectsTable.Module_ID == latest_status_subq.c.Module_ID)
-            .join(ModuleObjectsTable.ModuleObjectContext)
+            .join(latest_status_subq, ModuleObjectsTable.module_id == latest_status_subq.c.module_id)
+            .join(ModuleObjectsTable.module_object_context)
             .filter(
-                latest_status_subq.c._StatusRowNumber == 1,
-                ModuleObjectsTable.Modified_Date <= latest_status_subq.c.Created_Date,
-                ModuleObjectContextTable.Code.in_(self._config.object_codes),
-                ModuleObjectContextTable.Hidden == False,
+                latest_status_subq.c._status_row_number == 1,
+                ModuleObjectsTable.modified_date <= latest_status_subq.c.created_date,
+                ModuleObjectContextTable.code.in_(self._config.object_codes),
+                ModuleObjectContextTable.hidden == False,
             )
             .subquery("module_objects_filtered_subq")
         )
@@ -82,25 +82,25 @@ class AddPublicRevisionsService:
         # assemble query and pick the latest object for each module
         stmt = (
             select(
-                module_objects_filtered_subq.c.Module_ID.label("Module_ID"),
-                module_objects_filtered_subq.c.Title.label("Module_Title"),
-                module_objects_filtered_subq.c.Status.label("Module_Object_Status"),
-                module_objects_filtered_subq.c.UUID.label("Module_Object_UUID"),
-                module_objects_filtered_subq.c.Code.label("Module_Object_Code"),
-                module_objects_filtered_subq.c.Action.label("Action"),
-                ModuleTable.Current_Status.label("Module_Status"),
+                module_objects_filtered_subq.c.module_id.label("module_id"),
+                module_objects_filtered_subq.c.title.label("module_title"),
+                module_objects_filtered_subq.c.status.label("module_object_status"),
+                module_objects_filtered_subq.c.id.label("module_object_id"),
+                module_objects_filtered_subq.c.code.label("module_object_code"),
+                module_objects_filtered_subq.c.action.label("action"),
+                ModuleTable.current_status.label("module_status"),
             )
             .select_from(module_objects_filtered_subq)
-            .join(ModuleTable, module_objects_filtered_subq.c.Module_ID == ModuleTable.Module_ID)
-            .filter(module_objects_filtered_subq.c._ObjectRowNumber == 1)
-            .order_by(desc(module_objects_filtered_subq.c.Modified_Date))
+            .join(ModuleTable, module_objects_filtered_subq.c.module_id == ModuleTable.module_id)
+            .filter(module_objects_filtered_subq.c._object_row_number == 1)
+            .order_by(desc(module_objects_filtered_subq.c.modified_date))
         )
 
         public_revisions_map: dict[str, list[PublicModuleObjectRevision]] = defaultdict(list)
         db_result = self._session.execute(stmt).all()
         for db_row in db_result:
             public_revision: PublicModuleObjectRevision = PublicModuleObjectRevision.model_validate(db_row)
-            public_revisions_map[public_revision.Module_Object_Code].append(public_revision)
+            public_revisions_map[public_revision.module_object_code].append(public_revision)
 
         return public_revisions_map
 

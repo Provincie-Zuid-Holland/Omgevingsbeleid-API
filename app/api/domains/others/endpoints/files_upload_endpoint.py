@@ -58,7 +58,7 @@ class EndpointHandler:
         self._session.commit()
 
         response: UploadFileResponse = UploadFileResponse(
-            UUID=file_table.UUID,
+            UUID=file_table.id,
         )
         return response
 
@@ -78,15 +78,15 @@ class EndpointHandler:
             return existing_file_table
 
         file_table = StorageFileTable(
-            UUID=uuid.uuid4(),
-            Lookup=self._file_data.get_lookup(),
-            Checksum=self._file_data.get_checksum(),
-            Filename=self._file_data.normalize_filename(),
-            Content_Type=self._file_data.get_content_type(),
-            Size=self._file_data.get_size(),
-            Binary=self._file_data.get_binary(),
-            Created_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
+            id=uuid.uuid4(),
+            lookup=self._file_data.get_lookup(),
+            checksum=self._file_data.get_checksum(),
+            filename=self._file_data.normalize_filename(),
+            content_type=self._file_data.get_content_type(),
+            size=self._file_data.get_size(),
+            binary=self._file_data.get_binary(),
+            created_date=self._timepoint,
+            created_by_id=self._user.UUID,
         )
         self._session.add(file_table)
         self._session.flush()

@@ -22,7 +22,7 @@ class GebiedsaanwijzingData(BaseModel):
     source_target_codes: set[str]
     # This is all the targets resolved to gebied-codes
     resolved_gebied_codes: set[str]
-    # This is used in the GIO as for `achtergrond_actualiteit`
+    # This is used in the GIO as `achtergrond_actualiteit`
     achtergrond_actualiteit: str
 
 
@@ -30,21 +30,21 @@ class PublicationGebiedsaanwijzingProcessor:
     def __init__(self, all_objects: list[dict]):
         # Used to convert gebiedengroep-x to its used gebied-x list
         self._gebiedengroep_map: dict[str, set[str]] = {
-            obj["Code"]: set(obj["Gebieden"])
+            obj["code"]: set(obj["gebieden"])
             for obj in all_objects
-            if obj.get("Object_Type") == "gebiedengroep" and isinstance(obj.get("Gebieden"), list)
+            if obj.get("object_type") == "gebiedengroep" and isinstance(obj.get("gebieden"), list)
         }
 
         # Lookup map to find the aanwijzing object by code
         self._gebiedsaanwijzing_map: dict[str, dict] = {
-            obj["Code"]: obj for obj in all_objects if obj.get("Object_Type") == "gebiedsaanwijzing"
+            obj["code"]: obj for obj in all_objects if obj.get("object_type") == "gebiedsaanwijzing"
         }
 
     def process(self, used_objects: list[dict]) -> dict[str, GebiedsaanwijzingData]:
         # Accumulated aanwijzingen used by the text objects
         used_gebiedsaanwijzingen_codes: set[str] = set()
         for obj in used_objects:
-            object_code: str = obj["Code"]
+            object_code: str = obj["code"]
             for field_value in obj.values():
                 if not isinstance(field_value, str):
                     continue
@@ -87,7 +87,7 @@ class PublicationGebiedsaanwijzingProcessor:
                             rule="gebiedsaanwijzing_invalid_code",
                             object=ValidatePublicationObject(code=object_code),
                             messages=[
-                                f"Gebiedsaanwijzing in object `{object_code}` targets to Object_Code `{aanwijzing_code}` which does not exists, or is not known in publication"
+                                f"Gebiedsaanwijzing in object `{object_code}` targets to object_code `{aanwijzing_code}` which does not exists, or is not known in publication"
                             ],
                         )
                     ]
@@ -132,16 +132,16 @@ class PublicationGebiedsaanwijzingProcessor:
                     ]
                 )
 
-            if aanwijzing_obj["Target_Codes"] is None:
+            if aanwijzing_obj["target_codes"] is None:
                 raise validation_exception(
                     [
                         ValidatePublicationError(
                             rule="gebiedsaanwijzing_no_target_codes",
                             object=ValidatePublicationObject(
-                                code=aanwijzing_obj.get("Code"),
-                                object_id=aanwijzing_obj.get("Object_ID"),
-                                object_type=aanwijzing_obj.get("Object_Type"),
-                                title=aanwijzing_obj.get("Title"),
+                                code=aanwijzing_obj.get("code"),
+                                object_id=aanwijzing_obj.get("object_id"),
+                                object_type=aanwijzing_obj.get("object_type"),
+                                title=aanwijzing_obj.get("title"),
                             ),
                             messages=["Gebiedsaanwijzing doesn't have any target codes"],
                         )
@@ -153,12 +153,12 @@ class PublicationGebiedsaanwijzingProcessor:
 
             # We transform it to a plain dict, because the state system can then freely use it
             aanwijzing = GebiedsaanwijzingData(
-                object_id=str(aanwijzing_obj["Object_ID"]),
-                code=str(aanwijzing_obj["Code"]),
-                uuid=str(aanwijzing_obj["UUID"]),
-                aanwijzing_type=str(aanwijzing_obj["Ref_Type"]),
-                aanwijzing_group=str(aanwijzing_obj["Ref_Group"]),
-                title=str(aanwijzing_obj["Title"]),
+                object_id=str(aanwijzing_obj["object_id"]),
+                code=str(aanwijzing_obj["code"]),
+                uuid=str(aanwijzing_obj["id"]),
+                aanwijzing_type=str(aanwijzing_obj["ref_type"]),
+                aanwijzing_group=str(aanwijzing_obj["ref_group"]),
+                title=str(aanwijzing_obj["title"]),
                 source_target_codes=source_target_codes,
                 resolved_gebied_codes=gebied_codes,
                 achtergrond_actualiteit=str(datetime.now(UTC))[:10],
@@ -214,7 +214,7 @@ class PublicationGebiedsaanwijzingProcessor:
                         ValidatePublicationError(
                             rule="gebiedsaanwijzing_invalid_target",
                             object=ValidatePublicationObject(code=aanwijzing_code),
-                            messages=["Using invalid object in gebiedsaanwijzing.Target_Codes"],
+                            messages=["Using invalid object in gebiedsaanwijzing.target_codes"],
                         )
                     ]
                 )

@@ -173,6 +173,6 @@ class PdfExportService:
     def _get_api_settings(self, environment_code: str) -> KoopSettings:
         api_settings: KoopSettings | None = self._koop_settings.get(environment_code)
         if api_settings is None:
-            raise RuntimeError("Missing runtime environment settings for this Publication Environment Code")
+            raise RuntimeError("Missing runtime environment settings for this Publication Environment code")
 
         return api_settings

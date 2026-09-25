@@ -37,10 +37,10 @@ class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
                             ValidateModuleError(
                                 rule="check_empty_area_designation_text_rule",
                                 object=ValidateModuleObject(
-                                    code=object_table.Code,
-                                    object_id=object_table.Object_ID,
-                                    object_type=object_table.Object_Type,
-                                    title=object_table.Title,
+                                    code=object_table.code,
+                                    object_id=object_table.object_id,
+                                    object_type=object_table.object_type,
+                                    title=object_table.title,
                                 ),
                                 severity=ValidateModuleSeverity.warning,
                                 messages=[

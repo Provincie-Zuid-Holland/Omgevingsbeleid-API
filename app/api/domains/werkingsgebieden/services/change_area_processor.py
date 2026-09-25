@@ -49,25 +49,25 @@ class AreaProcessorService:
         if old_field_value == new_field_value:
             return new_record
 
-        # If the field value changes then it can either be the UUID of:
+        # If the field value changes then it can either be the id of:
         # - Input Geo Onderverdeling
         # - An Area
         #
-        # If it is the UUID of an Area then we do not need to do anything
+        # If it is the id of an Area then we do not need to do anything
         #
-        # If it is the UUID of a Source Werkingsgebied then
+        # If it is the id of a Source Werkingsgebied then
         # we should fetch the Source Werkingsgebied to and fetch or create the Area based on it
-        # And finally store the Area UUID back in to the record
+        # And finally store the Area id back in to the record
 
         # The Area check
-        area_table: AreasTable | None = self._area_repository.get_by_uuid(self._session, new_field_value)
+        area_table: AreasTable | None = self._area_repository.get_by_id(self._session, new_field_value)
         if area_table is not None:
             return new_record
 
         # The Input Geo Onderverdeling check
         selected_onderverdeling: InputGeoOnderverdelingenTable = self._get_input_geo_onderverdeling(new_field_value)
-        area_uuid: uuid.UUID = self._get_or_create_area(new_record, selected_onderverdeling)
-        setattr(new_record, field_key, area_uuid)
+        area_id: uuid.UUID = self._get_or_create_area(new_record, selected_onderverdeling)
+        setattr(new_record, field_key, area_id)
 
         return new_record
 
@@ -89,25 +89,25 @@ class AreaProcessorService:
             onderverdeling.Geometry_Hash,
         )
         if existing_area is not None:
-            return existing_area.UUID
+            return existing_area.id
 
         existing_area: AreasTable | None = self._area_repository.get_by_source_uuid(
             self._session,
             onderverdeling.UUID,
         )
         if existing_area is not None:
-            return existing_area.UUID
+            return existing_area.id
 
-        area_uuid: uuid.UUID = uuid.uuid4()
+        area_id: uuid.UUID = uuid.uuid4()
         self._area_geometry_repository.create_area(
             session=self._session,
-            uuidx=area_uuid,
+            idx=area_id,
             onderverdeling=onderverdeling,
-            created_date=new_record.Modified_Date,
-            created_by_uuid=new_record.Modified_By_UUID,
+            created_date=new_record.modified_date,
+            created_by_id=new_record.modified_by_id,
         )
 
-        return area_uuid
+        return area_id
 
 
 class AreaProcessorServiceFactory:

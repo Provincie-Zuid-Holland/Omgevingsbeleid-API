@@ -27,21 +27,21 @@ def post_close_module_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_close_module,
         user,
-        [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
+        [module.module_manager_1_id, module.module_manager_2_id],
     )
 
     timepoint: datetime = datetime.now(UTC)
 
-    module.Closed = True
-    module.Modified_By_UUID = user.UUID
-    module.Modified_Date = timepoint
+    module.closed = True
+    module.modified_by_id = user.UUID
+    module.modified_date = timepoint
     session.add(module)
 
     status = ModuleStatusHistoryTable(
-        Module_ID=module.Module_ID,
-        Status=ModuleStatusCodeInternal.Gesloten,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
+        module_id=module.module_id,
+        status=ModuleStatusCodeInternal.Gesloten,
+        created_date=timepoint,
+        created_by_id=user.UUID,
     )
     session.add(status)
 

@@ -16,15 +16,15 @@ from app.core.tables.users import UsersTable
 
 
 class TemplateEdit(BaseModel):
-    Title: str | None = None
-    Description: str | None = None
-    Is_Active: bool | None = None
-    Document_Type: DocumentType | None = None
-    Field_Map: list[str] | None = Field(None, deprecated=True)
-    Object_Field_Map: dict[str, list[str]] | None = None
-    Object_Types: list[str] | None = None
-    Text_Template: str | None = None
-    Object_Templates: dict[str, str] | None = None
+    title: str | None = None
+    description: str | None = None
+    is_active: bool | None = None
+    document_type: DocumentType | None = None
+    field_map: list[str] | None = Field(None, deprecated=True)
+    object_field_map: dict[str, list[str]] | None = None
+    object_types: list[str] | None = None
+    text_template: str | None = None
+    object_templates: dict[str, str] | None = None
 
 
 def post_edit_template_endpoint(
@@ -47,8 +47,8 @@ def post_edit_template_endpoint(
     for key, value in changes.items():
         setattr(template, key, value)
 
-    template.Modified_By_UUID = user.UUID
-    template.Modified_Date = datetime.now(UTC)
+    template.modified_by_id = user.UUID
+    template.modified_date = datetime.now(UTC)
 
     session.add(template)
     session.flush()

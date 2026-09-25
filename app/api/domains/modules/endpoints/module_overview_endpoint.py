@@ -14,8 +14,8 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleOverviewResponse(BaseModel):
-    Module: ModuleClass
-    StatusHistory: list[ModuleStatus]
+    module: ModuleClass
+    status_history: list[ModuleStatus]
 
 
 def view_module_overview_endpoint(
@@ -26,7 +26,7 @@ def view_module_overview_endpoint(
     status_history: list[ModuleStatus] = [ModuleStatus.model_validate(s) for s in module.status_history]
 
     response = ModuleOverviewResponse(
-        Module=ModuleClass.model_validate(module),
-        StatusHistory=status_history,
+        module=ModuleClass.model_validate(module),
+        status_history=status_history,
     )
     return response

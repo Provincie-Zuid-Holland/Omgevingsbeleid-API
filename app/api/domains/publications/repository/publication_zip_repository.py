@@ -13,14 +13,14 @@ from app.core.tables.publications import (
 
 class PublicationZipRepository(BaseRepository):
     def get_by_uuid(self, session: Session, uuidx: UUID) -> PublicationPackageZipTable | None:
-        stmt = select(PublicationPackageZipTable).filter(PublicationPackageZipTable.UUID == uuidx)
+        stmt = select(PublicationPackageZipTable).filter(PublicationPackageZipTable.id == uuidx)
         return self.fetch_first(session, stmt)
 
     def get_by_act_package_uuid(self, session: Session, uuidx: UUID) -> PublicationPackageZipTable | None:
         stmt = (
             select(PublicationPackageZipTable)
             .join(PublicationActPackageTable)
-            .filter(PublicationActPackageTable.UUID == uuidx)
+            .filter(PublicationActPackageTable.id == uuidx)
         )
         return self.fetch_first(session, stmt)
 
@@ -28,6 +28,6 @@ class PublicationZipRepository(BaseRepository):
         stmt = (
             select(PublicationPackageZipTable)
             .join(PublicationAnnouncementPackageTable)
-            .filter(PublicationAnnouncementPackageTable.UUID == uuidx)
+            .filter(PublicationAnnouncementPackageTable.id == uuidx)
         )
         return self.fetch_first(session, stmt)

@@ -57,8 +57,8 @@ class EndpointHandler:
         self._user: UsersTable = user
         self._object_in: PublicationAnnouncementPackageCreate = object_in
         self._announcement: PublicationAnnouncementTable = announcement
-        self._publication: PublicationTable = announcement.Publication
-        self._environment: PublicationEnvironmentTable = announcement.Publication.Environment
+        self._publication: PublicationTable = announcement.publication
+        self._environment: PublicationEnvironmentTable = announcement.publication.environment
         self._timepoint: datetime = datetime.now(UTC)
 
     def handle(self) -> PublicationAnnouncementPackageCreatedResponse:
@@ -75,33 +75,33 @@ class EndpointHandler:
             zip_data: ZipData = package_builder.zip_files()
 
             report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
-            if self._environment.Has_State:
+            if self._environment.has_state:
                 report_status = ReportStatusType.PENDING
 
             package_zip: PublicationPackageZipTable = PublicationPackageZipTable(
-                UUID=uuid.uuid4(),
-                Filename=zip_data.Filename,
-                Binary=zip_data.Binary,
-                Checksum=zip_data.Checksum,
-                Latest_Download_Date=None,
-                Latest_Download_By_UUID=None,
-                Created_Date=self._timepoint,
-                Created_By_UUID=self._user.UUID,
+                id=uuid.uuid4(),
+                filename=zip_data.Filename,
+                binary=zip_data.Binary,
+                checksum=zip_data.Checksum,
+                latest_download_date=None,
+                latest_download_by_uuid=None,
+                created_date=self._timepoint,
+                created_by_id=self._user.UUID,
             )
             self._session.add(package_zip)
             self._session.flush()
 
             package: PublicationAnnouncementPackageTable = PublicationAnnouncementPackageTable(
-                UUID=uuid.uuid4(),
-                Announcement_UUID=self._announcement.UUID,
-                Zip_UUID=package_zip.UUID,
-                Delivery_ID=package_builder.get_delivery_id(),
-                Package_Type=self._object_in.Package_Type,
-                Report_Status=report_status,
-                Created_Date=self._timepoint,
-                Modified_Date=self._timepoint,
-                Created_By_UUID=self._user.UUID,
-                Modified_By_UUID=self._user.UUID,
+                id=uuid.uuid4(),
+                announcement_id=self._announcement.id,
+                zip_id=package_zip.id,
+                delivery_id=package_builder.get_delivery_id(),
+                package_type=self._object_in.Package_Type,
+                report_status=report_status,
+                created_date=self._timepoint,
+                modified_date=self._timepoint,
+                created_by_id=self._user.UUID,
+                modified_by_id=self._user.UUID,
             )
             self._session.add(package)
             self._session.flush()
@@ -110,14 +110,14 @@ class EndpointHandler:
             self._handle_frbr(package_builder, package)
 
             # update publication version status to announcement
-            self._announcement.Act_Package.Publication_Version.Status = PublicationVersionStatus.ANNOUNCEMENT
-            self._session.add(self._announcement.Act_Package.Publication_Version)
+            self._announcement.act_package.publication_version.status = PublicationVersionStatus.ANNOUNCEMENT
+            self._session.add(self._announcement.act_package.publication_version)
 
             self._session.commit()
 
             response: PublicationAnnouncementPackageCreatedResponse = PublicationAnnouncementPackageCreatedResponse(
-                Package_UUID=package.UUID,
-                Zip_UUID=package_zip.UUID,
+                Package_UUID=package.id,
+                Zip_UUID=package_zip.id,
             )
             return response
 
@@ -127,74 +127,74 @@ class EndpointHandler:
     def _guard_validate_package_type(self):
         match self._object_in.Package_Type:
             case PackageType.VALIDATION:
-                if not self._environment.Can_Validate:
+                if not self._environment.can_validate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Validation for this environment")
             case PackageType.PUBLICATION:
-                if not self._environment.Can_Publicate:
+                if not self._environment.can_publicate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Publication for this environment")
 
     def _guard_locked(self):
-        if not self._publication.Module.is_active:
+        if not self._publication.module.is_active:
             raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
-        if self._announcement.Is_Locked:
+        if self._announcement.is_locked:
             raise HTTPException(status.HTTP_409_CONFLICT, "This publication announcement is locked")
-        if self._environment.Is_Locked:
+        if self._environment.is_locked:
             raise HTTPException(status.HTTP_409_CONFLICT, "This environment is locked")
 
     def _handle_new_state(
         self, package_builder: AnnouncementPackageBuilder, package: PublicationAnnouncementPackageTable
     ):
-        if not self._environment.Has_State:
+        if not self._environment.has_state:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
             return
 
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
-        new_state.Created_Date = self._timepoint
-        new_state.Created_By_UUID = self._user.UUID
+        new_state.created_date = self._timepoint
+        new_state.created_by_id = self._user.UUID
         self._session.add(new_state)
         self._session.flush()
 
-        package.Used_Environment_State_UUID = self._environment.Active_State_UUID
-        package.Created_Environment_State_UUID = new_state.UUID
+        package.used_environment_state_id = self._environment.active_state_id
+        package.created_environment_state_id = new_state.id
         self._session.add(package)
         self._session.flush()
 
         environment: PublicationEnvironmentTable = self._environment
-        environment.Is_Locked = True
+        environment.is_locked = True
         self._session.add(environment)
 
     def _handle_frbr(self, package_builder: AnnouncementPackageBuilder, package: PublicationAnnouncementPackageTable):
-        if not self._environment.Has_State:
+        if not self._environment.has_state:
             return
         if self._object_in.Package_Type != PackageType.PUBLICATION:
             return
 
         doc_frbr: DocFrbr = package_builder.get_doc_frbr()
         doc: PublicationDocTable = PublicationDocTable(
-            UUID=uuid.uuid4(),
-            Environment_UUID=self._environment.UUID,
-            Document_Type=self._publication.Document_Type,
-            Work_Province_ID=doc_frbr.Work_Province_ID,
-            Work_Country=doc_frbr.Work_Country,
-            Work_Date=doc_frbr.Work_Date,
-            Work_Other=doc_frbr.Work_Other,
-            Created_Date=self._timepoint,
-            Modified_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
-            Modified_By_UUID=self._user.UUID,
+            id=uuid.uuid4(),
+            environment_id=self._environment.id,
+            document_type=self._publication.document_type,
+            work_province_id=doc_frbr.Work_Province_ID,
+            work_country=doc_frbr.Work_Country,
+            work_date=doc_frbr.Work_Date,
+            work_other=doc_frbr.Work_Other,
+            created_date=self._timepoint,
+            modified_date=self._timepoint,
+            created_by_id=self._user.UUID,
+            modified_by_id=self._user.UUID,
         )
         self._session.add(doc)
         self._session.flush()
 
         doc_version = PublicationDocVersionTable(
-            UUID=uuid.uuid4(),
-            Doc_UUID=doc.UUID,
-            Expression_Language=doc_frbr.Expression_Language,
-            Expression_Date=doc_frbr.Expression_Date,
-            Expression_Version=doc_frbr.Expression_Version,
-            Created_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
+            id=uuid.uuid4(),
+            doc_id=doc.id,
+            expression_language=doc_frbr.Expression_Language,
+            expression_date=doc_frbr.Expression_Date,
+            expression_version=doc_frbr.Expression_Version,
+            created_date=self._timepoint,
+            created_by_id=self._user.UUID,
         )
         self._session.add(doc_version)
         self._session.flush()

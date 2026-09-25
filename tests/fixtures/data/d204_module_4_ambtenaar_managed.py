@@ -9,20 +9,20 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_Date=datetime(2025, 6, 4, tzinfo=UTC),
-        Modified_Date=datetime(2025, 6, 4, tzinfo=UTC),
-        Created_By_UUID=col.ref(UserSpec, "admin"),
-        Modified_By_UUID=col.ref(UserSpec, "admin"),
+        created_date=datetime(2025, 6, 4, tzinfo=UTC),
+        modified_date=datetime(2025, 6, 4, tzinfo=UTC),
+        created_by_id=col.ref(UserSpec, "admin"),
+        modified_by_id=col.ref(UserSpec, "admin"),
         # Managed by the ambtenaar, whose role lacks module_can_close_module:
         # the close permission must come from the manager whitelist, not the role.
-        Module_Manager_1_UUID=col.ref(UserSpec, "ambtenaar"),
+        module_manager_1_id=col.ref(UserSpec, "ambtenaar"),
     ):
         col.add(
             ModuleSpec(
                 key="module_4",
-                Module_ID=4,
-                Title="Title of Module 4",
-                Description="Description of Module 4",
+                module_id=4,
+                title="Title of Module 4",
+                description="Description of Module 4",
             )
         )
         with col.in_module(4):

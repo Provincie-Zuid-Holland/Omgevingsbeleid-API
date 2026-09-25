@@ -38,11 +38,11 @@ def _asset_key() -> KeyStrategy:
     def _key(object_in: ObjectTableType) -> Iterable[uuid.UUID]:
         uuids: set[uuid.UUID] = set()
         for column in [
-            object_in.Description,
-            object_in.Cause,
-            object_in.Effect,
-            object_in.Explanation,
-            object_in.Provincial_Interest,
+            object_in.description,
+            object_in.cause,
+            object_in.effect,
+            object_in.explanation,
+            object_in.provincial_interest,
         ]:
             if not column:
                 continue
@@ -57,11 +57,11 @@ def _asset_key() -> KeyStrategy:
 def _asset_filter(asset_uuids: set[uuid.UUID]) -> FilterStrategy:
     def _filter(table_type: type[ObjectTableType]):
         columns: list[Column] = [
-            table_type.Cause,
-            table_type.Description,
-            table_type.Effect,
-            table_type.Explanation,
-            table_type.Provincial_Interest,
+            table_type.cause,
+            table_type.description,
+            table_type.effect,
+            table_type.explanation,
+            table_type.provincial_interest,
         ]
         conditions: list[BinaryExpression[bool]] = [
             column.like(f"%ASSET:{asset_uuid}%") for column in columns for asset_uuid in asset_uuids
@@ -84,7 +84,7 @@ def check_images(
         stmt: Select = select(AssetsTable)
         assets: Sequence[AssetsTable] = asset_repository.iter_all(session, stmt)
         for asset in assets:
-            match: re.Match[str] | None = re.match(r"data:image/(.*?);base64,(.*)", asset.Content)
+            match: re.Match[str] | None = re.match(r"data:image/(.*?);base64,(.*)", asset.content)
             if not match:
                 report[asset] = ["No image data"]
                 continue
@@ -116,18 +116,18 @@ def check_images(
         if not report:
             return
 
-        asset_uuids: set[uuid.UUID] = {asset.UUID for asset in report}
+        asset_ids: set[uuid.UUID] = {asset.id for asset in report}
         object_lookups: ObjectLookups = ObjectLookups(
             session,
             object_repository,
             module_object_repository,
         )
         object_lookups.create_all(
-            _asset_filter(asset_uuids),
+            _asset_filter(asset_ids),
             _asset_key(),
         )
 
         for asset, issues in report.items():
             message: str = "\n".join(issues)
-            object_log: str | None = object_lookups.get_log(asset.UUID) or ""
-            log_message(message=f"Asset {asset.UUID}{object_log} has the following message: {message}")
+            object_log: str | None = object_lookups.get_log(asset.id) or ""
+            log_message(message=f"Asset {asset.id}{object_log} has the following message: {message}")

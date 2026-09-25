@@ -13,7 +13,7 @@ from app.core.tables.objects import ObjectStaticsTable
 
 class ModuleRepository(BaseRepository):
     def get_by_id(self, session: Session, id: int) -> ModuleTable | None:
-        stmt = select(ModuleTable).where(ModuleTable.Module_ID == id)
+        stmt = select(ModuleTable).where(ModuleTable.module_id == id)
         return self.fetch_first(session, stmt)
 
     def get_filtered_query(
@@ -27,31 +27,31 @@ class ModuleRepository(BaseRepository):
     ):
         filters = []
         if filter_activated is not None:
-            filters.append(and_(ModuleTable.Activated == filter_activated))
+            filters.append(and_(ModuleTable.activated == filter_activated))
         if filter_closed is not None:
-            filters.append(and_(ModuleTable.Closed == filter_closed))
+            filters.append(and_(ModuleTable.closed == filter_closed))
         if filter_successful is not None:
-            filters.append(and_(ModuleTable.Successful == filter_successful))
+            filters.append(and_(ModuleTable.successful == filter_successful))
         if filter_title is not None:
-            filters.append(and_(ModuleTable.Title.like(filter_title)))
+            filters.append(and_(ModuleTable.title.like(filter_title)))
 
         if mine is not None:
             filters.append(
                 and_(
                     or_(
-                        ModuleTable.Module_Manager_1_UUID == mine,
-                        ModuleTable.Module_Manager_2_UUID == mine,
-                        ObjectStaticsTable.Owner_1_UUID == mine,
-                        ObjectStaticsTable.Owner_2_UUID == mine,
-                        ObjectStaticsTable.Portfolio_Holder_1_UUID == mine,
-                        ObjectStaticsTable.Portfolio_Holder_2_UUID == mine,
-                        ObjectStaticsTable.Client_1_UUID == mine,
+                        ModuleTable.module_manager_1_id == mine,
+                        ModuleTable.module_manager_2_id == mine,
+                        ObjectStaticsTable.owner_1_id == mine,
+                        ObjectStaticsTable.owner_2_id == mine,
+                        ObjectStaticsTable.portfolio_holder_1_id == mine,
+                        ObjectStaticsTable.portfolio_holder_2_id == mine,
+                        ObjectStaticsTable.client_1_id == mine,
                     ).self_group()
                 ).self_group()
             )
 
         if object_code is not None:
-            filters.append(and_(ModuleObjectContextTable.Code == object_code.get_code()))
+            filters.append(and_(ModuleObjectContextTable.code == object_code.get_code()))
 
         stmt = (
             select(ModuleTable)
@@ -60,10 +60,10 @@ class ModuleRepository(BaseRepository):
             .outerjoin(ModuleObjectsTable)
             .outerjoin(
                 ModuleObjectContextTable,
-                ModuleObjectsTable.Module_ID == ModuleObjectContextTable.Module_ID
-                and ModuleObjectsTable.Code == ModuleObjectContextTable.Code,
+                ModuleObjectsTable.module_id == ModuleObjectContextTable.module_id
+                and ModuleObjectsTable.code == ModuleObjectContextTable.code,
             )
-            .outerjoin(ObjectStaticsTable, ObjectStaticsTable.Code == ModuleObjectsTable.Code)
+            .outerjoin(ObjectStaticsTable, ObjectStaticsTable.code == ModuleObjectsTable.code)
             .filter(*filters)
         )
 
@@ -102,10 +102,10 @@ class ModuleRepository(BaseRepository):
             ModuleStatusHistoryTable,
             func.row_number()
             .over(
-                partition_by=ModuleStatusHistoryTable.Module_ID,
-                order_by=desc(ModuleStatusHistoryTable.Created_Date),
+                partition_by=ModuleStatusHistoryTable.module_id,
+                order_by=desc(ModuleStatusHistoryTable.created_date),
             )
-            .label("_RowNumber"),
+            .label("_row_number"),
         )
 
         subq = subq.subquery()
@@ -113,10 +113,10 @@ class ModuleRepository(BaseRepository):
         stmt = (
             select(aliased_objects, ModuleTable)
             .join(ModuleTable)
-            .filter(subq.c._RowNumber == 1)
-            .filter(ModuleTable.Closed == False)
-            .filter(subq.c.Status.in_(PublicModuleStatusCode.values()))
-            .order_by(desc(ModuleTable.Module_ID))
+            .filter(subq.c._row_number == 1)
+            .filter(ModuleTable.closed == False)
+            .filter(subq.c.status.in_(PublicModuleStatusCode.values()))
+            .order_by(desc(ModuleTable.module_id))
         )
 
         paged_result = self.fetch_paginated_no_scalars(

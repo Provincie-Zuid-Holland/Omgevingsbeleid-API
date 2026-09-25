@@ -51,11 +51,11 @@ def post_create_announcement_pdf_endpoint(
     ],
     pdf_export_service: Annotated[PdfExportService, Depends(Provide[ApiContainer.publication.pdf_export_service])],
 ) -> StreamingResponse:
-    if not announcement.Publication.Module.is_active:
+    if not announcement.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
     try:
-        pdf_export_service.healthcheck(announcement.Publication.Environment.Code or "")
+        pdf_export_service.healthcheck(announcement.publication.environment.code or "")
     except PdfExportUnavailableError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, e.msg)
 
@@ -69,7 +69,7 @@ def post_create_announcement_pdf_endpoint(
         zip_data: ZipData = package_builder.zip_files()
 
         pdf_response: requests.Response = pdf_export_service.create_pdf(
-            announcement.Publication.Environment.Code or "",
+            announcement.publication.environment.code or "",
             zip_data,
         )
 

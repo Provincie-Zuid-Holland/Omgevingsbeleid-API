@@ -55,7 +55,7 @@ class PublicationDocumentsProvider:
         result: list[dict] = []
 
         for document in documents_objects:
-            code = document["Code"]
+            code = document["code"]
             file_uuid = document["File_UUID"]
             if file_uuid is None:
                 raise validation_exception(
@@ -107,17 +107,17 @@ class PublicationDocumentsProvider:
 
         result = {
             "UUID": document["UUID"],
-            "Code": document["Code"],
+            "code": document["code"],
             "Frbr": frbr,
             "New": True,
             "Filename": document["Filename"],
             "Title": document["Title"],
             "Geboorteregeling": act_frbr.get_work(),
-            "Content_Type": storage_file.Content_Type,
-            "Binary": storage_file.Binary,
+            "Content_Type": storage_file.content_type,
+            "Binary": storage_file.binary,
             # Used internally
             "Object_ID": document["Object_ID"],
-            "Hash": storage_file.Checksum,
+            "Hash": storage_file.checksum,
         }
 
         return result
@@ -128,7 +128,7 @@ class PublicationDocumentsProvider:
         }
 
         used_documents_objects: list[dict] = [
-            o for o in all_objects if o["Object_Type"] == "document" and o.get("Code") in used_document_codes
+            o for o in all_objects if o["object_type"] == "document" and o.get("code") in used_document_codes
         ]
 
         return used_documents_objects

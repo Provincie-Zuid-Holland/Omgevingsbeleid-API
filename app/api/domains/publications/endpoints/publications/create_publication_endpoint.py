@@ -27,7 +27,7 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationCreate(BaseModel):
-    Module_ID: int
+    module_id: int
     Document_Type: DocumentType
     Procedure_Type: ProcedureType
     Template_UUID: uuid.UUID
@@ -62,7 +62,7 @@ def post_create_publication_endpoint(
 ) -> PublicationCreatedResponse:
     timepoint: datetime = datetime.now(UTC)
 
-    module: ModuleTable = _get_module(session, module_repository, object_in.Module_ID)
+    module: ModuleTable = _get_module(session, module_repository, object_in.module_id)
     if not module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
@@ -75,18 +75,18 @@ def post_create_publication_endpoint(
     act: PublicationActTable = _get_act(session, act_repository, object_in)
 
     publication = PublicationTable(
-        UUID=uuid.uuid4(),
-        Module_ID=module.Module_ID,
-        Document_Type=object_in.Document_Type.value,
-        Procedure_Type=object_in.Procedure_Type.value,
-        Template_UUID=template.UUID,
-        Environment_UUID=environment.UUID,
-        Act_UUID=act.UUID,
-        Is_Locked=False,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
+        id=uuid.uuid4(),
+        module_id=module.module_id,
+        document_type=object_in.Document_Type.value,
+        procedure_type=object_in.Procedure_Type.value,
+        template_id=template.id,
+        environment_id=environment.id,
+        act_id=act.uuid,
+        is_locked=False,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.UUID,
+        modified_by_id=user.UUID,
     )
 
     session.add(publication)
@@ -94,7 +94,7 @@ def post_create_publication_endpoint(
     session.commit()
 
     return PublicationCreatedResponse(
-        UUID=publication.UUID,
+        UUID=publication.id,
     )
 
 
@@ -102,7 +102,7 @@ def _get_module(session: Session, repository: ModuleRepository, module_id: int) 
     module: ModuleTable | None = repository.get_by_id(session, module_id)
     if module is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module niet gevonden")
-    if module.Closed:
+    if module.closed:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module is gesloten")
 
     return module
@@ -117,9 +117,9 @@ def _get_template(
     template: PublicationTemplateTable | None = repository.get_by_uuid(session, template_uuid)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
-    if not template.Is_Active:
+    if not template.is_active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template is gesloten")
-    if template.Document_Type != document_type.value:
+    if template.document_type != document_type.value:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template hoort niet bij dit document type")
     return template
 
@@ -133,7 +133,7 @@ def _get_environment(
     )
     if environment is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Environment niet gevonden")
-    if not environment.Is_Active:
+    if not environment.is_active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Environment is in actief")
     return environment
 
@@ -144,10 +144,10 @@ def _get_act(
     act: PublicationActTable | None = repository.get_by_uuid(session, object_in.Act_UUID)
     if act is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act niet gevonden")
-    if not act.Is_Active:
+    if not act.is_active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act is in actief")
-    if act.Environment_UUID != object_in.Environment_UUID:
+    if act.environment_id != object_in.Environment_UUID:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act is van een ander Environment")
-    if act.Document_Type != object_in.Document_Type.value:
+    if act.document_type != object_in.Document_Type.value:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act is van een ander Document Type")
     return act

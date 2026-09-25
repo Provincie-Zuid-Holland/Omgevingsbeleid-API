@@ -27,14 +27,14 @@ class PermissionService:
         user: UsersTable | None,
         # Super weird type I know
         # The inner part List[Optional[UUID]] is because we want to easily construct it without testing given values for None
-        # For example: [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID] where those properties can be None
-        # And the outher Optional I dont like at all but setting it to = [] causes python mutable issues
-        whitelisted_uuids: list[uuid.UUID | None] | None = None,
+        # For example: [module.module_manager_1_id, module.module_manager_2_id] where those properties can be None
+        # And the other Optional I don't like at all but setting it to = [] causes python mutable issues
+        whitelisted_ids: list[uuid.UUID | None] | None = None,
     ):
         if user is None or user.UUID is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user role")
 
-        if whitelisted_uuids and user.UUID in whitelisted_uuids:
+        if whitelisted_ids and user.UUID in whitelisted_ids:
             return
 
         if not self.has_permission(permission, user):

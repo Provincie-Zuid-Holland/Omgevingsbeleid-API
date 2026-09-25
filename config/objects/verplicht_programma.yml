@@ -2,19 +2,19 @@ id: verplicht_programma
 object_type: verplicht_programma
 
 sort_allowed_columns: &sort_allowed_columns
-  - Object_ID
-  - Title
-  - Modified_Date
+  - object_id
+  - title
+  - modified_date
 
 sort_default_title: &sort_default_title
   default:
-    column: Title
+    column: title
     order: asc
   allowed_columns: *sort_allowed_columns
 
 sort_default_modified_date: &sort_default_modified_date
   default:
-    column: Modified_Date
+    column: modified_date
     order: desc
   allowed_columns: *sort_allowed_columns
 
@@ -25,7 +25,7 @@ api:
         - resolver: atemporal_create_object
           resolver_data:
             request_model: verplicht_programma_create
-            response_model: verplicht_programma_uuid
+            response_model: verplicht_programma_id
         - resolver: atemporal_edit_object
           resolver_data:
             path: /{lineage_id}
@@ -38,7 +38,7 @@ api:
             path: /valid
             response_model: verplicht_programma_basic
             allowed_filter_columns:
-              - Title
+              - title
             sort: *sort_default_title
         - resolver: object_latest
           resolver_data:
@@ -65,28 +65,28 @@ api:
 
 fields:
   title:
-    name: Title
+    name: title
     type: str
     column: title
     validators:
       - id: none_to_default_value
   description:
-    name: Description
+    name: description
     type: str
     column: description
     validators:
       - id: none_to_default_value
 
   # Statics
-  owner_1_uuid:
-    name: Owner_1_UUID
+  owner_1_id:
+    name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
-    name: Owner_2_UUID
+  owner_2_id:
+    name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
 
 models:
@@ -96,7 +96,7 @@ models:
       object_type:
       object_id:
       code:
-      uuid:
+      id:
       created_date:
       modified_date:
       title:
@@ -106,7 +106,7 @@ models:
       object_type:
       object_id:
       code:
-      uuid:
+      id:
       created_date:
       modified_date:
       title:
@@ -116,22 +116,22 @@ models:
       object_type:
       object_id:
       code:
-      uuid:
+      id:
       created_date:
       modified_date:
       title:
     services:
       foreign_keys_extender:
         fields_map:
-          - to_field: Created_By
+          - to_field: created_by
             model_id: user_short
-          - to_field: Modified_By
+          - to_field: modified_by
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   verplicht_programma_full:
     name: VerplichtProgrammaFull
@@ -139,7 +139,7 @@ models:
       object_type:
       object_id:
       code:
-      uuid:
+      id:
       created_date:
       modified_date:
       title:
@@ -164,19 +164,19 @@ models:
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
-          - to_field: Created_By
+          - to_field: created_by
             model_id: user_short
-          - to_field: Modified_By
+          - to_field: modified_by
             model_id: user_short
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
       insert_assets:
         fields:
-          - Description
+          - description
   verplicht_programma_create:
     name: VerplichtProgrammaCreate
     fields:
@@ -196,12 +196,12 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
-      owner_1_uuid:
-      owner_2_uuid:
+      owner_1_id:
+      owner_2_id:
     services:
       extract_assets:
         fields:
-          - Description
+          - description
   verplicht_programma_edit:
     name: VerplichtProgrammaEdit
     fields:
@@ -227,7 +227,7 @@ models:
     services:
       extract_assets:
         fields:
-          - Description
+          - description
   verplicht_programma_static:
     name: VerplichtProgrammaStatic
     static_only: true
@@ -237,16 +237,16 @@ models:
     services:
       static_foreign_keys_extender:
         fields_map:
-          - to_field: Owner_1
+          - to_field: owner_1
             model_id: user_short
-          - to_field: Owner_2
+          - to_field: owner_2
             model_id: user_short
   verplicht_programma_static_post:
     name: VerplichtProgrammaStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
+      owner_1_id:
+      owner_2_id:
   verplicht_programma_static_post_validated:
     name: VerplichtProgrammaStaticPostValidated
     static_only: true
@@ -254,15 +254,15 @@ models:
       - id: not_equal_root
         data:
           fields:
-            - Owner_1_UUID
-            - Owner_2_UUID
+            - owner_1_id
+            - owner_2_id
           allow_none: True
           error_message: Owners should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-  verplicht_programma_uuid:
+      owner_1_id:
+      owner_2_id:
+  verplicht_programma_id:
     name: VerplichtProgrammaUUID
     fields:
       object_id:
-      uuid:
+      id:

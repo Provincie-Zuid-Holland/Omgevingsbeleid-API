@@ -19,8 +19,8 @@ def test_validate():
     config: Mock | MainConfig = Mock(MainConfig)
     rule_config: AreaDesignationRefCheckRuleConfig = AreaDesignationRefCheckRuleConfig(
         object_type="gebiedsaanwijzing",
-        ref_type_field="Ref_Type",
-        ref_group_field="Ref_Group",
+        ref_type_field="ref_type",
+        ref_group_field="ref_group",
     )
     config.get_as_model.return_value = rule_config
 
@@ -58,48 +58,48 @@ def test_validate():
         module_id=1,
         module_objects=[
             ModuleObjectsTable(
-                Object_Type="beleidsdoel",  # Not a gebiedsaanwijzing
-                Object_ID="1",
-                Code="beleidsdoel-1",
-                Title="BD1 title",
+                object_type="beleidsdoel",  # Not a gebiedsaanwijzing
+                object_id="1",
+                code="beleidsdoel-1",
+                title="BD1 title",
             ),
             ModuleObjectsTable(
-                Object_Type="gebiedsaanwijzing",
-                Object_ID="1",
-                Code="gebiedsaanwijzing-1",
-                Title="GA1 title",
-                Ref_Type="ref_1",
-                Ref_Group="ref_group_1",
+                object_type="gebiedsaanwijzing",
+                object_id="1",
+                code="gebiedsaanwijzing-1",
+                title="GA1 title",
+                ref_type="ref_1",
+                ref_group="ref_group_1",
             ),
             ModuleObjectsTable(
-                Object_Type="gebiedsaanwijzing",
-                Object_ID="2",
-                Code="gebiedsaanwijzing-2",
-                Title="GA2 title",
-                Ref_Type="ref_2",  # ref type None
+                object_type="gebiedsaanwijzing",
+                object_id="2",
+                code="gebiedsaanwijzing-2",
+                title="GA2 title",
+                ref_type="ref_2",  # ref type None
             ),
             ModuleObjectsTable(
-                Object_Type="gebiedsaanwijzing",
-                Object_ID="3",
-                Code="gebiedsaanwijzing-3",
-                Title="GA3 title",
-                Ref_Type="ref_3",  # ref type deprecated
+                object_type="gebiedsaanwijzing",
+                object_id="3",
+                code="gebiedsaanwijzing-3",
+                title="GA3 title",
+                ref_type="ref_3",  # ref type deprecated
             ),
             ModuleObjectsTable(
-                Object_Type="gebiedsaanwijzing",
-                Object_ID="4",
-                Code="gebiedsaanwijzing-4",
-                Title="GA4 title",
-                Ref_Type="ref_1",
-                Ref_Group="ref_group_2",  # ref group None
+                object_type="gebiedsaanwijzing",
+                object_id="4",
+                code="gebiedsaanwijzing-4",
+                title="GA4 title",
+                ref_type="ref_1",
+                ref_group="ref_group_2",  # ref group None
             ),
             ModuleObjectsTable(
-                Object_Type="gebiedsaanwijzing",
-                Object_ID="5",
-                Code="gebiedsaanwijzing-5",
-                Title="GA5 title",
-                Ref_Type="ref_1",
-                Ref_Group="ref_group_3",  # ref group deprecated
+                object_type="gebiedsaanwijzing",
+                object_id="5",
+                code="gebiedsaanwijzing-5",
+                title="GA5 title",
+                ref_type="ref_1",
+                ref_group="ref_group_3",  # ref group deprecated
             ),
         ],
     )

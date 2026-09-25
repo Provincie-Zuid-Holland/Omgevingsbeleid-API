@@ -10,18 +10,18 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_Date=datetime(2025, 6, 1, tzinfo=UTC),
-        Modified_Date=datetime(2025, 6, 1, tzinfo=UTC),
-        Created_By_UUID=col.ref(UserSpec, "admin"),
-        Modified_By_UUID=col.ref(UserSpec, "admin"),
-        Module_Manager_1_UUID=col.ref(UserSpec, "admin"),
+        created_date=datetime(2025, 6, 1, tzinfo=UTC),
+        modified_date=datetime(2025, 6, 1, tzinfo=UTC),
+        created_by_id=col.ref(UserSpec, "admin"),
+        modified_by_id=col.ref(UserSpec, "admin"),
+        module_manager_1_id=col.ref(UserSpec, "admin"),
     ):
         col.add(
             ModuleSpec(
                 key="module_1",
-                Module_ID=1,
-                Title="Title of Module 1",
-                Description="Description of Module 1",
+                module_id=1,
+                title="Title of Module 1",
+                description="Description of Module 1",
             )
         )
 
@@ -44,7 +44,7 @@ def load(col: Collector) -> None:
                     # An record to edit
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_1_first_entry",
-                        Object_ID=1,
+                        object_id=1,
                     )
                 ]
             )
@@ -55,15 +55,15 @@ def load(col: Collector) -> None:
                     # Change record already in the module
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_1_second_entry",
-                        Object_ID=1,
-                        Title="Changed the titel via Module 1",
+                        object_id=1,
+                        title="Changed the titel via Module 1",
                     ),
                     # An new record
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_4_first_entry",
-                        Object_ID=4,
-                        Title="Beleidsdoel 4 from module 1",
-                        Description="Description of beleidsdoel 4",
+                        object_id=4,
+                        title="Beleidsdoel 4 from module 1",
+                        description="Description of beleidsdoel 4",
                     ),
                 ]
             )
@@ -83,13 +83,13 @@ def load(col: Collector) -> None:
                     # But there is no status update after yet
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_1_third_entry",
-                        Object_ID=1,
-                        Title="Changed the titel via Module 1 again!",
+                        object_id=1,
+                        title="Changed the titel via Module 1 again!",
                     ),
                     # An record to edit
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_2_first_entry",
-                        Object_ID=2,
+                        object_id=2,
                     ),
                 ]
             )

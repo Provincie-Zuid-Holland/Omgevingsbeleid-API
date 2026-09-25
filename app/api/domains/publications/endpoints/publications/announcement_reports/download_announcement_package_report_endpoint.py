@@ -22,8 +22,8 @@ def get_download_announcement_package_report_endpoint(
         ),
     ],
 ) -> Response:
-    content = report.Source_Document
-    filename = report.Filename
+    content = report.source_document
+    filename = report.filename
 
     # We try to make it pretty, but its not required for the response to work
     with contextlib.suppress(etree.XMLSyntaxError):

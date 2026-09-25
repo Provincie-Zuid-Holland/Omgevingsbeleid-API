@@ -35,8 +35,8 @@ def delete_object_related_files_delete_endpoint(
         Permissions.object_related_files_can_delete_object_related_file,
         user,
         [
-            maybe_file.ObjectStatics.Owner_1_UUID,
-            maybe_file.ObjectStatics.Owner_2_UUID,
+            maybe_file.object_statics.owner_1_id,
+            maybe_file.object_statics.owner_2_id,
         ],
     )
 

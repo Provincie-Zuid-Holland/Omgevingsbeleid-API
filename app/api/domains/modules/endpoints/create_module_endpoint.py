@@ -18,24 +18,24 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleCreate(BaseModel):
-    Title: str = Field(..., min_length=3)
-    Description: str = Field(..., min_length=3)
-    Module_Manager_1_UUID: uuid.UUID
-    Module_Manager_2_UUID: uuid.UUID | None = Field(None)
+    title: str = Field(..., min_length=3)
+    description: str = Field(..., min_length=3)
+    module_manager_1_id: uuid.UUID
+    module_manager_2_id: uuid.UUID | None = Field(None)
 
-    @field_validator("Module_Manager_2_UUID", mode="after")
+    @field_validator("module_manager_2_id", mode="after")
     def duplicate_manager(cls, v, info):
         if v is None:
             return v
-        if "Module_Manager_1_UUID" not in info.data:
+        if "module_manager_1_id" not in info.data:
             return v
-        if v == info.data["Module_Manager_1_UUID"]:
+        if v == info.data["module_manager_1_id"]:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Duplicate manager")
         return v
 
 
 class ModuleCreatedResponse(BaseModel):
-    Module_ID: int
+    module_id: int
 
 
 @inject
@@ -50,24 +50,24 @@ def post_create_module_endpoint(
     timepoint: datetime = datetime.now(UTC)
 
     module: ModuleTable = ModuleTable(
-        Title=object_in.Title,
-        Description=object_in.Description,
-        Module_Manager_1_UUID=object_in.Module_Manager_1_UUID,
-        Module_Manager_2_UUID=object_in.Module_Manager_2_UUID,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
-        Activated=0,
-        Closed=0,
-        Successful=0,
-        Temporary_Locked=0,
+        title=object_in.title,
+        description=object_in.description,
+        module_manager_1_id=object_in.module_manager_1_id,
+        module_manager_2_id=object_in.module_manager_2_id,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.UUID,
+        modified_by_id=user.UUID,
+        activated=0,
+        closed=0,
+        successful=0,
+        temporary_locked=0,
     )
 
     status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
-        Status=ModuleStatusCodeInternal.Niet_Actief,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
+        status=ModuleStatusCodeInternal.Niet_Actief,
+        created_date=timepoint,
+        created_by_id=user.UUID,
     )
     module.status_history.append(status)
 
@@ -78,5 +78,5 @@ def post_create_module_endpoint(
     session.commit()
 
     return ModuleCreatedResponse(
-        Module_ID=module.Module_ID,
+        module_id=module.module_id,
     )

@@ -66,12 +66,12 @@ class RequestData(BaseModel):
 
 
 class SearchObject[T: BaseModel](BaseModel):
-    Module_ID: int | None = None
-    Object_Type: str
+    module_id: int | None = None
+    object_type: str
 
-    Title: str
-    Description: str
-    Model: T
+    title: str
+    description: str
+    model: T
 
     model_config = ConfigDict(from_attributes=True, title="SearchObject")
 
@@ -119,11 +119,11 @@ class EndpointHandler:
                     description = soup.get_text()
 
             search_object: SearchObject = SearchObject(
-                Module_ID=row.Module_ID or None,
-                Object_Type=row.Object_Type,
-                Title=row.Title or "",
-                Description=description,
-                Model=parsed_model,
+                module_id=row.module_id or None,
+                object_type=row.object_type,
+                title=row.title or "",
+                description=description,
+                model=parsed_model,
             )
             search_objects.append(search_object)
 
@@ -144,9 +144,9 @@ class EndpointHandler:
         combined = union_all(*branches).subquery() if len(branches) > 1 else branches[0].subquery()
 
         return select(combined).order_by(
-            desc(combined.c.Modified_Date),
-            desc(combined.c.Module_ID),
-            asc(combined.c.UUID),
+            desc(combined.c.modified_date),
+            desc(combined.c.module_id),
+            asc(combined.c.id),
         )
 
     def _valid_branch(self) -> Select:
@@ -156,23 +156,23 @@ class EndpointHandler:
                 ObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
+                    partition_by=ObjectsTable.code,
+                    order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ObjectsTable)
-            .filter(ObjectsTable.Start_Validity <= timepoint)
+            .filter(ObjectsTable.start_validity <= timepoint)
             .subquery()
         )
 
         return (
-            select(literal(0).label("Module_ID"), *[subq.c[name] for name in self._context.used_columns])
-            .filter(subq.c._RowNumber == 1)
+            select(literal(0).label("module_id"), *[subq.c[name] for name in self._context.used_columns])
+            .filter(subq.c._row_number == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > timepoint,
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > timepoint,
+                    subq.c.end_validity.is_(None),
                 ).self_group()
             )
             .filter(
@@ -180,7 +180,7 @@ class EndpointHandler:
                     *[subq.c[name].like(self._request_data.query) for name in self._context.search_columns]
                 ).self_group()
             )
-            .filter(subq.c.Object_Type.in_(self._request_data.object_types))
+            .filter(subq.c.object_type.in_(self._request_data.object_types))
         )
 
     def _module_branch(self) -> Select:
@@ -189,42 +189,42 @@ class EndpointHandler:
                 ModuleObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=(ModuleObjectsTable.Module_ID, ModuleObjectsTable.Code),
-                    order_by=desc(ModuleObjectsTable.Modified_Date),
+                    partition_by=(ModuleObjectsTable.module_id, ModuleObjectsTable.code),
+                    order_by=desc(ModuleObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ModuleObjectsTable)
             .join(ModuleTable)
-            .join(ModuleObjectsTable.ModuleObjectContext)
-            .filter(ModuleObjectContextTable.Hidden == False)
+            .join(ModuleObjectsTable.module_object_context)
+            .filter(ModuleObjectContextTable.hidden == False)
         )
 
         # If you are not logged in then you are only allowed to view public versions of the module objects
         if not self._user:
             public_status_subq = (
                 select(
-                    ModuleStatusHistoryTable.Module_ID,
-                    ModuleStatusHistoryTable.Created_Date,
+                    ModuleStatusHistoryTable.module_id,
+                    ModuleStatusHistoryTable.created_date,
                     func.row_number()
                     .over(
-                        partition_by=ModuleStatusHistoryTable.Module_ID,
-                        order_by=desc(ModuleStatusHistoryTable.ID),
+                        partition_by=ModuleStatusHistoryTable.module_id,
+                        order_by=desc(ModuleStatusHistoryTable.id),
                     )
-                    .label("_StatusRowNumber"),
+                    .label("_status_row_number"),
                 )
-                .filter(ModuleStatusHistoryTable.Status.in_(PublicModuleStatusCode.values()))
+                .filter(ModuleStatusHistoryTable.status.in_(PublicModuleStatusCode.values()))
                 .subquery("public_status_subq")
             )
             subq = (
-                subq.join(public_status_subq, ModuleObjectsTable.Module_ID == public_status_subq.c.Module_ID)
-                .filter(public_status_subq.c._StatusRowNumber == 1)
-                .filter(ModuleObjectsTable.Modified_Date <= public_status_subq.c.Created_Date)
+                subq.join(public_status_subq, ModuleObjectsTable.module_id == public_status_subq.c.module_id)
+                .filter(public_status_subq.c._status_row_number == 1)
+                .filter(ModuleObjectsTable.modified_date <= public_status_subq.c.created_date)
             )
 
         if self._request_data.module_id is not None:
-            subq = subq.filter(ModuleObjectsTable.Module_ID == self._request_data.module_id).filter(
-                ModuleTable.Closed == False
+            subq = subq.filter(ModuleObjectsTable.module_id == self._request_data.module_id).filter(
+                ModuleTable.closed == False
             )
         else:
             subq = subq.filter(ModuleTable.is_active)
@@ -232,15 +232,15 @@ class EndpointHandler:
         subq = subq.subquery()
 
         return (
-            select(subq.c.Module_ID, *[subq.c[name] for name in self._context.used_columns])
-            .filter(subq.c._RowNumber == 1)
-            .filter(subq.c.Deleted == False)
+            select(subq.c.module_id, *[subq.c[name] for name in self._context.used_columns])
+            .filter(subq.c._row_number == 1)
+            .filter(subq.c.deleted == False)
             .filter(
                 or_(
                     *[subq.c[name].like(self._request_data.query) for name in self._context.search_columns]
                 ).self_group()
             )
-            .filter(subq.c.Object_Type.in_(self._request_data.object_types))
+            .filter(subq.c.object_type.in_(self._request_data.object_types))
         )
 
 

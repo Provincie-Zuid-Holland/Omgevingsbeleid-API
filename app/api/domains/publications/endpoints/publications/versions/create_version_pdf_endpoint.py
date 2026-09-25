@@ -58,7 +58,7 @@ def post_create_version_pdf_endpoint(
     _guard_publication(validator, version)
 
     try:
-        pdf_export_service.healthcheck(version.Publication.Environment.Code or "")
+        pdf_export_service.healthcheck(version.publication.environment.code or "")
     except PdfExportUnavailableError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, e.msg)
 
@@ -73,11 +73,11 @@ def post_create_version_pdf_endpoint(
         zip_data: ZipData = package_builder.zip_files()
 
         pdf_response: requests.Response = pdf_export_service.create_pdf(
-            version.Publication.Environment.Code or "",
+            version.publication.environment.code or "",
             zip_data,
         )
 
-        mutation_strategy: MutationStrategy = object_in.Mutation or MutationStrategy(version.Mutation_Strategy)
+        mutation_strategy: MutationStrategy = object_in.Mutation or MutationStrategy(version.mutation_strategy)
         filename: str = f"{zip_data.Filename.removesuffix('.zip')}-{mutation_strategy.value}.pdf"
         response = StreamingResponse(
             pdf_response.iter_content(chunk_size=1024),
@@ -113,7 +113,7 @@ def _guard_publication(
     validator: PublicationVersionValidator,
     version: PublicationVersionTable,
 ) -> None:
-    if not version.Publication.Module.is_active:
+    if not version.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
     errors: list[ErrorDetails] = validator.get_errors(version)

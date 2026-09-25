@@ -62,10 +62,10 @@ class ActPublicationDataProvider:
     ) -> PublicationData:
         objects: list[dict] = self._publication_object_provider.get_objects(session, publication_version)
         parsed_template = self._template_parser.get_parsed_template(
-            publication_version.Publication.Template.Text_Template,
+            publication_version.publication.template.text_template,
             objects,
         )
-        all_object_codes = {o["Code"] for o in objects}
+        all_object_codes = {o["code"] for o in objects}
         used_object_codes: set[str] = self._get_used_object_codes(parsed_template)
         used_objects: list[dict] = self._get_used_objects(objects, used_object_codes)
         assets: list[dict] = self._publication_asset_provider.get_assets(session, used_objects)
@@ -93,7 +93,7 @@ class ActPublicationDataProvider:
             objects,
             used_objects,
         )
-        area_of_jurisdiction: dict = self._get_aoj(session, publication_version.Created_Date)
+        area_of_jurisdiction: dict = self._get_aoj(session, publication_version.created_date)
         bill_attachments: list[dict] = self._get_bill_attachments(publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
@@ -120,7 +120,7 @@ class ActPublicationDataProvider:
         return result
 
     def _get_used_objects(self, objects: list[dict], used_object_codes: set[str]) -> list[dict]:
-        results: list[dict] = [o for o in objects if o["Code"] in used_object_codes]
+        results: list[dict] = [o for o in objects if o["code"] in used_object_codes]
         return results
 
     def _get_aoj(self, session: Session, before_datetime: datetime | None = None) -> dict:
@@ -139,20 +139,20 @@ class ActPublicationDataProvider:
             )
 
         result: dict = {
-            "UUID": aoj.UUID,
-            "Title": aoj.Title,
-            "Administrative_Borders_ID": aoj.Administrative_Borders_ID,
-            "Administrative_Borders_Domain": aoj.Administrative_Borders_Domain,
-            "Administrative_Borders_Date": aoj.Administrative_Borders_Date,
-            "Created_Date": aoj.Created_Date,
+            "UUID": aoj.id,
+            "Title": aoj.title,
+            "Administrative_Borders_ID": aoj.administrative_borders_id,
+            "Administrative_Borders_Domain": aoj.administrative_borders_domain,
+            "Administrative_Borders_Date": aoj.administrative_borders_date,
+            "created_date": aoj.created_date,
         }
         return result
 
     def _get_bill_attachments(self, publication_version: PublicationVersionTable, bill_frbr: BillFrbr) -> list[dict]:
         result: list[dict] = []
 
-        for attachment in publication_version.Attachments:
-            work_other = f"pdf-{bill_frbr.Work_Other}-{attachment.ID}"
+        for attachment in publication_version.attachments:
+            work_other = f"pdf-{bill_frbr.Work_Other}-{attachment.id}"
 
             frbr = dso_models.PubdataFRBR(
                 Work_Province_ID=bill_frbr.Work_Province_ID,
@@ -163,11 +163,11 @@ class ActPublicationDataProvider:
                 Expression_Version=1,
             )
             attachment_dict: dict = {
-                "id": attachment.ID,
-                "uuid": attachment.File.UUID,
-                "filename": attachment.Filename,
-                "title": attachment.Title,
-                "binary": attachment.File.Binary,
+                "id": attachment.id,
+                "uuid": attachment.file.id,
+                "filename": attachment.filename,
+                "title": attachment.title,
+                "binary": attachment.file.binary,
                 "frbr": frbr,
             }
             result.append(attachment_dict)

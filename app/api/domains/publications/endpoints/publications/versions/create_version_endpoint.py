@@ -56,36 +56,36 @@ def post_create_version_endpoint(
     module_status: ModuleStatusHistoryTable = _get_module_status(
         session,
         module_status_repository,
-        publication.Module_ID,
+        publication.module_id,
         object_in.Module_Status_ID,
     )
 
-    bill_metadata = defaults_provider.get_bill_metadata(publication.Document_Type, publication.Procedure_Type)
-    bill_compact = defaults_provider.get_bill_compact(publication.Document_Type, publication.Procedure_Type)
+    bill_metadata = defaults_provider.get_bill_metadata(publication.document_type, publication.procedure_type)
+    bill_compact = defaults_provider.get_bill_compact(publication.document_type, publication.procedure_type)
     procedural = defaults_provider.get_procedural()
 
     # no active status for stateless/internal publication
     status = PublicationVersionStatus.NOT_APPLICABLE
-    if publication.Environment.Has_State:
+    if publication.environment.has_state:
         status = PublicationVersionStatus.ACTIVE
 
     timepoint: datetime = datetime.now(UTC)
     version: PublicationVersionTable = PublicationVersionTable(
-        UUID=uuid.uuid4(),
-        Publication_UUID=publication.UUID,
-        Module_Status_ID=module_status.ID,
-        Bill_Metadata=bill_metadata.model_dump(),
-        Bill_Compact=bill_compact.model_dump(),
-        Procedural=procedural.model_dump(),
-        Effective_Date=None,
-        Announcement_Date=None,
-        Is_Locked=False,
-        Status=status,
-        Mutation_Strategy=object_in.Mutation_Strategy,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
+        id=uuid.uuid4(),
+        publication_id=publication.id,
+        module_status_id=module_status.id,
+        bill_metadata=bill_metadata.model_dump(),
+        bill_compact=bill_compact.model_dump(),
+        procedural=procedural.model_dump(),
+        effective_date=None,
+        announcement_date=None,
+        is_locked=False,
+        status=status,
+        mutation_strategy=object_in.Mutation_Strategy,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.UUID,
+        modified_by_id=user.UUID,
     )
 
     session.add(version)
@@ -93,14 +93,14 @@ def post_create_version_endpoint(
     session.commit()
 
     return PublicationVersionCreatedResponse(
-        UUID=version.UUID,
+        UUID=version.id,
     )
 
 
 def _guard_locked(publication: PublicationTable):
-    if not publication.Module.is_active:
+    if not publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
-    if not publication.Act.Is_Active:
+    if not publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
 
 

@@ -42,8 +42,8 @@ def post_edit_act_endpoint(
             value = value.model_dump()
         setattr(act, key, value)
 
-    act.Modified_By_UUID = user.UUID
-    act.Modified_Date = datetime.now(UTC)
+    act.modified_by_id = user.UUID
+    act.modified_date = datetime.now(UTC)
 
     session.add(act)
     session.flush()

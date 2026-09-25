@@ -32,12 +32,12 @@ class PublicationAnnouncementPackageDetailResponse(BaseModel):
     Created_Environment_State_UUID: uuid.UUID | None
     Used_Environment_State_UUID: uuid.UUID | None
 
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
 
-    Module_ID: int | None
+    module_id: int | None
     Module_Title: str | None
     Module_Status_ID: int | None
     Module_Status_Status: str | None
@@ -60,34 +60,34 @@ def get_detail_announcement_package_endpoint(
         ),
     ],
 ) -> PublicationAnnouncementPackageDetailResponse:
-    act_package: PublicationActPackageTable = announcement_package.Announcement.Act_Package
-    publication_version: PublicationVersionTable = act_package.Publication_Version
-    module: ModuleTable | None = act_package.Module
-    module_status: ModuleStatusHistoryTable | None = act_package.Module_Status
-    environment: PublicationEnvironmentTable = publication_version.Publication.Environment
-    zip: PackageZipShort = PackageZipShort.model_validate(announcement_package.Zip)
+    act_package: PublicationActPackageTable = announcement_package.announcement.act_package
+    publication_version: PublicationVersionTable = act_package.publication_version
+    module: ModuleTable | None = act_package.module
+    module_status: ModuleStatusHistoryTable | None = act_package.module_status
+    environment: PublicationEnvironmentTable = publication_version.publication.environment
+    zip: PackageZipShort = PackageZipShort.model_validate(announcement_package.zip)
 
     result = PublicationAnnouncementPackageDetailResponse(
-        UUID=announcement_package.UUID,
-        Package_Type=announcement_package.Package_Type,
-        Report_Status=announcement_package.Report_Status,
-        Delivery_ID=announcement_package.Delivery_ID,
-        Document_Type=publication_version.Publication.Document_Type,
-        Announcement_UUID=announcement_package.Announcement_UUID,
-        Doc_Version_UUID=announcement_package.Doc_Version_UUID,
+        UUID=announcement_package.id,
+        Package_Type=announcement_package.package_type,
+        Report_Status=announcement_package.report_status,
+        Delivery_ID=announcement_package.delivery_id,
+        Document_Type=publication_version.publication.document_type,
+        Announcement_UUID=announcement_package.announcement_id,
+        Doc_Version_UUID=announcement_package.doc_version_id,
         Zip=zip,
-        Created_Environment_State_UUID=announcement_package.Created_Environment_State_UUID,
-        Used_Environment_State_UUID=announcement_package.Used_Environment_State_UUID,
-        Created_Date=announcement_package.Created_Date,
-        Modified_Date=announcement_package.Modified_Date,
-        Created_By_UUID=announcement_package.Created_By_UUID,
-        Modified_By_UUID=announcement_package.Modified_By_UUID,
-        Module_ID=module.Module_ID if module else None,
-        Module_Title=module.Title if module else None,
-        Module_Status_ID=module_status.ID if module_status else None,
-        Module_Status_Status=module_status.Status if module_status else None,
-        Environment_UUID=environment.UUID,
-        Environment_Title=environment.Title,
+        Created_Environment_State_UUID=announcement_package.created_environment_state_id,
+        Used_Environment_State_UUID=announcement_package.used_environment_state_id,
+        created_date=announcement_package.created_date,
+        modified_date=announcement_package.modified_date,
+        created_by_id=announcement_package.created_by_id,
+        modified_by_id=announcement_package.modified_by_id,
+        module_id=module.module_id if module else None,
+        Module_Title=module.title if module else None,
+        Module_Status_ID=module_status.id if module_status else None,
+        Module_Status_Status=module_status.status if module_status else None,
+        Environment_UUID=environment.id,
+        Environment_Title=environment.title,
     )
 
     return result

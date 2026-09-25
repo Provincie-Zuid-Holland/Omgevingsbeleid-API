@@ -22,48 +22,48 @@ from tests.fixtures.internal.types import (
 
 
 class AreaSpec(Spec):
-    __link_fields__: ClassVar[set[str]] = {"Created_By_UUID"}
+    __link_fields__: ClassVar[set[str]] = {"created_by_id"}
 
-    UUID: uuid.UUID | None = None
-    Created_Date: datetime | None = None
-    Created_By_UUID: Link | None = None
+    id: uuid.UUID | None = None
+    created_date: datetime | None = None
+    created_by_id: Link | None = None
 
-    Source_Ref: Ref
+    source_ref: Ref
 
     # These will be filled if you just set Source_Ref
-    Source_UUID: uuid.UUID | None = None
-    Shape: bytes | None = None
-    Gml: str = ""
-    Source_Title: str = ""
-    Source_Symbol: str | None = None
-    Source_Created_Date: datetime = Field(default=DATETIME_T0)
-    Source_Geometry_Index: str | None = None
-    Source_Geometry_Hash: str | None = None
+    source_id: uuid.UUID | None = None
+    shape: bytes | None = None
+    gml: str = ""
+    source_title: str = ""
+    source_symbol: str | None = None
+    source_created_date: datetime = Field(default=DATETIME_T0)
+    source_geometry_index: str | None = None
+    source_geometry_hash: str | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.UUID, "UUID is not set which is expected to happen at this stage."
-        return self.UUID
+        assert self.id, "UUID is not set which is expected to happen at this stage."
+        return self.id
 
 
 class AreaPrefillHandler(BasePrefillHandler[AreaSpec]):
     def fill(self, record: Record[AreaSpec], context: PrefillContext) -> Record[AreaSpec]:
         record = super().fill(record, context)
 
-        if record.spec.UUID is None:
-            record.spec.UUID = uuid.uuid4()
+        if record.spec.id is None:
+            record.spec.id = uuid.uuid4()
 
-        assert record.spec.Source_Ref.spec_type == InputGeoOnderverdelingSpec
-        source_generic: Record[Spec] = context.find(record.spec.Source_Ref)
+        assert record.spec.source_ref.spec_type == InputGeoOnderverdelingSpec
+        source_generic: Record[Spec] = context.find(record.spec.source_ref)
         source: Record[InputGeoOnderverdelingSpec] = cast(Record[InputGeoOnderverdelingSpec], source_generic)
 
-        record.spec.Source_UUID = source.spec.UUID
-        record.spec.Shape = source.spec.Geometry
-        record.spec.Gml = source.spec.GML
-        record.spec.Source_Title = source.spec.Title
-        record.spec.Source_Symbol = source.spec.Symbol
-        record.spec.Source_Created_Date = source.spec.Created_Date
-        record.spec.Source_Geometry_Index = source.spec.Geometry_Hash[:10]
-        record.spec.Source_Geometry_Hash = source.spec.Geometry_Hash
+        record.spec.source_id = source.spec.UUID
+        record.spec.shape = source.spec.Geometry
+        record.spec.gml = source.spec.GML
+        record.spec.source_title = source.spec.Title
+        record.spec.source_symbol = source.spec.Symbol
+        record.spec.source_created_date = source.spec.Created_Date
+        record.spec.source_geometry_index = source.spec.Geometry_Hash[:10]
+        record.spec.source_geometry_hash = source.spec.Geometry_Hash[:64]
 
         return record
 
@@ -73,16 +73,16 @@ class AreaPersistHandler(BasePersistHandler[AreaSpec]):
         spec: AreaSpec = record.spec
         return [
             AreasTable(
-                UUID=spec.UUID,
-                Created_Date=spec.Created_Date,
-                Created_By_UUID=spec.Created_By_UUID,
-                Shape=spec.Shape,
-                Gml=spec.Gml,
-                Source_UUID=spec.Source_UUID,
-                Source_Title=spec.Source_Title,
-                Source_Symbol=spec.Source_Symbol,
-                Source_Created_Date=spec.Source_Created_Date,
-                Source_Geometry_Index=spec.Source_Geometry_Index,
-                Source_Geometry_Hash=spec.Source_Geometry_Hash,
+                id=spec.id,
+                created_date=spec.created_date,
+                created_by_id=spec.created_by_id,
+                shape=spec.shape,
+                gml=spec.gml,
+                source_uuid=spec.source_id,
+                source_title=spec.source_title,
+                source_symbol=spec.source_symbol,
+                source_created_date=spec.source_created_date,
+                source_geometry_index=spec.source_geometry_index,
+                source_geometry_hash=spec.source_geometry_hash,
             )
         ]

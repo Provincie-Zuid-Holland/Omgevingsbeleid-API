@@ -20,7 +20,7 @@ def depends_object_by_uuid(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
 ):
-    maybe_object: ObjectsTable | None = repository.get_by_uuid(session, uuid)
+    maybe_object: ObjectsTable | None = repository.get_by_id(session, uuid)
     if not maybe_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object niet gevonden")
     return maybe_object
@@ -44,7 +44,7 @@ def depends_hoofdlijn(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[HoofdlijnRepository, Depends(Provide[ApiContainer.hoofdlijn_repository])],
 ):
-    maybe_hoofdlijn: HoofdlijnTable | None = repository.get_by_uuid(session, hoofdlijn_uuid)
+    maybe_hoofdlijn: HoofdlijnTable | None = repository.get_by_id(session, hoofdlijn_uuid)
     if not maybe_hoofdlijn:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Hoofdlijn niet gevonden")
     return maybe_hoofdlijn

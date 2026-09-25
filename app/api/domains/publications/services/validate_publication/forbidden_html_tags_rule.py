@@ -35,10 +35,10 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
                         ValidatePublicationError(
                             rule="forbidden_html_tags_rule",
                             object=ValidatePublicationObject(
-                                code=used_object.get("Code"),
-                                object_id=used_object.get("Object_ID"),
-                                object_type=used_object.get("Object_Type"),
-                                title=used_object.get("Title"),
+                                code=used_object.get("code"),
+                                object_id=used_object.get("object_id"),
+                                object_type=used_object.get("object_type"),
+                                title=used_object.get("title"),
                             ),
                             messages=[f"Forbidden html tag '{maybe_forbidden_tag}' found in '{field_name}'"],
                         )
