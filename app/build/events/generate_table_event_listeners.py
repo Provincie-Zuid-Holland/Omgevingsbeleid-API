@@ -118,7 +118,7 @@ class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent])
 class AddStoreageFileRelationshipListener(BuildListener[GenerateTableEvent]):
     def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
-        if column.type != "file_uuid":
+        if column.type != "file_id":
             return
 
         # Add the column itself
