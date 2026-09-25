@@ -25,9 +25,10 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleEditObjectContext(BaseModel):
-    Action: ModuleObjectAction | None = None
-    Explanation: str | None = None
-    Conclusion: str | None = None
+    action: ModuleObjectAction | None = None
+    explanation: str | None = None
+    conclusion: str | None = None
+
     model_config = ConfigDict(use_enum_values=True)
 
 

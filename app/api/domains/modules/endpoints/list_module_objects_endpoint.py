@@ -35,12 +35,12 @@ from app.core.tables.users import UsersTable
 
 class ModuleObjectsResponse[TModel: BaseModel](BaseModel):
     module_id: int
-    Module_Latest_Status: str
+    module_latest_status: str
 
     object_type: str
     object_statics: ObjectStaticShort
-    ModuleObjectContext: ModuleObjectContextShort
-    Model: TModel
+    module_object_context: ModuleObjectContextShort
+    model: TModel
 
     model_config = ConfigDict(from_attributes=True, title="ModuleObjectsResponse")
 
@@ -114,10 +114,10 @@ def get_list_module_objects_endpoint(
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_table, context.model_map)
         response: ModuleObjectsResponse = ModuleObjectsResponse(
             module_id=module_object_context.module_id,
-            Module_Latest_Status=module_status,
-            Model=parsed_model,
+            module_latest_status=module_status,
+            model=parsed_model,
             object_statics=ObjectStaticShort.model_validate(object_static),
-            ModuleObjectContext=ModuleObjectContextShort.model_validate(module_object_context),
+            module_object_context=ModuleObjectContextShort.model_validate(module_object_context),
             object_type=object_table.object_type,
         )
         rows.append(response)

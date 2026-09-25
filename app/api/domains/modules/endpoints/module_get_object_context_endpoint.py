@@ -21,14 +21,15 @@ class ModuleObjectContext(BaseModel):
     created_date: datetime
     modified_date: datetime
 
-    Action: str
-    Explanation: str
-    Conclusion: str
+    action: str
+    explanation: str
+    conclusion: str
 
-    Original_Adjust_On: uuid.UUID | None = None
+    original_adjust_on: uuid.UUID | None = None
 
     created_by: UserShort | None = None
     modified_by: UserShort | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 

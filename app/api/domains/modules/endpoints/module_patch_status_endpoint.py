@@ -22,7 +22,7 @@ from app.core.tables.users import UsersTable
 
 
 class ModulePatchStatus(BaseModel):
-    Status: ModuleStatusCode
+    status: ModuleStatusCode
     model_config = ConfigDict(use_enum_values=True)
 
 
@@ -45,7 +45,7 @@ def post_module_patch_status_endpoint(
     )
     guard_module_is_locked(module)
 
-    if object_in.Status == ModuleStatusCode.Vastgesteld:
+    if object_in.status == ModuleStatusCode.Vastgesteld:
         result: ValidateModuleResult = validate_module_runner.run(session, module.module_id)
         if len(result.errors) > 0:
             raise HTTPException(
@@ -54,7 +54,7 @@ def post_module_patch_status_endpoint(
 
     module_status_history = ModuleStatusHistoryTable(
         module_id=module.module_id,
-        Status=object_in.Status,
+        status=object_in.status,
         created_date=datetime.now(UTC),
         created_by_id=user.UUID,
     )

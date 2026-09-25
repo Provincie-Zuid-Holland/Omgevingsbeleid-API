@@ -24,15 +24,15 @@ from app.core.tables.users import UsersTable
 
 class ModuleAddNewObject(BaseModel):
     object_type: str
-    Title: str = Field(..., min_length=3)
+    title: str = Field(..., min_length=3)
     owner_1_id: uuid.UUID
     owner_2_id: uuid.UUID | None = Field(None)
     client_1_id: uuid.UUID | None = Field(None)
 
-    Explanation: str = Field("")
-    Conclusion: str = Field("")
+    explanation: str = Field("")
+    conclusion: str = Field("")
 
-    @field_validator("Explanation", "Conclusion", mode="before")
+    @field_validator("explanation", "conclusion", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -51,6 +51,7 @@ class NewObjectStaticResponse(BaseModel):
     object_type: str
     object_id: int
     code: str
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -105,7 +106,7 @@ class ModuleAddNewObjectService:
                 owner_1_id=self._object_in.owner_1_id,
                 owner_2_id=self._object_in.owner_2_id,
                 client_1_id=self._object_in.client_1_id,
-                cached_title=self._object_in.Title,
+                cached_title=self._object_in.title,
             )
             .returning(ObjectStaticsTable)
         )
@@ -128,8 +129,8 @@ class ModuleAddNewObjectService:
             modified_by_id=self._user.UUID,
             original_adjust_on=None,
             action=ModuleObjectActionFull.Create,
-            explanation=self._object_in.Explanation,
-            conclusion=self._object_in.Conclusion,
+            explanation=self._object_in.explanation,
+            conclusion=self._object_in.conclusion,
         )
         self._session.add(object_context)
 
@@ -140,7 +141,7 @@ class ModuleAddNewObjectService:
             object_type=object_static.object_type,
             object_id=object_static.object_id,
             code=object_static.code,
-            title=self._object_in.Title,
+            title=self._object_in.title,
             created_date=self._timepoint,
             modified_date=self._timepoint,
             created_by_id=self._user.UUID,
