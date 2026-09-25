@@ -24,8 +24,8 @@ class EndpointHandler:
         edges = edges + self._get_other_edges()
 
         return GraphResponse(
-            Vertices=vertices,
-            Edges=edges,
+            vertices=vertices,
+            edges=edges,
         )
 
     def _get_other_edges(self) -> list[GraphEdge]:
@@ -39,9 +39,9 @@ class EndpointHandler:
         rows: Sequence[RelationsTable] = self._session.execute(stmt).scalars().all()
         edges: list[GraphEdge] = [
             GraphEdge(
-                Type=GraphEdgeType.relation,
-                Vertice_A_Code=r.from_code,
-                Vertice_B_Code=r.to_code,
+                type=GraphEdgeType.relation,
+                vertice_a_code=r.from_code,
+                vertice_b_code=r.to_code,
             )
             for r in rows
         ]
@@ -62,9 +62,9 @@ class EndpointHandler:
         rows: Sequence[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
         edges: list[GraphEdge] = [
             GraphEdge(
-                Type=GraphEdgeType.acknowledged_relation,
-                Vertice_A_Code=r.from_code,
-                Vertice_B_Code=r.to_code,
+                type=GraphEdgeType.acknowledged_relation,
+                vertice_a_code=r.from_code,
+                vertice_b_code=r.to_code,
             )
             for r in rows
         ]
@@ -119,9 +119,9 @@ class EndpointHandler:
                 continue
             hierarchy_code_edges.append(
                 GraphEdge(
-                    Type=GraphEdgeType.hierarchy_code,
-                    Vertice_A_Code=row.code,
-                    Vertice_B_Code=row.hierarchy_code,
+                    type=GraphEdgeType.hierarchy_code,
+                    vertice_a_code=row.code,
+                    vertice_b_code=row.hierarchy_code,
                 )
             )
 

@@ -28,18 +28,18 @@ class GraphEdgeType(str, Enum):
 
 
 class GraphEdge(BaseModel):
-    Vertice_A_Code: str
-    Vertice_B_Code: str
-    Type: GraphEdgeType
+    vertice_a_code: str
+    vertice_b_code: str
+    type: GraphEdgeType
 
     def __hash__(self):
-        return hash((self.Vertice_A_Code, self.Vertice_B_Code))
+        return hash((self.vertice_a_code, self.vertice_b_code))
 
     def __eq__(self, other):
         if not isinstance(other, GraphEdge):
             return False
 
-        return self.Vertice_A_Code == other.Vertice_A_Code and self.Vertice_B_Code == other.Vertice_B_Code
+        return self.vertice_a_code == other.vertice_a_code and self.vertice_b_code == other.vertice_b_code
 
 
 class GraphVertice(BaseModel):
@@ -57,8 +57,8 @@ class GraphVertice(BaseModel):
 
 
 class GraphResponse(BaseModel):
-    Vertices: list[GraphVertice]
-    Edges: list[GraphEdge]
+    vertices: list[GraphVertice]
+    edges: list[GraphEdge]
 
 
 class ObjectRelatedFileResponse(BaseModel):

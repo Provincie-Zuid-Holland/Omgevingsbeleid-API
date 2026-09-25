@@ -44,15 +44,15 @@ class EndpointHandler:
         vertices: list[GraphVertice] = self._get_vertices_for_edges(edges)
 
         return GraphResponse(
-            Vertices=vertices,
-            Edges=edges,
+            vertices=vertices,
+            edges=edges,
         )
 
     def _get_vertices_for_edges(self, edges: list[GraphEdge]) -> list[GraphVertice]:
         codes: set[str] = set()
         for edge in edges:
-            codes.add(edge.Vertice_A_Code)
-            codes.add(edge.Vertice_B_Code)
+            codes.add(edge.vertice_a_code)
+            codes.add(edge.vertice_b_code)
 
         if not codes:
             return []
@@ -152,9 +152,9 @@ class EndpointHandler:
             for row in rows:
                 edges.add(
                     GraphEdge(
-                        Type=GraphEdgeType.relation,
-                        Vertice_A_Code=row.from_code,
-                        Vertice_B_Code=row.to_code,
+                        type=GraphEdgeType.relation,
+                        vertice_a_code=row.from_code,
+                        vertice_b_code=row.to_code,
                     )
                 )
 
@@ -224,9 +224,9 @@ class EndpointHandler:
             for row in rows:
                 edges.add(
                     GraphEdge(
-                        Type=GraphEdgeType.acknowledged_relation,
-                        Vertice_A_Code=row.from_code,
-                        Vertice_B_Code=row.to_code,
+                        type=GraphEdgeType.acknowledged_relation,
+                        vertice_a_code=row.from_code,
+                        vertice_b_code=row.to_code,
                     )
                 )
 
