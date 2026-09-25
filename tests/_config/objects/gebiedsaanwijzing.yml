@@ -59,7 +59,7 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: gebiedsaanwijzing_patch
-            response_model: gebiedsaanwijzing_uuid
+            response_model: gebiedsaanwijzing_id
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
@@ -113,15 +113,15 @@ fields:
       - id: none_to_default_value
 
   # Statics
-  owner_1_uuid:
+  owner_1_id:
     name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
+  owner_2_id:
     name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
 
 models:
@@ -248,8 +248,8 @@ models:
     name: GebiedsaanwijzingStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
+      owner_1_id:
+      owner_2_id:
   gebiedsaanwijzing_static_post_validated:
     name: GebiedsaanwijzingStaticPostValidated
     static_only: true
@@ -262,10 +262,10 @@ models:
           allow_none: True
           error_message: Owners should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-  gebiedsaanwijzing_uuid:
-    name: GebiedsaanwijzingUUID
+      owner_1_id:
+      owner_2_id:
+  gebiedsaanwijzing_id:
+    name: GebiedsaanwijzingID
     fields:
       object_id:
       id:

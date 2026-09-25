@@ -81,7 +81,7 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: beleidskeuze_patch
-            response_model: beleidskeuze_uuid
+            response_model: beleidskeuze_id
         - resolver: module_list_lineage_tree
           resolver_data:
             path: /{lineage_id}
@@ -157,30 +157,30 @@ fields:
       - id: none_to_default_value
 
   # Statics
-  owner_1_uuid:
+  owner_1_id:
     name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
+  owner_2_id:
     name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
-  portfolio_holder_1_uuid:
+  portfolio_holder_1_id:
     name: portfolio_holder_1_id
     type: uuid
-    column: portfolio_holder_1_uuid
+    column: portfolio_holder_1_id
     optional: true
-  portfolio_holder_2_uuid:
+  portfolio_holder_2_id:
     name: portfolio_holder_2_id
     type: uuid
-    column: portfolio_holder_1_uuid
+    column: portfolio_holder_1_id
     optional: true
-  client_1_uuid:
+  client_1_id:
     name: client_1_id
     type: uuid
-    column: client_1_uuid
+    column: client_1_id
     optional: true
 
 models:
@@ -412,11 +412,11 @@ models:
     name: BeleidskeuzeStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-      portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
-      client_1_uuid:
+      owner_1_id:
+      owner_2_id:
+      portfolio_holder_1_id:
+      portfolio_holder_2_id:
+      client_1_id:
   beleidskeuze_static_post_validated:
     name: BeleidskeuzeStaticPostValidated
     static_only: true
@@ -436,13 +436,13 @@ models:
           allow_none: True
           error_message: Portfolio Holders should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-      portfolio_holder_1_uuid:
-      portfolio_holder_2_uuid:
-      client_1_uuid:
-  beleidskeuze_uuid:
-    name: BeleidskeuzeUUID
+      owner_1_id:
+      owner_2_id:
+      portfolio_holder_1_id:
+      portfolio_holder_2_id:
+      client_1_id:
+  beleidskeuze_id:
+    name: BeleidskeuzeID
     fields:
       object_id:
       id:

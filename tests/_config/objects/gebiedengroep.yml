@@ -62,7 +62,7 @@ api:
           resolver_data:
             path: /{lineage_id}
             request_model: gebiedengroep_patch
-            response_model: gebiedengroep_uuid
+            response_model: gebiedengroep_id
         - resolver: input_geo_use_werkingsgebied
           resolver_data:
             path: /{lineage_id}/use/{input_geo_werkingsgebied_uuid}
@@ -128,15 +128,15 @@ fields:
     optional: true
 
   # Statics
-  owner_1_uuid:
+  owner_1_id:
     name: owner_1_id
     type: uuid
-    column: owner_1_uuid
+    column: owner_1_id
     optional: true
-  owner_2_uuid:
+  owner_2_id:
     name: owner_2_id
     type: uuid
-    column: owner_2_uuid
+    column: owner_2_id
     optional: true
 
 models:
@@ -266,8 +266,8 @@ models:
     name: GebiedengroepStaticPost
     static_only: true
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
+      owner_1_id:
+      owner_2_id:
   gebiedengroep_static_post_validated:
     name: GebiedengroepStaticPostValidated
     static_only: true
@@ -280,10 +280,10 @@ models:
           allow_none: True
           error_message: Owners should vary
     fields:
-      owner_1_uuid:
-      owner_2_uuid:
-  gebiedengroep_uuid:
-    name: GebiedengroepUUID
+      owner_1_id:
+      owner_2_id:
+  gebiedengroep_id:
+    name: GebiedengroepID
     fields:
       object_id:
       id:

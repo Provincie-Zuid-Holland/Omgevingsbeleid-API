@@ -219,7 +219,7 @@ columns:
     deserializers: ["str"]
     nullable: true
   # Gebied id
-  gebied_uuid:
+  gebied_id:
     name: gebied_id
     type: werkingsgebied_id
     type_data:
@@ -285,7 +285,7 @@ columns:
     deserializers: []
     nullable: true
   # Eigenaar 1
-  owner_1_uuid:
+  owner_1_id:
     name: owner_1_id
     type: user_uuid
     type_data:
@@ -295,7 +295,7 @@ columns:
     nullable: true
     static: true
   # Eigenaar 2
-  owner_2_uuid:
+  owner_2_id:
     name: owner_2_id
     type: user_uuid
     type_data:
@@ -305,7 +305,7 @@ columns:
     nullable: true
     static: true
   # Portefeuillehouder 1
-  portfolio_holder_1_uuid:
+  portfolio_holder_1_id:
     name: portfolio_holder_1_id
     type: user_uuid
     type_data:
@@ -315,7 +315,7 @@ columns:
     nullable: true
     static: true
   # Portefeuillehouder 2
-  portfolio_holder_2_uuid:
+  portfolio_holder_2_id:
     name: portfolio_holder_2_id
     type: user_uuid
     type_data:
@@ -325,7 +325,7 @@ columns:
     nullable: true
     static: true
   # Opdrachtgever
-  client_1_uuid:
+  client_1_id:
     name: client_1_id
     type: user_uuid
     type_data:
