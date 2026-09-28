@@ -10,7 +10,7 @@ from app.core.tables.publications import PublicationTable
 
 
 class PublicationRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> PublicationTable | None:
+    def get_by_id(self, session: Session, uuid: UUID) -> PublicationTable | None:
         stmt = select(PublicationTable).where(PublicationTable.id == uuid)
         return self.fetch_first(session, stmt)
 

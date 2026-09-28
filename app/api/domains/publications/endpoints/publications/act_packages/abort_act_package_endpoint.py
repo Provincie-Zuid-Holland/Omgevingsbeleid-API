@@ -24,7 +24,7 @@ from app.core.tables.users import UsersTable
 
 
 class AbortResponse(BaseModel):
-    new_state_uuid: uuid.UUID
+    new_state_id: uuid.UUID
 
 
 def post_abort_act_package_endpoint(
@@ -88,5 +88,5 @@ def post_abort_act_package_endpoint(
     session.commit()
 
     return AbortResponse(
-        new_state_uuid=act_package.used_environment_state_id,
+        new_state_id=act_package.used_environment_state_id,
     )

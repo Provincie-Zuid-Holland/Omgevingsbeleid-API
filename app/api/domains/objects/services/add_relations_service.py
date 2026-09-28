@@ -53,11 +53,11 @@ class AddRelationsService:
             'ambitie-1': {
                 # object-type of the relation
                 # used to map to the right field in the target
-                'Beleidsdoelen': [
+                'beleidsdoelen': [
                     {row},
                     {row},
                 ],
-                'Beleidskeuzes': [
+                'beleidskeuzes': [
                     {row},
                     {row},
                 ],

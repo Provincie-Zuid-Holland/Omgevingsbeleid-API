@@ -10,12 +10,12 @@ from app.core.tables.publications import PublicationActPackageTable
 
 
 class PublicationActPackageRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> PublicationActPackageTable | None:
+    def get_by_id(self, session: Session, uuid: UUID) -> PublicationActPackageTable | None:
         stmt = select(PublicationActPackageTable).filter(PublicationActPackageTable.id == uuid)
         return self.fetch_first(session, stmt)
 
-    def get_by_act_version(self, session: Session, act_version_uuid: UUID) -> PublicationActPackageTable | None:
-        stmt = select(PublicationActPackageTable).filter(PublicationActPackageTable.act_version_id == act_version_uuid)
+    def get_by_act_version(self, session: Session, act_version_id: UUID) -> PublicationActPackageTable | None:
+        stmt = select(PublicationActPackageTable).filter(PublicationActPackageTable.act_version_id == act_version_id)
         result: PublicationActPackageTable | None = self.fetch_first(session, stmt)
         return result
 
@@ -23,12 +23,12 @@ class PublicationActPackageRepository(BaseRepository):
         self,
         session: Session,
         pagination: SortedPagination,
-        version_uuid: UUID | None = None,
+        version_id: UUID | None = None,
         package_type: PackageType | None = None,
     ) -> PaginatedQueryResult:
         filters = []
-        if version_uuid is not None:
-            filters.append(and_(PublicationActPackageTable.publication_version_id == version_uuid))
+        if version_id is not None:
+            filters.append(and_(PublicationActPackageTable.publication_version_id == version_id))
 
         if package_type is not None:
             filters.append(and_(PublicationActPackageTable.package_type == package_type.value))

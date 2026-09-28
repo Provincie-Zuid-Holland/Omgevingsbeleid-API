@@ -8,11 +8,11 @@ from app.core.tables.publications import PublicationStorageFileTable
 
 
 class PublicationStorageFileRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> PublicationStorageFileTable | None:
-        stmt = select(PublicationStorageFileTable).filter(PublicationStorageFileTable.id == uuidx)
+    def get_by_id(self, session: Session, idx: UUID) -> PublicationStorageFileTable | None:
+        stmt = select(PublicationStorageFileTable).filter(PublicationStorageFileTable.id == idx)
         return self.fetch_first(session, stmt)
 
-    def get_by_checksum_uuid(self, session: Session, checksum: str) -> PublicationStorageFileTable | None:
+    def get_by_checksum(self, session: Session, checksum: str) -> PublicationStorageFileTable | None:
         lookup: str = checksum[0:10]
         stmt = (
             select(PublicationStorageFileTable)

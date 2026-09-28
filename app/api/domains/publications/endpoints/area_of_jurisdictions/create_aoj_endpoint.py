@@ -14,13 +14,13 @@ from app.core.tables.users import UsersTable
 
 
 class AOJCreate(BaseModel):
-    Administrative_Borders_ID: str = Field(..., min_length=3)
-    Administrative_Borders_Domain: str = Field(..., min_length=3)
-    Administrative_Borders_Date: date
+    administrative_borders_id: str = Field(..., min_length=3)
+    administrative_borders_domain: str = Field(..., min_length=3)
+    administrative_borders_date: date
 
 
 class AOJCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 def post_create_aoj_endpoint(
@@ -37,9 +37,9 @@ def post_create_aoj_endpoint(
 ) -> AOJCreatedResponse:
     area_of_jurisdiction = PublicationAreaOfJurisdictionTable(
         id=uuid.uuid4(),
-        administrative_borders_id=object_in.Administrative_Borders_ID,
-        administrative_borders_domain=object_in.Administrative_Borders_Domain,
-        administrative_borders_date=object_in.Administrative_Borders_Date,
+        administrative_borders_id=object_in.administrative_borders_id,
+        administrative_borders_domain=object_in.administrative_borders_domain,
+        administrative_borders_date=object_in.administrative_borders_date,
         created_date=datetime.now(UTC),
         created_by_id=user.UUID,
     )
@@ -49,5 +49,5 @@ def post_create_aoj_endpoint(
     session.commit()
 
     return AOJCreatedResponse(
-        UUID=area_of_jurisdiction.id,
+        id=area_of_jurisdiction.id,
     )

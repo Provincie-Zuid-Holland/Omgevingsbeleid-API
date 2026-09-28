@@ -362,27 +362,27 @@ models:
         objects:
           - object_type: wettelijke_taak
             object_id: wettelijke_taak
-            to_field: "WettelijkeTaken"
+            to_field: "wettelijke_taken"
             model_id: wettelijke_taak_minimal
             wrapped_with_relation_data: true
           - object_type: nationaal_belang
             object_id: nationaal_belang
-            to_field: "NationaleBelangen"
+            to_field: "nationale_belangen"
             model_id: nationaal_belang_minimal
             wrapped_with_relation_data: true
           - object_type: beleidsdoel
             object_id: beleidsdoel
-            to_field: "Beleidsdoelen"
+            to_field: "beleidsdoelen"
             model_id: beleidsdoel_minimal
             wrapped_with_relation_data: true
           - object_type: beleidsregel
             object_id: beleidsregel
-            to_field: "Beleidsregels"
+            to_field: "beleidsregels"
             model_id: beleidsregel_minimal
             wrapped_with_relation_data: true
           - object_type: maatregel
             object_id: maatregel
-            to_field: "Maatregelen"
+            to_field: "maatregelen"
             model_id: maatregel_minimal
             wrapped_with_relation_data: true
   beleidskeuze_patch:

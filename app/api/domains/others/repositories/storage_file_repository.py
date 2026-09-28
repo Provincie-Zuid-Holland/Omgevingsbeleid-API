@@ -17,8 +17,8 @@ class StorageFileSortColumn(str, Enum):
 
 
 class StorageFileRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> StorageFileTable | None:
-        stmt = select(StorageFileTable).filter(StorageFileTable.id == uuidx)
+    def get_by_id(self, session: Session, idx: UUID) -> StorageFileTable | None:
+        stmt = select(StorageFileTable).filter(StorageFileTable.id == idx)
         return self.fetch_first(session, stmt)
 
     def get_by_checksum_uuid(self, session: Session, checksum: str) -> StorageFileTable | None:

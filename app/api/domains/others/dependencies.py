@@ -32,7 +32,7 @@ def depends_storage_file(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
 ):
-    maybe_file: StorageFileTable | None = repository.get_by_uuid(session, file_uuid)
+    maybe_file: StorageFileTable | None = repository.get_by_id(session, file_uuid)
     if not maybe_file:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Storage file niet gevonden")
     return maybe_file

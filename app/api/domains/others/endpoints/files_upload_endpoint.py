@@ -21,7 +21,7 @@ from app.core.tables.users import UsersTable
 
 
 class UploadFileResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 class EndpointHandler:
@@ -40,7 +40,7 @@ class EndpointHandler:
         self._pdf_meta_service: PdfMetaService = pdf_meta_service
         self._user: UsersTable = user
         self._uploaded_file: UploadFile = uploaded_file
-        self._file_data: FileData = FileData(File=uploaded_file)
+        self._file_data: FileData = FileData(file_in=uploaded_file)
         self._title: str = title
         self._ignore_report: bool = ignore_report
         self._timepoint: datetime = datetime.now(UTC)
@@ -58,7 +58,7 @@ class EndpointHandler:
         self._session.commit()
 
         response: UploadFileResponse = UploadFileResponse(
-            UUID=file_table.id,
+            id=file_table.id,
         )
         return response
 

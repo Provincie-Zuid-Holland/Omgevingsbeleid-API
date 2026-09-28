@@ -17,15 +17,15 @@ class PublicationActReportRepository(BaseRepository):
     def get_with_filters(
         self,
         session: Session,
-        act_package_uuid: uuid.UUID | None = None,
+        act_package_id: uuid.UUID | None = None,
         filename: str | None = None,
         report_status: ReportStatusType | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
         filters = []
-        if act_package_uuid is not None:
-            filters.append(and_(PublicationActPackageReportTable.act_package_id == act_package_uuid))
+        if act_package_id is not None:
+            filters.append(and_(PublicationActPackageReportTable.act_package_id == act_package_id))
         if filename is not None:
             filters.append(and_(PublicationActPackageReportTable.filename == filename))
         if report_status is not None:

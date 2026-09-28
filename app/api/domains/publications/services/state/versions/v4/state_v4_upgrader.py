@@ -16,7 +16,7 @@ class StateV4Upgrader(StateUpgrader):
     def get_input_schema_version() -> int:
         return state_v3.StateV3.get_schema_version()
 
-    def upgrade(self, session: Session, environment_uuid: uuid.UUID, old_state: State) -> State:
+    def upgrade(self, session: Session, environment_id: uuid.UUID, old_state: State) -> State:
         if old_state.get_schema_version() != state_v3.StateV3.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 
@@ -24,7 +24,7 @@ class StateV4Upgrader(StateUpgrader):
             raise RuntimeError("Unexpected state provided")
 
         purposes = self._mutate_purposes(old_state)
-        acts = self._mutate_acts(environment_uuid, old_state)
+        acts = self._mutate_acts(environment_id, old_state)
         announcements = self._mutate_announcements(old_state)
 
         new_state = state_v4.StateV4(

@@ -21,7 +21,7 @@ from app.core.tables.users import UsersTable
 
 
 class AnnouncementCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 @inject
@@ -69,7 +69,7 @@ def post_create_announcement_endpoint(
     session.commit()
 
     return AnnouncementCreatedResponse(
-        UUID=announcement.id,
+        id=announcement.id,
     )
 
 

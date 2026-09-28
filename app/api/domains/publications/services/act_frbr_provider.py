@@ -25,11 +25,11 @@ class ActFrbrProvider:
         )
         return frbr
 
-    def _get_next_expression_version(self, session: Session, act_uuid: uuid.UUID) -> int:
+    def _get_next_expression_version(self, session: Session, act_id: uuid.UUID) -> int:
         stmt = (
             select(func.count())
             .select_from(PublicationActVersionTable)
-            .filter(PublicationActVersionTable.act_id == act_uuid)
+            .filter(PublicationActVersionTable.act_id == act_id)
         )
         next_expression_version: int = session.execute(stmt).scalar() + 1
         return next_expression_version

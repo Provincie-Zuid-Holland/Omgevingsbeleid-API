@@ -155,11 +155,11 @@ models:
         objects:
           - object_type: wettelijke_taak
             object_id: wettelijke_taak
-            to_field: "WettelijkeTaken"
+            to_field: "wettelijke_taken"
             model_id: wettelijke_taak_minimal
           - object_type: maatregel
             object_id: maatregel
-            to_field: "Maatregelen"
+            to_field: "maatregelen"
             model_id: maatregel_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:

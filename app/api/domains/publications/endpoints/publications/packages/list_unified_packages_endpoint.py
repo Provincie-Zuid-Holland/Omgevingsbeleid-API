@@ -23,17 +23,17 @@ class ListUnifiedPackagesEndpointContext(BaseEndpointContext):
 
 
 class UnifiedPackage(BaseModel):
-    Publication_Type: str
-    UUID: uuid.UUID
+    publication_type: str
+    id: uuid.UUID
     created_date: datetime
     modified_date: datetime
-    Package_Type: str
-    Report_Status: str
-    Delivery_ID: str
+    package_type: str
+    report_status: str
+    delivery_id: str
     module_id: int
-    Module_Title: str
-    Document_Type: str
-    Environment_UUID: uuid.UUID
+    module_title: str
+    document_type: str
+    environment_id: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -54,7 +54,7 @@ def get_list_unified_packages_endpoint(
         ),
     ],
     context: Annotated[ListUnifiedPackagesEndpointContext, Depends()],
-    environment_uuid: uuid.UUID | None = None,
+    environment_id: uuid.UUID | None = None,
     module_id: int | None = None,
     report_status: ReportStatusType | None = None,
     package_type: PackageType | None = None,
@@ -67,7 +67,7 @@ def get_list_unified_packages_endpoint(
     paginated_result = unified_packages_provider.get_unified_packages(
         session=session,
         pagination=pagination,
-        environment_uuid=environment_uuid,
+        environment_id=environment_id,
         module_id=module_id,
         report_status=report_status,
         package_type=package_type,

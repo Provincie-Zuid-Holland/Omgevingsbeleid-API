@@ -65,7 +65,7 @@ class UnifiedPackagesProvider:
         self,
         session: Session,
         pagination: SortedPagination,
-        environment_uuid: UUID | None = None,
+        environment_id: UUID | None = None,
         module_id: int | None = None,
         report_status: ReportStatusType | None = None,
         package_type: PackageType | None = None,
@@ -81,9 +81,9 @@ class UnifiedPackagesProvider:
         stmt = select(combined)
 
         if publication_type:
-            stmt = stmt.filter(combined.c.Publication_Type == publication_type.value)
-        if environment_uuid:
-            stmt = stmt.filter(combined.c.environment_id == environment_uuid)
+            stmt = stmt.filter(combined.c.publication_type == publication_type.value)
+        if environment_id:
+            stmt = stmt.filter(combined.c.environment_id == environment_id)
         if module_id:
             stmt = stmt.filter(combined.c.module_id == module_id)
         if report_status:

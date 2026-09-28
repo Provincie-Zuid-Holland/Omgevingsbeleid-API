@@ -10,8 +10,8 @@ from app.core.tables.publications import PublicationTemplateTable
 
 
 class PublicationTemplateRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationTemplateTable | None:
-        stmt = select(PublicationTemplateTable).where(PublicationTemplateTable.id == uuidx)
+    def get_by_id(self, session: Session, idx: uuid.UUID) -> PublicationTemplateTable | None:
+        stmt = select(PublicationTemplateTable).where(PublicationTemplateTable.id == idx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(

@@ -33,7 +33,7 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationPackagePdf(BaseModel):
-    Mutation: MutationStrategy | None = None
+    mutation_strategy: MutationStrategy | None = None
 
 
 @inject
@@ -67,7 +67,7 @@ def post_create_version_pdf_endpoint(
             session,
             version,
             PackageType.VALIDATION,
-            overwrite_mutation_strategy=object_in.Mutation,
+            overwrite_mutation_strategy=object_in.mutation_strategy,
         )
         package_builder.build_publication_files()
         zip_data: ZipData = package_builder.zip_files()
@@ -77,8 +77,8 @@ def post_create_version_pdf_endpoint(
             zip_data,
         )
 
-        mutation_strategy: MutationStrategy = object_in.Mutation or MutationStrategy(version.mutation_strategy)
-        filename: str = f"{zip_data.Filename.removesuffix('.zip')}-{mutation_strategy.value}.pdf"
+        mutation_strategy: MutationStrategy = object_in.mutation_strategy or MutationStrategy(version.mutation_strategy)
+        filename: str = f"{zip_data.filename.removesuffix('.zip')}-{mutation_strategy.value}.pdf"
         response = StreamingResponse(
             pdf_response.iter_content(chunk_size=1024),
             media_type="application/pdf",

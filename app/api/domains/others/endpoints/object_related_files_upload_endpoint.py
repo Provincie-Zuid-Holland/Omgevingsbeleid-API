@@ -44,7 +44,7 @@ class EndpointHandler:
         self._pdf_meta_service: PdfMetaService = pdf_meta_service
         self._user: UsersTable = user
         self._uploaded_file: UploadFile = uploaded_file
-        self._file_data: FileData = FileData(File=uploaded_file)
+        self._file_data: FileData = FileData(file_in=uploaded_file)
         self._title: str = title
         self._ignore_report: bool = ignore_report
         self._timepoint: datetime = datetime.now(UTC)

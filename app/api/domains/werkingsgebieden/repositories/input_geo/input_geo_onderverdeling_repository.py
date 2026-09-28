@@ -14,11 +14,11 @@ class InputGeoOnderverdelingRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
+    def _format_uuid(self, idx: uuid.UUID) -> str:
         pass
 
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> InputGeoOnderverdelingenTable | None:
-        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == uuidx)
+    def get_by_uuid(self, session: Session, idx: uuid.UUID) -> InputGeoOnderverdelingenTable | None:
+        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == idx)
         return self.fetch_first(session, stmt)
 
     def get_latest_by_title(self, session: Session, title: str) -> InputGeoOnderverdelingenTable | None:

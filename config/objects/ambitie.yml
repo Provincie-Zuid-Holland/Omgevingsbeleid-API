@@ -251,7 +251,7 @@ models:
         objects:
           - object_type: beleidsdoel
             object_id: beleidsdoel
-            to_field: "Beleidsdoelen"
+            to_field: "beleidsdoelen"
             model_id: beleidsdoel_minimal
             wrapped_with_relation_data: true
       foreign_keys_extender:

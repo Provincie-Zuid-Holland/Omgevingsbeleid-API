@@ -9,20 +9,20 @@ from app.core.tables.publications import PublicationVersionTable
 
 
 class PublicationVersionRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> PublicationVersionTable | None:
+    def get_by_id(self, session: Session, uuid: UUID) -> PublicationVersionTable | None:
         stmt = select(PublicationVersionTable).where(PublicationVersionTable.id == uuid)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
         self,
         session: Session,
-        publication_uuid: UUID | None = None,
+        publication_id: UUID | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
         filters = [PublicationVersionTable.deleted_at.is_(None)]
-        if publication_uuid is not None:
-            filters.append(and_(PublicationVersionTable.publication_id == publication_uuid))
+        if publication_id is not None:
+            filters.append(and_(PublicationVersionTable.publication_id == publication_id))
 
         stmt = (
             select(PublicationVersionTable).filter(*filters).options(selectinload(PublicationVersionTable.act_packages))

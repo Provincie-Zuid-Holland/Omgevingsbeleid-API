@@ -25,7 +25,7 @@ from app.core.tables.users import UsersTable
 
 
 class UploadAttachmentResponse(BaseModel):
-    ID: int
+    id: int
 
 
 @inject
@@ -51,7 +51,7 @@ def post_upload_attachment_endpoint(
     _guard_upload(version, uploaded_file)
 
     file_data: FileData = FileData(
-        File=uploaded_file,
+        file_in=uploaded_file,
     )
 
     if not ignore_report:
@@ -85,7 +85,7 @@ def post_upload_attachment_endpoint(
     session.flush()
     session.commit()
 
-    response: UploadAttachmentResponse = UploadAttachmentResponse(ID=attachment.id)
+    response: UploadAttachmentResponse = UploadAttachmentResponse(id=attachment.id)
     return response
 
 
@@ -107,7 +107,7 @@ def _store_file(
     user_uuid: uuid.UUID,
     file_data: FileData,
 ) -> PublicationStorageFileTable:
-    existing_file_table: PublicationStorageFileTable | None = repository.get_by_checksum_uuid(
+    existing_file_table: PublicationStorageFileTable | None = repository.get_by_checksum(
         session,
         file_data.get_checksum(),
     )

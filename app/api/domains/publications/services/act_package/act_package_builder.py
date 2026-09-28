@@ -40,10 +40,10 @@ class ActPackageBuilder:
         filename: str = publication_filename.replace(".xml", ".zip")
         checksum: str = hashlib.sha256(zip_content).hexdigest()
         zip_data: ZipData = ZipData(
-            Publication_Filename=publication_filename,
-            Filename=filename,
-            Binary=zip_content,
-            Checksum=checksum,
+            publication_filename=publication_filename,
+            filename=filename,
+            binary=zip_content,
+            checksum=checksum,
         )
         return zip_data
 

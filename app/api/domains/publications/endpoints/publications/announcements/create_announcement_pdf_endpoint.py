@@ -73,7 +73,7 @@ def post_create_announcement_pdf_endpoint(
             zip_data,
         )
 
-        filename: str = f"{zip_data.Filename.removesuffix('.zip')}.pdf"
+        filename: str = f"{zip_data.filename.removesuffix('.zip')}.pdf"
         response = StreamingResponse(
             pdf_response.iter_content(chunk_size=1024),
             media_type="application/pdf",

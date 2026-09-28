@@ -56,19 +56,19 @@ class PublicationDocumentsProvider:
 
         for document in documents_objects:
             code = document["code"]
-            file_uuid = document["File_UUID"]
-            if file_uuid is None:
+            file_id = document["file_id"]
+            if file_id is None:
                 raise validation_exception(
                     [
                         ValidatePublicationError(
-                            rule="missing_file_uuid",
+                            rule="missing_file_id",
                             object=ValidatePublicationObject(code=code),
                             messages=[f"Missing file UUID for document with code: {code}"],
                         )
                     ]
                 )
 
-            storage_file: StorageFileTable | None = self._file_repostiory.get_by_uuid(session, file_uuid)
+            storage_file: StorageFileTable | None = self._file_repostiory.get_by_id(session, file_id)
             if storage_file is None:
                 raise validation_exception(
                     [

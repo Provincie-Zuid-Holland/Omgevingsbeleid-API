@@ -35,12 +35,12 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationAnnouncementPackageCreate(BaseModel):
-    Package_Type: PackageType
+    package_type: PackageType
 
 
 class PublicationAnnouncementPackageCreatedResponse(BaseModel):
-    Package_UUID: uuid.UUID
-    Zip_UUID: uuid.UUID
+    package_id: uuid.UUID
+    zip_id: uuid.UUID
 
 
 class EndpointHandler:
@@ -68,7 +68,7 @@ class EndpointHandler:
         package_builder: AnnouncementPackageBuilder = self._package_builder_factory.create_builder(
             self._session,
             self._announcement,
-            self._object_in.Package_Type,
+            self._object_in.package_type,
         )
         try:
             package_builder.build_publication_files()
@@ -80,11 +80,11 @@ class EndpointHandler:
 
             package_zip: PublicationPackageZipTable = PublicationPackageZipTable(
                 id=uuid.uuid4(),
-                filename=zip_data.Filename,
-                binary=zip_data.Binary,
-                checksum=zip_data.Checksum,
+                filename=zip_data.filename,
+                binary=zip_data.binary,
+                checksum=zip_data.checksum,
                 latest_download_date=None,
-                latest_download_by_uuid=None,
+                latest_download_by_id=None,
                 created_date=self._timepoint,
                 created_by_id=self._user.UUID,
             )
@@ -96,7 +96,7 @@ class EndpointHandler:
                 announcement_id=self._announcement.id,
                 zip_id=package_zip.id,
                 delivery_id=package_builder.get_delivery_id(),
-                package_type=self._object_in.Package_Type,
+                package_type=self._object_in.package_type,
                 report_status=report_status,
                 created_date=self._timepoint,
                 modified_date=self._timepoint,
@@ -116,8 +116,8 @@ class EndpointHandler:
             self._session.commit()
 
             response: PublicationAnnouncementPackageCreatedResponse = PublicationAnnouncementPackageCreatedResponse(
-                Package_UUID=package.id,
-                Zip_UUID=package_zip.id,
+                package_id=package.id,
+                zip_id=package_zip.id,
             )
             return response
 
@@ -125,7 +125,7 @@ class EndpointHandler:
             raise
 
     def _guard_validate_package_type(self):
-        match self._object_in.Package_Type:
+        match self._object_in.package_type:
             case PackageType.VALIDATION:
                 if not self._environment.can_validate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Validation for this environment")
@@ -146,7 +146,7 @@ class EndpointHandler:
     ):
         if not self._environment.has_state:
             return
-        if self._object_in.Package_Type != PackageType.PUBLICATION:
+        if self._object_in.package_type != PackageType.PUBLICATION:
             return
 
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
@@ -167,7 +167,7 @@ class EndpointHandler:
     def _handle_frbr(self, package_builder: AnnouncementPackageBuilder, package: PublicationAnnouncementPackageTable):
         if not self._environment.has_state:
             return
-        if self._object_in.Package_Type != PackageType.PUBLICATION:
+        if self._object_in.package_type != PackageType.PUBLICATION:
             return
 
         doc_frbr: DocFrbr = package_builder.get_doc_frbr()

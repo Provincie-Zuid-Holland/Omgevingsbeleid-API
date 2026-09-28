@@ -16,11 +16,11 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationAnnouncementEdit(BaseModel):
-    Announcement_Date: date | None = None
+    announcement_date: date | None = None
 
-    Metadata: AnnouncementMetadata | None = None
-    Procedural: AnnouncementProcedural | None = None
-    Content: AnnouncementContent | None = None
+    meta_data: AnnouncementMetadata | None = None
+    procedural: AnnouncementProcedural | None = None
+    content: AnnouncementContent | None = None
 
 
 def post_edit_announcement_endpoint(

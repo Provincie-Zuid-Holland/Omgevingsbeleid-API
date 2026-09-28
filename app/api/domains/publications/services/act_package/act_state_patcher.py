@@ -74,8 +74,8 @@ class ActStatePatcher:
         if act_text is None:
             raise RuntimeError("Regeling vrijetekst bestaat niet")
 
-        used_asset_uuids: set[str] = self._dso_builder.get_asset_uuids_wordt()
-        assets: dict[str, models.Asset] = {uuidx: models.Asset(UUID=uuidx) for uuidx in used_asset_uuids}
+        used_asset_ids: set[str] = self._dso_builder.get_asset_uuids_wordt()
+        assets: dict[str, models.Asset] = {idx: models.Asset(id=idx) for idx in used_asset_ids}
 
         action = AddPublicationAction(
             Act_Frbr=act_frbr,

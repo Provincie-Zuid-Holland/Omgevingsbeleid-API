@@ -16,8 +16,8 @@ from app.core.tables.users import UsersTable
 
 
 class ActEdit(BaseModel):
-    Title: str | None = Field(None)
-    Metadata: ActMetadata | None = None
+    title: str | None = Field(None)
+    meta_data: ActMetadata | None = None
 
 
 def post_edit_act_endpoint(

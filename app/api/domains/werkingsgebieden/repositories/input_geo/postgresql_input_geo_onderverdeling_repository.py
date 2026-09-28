@@ -9,5 +9,5 @@ class PostgresqlInputGeoOnderverdelingRepository(InputGeoOnderverdelingRepositor
     def _text_to_shape(self, key: str) -> str:
         return f"ST_GeomFromText(:{key}, 28992)"
 
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
-        return str(uuidx)
+    def _format_uuid(self, idx: uuid.UUID) -> str:
+        return str(idx)

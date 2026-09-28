@@ -9,20 +9,20 @@ from app.core.tables.publications import PublicationAnnouncementTable
 
 
 class PublicationAnnouncementRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> PublicationAnnouncementTable | None:
-        stmt = select(PublicationAnnouncementTable).where(PublicationAnnouncementTable.id == uuidx)
+    def get_by_id(self, session: Session, idx: UUID) -> PublicationAnnouncementTable | None:
+        stmt = select(PublicationAnnouncementTable).where(PublicationAnnouncementTable.id == idx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
         self,
         session: Session,
-        act_package_uuid: UUID | None = None,
+        act_package_id: UUID | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
         filters = []
-        if act_package_uuid is not None:
-            filters.append(and_(PublicationAnnouncementTable.act_package_id == act_package_uuid))
+        if act_package_id is not None:
+            filters.append(and_(PublicationAnnouncementTable.act_package_id == act_package_id))
 
         stmt = select(PublicationAnnouncementTable).filter(*filters)
 

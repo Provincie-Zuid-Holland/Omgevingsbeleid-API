@@ -12,9 +12,9 @@ class PublicationVersionAttachmentRepository(BaseRepository):
         stmt = select(PublicationVersionAttachmentTable).filter(PublicationVersionAttachmentTable.id == idx)
         return self.fetch_first(session, stmt)
 
-    def get_by_version_uuid(self, session: Session, version_uuid: UUID) -> list[PublicationVersionAttachmentTable]:
+    def get_by_version_id(self, session: Session, version_id: UUID) -> list[PublicationVersionAttachmentTable]:
         stmt = select(PublicationVersionAttachmentTable).filter(
-            PublicationVersionAttachmentTable.publication_version_id == version_uuid
+            PublicationVersionAttachmentTable.publication_version_id == version_id
         )
         return self.fetch_all(session, stmt)
 

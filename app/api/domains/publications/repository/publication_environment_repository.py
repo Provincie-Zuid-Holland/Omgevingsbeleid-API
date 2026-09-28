@@ -9,8 +9,8 @@ from app.core.tables.publications import PublicationEnvironmentTable
 
 
 class PublicationEnvironmentRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationEnvironmentTable | None:
-        stmt = select(PublicationEnvironmentTable).where(PublicationEnvironmentTable.id == uuidx)
+    def get_by_id(self, session: Session, idx: uuid.UUID) -> PublicationEnvironmentTable | None:
+        stmt = select(PublicationEnvironmentTable).where(PublicationEnvironmentTable.id == idx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(

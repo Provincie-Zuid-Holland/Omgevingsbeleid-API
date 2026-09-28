@@ -45,12 +45,12 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationPackageCreate(BaseModel):
-    Package_Type: PackageType
+    package_type: PackageType
 
 
 class PublicationPackageCreatedResponse(BaseModel):
-    Package_UUID: uuid.UUID
-    Zip_UUID: uuid.UUID
+    package_id: uuid.UUID
+    zip_id: uuid.UUID
 
 
 class EndpointHandler:
@@ -83,7 +83,7 @@ class EndpointHandler:
             package_builder: ActPackageBuilder = self._package_builder_factory.create_builder(
                 self._session,
                 self._publication_version,
-                self._object_in.Package_Type,
+                self._object_in.package_type,
             )
             package_builder.build_publication_files()
             zip_data: ZipData = package_builder.zip_files()
@@ -94,11 +94,11 @@ class EndpointHandler:
 
             package_zip = PublicationPackageZipTable(
                 id=uuid.uuid4(),
-                filename=zip_data.Filename,
-                binary=zip_data.Binary,
-                checksum=zip_data.Checksum,
+                filename=zip_data.filename,
+                binary=zip_data.binary,
+                checksum=zip_data.checksum,
                 latest_download_date=None,
-                latest_download_by_uuid=None,
+                latest_download_by_id=None,
                 created_date=self._timepoint,
                 created_by_id=self._user.UUID,
             )
@@ -110,7 +110,7 @@ class EndpointHandler:
                 publication_version_id=self._publication_version.id,
                 zip_id=package_zip.id,
                 delivery_id=package_builder.get_delivery_id(),
-                package_type=self._object_in.Package_Type,
+                package_type=self._object_in.package_type,
                 report_status=report_status,
                 module_id=self._publication.module_id,
                 module_status_id=self._publication_version.module_status_id,
@@ -126,7 +126,7 @@ class EndpointHandler:
             self._handle_bill_act_purpose(package_builder, package)
 
             if self._publication_version.status != PublicationVersionStatus.NOT_APPLICABLE:
-                match self._object_in.Package_Type:
+                match self._object_in.package_type:
                     case PackageType.VALIDATION:
                         self._publication_version.status = PublicationVersionStatus.VALIDATION
                     case PackageType.PUBLICATION:
@@ -137,8 +137,8 @@ class EndpointHandler:
             self._session.commit()
 
             response = PublicationPackageCreatedResponse(
-                Package_UUID=package.id,
-                Zip_UUID=package_zip.id,
+                package_id=package.id,
+                zip_id=package_zip.id,
             )
             return response
 
@@ -159,7 +159,7 @@ class EndpointHandler:
             raise
 
     def _guard_validate_package_type(self):
-        match self._object_in.Package_Type:
+        match self._object_in.package_type:
             case PackageType.VALIDATION:
                 if not self._environment.can_validate:
                     raise HTTPException(status.HTTP_409_CONFLICT, "Can not create Validation for this environment")
@@ -173,7 +173,7 @@ class EndpointHandler:
         if self._publication_version.is_locked:
             raise HTTPException(status.HTTP_409_CONFLICT, "This publication version is locked")
         # allow creation of packages while validating, even when the environment is locked
-        if self._environment.is_locked and self._object_in.Package_Type is not PackageType.VALIDATION:
+        if self._environment.is_locked and self._object_in.package_type is not PackageType.VALIDATION:
             raise HTTPException(status.HTTP_409_CONFLICT, "This environment is locked")
         if not self._act.is_active:
             raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
@@ -186,7 +186,7 @@ class EndpointHandler:
     def _handle_new_state(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
         if not self._environment.has_state:
             return
-        if self._object_in.Package_Type != PackageType.PUBLICATION:
+        if self._object_in.package_type != PackageType.PUBLICATION:
             return
 
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
@@ -207,7 +207,7 @@ class EndpointHandler:
     def _handle_bill_act_purpose(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
         if not self._environment.has_state:
             return
-        if self._object_in.Package_Type != PackageType.PUBLICATION:
+        if self._object_in.package_type != PackageType.PUBLICATION:
             return
 
         purpose: Purpose = package_builder.get_consolidation_purpose()

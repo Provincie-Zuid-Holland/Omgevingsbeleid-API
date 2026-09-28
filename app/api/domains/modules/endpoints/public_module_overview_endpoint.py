@@ -21,8 +21,8 @@ from app.core.types import Model
 
 
 class PublicModuleObjectContextShort(BaseModel):
-    Action: str
-    Original_Adjust_On: uuid.UUID | None = None
+    action: str
+    original_adjust_on: uuid.UUID | None = None
     model_config = ConfigDict(from_attributes=True)
 
 

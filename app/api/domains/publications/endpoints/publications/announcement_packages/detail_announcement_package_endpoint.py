@@ -20,17 +20,17 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationAnnouncementPackageDetailResponse(BaseModel):
-    UUID: uuid.UUID
-    Package_Type: str
-    Report_Status: str
-    Delivery_ID: str
-    Document_Type: str
+    id: uuid.UUID
+    package_type: str
+    report_status: str
+    delivery_id: str
+    document_type: str
 
-    Announcement_UUID: uuid.UUID
-    Doc_Version_UUID: uuid.UUID | None
-    Zip: PackageZipShort
-    Created_Environment_State_UUID: uuid.UUID | None
-    Used_Environment_State_UUID: uuid.UUID | None
+    announcement_id: uuid.UUID
+    doc_version_id: uuid.UUID | None
+    zip: PackageZipShort
+    created_environment_state_id: uuid.UUID | None
+    used_environment_state_id: uuid.UUID | None
 
     created_date: datetime
     modified_date: datetime
@@ -38,11 +38,11 @@ class PublicationAnnouncementPackageDetailResponse(BaseModel):
     modified_by_id: uuid.UUID
 
     module_id: int | None
-    Module_Title: str | None
-    Module_Status_ID: int | None
-    Module_Status_Status: str | None
-    Environment_UUID: uuid.UUID
-    Environment_Title: str
+    module_title: str | None
+    module_status_id: int | None
+    module_status_status: str | None
+    environment_id: uuid.UUID
+    environment_title: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -68,26 +68,26 @@ def get_detail_announcement_package_endpoint(
     zip: PackageZipShort = PackageZipShort.model_validate(announcement_package.zip)
 
     result = PublicationAnnouncementPackageDetailResponse(
-        UUID=announcement_package.id,
-        Package_Type=announcement_package.package_type,
-        Report_Status=announcement_package.report_status,
-        Delivery_ID=announcement_package.delivery_id,
-        Document_Type=publication_version.publication.document_type,
-        Announcement_UUID=announcement_package.announcement_id,
-        Doc_Version_UUID=announcement_package.doc_version_id,
-        Zip=zip,
-        Created_Environment_State_UUID=announcement_package.created_environment_state_id,
-        Used_Environment_State_UUID=announcement_package.used_environment_state_id,
+        id=announcement_package.id,
+        package_type=announcement_package.package_type,
+        report_status=announcement_package.report_status,
+        delivery_id=announcement_package.delivery_id,
+        document_type=publication_version.publication.document_type,
+        announcement_id=announcement_package.announcement_id,
+        doc_version_id=announcement_package.doc_version_id,
+        zip=zip,
+        created_environment_state_id=announcement_package.created_environment_state_id,
+        used_environment_state_id=announcement_package.used_environment_state_id,
         created_date=announcement_package.created_date,
         modified_date=announcement_package.modified_date,
         created_by_id=announcement_package.created_by_id,
         modified_by_id=announcement_package.modified_by_id,
         module_id=module.module_id if module else None,
-        Module_Title=module.title if module else None,
-        Module_Status_ID=module_status.id if module_status else None,
-        Module_Status_Status=module_status.status if module_status else None,
-        Environment_UUID=environment.id,
-        Environment_Title=environment.title,
+        module_title=module.title if module else None,
+        module_status_id=module_status.id if module_status else None,
+        module_status_status=module_status.status if module_status else None,
+        environment_id=environment.id,
+        environment_title=environment.title,
     )
 
     return result

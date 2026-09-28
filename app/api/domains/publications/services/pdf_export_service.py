@@ -78,7 +78,7 @@ class PdfExportService:
     def _request_generate(self, api_settings: KoopSettings, zip_data: ZipData) -> str:
         multipart_data = MultipartEncoder(
             fields={
-                "aanlevering-zip": (zip_data.Filename, zip_data.Binary, "application/zip"),
+                "aanlevering-zip": (zip_data.filename, zip_data.binary, "application/zip"),
                 "voor-ondertekenen": "true",
                 "auto-clean-up": "true",
             }

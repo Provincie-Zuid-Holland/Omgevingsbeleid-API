@@ -15,8 +15,8 @@ class ObjectRelatedFileSortColumn(str, Enum):
 
 
 class ObjectRelatedFileRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> ObjectRelatedFileTable | None:
-        stmt = select(ObjectRelatedFileTable).filter(ObjectRelatedFileTable.id == uuidx)
+    def get_by_id(self, session: Session, idx: UUID) -> ObjectRelatedFileTable | None:
+        stmt = select(ObjectRelatedFileTable).filter(ObjectRelatedFileTable.id == idx)
         return self.fetch_first(session, stmt)
 
     def get_by_object_code(self, session: Session, object_code: str) -> list[ObjectRelatedFileTable]:

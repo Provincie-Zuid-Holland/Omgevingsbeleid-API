@@ -8,19 +8,19 @@ from app.api.utils.pagination import OrderConfig, SortOrder
 
 
 class AreaBasic(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
     created_date: datetime
     created_by_id: uuid.UUID
-    Source_UUID: uuid.UUID
-    Source_Title: str
-    Source_Created_Date: datetime
+    source_id: uuid.UUID
+    source_title: str
+    source_created_date: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class WerkingsgebiedStatics(BaseModel):
     object_type: str
-    Object_ID: int
+    object_id: int
     code: str
     cached_title: str
 
@@ -34,12 +34,13 @@ class WerkingsgebiedStatics(BaseModel):
 class Werkingsgebied(BaseModel):
     ID: int | None = None
     UUID: uuid.UUID
-    created_date: datetime
-    modified_date: datetime
+    Created_Date: datetime
+    Modified_Date: datetime
     Title: str
-    start_validity: datetime | None = Field(None)
-    end_validity: datetime | None = Field(None)
+    Start_Validity: datetime | None = Field(None)
+    End_Validity: datetime | None = Field(None)
     Geometry_Hash: str | None = Field(None)
+
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 

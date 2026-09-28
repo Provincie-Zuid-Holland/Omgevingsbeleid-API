@@ -20,7 +20,7 @@ class StateV5Upgrader(StateUpgrader):
     def get_input_schema_version() -> int:
         return state_v4.StateV4.get_schema_version()
 
-    def upgrade(self, session: Session, environment_uuid: uuid.UUID, old_state: State) -> State:
+    def upgrade(self, session: Session, environment_id: uuid.UUID, old_state: State) -> State:
         if old_state.get_schema_version() != state_v4.StateV4.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 
@@ -95,7 +95,7 @@ class StateV5Upgrader(StateUpgrader):
                             object_status=models_v5.OwObjectStatus.unchanged,
                             identification=ow_object["OW_ID"],
                             procedure_status=ow_object["procedure_status"],
-                            source_uuid=ow_object["mapped_uuid"],
+                            source_uuid=ow_object["mapped_id"],
                             administrative_borders_id=ow_object["bestuurlijke_grenzen_verwijzing"][
                                 "bestuurlijke_grenzen_id"
                             ],
@@ -111,12 +111,12 @@ class StateV5Upgrader(StateUpgrader):
                             object_status=models_v5.OwObjectStatus.unchanged,
                             identification=ow_object["OW_ID"],
                             procedure_status=ow_object["procedure_status"],
-                            source_uuid=ow_objects[ow_object["ambtsgebied"]]["mapped_uuid"],
+                            source_uuid=ow_objects[ow_object["ambtsgebied"]]["mapped_id"],
                             locatie_ref=locatie_ref,
                         )
                     )
                 case "OWGebied":
-                    gio_ref = ow_object.get("gio_ref") or ow_object.get("mapped_uuid")
+                    gio_ref = ow_object.get("gio_ref") or ow_object.get("mapped_id")
                     gebieden.add(
                         models_v5.OwGebied(
                             object_status=models_v5.OwObjectStatus.unchanged,
@@ -129,7 +129,7 @@ class StateV5Upgrader(StateUpgrader):
                         )
                     )
                 case "OWGebiedenGroep":
-                    gio_ref = ow_object.get("gio_ref") or ow_object.get("mapped_uuid")
+                    gio_ref = ow_object.get("gio_ref") or ow_object.get("mapped_id")
                     gebieden_ref = models_v5.GebiedRef(
                         target_code=f"{ow_object['mapped_geo_code']}-0",
                         ref=ow_object["gebieden"][0],

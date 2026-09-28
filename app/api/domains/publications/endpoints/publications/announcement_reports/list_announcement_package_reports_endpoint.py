@@ -34,12 +34,12 @@ def get_list_annnouncement_package_reports_endpoint(
             )
         ),
     ],
-    announcement_package_uuid: uuid.UUID | None = None,
+    announcement_package_id: uuid.UUID | None = None,
     report_status: ReportStatusType | None = None,
 ) -> PagedResponse[PublicationAnnouncementPackageReportShort]:
     paginated_result = report_repository.get_with_filters(
         session=session,
-        announcement_package_uuid=announcement_package_uuid,
+        announcement_package_id=announcement_package_id,
         report_status=report_status,
         offset=pagination.offset,
         limit=pagination.limit,

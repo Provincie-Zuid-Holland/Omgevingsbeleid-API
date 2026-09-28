@@ -28,15 +28,15 @@ from app.core.tables.users import UsersTable
 
 class PublicationCreate(BaseModel):
     module_id: int
-    Document_Type: DocumentType
-    Procedure_Type: ProcedureType
-    Template_UUID: uuid.UUID
-    Environment_UUID: uuid.UUID
-    Act_UUID: uuid.UUID
+    document_type: DocumentType
+    procedure_type: ProcedureType
+    template_id: uuid.UUID
+    environment_id: uuid.UUID
+    act_id: uuid.UUID
 
 
 class PublicationCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 @inject
@@ -67,18 +67,18 @@ def post_create_publication_endpoint(
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
     template: PublicationTemplateTable = _get_template(
-        session, template_repository, object_in.Template_UUID, object_in.Document_Type
+        session, template_repository, object_in.template_id, object_in.document_type
     )
     environment: PublicationEnvironmentTable = _get_environment(
-        session, environment_repository, object_in.Environment_UUID
+        session, environment_repository, object_in.environment_id
     )
     act: PublicationActTable = _get_act(session, act_repository, object_in)
 
     publication = PublicationTable(
         id=uuid.uuid4(),
         module_id=module.module_id,
-        document_type=object_in.Document_Type.value,
-        procedure_type=object_in.Procedure_Type.value,
+        document_type=object_in.document_type.value,
+        procedure_type=object_in.procedure_type.value,
         template_id=template.id,
         environment_id=environment.id,
         act_id=act.uuid,
@@ -94,7 +94,7 @@ def post_create_publication_endpoint(
     session.commit()
 
     return PublicationCreatedResponse(
-        UUID=publication.id,
+        id=publication.id,
     )
 
 
@@ -111,10 +111,10 @@ def _get_module(session: Session, repository: ModuleRepository, module_id: int) 
 def _get_template(
     session: Session,
     repository: PublicationTemplateRepository,
-    template_uuid: uuid.UUID,
+    template_id: uuid.UUID,
     document_type: DocumentType,
 ) -> PublicationTemplateTable:
-    template: PublicationTemplateTable | None = repository.get_by_uuid(session, template_uuid)
+    template: PublicationTemplateTable | None = repository.get_by_id(session, template_id)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
     if not template.is_active:
@@ -125,11 +125,11 @@ def _get_template(
 
 
 def _get_environment(
-    session: Session, repository: PublicationEnvironmentRepository, environment_uuid: uuid.UUID
+    session: Session, repository: PublicationEnvironmentRepository, environment_id: uuid.UUID
 ) -> PublicationEnvironmentTable:
-    environment: PublicationEnvironmentTable | None = repository.get_by_uuid(
+    environment: PublicationEnvironmentTable | None = repository.get_by_id(
         session,
-        environment_uuid,
+        environment_id,
     )
     if environment is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Environment niet gevonden")
@@ -141,13 +141,13 @@ def _get_environment(
 def _get_act(
     session: Session, repository: PublicationActRepository, object_in: PublicationCreate
 ) -> PublicationActTable:
-    act: PublicationActTable | None = repository.get_by_uuid(session, object_in.Act_UUID)
+    act: PublicationActTable | None = repository.get_by_id(session, object_in.act_id)
     if act is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act niet gevonden")
     if not act.is_active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act is in actief")
-    if act.environment_id != object_in.Environment_UUID:
+    if act.environment_id != object_in.environment_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act is van een ander Environment")
-    if act.document_type != object_in.Document_Type.value:
+    if act.document_type != object_in.document_type.value:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Act is van een ander Document Type")
     return act

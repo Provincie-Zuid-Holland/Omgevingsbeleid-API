@@ -73,11 +73,11 @@ class ObjectRelatedFileResponse(BaseModel):
 
 
 class FileData(BaseModel):
-    File: UploadFile
+    file_in: UploadFile
 
     def __init__(self, /, **data: Any):
         super().__init__(**data)
-        self._binary = self.File.file.read()
+        self._binary = self.file_in.file.read()
         self._checksum = hashlib.sha256(self._binary).hexdigest()
 
     def get_binary(self) -> bytes:
@@ -87,7 +87,7 @@ class FileData(BaseModel):
         return self._checksum
 
     def get_content_type(self) -> str | None:
-        return self.File.content_type
+        return self.file_in.content_type
 
     def get_size(self) -> int:
         return len(self._binary)
@@ -96,7 +96,7 @@ class FileData(BaseModel):
         return self._checksum[0:10]
 
     def normalize_filename(self) -> str:
-        normalized_filename = self.File.filename.lower()
+        normalized_filename = self.file_in.filename.lower()
 
         normalized_filename = re.sub(r"[^a-z0-9.]", "-", normalized_filename)
         normalized_filename = re.sub(r"-+", "-", normalized_filename)

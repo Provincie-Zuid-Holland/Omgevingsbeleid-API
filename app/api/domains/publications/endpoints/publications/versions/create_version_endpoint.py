@@ -23,12 +23,12 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationVersionCreate(BaseModel):
-    Module_Status_ID: int
-    Mutation_Strategy: MutationStrategy = MutationStrategy.RENVOOI
+    module_status_id: int
+    mutation_strategy: MutationStrategy = MutationStrategy.RENVOOI
 
 
 class PublicationVersionCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 @inject
@@ -57,7 +57,7 @@ def post_create_version_endpoint(
         session,
         module_status_repository,
         publication.module_id,
-        object_in.Module_Status_ID,
+        object_in.module_status_id,
     )
 
     bill_metadata = defaults_provider.get_bill_metadata(publication.document_type, publication.procedure_type)
@@ -81,7 +81,7 @@ def post_create_version_endpoint(
         announcement_date=None,
         is_locked=False,
         status=status,
-        mutation_strategy=object_in.Mutation_Strategy,
+        mutation_strategy=object_in.mutation_strategy,
         created_date=timepoint,
         modified_date=timepoint,
         created_by_id=user.UUID,
@@ -93,7 +93,7 @@ def post_create_version_endpoint(
     session.commit()
 
     return PublicationVersionCreatedResponse(
-        UUID=version.id,
+        id=version.id,
     )
 
 

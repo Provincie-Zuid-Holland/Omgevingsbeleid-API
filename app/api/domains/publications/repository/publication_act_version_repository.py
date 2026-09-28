@@ -11,7 +11,7 @@ class PublicationActVersionRepository(BaseRepository):
     def get_by_work_expression(
         self,
         session: Session,
-        environment_uuid: uuid.UUID,
+        environment_id: uuid.UUID,
         document_type: str,
         procedure_type: str,
         work_province_id: str,
@@ -25,7 +25,7 @@ class PublicationActVersionRepository(BaseRepository):
         stmt = (
             select(PublicationActVersionTable)
             .join(PublicationActTable)
-            .filter(PublicationActTable.environment_id == environment_uuid)
+            .filter(PublicationActTable.environment_id == environment_id)
             .filter(PublicationActTable.document_type == document_type)
             .filter(PublicationActTable.procedure_type == procedure_type)
             .filter(PublicationActTable.work_province_id == work_province_id)

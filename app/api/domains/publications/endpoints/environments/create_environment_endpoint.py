@@ -28,7 +28,7 @@ class EnvironmentCreate(BaseModel):
 
 
 class EnvironmentCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 def post_create_environment_endpoint(
@@ -89,5 +89,5 @@ def post_create_environment_endpoint(
     session.commit()
 
     return EnvironmentCreatedResponse(
-        UUID=environment.id,
+        id=environment.id,
     )

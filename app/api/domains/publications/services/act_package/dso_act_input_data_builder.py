@@ -431,11 +431,11 @@ class DsoActInputDataBuilder:
     def _get_ambtsgebied(self) -> Ambtsgebied:
         aoj: dict = self._publication_data.area_of_jurisdiction
         ambtsgebied: Ambtsgebied = Ambtsgebied(
-            UUID=aoj["UUID"],
-            identificatie_suffix=aoj["Administrative_Borders_ID"],
-            domein=aoj["Administrative_Borders_Domain"],
-            geldig_op=aoj["Administrative_Borders_Date"].strftime("%Y-%m-%d"),
-            titel=aoj["Title"],
+            UUID=aoj["id"],
+            identificatie_suffix=aoj["administrative_borders_id"],
+            domein=aoj["administrative_borders_domain"],
+            geldig_op=aoj["administrative_borders_date"].strftime("%Y-%m-%d"),
+            titel=aoj["title"],
         )
         return ambtsgebied
 

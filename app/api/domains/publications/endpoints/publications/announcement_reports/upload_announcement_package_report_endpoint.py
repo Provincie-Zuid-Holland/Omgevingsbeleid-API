@@ -28,8 +28,8 @@ from app.core.tables.users import UsersTable
 
 
 class UploadPackageReportResponse(BaseModel):
-    Status: ReportStatusType
-    Duplicate_Count: int
+    status: ReportStatusType
+    duplicate_count: int
 
 
 class RunningStatus(BaseModel):
@@ -47,7 +47,7 @@ class FileParser:
     ):
         self._debug: bool = debug
         self._announcement_package: PublicationAnnouncementPackageTable = announcement_package
-        self._created_by_uuid: uuid.UUID = created_by_id
+        self._created_by_id: uuid.UUID = created_by_id
         self._timepoint: datetime = timepoint
         self._namespaces: dict[str, str] = {
             "lvbb": "http://www.overheid.nl/2017/lvbb",
@@ -98,7 +98,7 @@ class FileParser:
                 sub_progress=maybe_sub_progress or "",
                 sub_outcome=maybe_sub_outcome or "",
                 created_date=self._timepoint,
-                created_by_id=self._created_by_uuid,
+                created_by_id=self._created_by_id,
             )
             return report_table
         except Exception:
@@ -149,7 +149,7 @@ class EndpointHandler:
         for file in self._uploaded_files:
             existing_data: PaginatedQueryResult = self._report_repository.get_with_filters(
                 self._session,
-                announcement_package_uuid=self._announcement_package.id,
+                announcement_package_id=self._announcement_package.id,
                 filename=file.filename,
                 limit=1,
             )
@@ -171,8 +171,8 @@ class EndpointHandler:
         self._session.commit()
 
         response: UploadPackageReportResponse = UploadPackageReportResponse(
-            Status=ReportStatusType(self._announcement_package.report_status),
-            Duplicate_Count=duplicate_count,
+            status=ReportStatusType(self._announcement_package.report_status),
+            duplicate_count=duplicate_count,
         )
         return response
 

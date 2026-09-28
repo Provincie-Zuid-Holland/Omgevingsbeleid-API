@@ -27,7 +27,7 @@ class ActCreate(BaseModel):
 
 
 class ActCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 @inject
@@ -79,18 +79,18 @@ def post_create_act_endpoint(
     session.commit()
 
     return ActCreatedResponse(
-        UUID=act.uuid,
+        id=act.uuid,
     )
 
 
 def _get_environment(
     session: Session,
     repository: PublicationEnvironmentRepository,
-    environment_uuid: uuid.UUID,
+    environment_id: uuid.UUID,
 ) -> PublicationEnvironmentTable:
-    environment: PublicationEnvironmentTable | None = repository.get_by_uuid(
+    environment: PublicationEnvironmentTable | None = repository.get_by_id(
         session,
-        environment_uuid,
+        environment_id,
     )
     if environment is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication Environment niet gevonden")

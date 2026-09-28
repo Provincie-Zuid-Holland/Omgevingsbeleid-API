@@ -314,12 +314,12 @@ models:
         objects:
           - object_type: beleidsdoel
             object_id: beleidsdoel
-            to_field: "Beleidsdoelen"
+            to_field: "beleidsdoelen"
             model_id: beleidsdoel_minimal
             wrapped_with_relation_data: true
           - object_type: maatregel
             object_id: maatregel
-            to_field: "Maatregelen"
+            to_field: "maatregelen"
             model_id: maatregel_minimal
             wrapped_with_relation_data: true
   beleidskeuze_patch:

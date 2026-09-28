@@ -19,7 +19,7 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationEdit(BaseModel):
-    Template_UUID: uuid.UUID | None = None
+    template_id: uuid.UUID | None = None
 
 
 @inject
@@ -46,8 +46,8 @@ def post_edit_publication_endpoint(
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
-    if object_in.Template_UUID is not None:
-        _guard_template(session, template_repository, publication.document_type, object_in.Template_UUID)
+    if object_in.template_id is not None:
+        _guard_template(session, template_repository, publication.document_type, object_in.template_id)
 
     for key, value in changes.items():
         setattr(publication, key, value)
@@ -66,9 +66,9 @@ def _guard_template(
     session: Session,
     template_repository: PublicationTemplateRepository,
     document_type: str,
-    template_uuid: uuid.UUID,
+    template_id: uuid.UUID,
 ) -> None:
-    template: PublicationTemplateTable | None = template_repository.get_by_uuid(session, template_uuid)
+    template: PublicationTemplateTable | None = template_repository.get_by_id(session, template_id)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
     if not template.is_active:
