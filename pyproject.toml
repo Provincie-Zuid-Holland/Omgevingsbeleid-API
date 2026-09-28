@@ -21,6 +21,7 @@ ignore = [
 norecursedirs = "*venv* *.venv* *.pytest_cache* .hidden"
 testpaths = "tests"
 python_files = "*_test.py"
+addopts = "--import-mode=importlib"
 
 env = [
     "D:SQLALCHEMY_DATABASE_URI=sqlite:///:memory:",
