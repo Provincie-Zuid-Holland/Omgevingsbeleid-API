@@ -13,7 +13,7 @@ from app.api.domains.publications.services.validate_publication.validate_publica
 )
 from app.api.domains.publications.types.enums import DocumentType
 from app.core.services import MainConfig
-from tests.app.api.domains.publication.services.validate_publication.type_factories import (
+from tests.app.api.domains.publications.services.validate_publication.type_factories import (
     make_api_act_input_data,
     make_publication_data,
 )
