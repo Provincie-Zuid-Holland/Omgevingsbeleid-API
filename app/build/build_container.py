@@ -85,6 +85,7 @@ class BuildContainer(containers.DeclarativeContainer):
             ),
             providers.Factory(validators.NotEmptyValidator),
             providers.Factory(validators.AllowedValuesListValidator),
+            providers.Factory(validators.RequiredFieldsValidator),
         ),
     )
 
