@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 import tests.fixtures.internal.spec.modules as module_types
 import tests.fixtures.internal.spec.objects as objects_types
+import tests.fixtures.internal.spec.publications as publications_types
 from app.core.db.base import Base
 from tests.fixtures.internal.spec.area_spec import AreaPersistHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPersistHandler, AssetSpec
@@ -60,6 +61,8 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             module_types.ModuleGebiedengroepSpec: module_types.ModuleGebiedengroepPersistHandler(),
             module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPersistHandler(),
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPersistHandler(),
+            # Publications
+            publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePersistHandler(),
         }
 
     def persist(self, records: list[Record[S]], session: Session) -> FixtureData:

@@ -45,13 +45,13 @@ from app.core.tables.publications import (
 
 @inject
 def depends_publication_template(
-    template_id: uuid.UUID,
+    template_uuid: uuid.UUID,
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[
         PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
     ],
 ) -> PublicationTemplateTable:
-    maybe_template: PublicationTemplateTable | None = repository.get_by_id(session, template_id)
+    maybe_template: PublicationTemplateTable | None = repository.get_by_id(session, template_uuid)
     if not maybe_template:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publication template niet gevonden")
     return maybe_template

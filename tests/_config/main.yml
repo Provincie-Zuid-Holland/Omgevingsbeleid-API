@@ -123,6 +123,16 @@ api:
               gebied: gebied_basic
               gebiedsaanwijzing: gebiedsaanwijzing_basic
             response_model_name: PagedListAllLatestObjectsResponse
+    - prefix: /publication-templates
+      endpoints:
+        - resolver: create_publication_template
+        - resolver: edit_publication_template
+          resolver_data:
+            path: /{template_uuid}
+        - resolver: detail_publication_template
+          resolver_data:
+            path: /{template_uuid}
+        - resolver: list_publication_templates
 
 columns:
   # Titel

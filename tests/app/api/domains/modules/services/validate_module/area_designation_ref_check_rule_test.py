@@ -12,7 +12,7 @@ from app.api.domains.modules.services.validate_module import (
 )
 from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
-from tests.dso.factories.gebiedsaanwijzing import make_gebiedsaanwijzing
+from tests.dso_tests.factories.gebiedsaanwijzing import make_gebiedsaanwijzing
 
 
 def test_validate():

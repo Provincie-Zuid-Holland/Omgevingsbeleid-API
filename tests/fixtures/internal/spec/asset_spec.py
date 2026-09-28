@@ -35,7 +35,7 @@ class AssetSpec(Spec):
     created_by_id: Link | None = None
     file_path: str
 
-    # These will be filled if you just set File_Path
+    # These will be filled if you just set 'file_path'
     lookup: str = ""
     hash: str = ""
     meta: str = ""
