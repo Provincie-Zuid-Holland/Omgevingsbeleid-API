@@ -22,6 +22,7 @@ from tests.fixtures.data import (
     d204_module_4_ambtenaar_managed,
     d205_module_5_patch_module_1,
     d206_module_6_patch_module_2,
+    d207_module_7_temporary_locked,
     d301_publication_templates,
 )
 from tests.fixtures.internal.services.collector import Collector
@@ -54,6 +55,7 @@ class FixturesService:
             d204_module_4_ambtenaar_managed.load,
             d205_module_5_patch_module_1.load,
             d206_module_6_patch_module_2.load,
+            d207_module_7_temporary_locked.load,
             d301_publication_templates.load,
         ]
 

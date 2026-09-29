@@ -89,6 +89,15 @@ api:
         - resolver: close_module
           resolver_data:
             path: /close
+        - resolver: module_add_new_object
+          resolver_data:
+            path: /add-new-object
+            allowed_object_types:
+              - beleidsdoel
+              - beleidskeuze
+              - maatregel
+              - gebiedengroep
+              - gebiedsaanwijzing
         - resolver: module_add_existing_object
           resolver_data:
             path: /add-existing-object
