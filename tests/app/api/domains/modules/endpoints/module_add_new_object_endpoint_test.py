@@ -40,17 +40,17 @@ def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
         json=payload,
     )
     assert response.status_code == 200, response.text
-    response_obj: dict[str, str] = response.json()
-    assert response_obj["object_type"] == "beleidsdoel"
-    assert type(response_obj["object_id"]) == int
-    code: str = f"beleidsdoel-{response_obj['object_id']}"
-    assert response_obj["code"] == code
+    body: dict[str, str] = response.json()
+    assert body["object_type"] == "beleidsdoel"
+    assert type(body["object_id"]) == int
+    code: str = f"beleidsdoel-{body['object_id']}"
+    assert body["code"] == code
 
     stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.code == code)
     object_statics: ObjectStaticsTable | None = ctx.session.scalars(stmt).first()
     assert object_statics
     assert object_statics.object_type == payload["object_type"]
-    assert object_statics.object_id == response_obj["object_id"]
+    assert object_statics.object_id == body["object_id"]
     assert object_statics.owner_1_id == uuid.UUID(payload["owner_1_id"])
     assert object_statics.owner_2_id == uuid.UUID(payload["owner_2_id"])
     assert object_statics.client_1_id == uuid.UUID(payload["client_1_id"])
@@ -79,7 +79,7 @@ def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
     module_object: ModuleObjectsTable | None = ctx.session.scalars(stmt).first()
     assert module_object
     assert module_object.object_type == payload["object_type"]
-    assert module_object.object_id == response_obj["object_id"]
+    assert module_object.object_id == body["object_id"]
     assert module_object.title == payload["title"]
 
 
@@ -91,8 +91,8 @@ def test_adds_new_module_object_duplicate_owner(beheerder: TestClient, ctx: Cont
         json=payload,
     )
     assert response.status_code == 422, response.text
-    response_obj: dict[str, str] = response.json()
-    assert response_obj["detail"][0]["msg"].__contains__("Duplicate owner")
+    body: dict[str, str] = response.json()
+    assert body["detail"][0]["msg"].__contains__("Duplicate owner")
 
 
 @dataclass
@@ -125,5 +125,5 @@ def test_adds_new_module_object_guards(beheerder: TestClient, ctx: Context, case
         json=payload,
     )
     assert response.status_code == case.response_code, response.text
-    response_obj: dict[str, str] = response.json()
-    assert response_obj["detail"].__contains__(case.response_detail)
+    body: dict[str, str] = response.json()
+    assert body["detail"].__contains__(case.response_detail)
