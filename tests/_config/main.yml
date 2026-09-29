@@ -105,6 +105,22 @@ api:
               - beleidsdoel
               - beleidskeuze
               # maatregel is left out on purpose to tests adding invalid objects
+    - prefix: /modules/objects/latest
+      endpoints:
+        - resolver: list_module_objects
+          resolver_data:
+            sort:
+              default:
+                column: modified_date
+                order: desc
+              allowed_columns:
+                - object_id
+                - title
+                - modified_date
+                - object_type
+                - action
+            model_map: *model_map
+            response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
       endpoints:
         - resolver: list_all_latest_objects

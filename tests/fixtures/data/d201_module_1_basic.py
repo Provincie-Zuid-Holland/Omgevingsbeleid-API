@@ -41,7 +41,7 @@ def load(col: Collector) -> None:
             col.move_at(hours=1)
             col.adds(
                 [
-                    # An record to edit
+                    # A record to edit
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_1_first_entry",
                         object_id=1,
@@ -58,7 +58,7 @@ def load(col: Collector) -> None:
                         object_id=1,
                         title="Changed the titel via Module 1",
                     ),
-                    # An new record
+                    # A new record
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_4_first_entry",
                         object_id=4,
@@ -86,7 +86,7 @@ def load(col: Collector) -> None:
                         object_id=1,
                         title="Changed the titel via Module 1 again!",
                     ),
-                    # An record to edit
+                    # A record to edit
                     ModuleBeleidsdoelSpec(
                         key="mod_1_beleidsdoel_2_first_entry",
                         object_id=2,

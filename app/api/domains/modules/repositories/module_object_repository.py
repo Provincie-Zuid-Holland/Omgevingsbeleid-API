@@ -230,7 +230,7 @@ class ModuleObjectRepository(BaseRepository):
             .limit(1)
             .correlate(ModuleObjectsTable)  # Explicit correlate needed to merge back in outer query
             .scalar_subquery()
-            .label("Latest_Status")
+            .label("_latest_status")
         )
 
         subq = (
@@ -295,7 +295,7 @@ class ModuleObjectRepository(BaseRepository):
                 aliased_objects,
                 aliased_object_statics,
                 aliased_module_object_context,
-                subq.c.Latest_Status,
+                subq.c._latest_status,
             )
             .options(
                 load_only(
@@ -309,7 +309,7 @@ class ModuleObjectRepository(BaseRepository):
 
         # This field changes per record and must therefor be compared after gaining the newest record
         if title is not None:
-            stmt = stmt.filter(subq.c.title.like(title))
+            stmt = stmt.filter(subq.c.title.like(f"%{title}%"))
 
         return self.fetch_paginated_no_scalars(
             session=session,

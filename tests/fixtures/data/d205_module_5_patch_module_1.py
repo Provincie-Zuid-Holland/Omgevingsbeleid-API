@@ -64,7 +64,7 @@ def load(col: Collector) -> None:
                         object_id=510,
                         title="Gebiedsaanwijzing 510 in Module 5",
                     ),
-                    # Removed from the module (did not really exists but this will handle the case anyways)
+                    # Removed from the module (did not really exist but this will handle the case anyways)
                     ModuleGebiedSpec(
                         key="mod_5_gebied_511",
                         object_id=511,
