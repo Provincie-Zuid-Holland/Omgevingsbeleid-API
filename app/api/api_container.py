@@ -139,11 +139,8 @@ class ApiContainer(containers.DeclarativeContainer):
         asset_repository=asset_repository,
     )
 
-    access_token_lifetime = providers.Selector(
-        config.DEBUG_MODE_STR,
-        yes=providers.Object(timedelta(days=5)),
-        no=providers.Callable(timedelta, minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
-    )
+    access_token_lifetime = providers.Callable(timedelta, minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+
     security = providers.Factory(
         user_domain.Security,
         secret_key=config.SECRET_KEY,
