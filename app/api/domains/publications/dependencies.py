@@ -99,13 +99,13 @@ def depends_publication_version_attachment(
 
 @inject
 def depends_publication_act_package(
-    act_package_id: uuid.UUID,
+    act_package_uuid: uuid.UUID,
     session: Annotated[Session, Depends(depends_db_session)],
     package_repository: Annotated[
         PublicationActPackageRepository, Depends(Provide[ApiContainer.publication.act_package_repository])
     ],
 ) -> PublicationActPackageTable:
-    package: PublicationActPackageTable | None = package_repository.get_by_id(session, act_package_id)
+    package: PublicationActPackageTable | None = package_repository.get_by_id(session, act_package_uuid)
     if package is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Package not found")
     return package
