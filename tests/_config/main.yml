@@ -1,3 +1,50 @@
+validate_rules:
+  module:
+    area_designation_ref_check:
+      object_type: gebiedsaanwijzing
+      ref_type_field: ref_type
+      ref_group_field: ref_group
+    check_empty_area_designation_text:
+      fields:
+        - description
+    forbid_empty_html_nodes:
+      fields:
+        - description
+      html_void_elements:
+        - br
+      allowed_empty_when_sole_child:
+        td:
+          - p
+        th:
+          - p
+    forbidden_html_tags:
+      fields:
+        - description
+      forbidden_html_tags:
+      - h1
+    hoofdlijnen_check:
+      field: hoofdlijnen
+      allowed_object_types:
+        - beleidsdoel
+        - beleidskeuze
+        - maatregel
+    newest_input_geo_onderverdeling_used:
+      object_type: gebied
+      field: area
+    require_existing_hierarchy_code:
+      field: hierarchy_code
+    required_object_fields:
+      beleidsdoel: beleidsdoel_module_validate
+      beleidskeuze: beleidskeuze_module_validate
+      maatregel: maatregel_module_validate
+      gebied: gebied_module_validate
+      gebiedengroep: gebiedengroep_module_validate
+      gebiedsaanwijzing: gebiedsaanwijzing_module_validate
+    themas_check:
+      field: themas
+  publication:
+    required_object_fields: {}
+
 model_map: &model_map
   beleidsdoel: beleidsdoel_basic
   beleidskeuze: beleidskeuze_basic
@@ -29,6 +76,20 @@ api:
               - "Behandelend Ambtenaar"
               - "Portefeuillehouder"
               - "Regisseur Omgevingsbeleid"
+    - prefix: /search
+      endpoints:
+        - resolver: search
+          resolver_data:
+            search_columns:
+              - title
+              - description
+            model_map: *model_map
+            response_model_name: PagedSearchObjectResponse
+    - prefix: /revisions
+      endpoints:
+        - resolver: public_module_overview
+          resolver_data:
+            path: /{module_id}
     - prefix: /storage-files
       endpoints:
         - resolver: list_storage_files
@@ -68,15 +129,6 @@ api:
         - resolver: delete_hoofdlijn
         - resolver: detail_hoofdlijn
         - resolver: edit_hoofdlijn
-    - prefix: /search
-      endpoints:
-        - resolver: search
-          resolver_data:
-            search_columns:
-              - title
-              - description
-            model_map: *model_map
-            response_model_name: PagedSearchObjectResponse
     - prefix: /modules
       endpoints:
         - resolver: create_module
@@ -137,11 +189,6 @@ api:
                 - action
             model_map: *model_map
             response_model_name: PagedListModuleObjectsResponse
-    - prefix: /revisions
-      endpoints:
-        - resolver: public_module_overview
-          resolver_data:
-            path: /{module_id}
     - prefix: /objects/valid
       endpoints:
         - resolver: list_all_latest_objects
@@ -397,53 +444,6 @@ columns:
     serializers: []
     deserializers: []
     nullable: true
-
-validate_rules:
-  module:
-    area_designation_ref_check:
-      object_type: gebiedsaanwijzing
-      ref_type_field: ref_type
-      ref_group_field: ref_group
-    check_empty_area_designation_text:
-      fields:
-        - description
-    forbid_empty_html_nodes:
-      fields:
-        - description
-      html_void_elements:
-        - br
-      allowed_empty_when_sole_child:
-        td:
-          - p
-        th:
-          - p
-    forbidden_html_tags:
-      fields:
-        - description
-      forbidden_html_tags:
-      - h1
-    hoofdlijnen_check:
-      field: hoofdlijnen
-      allowed_object_types:
-        - beleidsdoel
-        - beleidskeuze
-        - maatregel
-    newest_input_geo_onderverdeling_used:
-      object_type: gebied
-      field: area
-    require_existing_hierarchy_code:
-      field: hierarchy_code
-    required_object_fields:
-      beleidsdoel: beleidsdoel_module_validate
-      beleidskeuze: beleidskeuze_module_validate
-      maatregel: maatregel_module_validate
-      gebied: gebied_module_validate
-      gebiedengroep: gebiedengroep_module_validate
-      gebiedsaanwijzing: gebiedsaanwijzing_module_validate
-    themas_check:
-      field: themas
-  publication:
-    required_object_fields: {}
 
 users_permissions:
   "Behandelend Ambtenaar":
