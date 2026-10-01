@@ -10,7 +10,9 @@ from tests.fixtures.internal.types import Ref
 
 
 def test_returns_the_latest_module_object_of_the_lineage(admin: TestClient, ctx: Context):
-    expected_module_object: ModuleBeleidsdoelSpec = ctx.f.find(Ref(ModuleBeleidsdoelSpec, "mod_1_beleidsdoel_1_third_entry")).spec
+    expected_module_object: ModuleBeleidsdoelSpec = ctx.f.find(
+        Ref(ModuleBeleidsdoelSpec, "mod_1_beleidsdoel_1_third_entry")
+    ).spec
 
     response = admin.get("/modules/object/beleidsdoel/active/1?minimum_status=Ontwerp GS Concept")
 

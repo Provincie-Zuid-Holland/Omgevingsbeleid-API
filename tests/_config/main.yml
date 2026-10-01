@@ -80,6 +80,7 @@ api:
     - prefix: /modules
       endpoints:
         - resolver: create_module
+        - resolver: list_modules
     - prefix: /modules/{module_id}
       endpoints:
         - resolver: edit_module

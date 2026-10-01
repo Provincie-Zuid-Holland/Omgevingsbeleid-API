@@ -24,7 +24,7 @@ def load(col: Collector) -> None:
                 temporary_locked=True,
             )
         )
-        with col.in_module(3):
+        with col.in_module(7):
             col.add(
                 ModuleStatusHistorySpec(
                     Status=ModuleStatusCodeInternal.Niet_Actief,
