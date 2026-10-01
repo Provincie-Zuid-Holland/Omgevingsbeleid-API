@@ -115,6 +115,9 @@ api:
         - resolver: module_remove_object
           resolver_data:
             path: /remove/{object_type}/{lineage_id}
+        - resolver: module_snapshot
+          resolver_data:
+            path: /snapshot/{status_id}
     - prefix: /modules/objects/latest
       endpoints:
         - resolver: list_module_objects
