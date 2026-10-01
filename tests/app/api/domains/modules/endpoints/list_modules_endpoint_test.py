@@ -12,7 +12,7 @@ def test_lists_all_modules_last_created_first(admin: TestClient):
 
     assert response.status_code == 200, response.text
     body = response.json()
-    assert [m["module_id"] for m in body["results"]] == [7, 6, 5, 4, 3, 2, 1]
+    assert [m["module_id"] for m in body["results"]] == [8, 7, 6, 5, 4, 3, 2, 1]
 
 
 def test_returns_the_module_fields(admin: TestClient, ctx: Context):
@@ -37,16 +37,16 @@ def test_returns_the_module_fields(admin: TestClient, ctx: Context):
 @pytest.mark.parametrize(
     "params, expected_module_ids",
     [
-        pytest.param({"filter_activated": "true"}, [7, 6, 5, 4, 3, 1], id="activated"),
+        pytest.param({"filter_activated": "true"}, [8, 7, 6, 5, 4, 3, 1], id="activated"),
         pytest.param({"filter_activated": "false"}, [2], id="not-activated"),
         pytest.param({"filter_closed": "true"}, [3], id="closed"),
-        pytest.param({"filter_closed": "false"}, [7, 6, 5, 4, 2, 1], id="not-closed"),
+        pytest.param({"filter_closed": "false"}, [8, 7, 6, 5, 4, 2, 1], id="not-closed"),
         pytest.param({"filter_successful": "true"}, [], id="successful"),
-        pytest.param({"filter_successful": "false"}, [7, 6, 5, 4, 3, 2, 1], id="not-successful"),
+        pytest.param({"filter_successful": "false"}, [8, 7, 6, 5, 4, 3, 2, 1], id="not-successful"),
         pytest.param({"filter_title": "Title of Module 5"}, [5], id="title-exact"),
         pytest.param({"filter_title": "%Module 1%"}, [1], id="title-like-pattern"),
         pytest.param({"filter_title": "Module"}, [], id="title-without-wildcards"),
-        pytest.param({"filter_activated": "true", "filter_closed": "false"}, [7, 6, 5, 4, 1], id="combined"),
+        pytest.param({"filter_activated": "true", "filter_closed": "false"}, [8, 7, 6, 5, 4, 1], id="combined"),
     ],
 )
 def test_filters_modules(admin: TestClient, params: dict[str, str], expected_module_ids: list[int]):

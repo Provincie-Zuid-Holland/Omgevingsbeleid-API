@@ -101,7 +101,7 @@ def _create_objects(
         statics: ObjectStaticsTable = (
             session.query(ObjectStaticsTable).filter(ObjectStaticsTable.code == new_object.code).one()
         )
-        statics.cached_title = new_object.Title
+        statics.cached_title = new_object.title
         session.add(new_object)
         session.add(statics)
 

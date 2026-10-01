@@ -90,7 +90,7 @@ class EndpointHandler:
                     aliased_subq.object_id,
                     aliased_subq.code,
                     aliased_subq.id,
-                    aliased_subq.Title,
+                    aliased_subq.title,
                 ),
             )
         )

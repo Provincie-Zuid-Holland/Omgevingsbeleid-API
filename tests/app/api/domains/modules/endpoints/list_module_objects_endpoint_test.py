@@ -12,7 +12,7 @@ def test_lists_latest_module_objects_all(beheerder: TestClient, ctx: Context):
 
     assert response.status_code == 200, response.text
     body: dict[str, str] = response.json()
-    assert {r["module_id"] for r in body["results"]} == {1, 5, 6, 7}
+    assert {r["module_id"] for r in body["results"]} == {1, 5, 6, 7, 8}
 
 
 def test_lists_latest_module_objects_per_module_id(beheerder: TestClient, ctx: Context):
@@ -93,7 +93,6 @@ def test_lists_latest_module_objects_per_module_id_owner_type_unknown(beheerder:
 
 
 def test_lists_latest_module_objects_per_minimum_status(beheerder: TestClient, ctx: Context):
-    # TODO response is unexpected to me
     response = beheerder.get(
         "/modules/objects/latest",
         params={"minimum_status": "Ter Inzage"},
@@ -101,7 +100,14 @@ def test_lists_latest_module_objects_per_minimum_status(beheerder: TestClient, c
 
     assert response.status_code == 200, response.text
     body: dict[str, str] = response.json()
-    assert {r["model"]["code"] for r in body["results"]} == {"beleidsdoel-1", "beleidsdoel-2", "beleidsdoel-4"}
+    assert {r["model"]["code"] for r in body["results"]} == {
+        "beleidsdoel-1",
+        "beleidsdoel-2",
+        "beleidsdoel-4",
+        "beleidsdoel-8",
+        "beleidskeuze-8",
+        "beleidskeuze-9",
+    }
 
 
 def test_lists_latest_module_objects_per_active(beheerder: TestClient, ctx: Context):
@@ -112,7 +118,7 @@ def test_lists_latest_module_objects_per_active(beheerder: TestClient, ctx: Cont
 
     assert response.status_code == 200, response.text
     body: dict[str, str] = response.json()
-    assert {r["module_id"] for r in body["results"]} == {1, 3, 5, 6, 7}
+    assert {r["module_id"] for r in body["results"]} == {1, 3, 5, 6, 7, 8}
 
 
 def test_lists_latest_module_objects_per_title(beheerder: TestClient, ctx: Context):
@@ -134,5 +140,5 @@ def test_lists_latest_module_objects_per_actions(beheerder: TestClient, ctx: Con
 
     assert response.status_code == 200, response.text
     body: dict[str, str] = response.json()
-    assert {r["module_id"] for r in body["results"]} == {5}
-    assert {r["model"]["code"] for r in body["results"]} == {"gebied-1"}
+    assert {r["module_id"] for r in body["results"]} == {5, 8}
+    assert {r["model"]["code"] for r in body["results"]} == {"beleidskeuze-9", "gebied-1"}

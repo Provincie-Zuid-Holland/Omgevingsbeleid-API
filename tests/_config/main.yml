@@ -139,6 +139,9 @@ api:
         - resolver: activate_module
           resolver_data:
             path: /activate
+        - resolver: complete_module
+          resolver_data:
+            path: /complete
         - resolver: close_module
           resolver_data:
             path: /close
