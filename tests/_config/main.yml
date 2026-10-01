@@ -90,6 +90,9 @@ api:
         - resolver: close_module
           resolver_data:
             path: /close
+        - resolver: module_list_statuses
+          resolver_data:
+            path: /status
         - resolver: module_patch_status
           resolver_data:
             path: /status
