@@ -78,7 +78,7 @@ def get_public_module_overview_endpoint(
                 aliased_subq.code,
                 aliased_subq.id,
                 aliased_subq.modified_date,
-                aliased_subq.Title,
+                aliased_subq.title,
                 aliased_subq.deleted,
             ),
             joinedload(aliased_subq.module_object_context),
