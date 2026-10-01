@@ -59,7 +59,7 @@ def post_module_remove_object_endpoint(
         object_context.object_type,
         object_context.object_id,
         {
-            "Deleted": True,
+            "deleted": True,
         },
         timepoint,
         user.UUID,

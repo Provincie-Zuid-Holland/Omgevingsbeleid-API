@@ -109,6 +109,9 @@ api:
         - resolver: module_edit_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}
+        - resolver: module_remove_object
+          resolver_data:
+            path: /remove/{object_type}/{lineage_id}
     - prefix: /modules/objects/latest
       endpoints:
         - resolver: list_module_objects
