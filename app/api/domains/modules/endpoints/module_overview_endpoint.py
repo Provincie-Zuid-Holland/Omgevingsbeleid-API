@@ -2,9 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
 
-from app.api.dependencies import depends_db_session
 from app.api.domains.modules.dependencies import depends_module
 from app.api.domains.modules.types import Module as ModuleClass
 from app.api.domains.modules.types import ModuleStatus
@@ -21,7 +19,6 @@ class ModuleOverviewResponse(BaseModel):
 def view_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
 ) -> ModuleOverviewResponse:
     status_history: list[ModuleStatus] = [ModuleStatus.model_validate(s) for s in module.status_history]
 

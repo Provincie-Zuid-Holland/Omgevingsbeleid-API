@@ -135,6 +135,7 @@ api:
         - resolver: list_modules
     - prefix: /modules/{module_id}
       endpoints:
+        - resolver: module_overview
         - resolver: edit_module
         - resolver: activate_module
           resolver_data:

@@ -1,4 +1,4 @@
-from sqlalchemy import desc, select
+from sqlalchemy import asc, desc, select
 from sqlalchemy.orm import Session
 
 from app.api.base_repository import BaseRepository
@@ -7,7 +7,11 @@ from app.core.tables.modules import ModuleStatusHistoryTable
 
 class ModuleStatusRepository(BaseRepository):
     def get_all_by_module_id(self, session: Session, module_id: int) -> list[ModuleStatusHistoryTable]:
-        stmt = select(ModuleStatusHistoryTable).filter(ModuleStatusHistoryTable.module_id == module_id)
+        stmt = (
+            select(ModuleStatusHistoryTable)
+            .filter(ModuleStatusHistoryTable.module_id == module_id)
+            .order_by(asc(ModuleStatusHistoryTable.id))
+        )
         statuses: list[ModuleStatusHistoryTable] = session.scalars(stmt).all()
         return statuses
 
