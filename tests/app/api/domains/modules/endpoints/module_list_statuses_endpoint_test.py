@@ -2,7 +2,6 @@ import uuid
 
 from fastapi.testclient import TestClient
 
-from app.api.domains.modules.types import ModuleStatusCode
 from tests.conftest import Context
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
