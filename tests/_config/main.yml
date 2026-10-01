@@ -90,6 +90,9 @@ api:
         - resolver: close_module
           resolver_data:
             path: /close
+        - resolver: module_patch_status
+          resolver_data:
+            path: /status
         - resolver: module_add_new_object
           resolver_data:
             path: /add-new-object
@@ -386,7 +389,48 @@ columns:
 
 validate_rules:
   module:
-    required_object_fields: {}
+    area_designation_ref_check:
+      object_type: gebiedsaanwijzing
+      ref_type_field: ref_type
+      ref_group_field: ref_group
+    check_empty_area_designation_text:
+      fields:
+        - description
+    forbid_empty_html_nodes:
+      fields:
+        - description
+      html_void_elements:
+        - br
+      allowed_empty_when_sole_child:
+        td:
+          - p
+        th:
+          - p
+    forbidden_html_tags:
+      fields:
+        - description
+      forbidden_html_tags:
+      - h1
+    hoofdlijnen_check:
+      field: hoofdlijnen
+      allowed_object_types:
+        - beleidsdoel
+        - beleidskeuze
+        - maatregel
+    newest_input_geo_onderverdeling_used:
+      object_type: gebied
+      field: area
+    require_existing_hierarchy_code:
+      field: hierarchy_code
+    required_object_fields:
+      beleidsdoel: beleidsdoel_module_validate
+      beleidskeuze: beleidskeuze_module_validate
+      maatregel: maatregel_module_validate
+      gebied: gebied_module_validate
+      gebiedengroep: gebiedengroep_module_validate
+      gebiedsaanwijzing: gebiedsaanwijzing_module_validate
+    themas_check:
+      field: themas
   publication:
     required_object_fields: {}
 

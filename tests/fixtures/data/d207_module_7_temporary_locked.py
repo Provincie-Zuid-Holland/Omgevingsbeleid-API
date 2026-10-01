@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 
 from app.api.domains.modules.types import ModuleStatusCode, ModuleStatusCodeInternal
 from tests.fixtures.internal.services.collector import Collector
+from tests.fixtures.internal.spec.modules import ModuleBeleidsdoelSpec
 from tests.fixtures.internal.spec.modules.module_spec import ModuleSpec
 from tests.fixtures.internal.spec.modules.module_status_history_spec import ModuleStatusHistorySpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
@@ -35,4 +36,15 @@ def load(col: Collector) -> None:
                 ModuleStatusHistorySpec(
                     Status=ModuleStatusCode.Ontwerp_GS_Concept,
                 )
+            )
+
+            col.move_at(hours=1)
+            col.adds(
+                [
+                    # A record, but is invalid because of missing title
+                    ModuleBeleidsdoelSpec(
+                        key="mod_7_beleidsdoel_7_first_entry",
+                        object_id=7,
+                    )
+                ]
             )

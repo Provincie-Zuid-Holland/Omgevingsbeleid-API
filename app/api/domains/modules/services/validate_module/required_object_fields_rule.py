@@ -31,7 +31,7 @@ class RequiredObjectFieldsRule(ValidateModuleRule):
                             code=module_object_table.code,
                             object_id=module_object_table.object_id,
                             object_type=module_object_table.object_type,
-                            title=module_object_table.title,
+                            title=module_object_table.title or "",
                         ),
                         messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
                     )
