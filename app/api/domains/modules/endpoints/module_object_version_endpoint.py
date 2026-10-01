@@ -37,7 +37,7 @@ def view_module_object_version_endpoint(
     user: Annotated[UsersTable | None, Depends(depends_optional_current_user)],
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ModuleObjectVersionEndpointContext, Depends()],
-    object_id: uuid.UUID,
+    object_uuid: uuid.UUID,
 ) -> BaseModel:
     if context.require_auth:
         if not user:
@@ -51,7 +51,7 @@ def view_module_object_version_endpoint(
         session,
         module.module_id,
         context.object_type,
-        object_id,
+        object_uuid,
     )
     if not module_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module Object niet gevonden")
