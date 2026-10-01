@@ -12,7 +12,7 @@ def test_lists_latest_module_objects_all(beheerder: TestClient, ctx: Context):
 
     assert response.status_code == 200, response.text
     body: dict[str, str] = response.json()
-    assert {r["module_id"] for r in body["results"]} == {1, 5, 6}
+    assert {r["module_id"] for r in body["results"]} == {1, 5, 6, 7}
 
 
 def test_lists_latest_module_objects_per_module_id(beheerder: TestClient, ctx: Context):
@@ -112,7 +112,7 @@ def test_lists_latest_module_objects_per_active(beheerder: TestClient, ctx: Cont
 
     assert response.status_code == 200, response.text
     body: dict[str, str] = response.json()
-    assert {r["module_id"] for r in body["results"]} == {1, 3, 5, 6}
+    assert {r["module_id"] for r in body["results"]} == {1, 3, 5, 6, 7}
 
 
 def test_lists_latest_module_objects_per_title(beheerder: TestClient, ctx: Context):
