@@ -138,6 +138,9 @@ api:
       endpoints:
         - resolver: module_overview
         - resolver: edit_module
+        - resolver: validate_module
+          resolver_data:
+            path: /validate
         - resolver: activate_module
           resolver_data:
             path: /activate
