@@ -113,7 +113,7 @@ class EndpointHandler:
             )
 
             description: str = ""
-            match getattr(row, "Description", None):
+            match getattr(row, "description", None):
                 case str() as row_description:
                     soup = BeautifulSoup(row_description, "html.parser")
                     description = soup.get_text()
