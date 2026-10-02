@@ -169,6 +169,9 @@ api:
               - beleidsdoel
               - beleidskeuze
               # maatregel is left out on purpose to tests adding invalid objects
+        - resolver: module_get_object_context
+          resolver_data:
+            path: /object-context/{object_type}/{lineage_id}
         - resolver: module_edit_object_context
           resolver_data:
             path: /object-context/{object_type}/{lineage_id}

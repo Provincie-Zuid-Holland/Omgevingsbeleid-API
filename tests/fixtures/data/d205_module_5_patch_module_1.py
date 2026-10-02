@@ -103,7 +103,8 @@ def load(col: Collector) -> None:
                         object_id=510,
                         title="Beleidskeuze 510 from module 5",
                         description="Description of beleidskeuze 510",
-                        explanation="Explanation of beleidskeuze 510",
+                        context_explanation="Explanation of beleidskeuze 510",
+                        context_conclusion="Conclusion of beleidskeuze 510",
                         owner_1_id=col.ref(UserSpec, "owner-1"),
                     ),
                 ]
