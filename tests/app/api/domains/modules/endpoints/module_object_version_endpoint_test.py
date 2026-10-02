@@ -36,7 +36,7 @@ from tests.fixtures.internal.types import Ref
         ),
     ],
 )
-def module_test_gebiedsaanwijzingen_from_text(
+def test_module_test_gebiedsaanwijzingen_from_text(
     request: FixtureRequest, ctx: Context, url_prefix: str, object_ref: Ref, user: str, expected_gebied_refs: list[Ref]
 ):
     client: TestClient = request.getfixturevalue(user)
