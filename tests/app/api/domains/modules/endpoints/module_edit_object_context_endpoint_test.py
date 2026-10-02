@@ -43,3 +43,13 @@ def test_edits_the_object_context(admin: TestClient, ctx: Context):
     assert object_context.explanation == payload["explanation"]
     assert object_context.conclusion == payload["conclusion"]
     assert object_context.modified_by_id == admin_uuid
+
+
+def test_edits_the_object_context_no_changes(admin: TestClient, ctx: Context):
+    response = admin.post(
+        "/modules/1/object-context/beleidsdoel/1",
+        json={},
+    )
+
+    assert response.status_code == 400, response.text
+    assert response.json()["detail"] == "Nothing to update"
