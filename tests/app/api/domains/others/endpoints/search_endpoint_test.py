@@ -13,11 +13,11 @@ from tests.fixtures.internal.types import Ref
 
 
 class Result(BaseModel):
-    Module_ID: int | None
-    Object_Type: str
-    Title: str
-    Description: str
-    Model: dict[str, Any]
+    module_id: int | None
+    object_type: str
+    title: str
+    description: str
+    model: dict[str, Any]
 
 
 class Response(BaseModel):
@@ -162,7 +162,7 @@ def test_search(
     if total is not None:
         assert response.total == total
 
-    result_uuids: set[UUID] = {UUID(result.Model["UUID"]) for result in response.results}
+    result_uuids: set[UUID] = {UUID(result.model["id"]) for result in response.results}
     expected_uuids: set[UUID] = set(ctx.f.find_uuids(expected_refs))
 
     assert expected_uuids == result_uuids

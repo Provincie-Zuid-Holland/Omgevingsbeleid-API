@@ -40,7 +40,7 @@ def get_list_announcement_packages_endpoint(
         ),
     ],
     context: Annotated[ListAnnouncementPackagesEndpointContext, Depends()],
-    announcement_uuid: uuid.UUID | None = None,
+    announcement_id: uuid.UUID | None = None,
     package_type: PackageType | None = None,
 ) -> PagedResponse[PublicationPackage]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
@@ -48,7 +48,7 @@ def get_list_announcement_packages_endpoint(
 
     paginated_result = package_repository.get_with_filters(
         session=session,
-        announcement_uuid=announcement_uuid,
+        announcement_id=announcement_id,
         package_type=package_type,
         pagination=pagination,
     )

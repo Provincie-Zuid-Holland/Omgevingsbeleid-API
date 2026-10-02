@@ -20,7 +20,7 @@ class StateV6Upgrader(StateUpgrader):
     def get_input_schema_version() -> int:
         return state_v5.StateV5.get_schema_version()
 
-    def upgrade(self, session: Session, environment_uuid: UUID, old_state: State) -> State:
+    def upgrade(self, session: Session, environment_id: UUID, old_state: State) -> State:
         if old_state.get_schema_version() != state_v5.StateV5.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 

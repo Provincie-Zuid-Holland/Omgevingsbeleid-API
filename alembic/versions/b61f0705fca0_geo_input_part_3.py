@@ -48,15 +48,22 @@ def upgrade() -> None:
 
     # Backfill hashes & lookup from existing geometry
     op.execute("""
-        UPDATE a
-        SET
-            Source_Geometry_Hash  = h.HashHex,
-            Source_Geometry_Index = LEFT(h.HashHex, 10)
-        FROM areas AS a
-        CROSS APPLY (
-            SELECT CONVERT(NVARCHAR(64), HASHBYTES('SHA2_256', a.[Shape].STAsBinary()), 2)
-        ) AS h(HashHex)
-        WHERE a.[Shape] IS NOT NULL;
+        UPDATE areas a
+        SET 
+          "Source_Geometry_Hash"  = h.hash_hex,
+          "Source_Geometry_Index" = SUBSTRING(h.hash_hex FROM 1 FOR 10)
+        FROM areas a2,
+        LATERAL (
+          SELECT encode(
+                   digest(
+                     ST_AsBinary(a2."Shape"::geometry),
+                     'sha256'
+                   ),
+                   'hex'
+                 ) AS hash_hex
+        ) AS h
+        WHERE a."UUID" = a2."UUID"
+          AND a2."Shape" IS NOT NULL;
     """)
 
 

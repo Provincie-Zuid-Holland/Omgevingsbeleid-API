@@ -18,7 +18,7 @@ def test_deletes_a_file_and_it_no_longer_appears_in_the_list(admin: TestClient, 
     assert response.json()["message"] == "OK"
 
     listed = admin.get("/beleidsdoel/1/object-related-files").json()
-    assert str(file_uuid) not in [r["UUID"] for r in listed]
+    assert str(file_uuid) not in [r["id"] for r in listed]
 
 
 def test_unknown_uuid_returns_404(admin: TestClient):

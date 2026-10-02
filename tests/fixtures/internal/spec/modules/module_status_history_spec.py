@@ -9,26 +9,26 @@ from tests.fixtures.internal.types import BasePersistHandler, Link, PersistConte
 
 
 class ModuleStatusHistorySpec(Spec):
-    __link_fields__: ClassVar[set[str]] = {"Created_By_UUID"}
+    __link_fields__: ClassVar[set[str]] = {"created_by_id"}
 
-    ID: int | None = None
-    Module_ID: int | None = None
+    id: int | None = None
+    module_id: int | None = None
     Status: str | None = None
 
-    Created_Date: datetime | None = None
-    Created_By_UUID: Link | None = None
+    created_date: datetime | None = None
+    created_by_id: Link | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.ID, "ID is not set which is expected to happen at this stage."
-        return self.ID
+        assert self.id, "ID is not set which is expected to happen at this stage."
+        return self.id
 
 
 class ModuleStatusHistoryPrefillHandler(BasePrefillHandler[ModuleStatusHistorySpec]):
     def fill(self, record: Record[ModuleStatusHistorySpec], context: PrefillContext) -> Record[ModuleStatusHistorySpec]:
         record = super().fill(record, context)
 
-        if record.spec.ID is None:
-            record.spec.ID = context.spec_count
+        if record.spec.id is None:
+            record.spec.id = context.spec_count
 
         return record
 
@@ -38,10 +38,10 @@ class ModuleStatusHistoryPersistHandler(BasePersistHandler[ModuleStatusHistorySp
         spec: ModuleStatusHistorySpec = record.spec
         return [
             ModuleStatusHistoryTable(
-                ID=spec.ID,
-                Module_ID=spec.Module_ID,
-                Status=spec.Status,
-                Created_Date=spec.Created_Date,
-                Created_By_UUID=spec.Created_By_UUID,
+                id=spec.id,
+                module_id=spec.module_id,
+                status=spec.Status,
+                created_date=spec.created_date,
+                created_by_id=spec.created_by_id,
             )
         ]

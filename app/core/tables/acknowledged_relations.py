@@ -13,149 +13,149 @@ from app.core.types import AcknowledgedRelationSide
 class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
     __tablename__ = "acknowledged_relations"
 
-    Version: Mapped[int] = mapped_column(default=1, nullable=False, primary_key=True)
-    Requested_By_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"))
-    From_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
-    From_Acknowledged: Mapped[datetime | None]
-    From_Acknowledged_By_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
-    From_Explanation: Mapped[str] = mapped_column(default="")
+    version: Mapped[int] = mapped_column(default=1, nullable=False, primary_key=True)
+    requested_by_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"))
+    from_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"), primary_key=True)
+    from_acknowledged: Mapped[datetime | None]
+    from_acknowledged_by_uuid: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    from_explanation: Mapped[str] = mapped_column(default="")
 
-    To_Code: Mapped[str] = mapped_column(ForeignKey("object_statics.Code"), primary_key=True)
-    To_Acknowledged: Mapped[datetime | None] = mapped_column(nullable=True)
-    To_Acknowledged_By_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
-    To_Explanation: Mapped[str] = mapped_column(default="")
+    to_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"), primary_key=True)
+    to_acknowledged: Mapped[datetime | None] = mapped_column(nullable=True)
+    to_acknowledged_by_uuid: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    to_explanation: Mapped[str] = mapped_column(default="")
 
-    Denied: Mapped[datetime | None]
-    Deleted_At: Mapped[datetime | None]
+    denied: Mapped[datetime | None]
+    deleted_at: Mapped[datetime | None]
 
     @hybrid_property
     def side_from(self) -> AcknowledgedRelationSide:
         return AcknowledgedRelationSide(
-            Object_ID=self.From_Object_ID,
-            Object_Type=self.From_Object_Type,
-            Acknowledged=self.From_Acknowledged,
-            Acknowledged_By_UUID=self.From_Acknowledged_By_UUID,
-            Title=self.From_Title,
-            Explanation=self.From_Explanation,
+            object_id=self.from_object_id,
+            object_type=self.from_object_type,
+            acknowledged=self.from_acknowledged,
+            acknowledged_by_id=self.from_acknowledged_by_uuid,
+            title=self.from_title,
+            explanation=self.from_explanation,
         )
 
     @hybrid_property
     def side_to(self) -> AcknowledgedRelationSide:
         return AcknowledgedRelationSide(
-            Object_ID=self.To_Object_ID,
-            Object_Type=self.To_Object_Type,
-            Acknowledged=self.To_Acknowledged,
-            Acknowledged_By_UUID=self.To_Acknowledged_By_UUID,
-            Title=self.To_Title,
-            Explanation=self.To_Explanation,
+            object_id=self.to_object_id,
+            object_type=self.to_object_type,
+            acknowledged=self.to_acknowledged,
+            acknowledged_by_id=self.to_acknowledged_by_uuid,
+            title=self.to_title,
+            explanation=self.to_explanation,
         )
 
     def get_side(self, code: str) -> AcknowledgedRelationSide:
-        if code == self.From_Code:
+        if code == self.from_code:
             return self.side_from
-        elif code == self.To_Code:
+        elif code == self.to_code:
             return self.side_to
         else:
-            raise RuntimeError("Code does not belong to this acknowledged relation")
+            raise RuntimeError("code does not belong to this acknowledged relation")
 
     def _assign_side(self, side: AcknowledgedRelationSide, prefix: str):
-        setattr(self, f"{prefix}_Code", side.Code)
-        setattr(self, f"{prefix}_Acknowledged", side.Acknowledged_Date)
-        setattr(self, f"{prefix}_Acknowledged_By_UUID", side.Acknowledged_By_UUID)
-        setattr(self, f"{prefix}_Explanation", side.Explanation)
+        setattr(self, f"{prefix}_code", side.code)
+        setattr(self, f"{prefix}_acknowledged", side.acknowledged_date)
+        setattr(self, f"{prefix}_acknowledged_by_uuid", side.acknowledged_by_id)
+        setattr(self, f"{prefix}_explanation", side.explanation)
 
     def with_sides(self, side_a: AcknowledgedRelationSide, side_b: AcknowledgedRelationSide):
-        from_side, to_side = sorted([side_a, side_b], key=lambda x: x.Code)
-        self._assign_side(from_side, "From")
-        self._assign_side(to_side, "To")
+        from_side, to_side = sorted([side_a, side_b], key=lambda x: x.code)
+        self._assign_side(from_side, "from")
+        self._assign_side(to_side, "to")
 
     def apply_side(self, side: AcknowledgedRelationSide):
-        if side.Code == self.From_Code:
-            self._assign_side(side, "From")
-        elif side.Code == self.To_Code:
-            self._assign_side(side, "To")
+        if side.code == self.from_code:
+            self._assign_side(side, "from")
+        elif side.code == self.to_code:
+            self._assign_side(side, "to")
         else:
-            raise RuntimeError("Code does not belong to this acknowledged relation")
+            raise RuntimeError("code does not belong to this acknowledged relation")
 
     def deny(self):
-        if self.Denied is not None:
+        if self.denied is not None:
             return
-        self.Denied = datetime.now(UTC)
+        self.denied = datetime.now(UTC)
 
     def delete(self):
-        if self.Is_Deleted:
+        if self.is_deleted:
             return
-        self.Deleted_At = datetime.now(UTC)
+        self.deleted_at = datetime.now(UTC)
 
     # dynamic property for better ORM filtering.
     @hybrid_property
-    def Is_Acknowledged(self) -> bool:
-        if self.Is_Denied:
+    def is_acknowledged(self) -> bool:
+        if self.is_denied:
             return False
-        return self.From_Acknowledged is not None and self.To_Acknowledged is not None
+        return self.from_acknowledged is not None and self.to_acknowledged is not None
 
-    @Is_Acknowledged.expression
-    def Is_Acknowledged(cls):
+    @is_acknowledged.expression
+    def is_acknowledged(cls):
         return and_(
-            cls.Denied.is_(None),
-            cls.From_Acknowledged.isnot(None),
-            cls.To_Acknowledged.isnot(None),
+            cls.denied.is_(None),
+            cls.from_acknowledged.isnot(None),
+            cls.to_acknowledged.isnot(None),
         )
 
     @hybrid_property
-    def Is_Denied(self) -> bool:
-        return self.Denied is not None
+    def is_denied(self) -> bool:
+        return self.denied is not None
 
-    @Is_Denied.expression
-    def Is_Denied(cls):
-        return cls.Denied.isnot(None)
-
-    @hybrid_property
-    def Is_Deleted(self) -> bool:
-        return self.Deleted_At is not None
-
-    @Is_Deleted.expression
-    def Is_Deleted(cls):
-        return cls.Deleted_At.isnot(None)
+    @is_denied.expression
+    def is_denied(cls):
+        return cls.denied.isnot(None)
 
     @hybrid_property
-    def From_Object_Type(self) -> str:
-        object_type, _ = self.From_Code.split("-", 1)
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None
+
+    @is_deleted.expression
+    def is_deleted(cls):
+        return cls.deleted_at.isnot(None)
+
+    @hybrid_property
+    def from_object_type(self) -> str:
+        object_type, _ = self.from_code.split("-", 1)
         return object_type
 
     @hybrid_property
-    def From_Object_ID(self) -> int:
-        _, object_id = self.From_Code.split("-", 1)
+    def from_object_id(self) -> int:
+        _, object_id = self.from_code.split("-", 1)
         return int(object_id)
 
     @hybrid_property
-    def To_Object_Type(self) -> str:
-        object_type, _ = self.To_Code.split("-", 1)
+    def to_object_type(self) -> str:
+        object_type, _ = self.to_code.split("-", 1)
         return object_type
 
     @hybrid_property
-    def To_Object_ID(self) -> int:
-        _, object_id = self.To_Code.split("-", 1)
+    def to_object_id(self) -> int:
+        _, object_id = self.to_code.split("-", 1)
         return int(object_id)
 
     @hybrid_property
-    def From_Title(self):
-        return getattr(self.From_ObjectStatics, "Cached_Title", None)
+    def from_title(self):
+        return getattr(self.from_object_statics, "cached_title", None)
 
     @hybrid_property
-    def To_Title(self):
-        return getattr(self.To_ObjectStatics, "Cached_Title", None)
+    def to_title(self):
+        return getattr(self.to_object_statics, "cached_title", None)
 
-    From_ObjectStatics = relationship(
+    from_object_statics = relationship(
         "ObjectStaticsTable",
-        primaryjoin="AcknowledgedRelationsTable.From_Code == ObjectStaticsTable.Code",
+        primaryjoin="AcknowledgedRelationsTable.from_code == ObjectStaticsTable.code",
         lazy="select",
     )
-    To_ObjectStatics = relationship(
+    to_object_statics = relationship(
         "ObjectStaticsTable",
-        primaryjoin="AcknowledgedRelationsTable.To_Code == ObjectStaticsTable.Code",
+        primaryjoin="AcknowledgedRelationsTable.to_code == ObjectStaticsTable.code",
         lazy="select",
     )
 
     def __repr__(self) -> str:
-        return f"AcknowledgedRelations(From_Code={self.From_Code!r}, To_Code={self.To_Code!r}, Ack={self.From_Acknowledged and self.To_Acknowledged})"
+        return f"AcknowledgedRelations(from_code={self.from_code!r}, to_code={self.to_code!r}, ack={self.from_acknowledged and self.to_acknowledged})"

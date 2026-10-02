@@ -24,7 +24,7 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
+    def _format_uuid(self, idx: uuid.UUID) -> str:
         pass
 
     @abstractmethod

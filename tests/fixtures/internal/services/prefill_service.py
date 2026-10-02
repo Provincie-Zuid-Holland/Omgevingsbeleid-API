@@ -2,6 +2,7 @@ from collections import defaultdict
 
 import tests.fixtures.internal.spec.modules as module_types
 import tests.fixtures.internal.spec.objects as objects_types
+import tests.fixtures.internal.spec.publications as publications_types
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.services.collector import Record
 from tests.fixtures.internal.spec.area_spec import AreaPrefillHandler, AreaSpec
@@ -51,6 +52,8 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             module_types.ModuleGebiedengroepSpec: module_types.ModuleGebiedengroepPrefillHandler(),
             module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPrefillHandler(),
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPrefillHandler(),
+            # Publications
+            publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePrefillHandler(),
         }
 
     def prefill(self, input_records: list[Record]) -> list[Record]:

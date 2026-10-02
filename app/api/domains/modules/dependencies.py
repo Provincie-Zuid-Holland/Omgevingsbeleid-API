@@ -30,7 +30,7 @@ def depends_module(
 def depends_active_module(
     module: Annotated[ModuleTable, Depends(depends_module)],
 ) -> ModuleTable:
-    if module.Closed:
+    if module.closed:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "De module is gesloten")
     return module
 
@@ -38,7 +38,7 @@ def depends_active_module(
 def depends_active_and_activated_module(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
 ) -> ModuleTable:
-    if not module.Activated:
+    if not module.activated:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "De module is nog niet actief")
     return module
 
@@ -70,7 +70,7 @@ def depends_active_module_object_context(
     maybe_context: ModuleObjectContextTable | None = repository.get_by_ids(session, module_id, object_type, lineage_id)
     if not maybe_context:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object context niet gevonden")
-    if maybe_context.Hidden:
+    if maybe_context.hidden:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object context is verwijderd")
     return maybe_context
 
@@ -82,7 +82,7 @@ def depends_module_status_by_id(
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],
 ) -> ModuleStatusHistoryTable:
-    maybe_status: ModuleStatusHistoryTable | None = repository.get_by_id(session, module.Module_ID, status_id)
+    maybe_status: ModuleStatusHistoryTable | None = repository.get_by_id(session, module.module_id, status_id)
     if not maybe_status:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module status niet gevonden")
     return maybe_status

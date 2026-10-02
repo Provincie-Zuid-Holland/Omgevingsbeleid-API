@@ -19,7 +19,7 @@ def test_validate():
     config: Mock | MainConfig = Mock(MainConfig)
     rule_config: NewestInputGeoOnderverdelingUsedRuleConfig = NewestInputGeoOnderverdelingUsedRuleConfig(
         object_type="gebied",
-        field="Area",
+        field="area",
     )
     config.get_as_model.return_value = rule_config
     repository: Mock | InputGeoOnderverdelingRepository = Mock(InputGeoOnderverdelingRepository)
@@ -43,45 +43,45 @@ def test_validate():
         module_id=1,
         module_objects=[
             ModuleObjectsTable(
-                Object_Type="beleidsdoel",  # Not a gebied
-                Object_ID="1",
-                Code="beleidsdoel-1",
-                Title="BD1 title",
+                object_type="beleidsdoel",  # Not a gebied
+                object_id="1",
+                code="beleidsdoel-1",
+                title="BD1 title",
             ),
             ModuleObjectsTable(
-                Object_Type="gebied",  # No area
-                Object_ID="1",
-                Code="gebied-1",
-                Title="G1 title",
+                object_type="gebied",  # No area
+                object_id="1",
+                code="gebied-1",
+                title="G1 title",
             ),
             ModuleObjectsTable(
-                Object_Type="gebied",
-                Object_ID="2",
-                Code="gebied-2",
-                Title="G2 title",
-                Area=AreasTable(
-                    Source_Geometry_Hash="abc123",  # Onderverdeling existing
-                    Source_Title="A1 title",
+                object_type="gebied",
+                object_id="2",
+                code="gebied-2",
+                title="G2 title",
+                area=AreasTable(
+                    source_title="A1 title",
+                    source_geometry_hash="abc123",  # Onderverdeling existing
                 ),
             ),
             ModuleObjectsTable(
-                Object_Type="gebied",
-                Object_ID="3",
-                Code="gebied-3",
-                Title="G3 title",
-                Area=AreasTable(
-                    Source_Geometry_Hash="fgh456",  # Onderverdeling no hash match
-                    Source_Title="A2 title",
+                object_type="gebied",
+                object_id="3",
+                code="gebied-3",
+                title="G3 title",
+                area=AreasTable(
+                    source_title="A2 title",
+                    source_geometry_hash="fgh456",  # Onderverdeling no hash match
                 ),
             ),
             ModuleObjectsTable(
-                Object_Type="gebied",
-                Object_ID="4",
-                Code="gebied-4",
-                Title="G4 title",
-                Area=AreasTable(
-                    Source_Geometry_Hash="ijk789",  # onderverdeling not available
-                    Source_Title="A3 title",
+                object_type="gebied",
+                object_id="4",
+                code="gebied-4",
+                title="G4 title",
+                area=AreasTable(
+                    source_title="A3 title",
+                    source_geometry_hash="ijk789",  # onderverdeling not available
                 ),
             ),
         ],

@@ -22,6 +22,9 @@ from tests.fixtures.data import (
     d204_module_4_ambtenaar_managed,
     d205_module_5_patch_module_1,
     d206_module_6_patch_module_2,
+    d207_module_7_temporary_locked,
+    d208_module_8_to_be_completed,
+    d301_publication_templates,
 )
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.services.linker_service import LinkerService
@@ -53,14 +56,17 @@ class FixturesService:
             d204_module_4_ambtenaar_managed.load,
             d205_module_5_patch_module_1.load,
             d206_module_6_patch_module_2.load,
+            d207_module_7_temporary_locked.load,
+            d208_module_8_to_be_completed.load,
+            d301_publication_templates.load,
         ]
 
         collector: Collector = Collector()
         for source in sources:
             collector.at(DATETIME_T0)
             with collector.with_defaults(
-                Created_By_UUID=collector.ref(UserSpec, "admin"),
-                Modified_By_UUID=collector.ref(UserSpec, "admin"),
+                created_by_id=collector.ref(UserSpec, "admin"),
+                modified_by_id=collector.ref(UserSpec, "admin"),
             ):
                 source(collector)
 

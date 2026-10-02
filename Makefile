@@ -117,3 +117,6 @@ docker-mssql-setup-search:
 
 docker-load-fixtures:
 	docker compose exec api python -m app.cmds load-fixtures
+
+docker-psql:
+	docker compose exec -it postgres psql -U pzh omgevingsbeleid

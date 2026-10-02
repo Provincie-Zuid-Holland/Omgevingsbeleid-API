@@ -35,7 +35,7 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
         )
 
         for object_table in request.module_objects:
-            if object_table.Object_Type != self._config.object_type:
+            if object_table.object_type != self._config.object_type:
                 continue
 
             ref_type: Gebiedsaanwijzing | None = gebiedsaanwijzingen.get_by_type_label(
@@ -46,10 +46,10 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="area_designation_check_ref_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
                             f"GebiedsaanwijzingType '{getattr(object_table, self._config.ref_type_field)}' for gebiedsaanwijzing not found"
@@ -62,10 +62,10 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="area_designation_check_ref_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
                             f"GebiedsaanwijzingType '{getattr(object_table, self._config.ref_type_field)}' for gebiedsaanwijzing is deprecated"
@@ -82,10 +82,10 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="area_designation_check_ref_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
                             f"GebiedsaanwijzingGroep '{getattr(object_table, self._config.ref_group_field)}' for GebiedsaanwijzingType '{getattr(object_table, self._config.ref_type_field)}' not found"
@@ -98,10 +98,10 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="area_designation_check_ref_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         severity=ValidateModuleSeverity.warning,
                         messages=[

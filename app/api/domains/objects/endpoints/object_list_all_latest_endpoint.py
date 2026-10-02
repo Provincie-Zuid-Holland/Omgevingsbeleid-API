@@ -23,9 +23,9 @@ from app.api.utils.pagination import (
 
 
 class ObjectListAllLatestResponse[TModel: BaseModel](BaseModel):
-    Object_Type: str
-    ObjectStatics: ObjectStaticShort
-    Model: TModel
+    object_type: str
+    object_statics: ObjectStaticShort
+    model: TModel
 
     model_config = ConfigDict(from_attributes=True, title="ObjectListAllLatestResponse")
 
@@ -46,7 +46,7 @@ def do_list_all_latest_endpoint(
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
     ],
     object_types: Annotated[list[str], Query(alias="object_types")] = [],  # noqa: B006
-    owner_uuid: uuid.UUID | None = None,
+    owner_id: uuid.UUID | None = None,
 ) -> PagedResponse[ObjectListAllLatestResponse[BaseModel]]:
     for object_type in object_types:
         if object_type not in context.allowed_object_types:
@@ -59,15 +59,15 @@ def do_list_all_latest_endpoint(
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     paginated_result: PaginatedQueryResult = object_repository.get_latest_filtered(
-        session=session, pagination=pagination, owner_uuid=owner_uuid, object_types=object_types
+        session=session, pagination=pagination, owner_id=owner_id, object_types=object_types
     )
     objects: list[ObjectListAllLatestResponse[BaseModel]] = []
     for object_current in paginated_result.items:
         parsed_model: BaseModel = module_objects_to_models_parser.parse(object_current, context.model_map)
         object_response = ObjectListAllLatestResponse(
-            Object_Type=object_current.Object_Type,
-            ObjectStatics=object_current.ObjectStatics,
-            Model=parsed_model,
+            object_type=object_current.object_type,
+            object_statics=object_current.object_statics,
+            model=parsed_model,
         )
         objects.append(object_response)
 

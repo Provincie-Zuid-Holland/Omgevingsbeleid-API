@@ -31,7 +31,7 @@ def post_delete_attachment_endpoint(
     _guard(version, attachment)
 
     # @todo: This should become a soft delete but I could not upgrade the database at this point
-    session.delete(attachment.File)
+    session.delete(attachment.file)
     session.delete(attachment)
     session.flush()
     session.commit()
@@ -40,9 +40,9 @@ def post_delete_attachment_endpoint(
 
 
 def _guard(version: PublicationVersionTable, attachment: PublicationVersionAttachmentTable) -> None:
-    if attachment.Publication_Version_UUID != version.UUID:
+    if attachment.publication_version_id != version.id:
         raise HTTPException(status.HTTP_409_CONFLICT, "You can not delete an attachment of another publication version")
-    if not version.Publication.Act.Is_Active:
+    if not version.publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
-    if version.Is_Locked:
+    if version.is_locked:
         raise HTTPException(status.HTTP_409_CONFLICT, "This publication version is locked")

@@ -56,12 +56,12 @@ def test_create_user_writes_changelog_without_password(admin: TestClient, ctx: C
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
     change_log: ChangeLogTable | None = ctx.session.scalar(
         select(ChangeLogTable)
-        .where(ChangeLogTable.Action_Type == "create_user")
-        .order_by(desc(ChangeLogTable.Created_Date))
+        .where(ChangeLogTable.action_type == "create_user")
+        .order_by(desc(ChangeLogTable.created_date))
     )
     assert change_log is not None
-    assert change_log.Created_By_UUID == admin_uuid
-    assert "Wachtwoord" not in (change_log.After or "")
+    assert change_log.created_by_id == admin_uuid
+    assert "Wachtwoord" not in (change_log.after or "")
 
 
 def test_create_user_duplicate_email(admin: TestClient, session: Session):

@@ -19,19 +19,19 @@ from tests.fixtures.internal.types import Ref
 def test_returns_the_requested_version_by_uuid(client: TestClient, ctx: Context, prefix: str, ref: Ref):
     expected: BaseObjectSpec = ctx.f.find(ref).spec
 
-    response = client.get(f"{prefix}/version/{expected.UUID}")
+    response = client.get(f"{prefix}/version/{expected.id}")
     assert response.status_code == 200, response.text
 
     body = response.json()
-    assert body["UUID"] == str(expected.UUID)
-    assert body["Code"] == expected.Code
+    assert body["id"] == str(expected.id)
+    assert body["code"] == expected.code
 
 
 def test_version_is_scoped_to_object_type(client: TestClient, ctx: Context):
     # A maatregel UUID must not resolve under the beleidsdoel routes.
     maatregel: MaatregelSpec = ctx.f.find(Ref(MaatregelSpec, "maatregel_6_past_end_validity")).spec
 
-    response = client.get(f"/beleidsdoelen/version/{maatregel.UUID}")
+    response = client.get(f"/beleidsdoelen/version/{maatregel.id}")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "object_uuid does not exist"
@@ -48,6 +48,6 @@ def test_response_matches_the_full_model_shape(client: TestClient, ctx: Context)
     expected: BeleidsdoelSpec = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_1_latest_valid")).spec
     model: type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_full")
 
-    body: dict = client.get(f"/beleidsdoelen/version/{expected.UUID}").json()
+    body: dict = client.get(f"/beleidsdoelen/version/{expected.id}").json()
 
     assert set(body.keys()) == set(model.model_fields)

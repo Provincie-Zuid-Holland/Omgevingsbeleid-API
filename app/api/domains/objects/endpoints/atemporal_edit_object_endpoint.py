@@ -58,23 +58,23 @@ def atemporal_edit_object_endpoint(
         setattr(maybe_object, key, value)
 
     timepoint: datetime = datetime.now(UTC)
-    maybe_object.Modified_By_UUID = user.UUID
-    maybe_object.Modified_Date = timepoint
+    maybe_object.modified_by_id = user.UUID
+    maybe_object.modified_date = timepoint
     session.add(maybe_object)
 
     if "Title" in changes:
-        maybe_object.ObjectStatics.Cached_Title = changes["Title"]
-        session.add(maybe_object.ObjectStatics)
+        maybe_object.object_statics.cached_title = changes["Title"]
+        session.add(maybe_object.object_statics)
 
     change_log: ChangeLogTable = ChangeLogTable(
-        Object_Type=context.object_type,
-        Object_ID=lineage_id,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Action_Type="atemporal_edit_object",
-        Action_Data=json.dumps(changes),
-        Before=log_before,
-        After=json.dumps(maybe_object.to_dict()),
+        object_type=context.object_type,
+        object_id=lineage_id,
+        created_date=timepoint,
+        created_by_id=user.UUID,
+        action_type="atemporal_edit_object",
+        action_data=json.dumps(changes),
+        before=log_before,
+        after=json.dumps(maybe_object.to_dict()),
     )
     session.add(change_log)
 

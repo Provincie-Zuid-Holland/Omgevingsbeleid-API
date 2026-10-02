@@ -14,13 +14,13 @@ def test_downloads_the_requested_storage_file(
     client: TestClient = request.getfixturevalue(client_fixture)
     expected: StorageFileSpec = ctx.f.find(Ref(StorageFileSpec, file_key)).spec
 
-    response = client.get(f"/storage-files/{expected.UUID}/download")
+    response = client.get(f"/storage-files/{expected.id}/download")
 
     assert response.status_code == 200, response.text
-    assert response.content == expected.Binary
-    assert response.headers["Content-Type"] == expected.Content_Type
-    assert response.headers["Content-Disposition"] == f"attachment; filename={expected.Filename}"
-    assert response.headers["Content-Length"] == str(expected.Size)
+    assert response.content == expected.binary
+    assert response.headers["Content-Type"] == expected.content_type
+    assert response.headers["Content-Disposition"] == f"attachment; filename={expected.filename}"
+    assert response.headers["Content-Length"] == str(expected.size)
     assert response.headers["Access-Control-Expose-Headers"] == "Content-Disposition"
 
 
@@ -33,7 +33,7 @@ def test_unknown_uuid_returns_404(admin: TestClient):
 
 def test_unauthenticated_can_download(client: TestClient, ctx: Context):
     document: StorageFileSpec = ctx.f.find(Ref(StorageFileSpec, "file_1")).spec
-    response = client.get(f"/storage-files/{document.UUID}/download")
+    response = client.get(f"/storage-files/{document.id}/download")
 
     assert response.status_code == 200, response.text
-    assert response.content == document.Binary
+    assert response.content == document.binary

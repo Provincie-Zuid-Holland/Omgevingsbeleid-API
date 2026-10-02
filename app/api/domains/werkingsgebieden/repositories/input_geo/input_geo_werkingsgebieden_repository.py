@@ -33,7 +33,7 @@ class InputGeoWerkingsgebiedenRepository(BaseRepository):
                 partition_by=InputGeoWerkingsgebiedenTable.Title,
                 order_by=desc(InputGeoWerkingsgebiedenTable.Created_Date),
             )
-            .label("_RowNumber")
+            .label("_row_number")
         )
 
         subq = select(
@@ -42,7 +42,7 @@ class InputGeoWerkingsgebiedenRepository(BaseRepository):
         ).subquery("subq")
 
         aliased_objects = aliased(InputGeoWerkingsgebiedenTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
+        stmt = select(aliased_objects).filter(subq.c._row_number == 1)
         sort_column = getattr(subq.c, pagination.sort.column)
 
         return self.fetch_paginated(

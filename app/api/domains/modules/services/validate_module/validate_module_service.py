@@ -38,7 +38,7 @@ class ValidateModuleRequest(BaseModel):
     _module_object_lookup: dict[str, ModuleObjectsTable] = PrivateAttr(default_factory=dict)
 
     def model_post_init(self, context: Any) -> None:
-        self._module_object_lookup = {module_object.Code: module_object for module_object in self.module_objects}
+        self._module_object_lookup = {module_object.code: module_object for module_object in self.module_objects}
 
     def get_module_object(self, code: str) -> ModuleObjectsTable | None:
         return self._module_object_lookup.get(code, None)
@@ -95,7 +95,7 @@ class ValidateModuleRunner:
         non_terminated_module_objects = [
             module_object
             for module_object in module_objects
-            if module_object.ModuleObjectContext.Action != ModuleObjectActionFull.Terminate
+            if module_object.module_object_context.action != ModuleObjectActionFull.Terminate
         ]
         request = ValidateModuleRequest(module_id=module_id, module_objects=non_terminated_module_objects)
         result: ValidateModuleResult = self._validate_module_service.validate(session, request)

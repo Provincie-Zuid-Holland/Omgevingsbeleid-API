@@ -19,20 +19,20 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleEdit(BaseModel):
-    Temporary_Locked: bool | None = Field(None)
+    temporary_locked: bool | None = Field(None)
 
-    Title: str | None = Field(None, min_length=3)
-    Description: str | None = Field(None, min_length=3)
-    Module_Manager_1_UUID: uuid.UUID | None = Field(None)
-    Module_Manager_2_UUID: uuid.UUID | None = Field(None)
+    title: str | None = Field(None, min_length=3)
+    description: str | None = Field(None, min_length=3)
+    module_manager_1_id: uuid.UUID | None = Field(None)
+    module_manager_2_id: uuid.UUID | None = Field(None)
 
-    @field_validator("Module_Manager_2_UUID", mode="after")
+    @field_validator("module_manager_2_id", mode="after")
     def duplicate_manager(cls, v, info):
         if v is None:
             return v
-        if "Module_Manager_1_UUID" not in info.data:
+        if "module_manager_1_id" not in info.data:
             return v
-        if v == info.data["Module_Manager_1_UUID"]:
+        if v == info.data["module_manager_1_id"]:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Duplicate manager")
         return v
 
@@ -48,7 +48,7 @@ def post_edit_module_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_edit_module,
         user,
-        [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
+        [module.module_manager_1_id, module.module_manager_2_id],
     )
 
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
@@ -58,8 +58,8 @@ def post_edit_module_endpoint(
     for key, value in changes.items():
         setattr(module, key, value)
 
-    module.Modified_By_UUID = user.UUID
-    module.Modified_Date = datetime.now(UTC)
+    module.modified_by_id = user.UUID
+    module.modified_date = datetime.now(UTC)
 
     session.add(module)
     session.flush()

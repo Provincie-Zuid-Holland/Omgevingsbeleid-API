@@ -9,10 +9,10 @@ class AcknowledgedRelationsRepository:
         from_code, to_code = sorted([code_a, code_b])
         stmt = select(AcknowledgedRelationsTable).filter(
             and_(
-                AcknowledgedRelationsTable.From_Code == from_code,
-                AcknowledgedRelationsTable.To_Code == to_code,
-                AcknowledgedRelationsTable.Deleted_At.is_(None),
-                AcknowledgedRelationsTable.Denied.is_(None),
+                AcknowledgedRelationsTable.from_code == from_code,
+                AcknowledgedRelationsTable.to_code == to_code,
+                AcknowledgedRelationsTable.deleted_at.is_(None),
+                AcknowledgedRelationsTable.denied.is_(None),
             )
         )
         return session.scalars(stmt).first()
@@ -28,31 +28,31 @@ class AcknowledgedRelationsRepository:
         filters = []
 
         if requested_by_me:
-            filters.append(AcknowledgedRelationsTable.Requested_By_Code == code)
+            filters.append(AcknowledgedRelationsTable.requested_by_code == code)
         else:
             filters.append(
                 or_(
-                    AcknowledgedRelationsTable.From_Code == code,
-                    AcknowledgedRelationsTable.To_Code == code,
+                    AcknowledgedRelationsTable.from_code == code,
+                    AcknowledgedRelationsTable.to_code == code,
                 )
             )
 
         if acknowledged is not None:
             if acknowledged is True:
-                filters.append(AcknowledgedRelationsTable.Is_Acknowledged)
+                filters.append(AcknowledgedRelationsTable.is_acknowledged)
             else:
                 filters.append(
                     or_(
-                        AcknowledgedRelationsTable.From_Acknowledged.is_(None),
-                        AcknowledgedRelationsTable.To_Acknowledged.is_(None),
+                        AcknowledgedRelationsTable.from_acknowledged.is_(None),
+                        AcknowledgedRelationsTable.to_acknowledged.is_(None),
                     )
                 )
 
         if show_inactive is False:
             filters.append(
                 and_(
-                    AcknowledgedRelationsTable.Deleted_At.is_(None),
-                    AcknowledgedRelationsTable.Denied.is_(None),
+                    AcknowledgedRelationsTable.deleted_at.is_(None),
+                    AcknowledgedRelationsTable.denied.is_(None),
                 )
             )
 

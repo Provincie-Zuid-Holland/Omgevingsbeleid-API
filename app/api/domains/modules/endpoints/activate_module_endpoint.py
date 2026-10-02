@@ -27,23 +27,23 @@ def post_activate_module_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_activate_module,
         user,
-        [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
+        [module.module_manager_1_id, module.module_manager_2_id],
     )
-    if module.Activated:
+    if module.activated:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "The module is already activated")
 
     timepoint: datetime = datetime.now(UTC)
 
-    module.Activated = True
-    module.Modified_By_UUID = user.UUID
-    module.Modified_Date = timepoint
+    module.activated = True
+    module.modified_by_id = user.UUID
+    module.modified_date = timepoint
     session.add(module)
 
     module_status = ModuleStatusHistoryTable(
-        Module_ID=module.Module_ID,
-        Status=ModuleStatusCode.Ontwerp_GS_Concept,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
+        module_id=module.module_id,
+        status=ModuleStatusCode.Ontwerp_GS_Concept,
+        created_date=timepoint,
+        created_by_id=user.UUID,
     )
     session.add(module_status)
 

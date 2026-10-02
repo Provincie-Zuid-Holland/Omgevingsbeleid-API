@@ -25,7 +25,7 @@ from app.api.utils.pagination import (
 from app.core.tables.users import UsersTable
 
 module_order_config = OrderConfig(
-    default_column=ModuleSortColumn.Created_Date.value,
+    default_column=ModuleSortColumn.created_date.value,
     default_order=SortOrder.DESC,
     allowed_columns=[col.value for col in ModuleSortColumn],
 )

@@ -28,7 +28,7 @@ class BillCompactForbiddenTagsRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
-        bill_compact: dict[str, Any] = request.input_data.Publication_Version.Bill_Compact or {}
+        bill_compact: dict[str, Any] = request.input_data.Publication_Version.bill_compact or {}
         for article_field in self._config.fields:
             article: str | None = bill_compact.get(article_field, None)
             if not article:

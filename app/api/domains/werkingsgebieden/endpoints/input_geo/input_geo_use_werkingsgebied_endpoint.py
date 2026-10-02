@@ -67,13 +67,13 @@ def patch_input_geo_use_werkingsgebied_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_patch_object_in_module,
         user,
-        [object_static.Owner_1_UUID, object_static.Owner_2_UUID],
+        [object_static.owner_1_id, object_static.owner_2_id],
     )
     guard_module_not_locked(module)
 
     old_record: ModuleObjectsTable | None = module_object_repository.get_latest_by_id(
         session,
-        module.Module_ID,
+        module.module_id,
         context.object_type,
         lineage_id,
     )
@@ -89,5 +89,5 @@ def patch_input_geo_use_werkingsgebied_endpoint(
     new_record: ModuleObjectsTable = patch_service.patch(old_record)
 
     return PatchResponse(
-        UUID=new_record.UUID,
+        UUID=new_record.id,
     )

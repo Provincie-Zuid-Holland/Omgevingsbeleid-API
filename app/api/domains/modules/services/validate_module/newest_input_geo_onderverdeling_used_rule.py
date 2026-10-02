@@ -31,7 +31,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
         errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
-            if object_table.Object_Type != self._config.object_type:
+            if object_table.object_type != self._config.object_type:
                 continue
 
             area_current: AreasTable | None = getattr(object_table, self._config.field)
@@ -40,18 +40,18 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[f"Object is of type '{self._config.object_type}', but area is not known"],
                     )
                 )
                 continue
 
-            area_hash: str = area_current.Source_Geometry_Hash or ""
-            area_title: str = area_current.Source_Title
+            area_hash: str = area_current.source_geometry_hash or ""
+            area_title: str = area_current.source_title
             onderverdeling: InputGeoOnderverdelingenTable | None = (
                 self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
             )
@@ -60,13 +60,13 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
-                            f"The onderverdelingen lineage used by Area `{area_current.UUID}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
+                            f"The onderverdelingen lineage used by Area `{area_current.id}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
                         ],
                         severity=ValidateModuleSeverity.warning,
                     )
@@ -78,13 +78,13 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
-                            f"Area {area_current.UUID} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
+                            f"Area {area_current.id} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
                         ],
                         severity=ValidateModuleSeverity.warning,
                     )

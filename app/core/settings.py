@@ -1,5 +1,4 @@
 from typing import Any, Self
-from urllib.parse import quote_plus
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -28,11 +27,13 @@ class Settings(BaseSettings):
 
     # Database
     SQLALCHEMY_ECHO: bool = True
-    DB_DRIVER: str = Field("ODBC Driver 17 for SQL Server", description="The driver for the SQL database")
-    DB_HOST: str = Field("mssql", description="The host address of the database")
-    DB_NAME: str = Field("development", description="The name of the database")
-    DB_USER: str = Field("SA", description="The database username")
-    DB_PASS: str = Field("Passw0rd", description="The password for the database user")
+    DB_DRIVER: str = Field("PostgreSQL Unicode", description="The driver for the SQL database")
+    DB_HOST: str = Field("postgres", description="The host address of the database")
+    DB_NAME: str = Field("omgevingsbeleid", description="The name of the database")
+    DB_USER: str = Field("pzh", description="The database username")
+    DB_PASS: str = Field("password", description="The password for the database user")
+    DB_PORT: str = Field("5432", description="The port for the database connection")
+    DB_DIALECT: str = Field("postgresql+psycopg", description="The dialect for the database")
     TEST_DB_NAME: str = Field("db_test", description="The name of the test database")
 
     SQLALCHEMY_DATABASE_URI: str = ""
@@ -44,10 +45,7 @@ class Settings(BaseSettings):
             return v
 
         values = info.data
-        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
-        encoded_settings = quote_plus(db_connection_settings)
-
-        return f"mssql+pyodbc:///?odbc_connect={encoded_settings}"
+        return f"{values['DB_DIALECT']}://{values['DB_USER']}:{values['DB_PASS']}@{values['DB_HOST']}:{values['DB_PORT']}/{values['DB_NAME']}"
 
     @field_validator("SQLALCHEMY_TEST_DATABASE_URI", mode="before")
     def assemble_test_db_connection(cls, v: str | None, info) -> Any:
@@ -55,13 +53,7 @@ class Settings(BaseSettings):
             return v
 
         values = info.data
-        db_connection_settings = (
-            f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};"
-            f"DATABASE={values['TEST_DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
-        )
-        encoded_settings = quote_plus(db_connection_settings)
-
-        return f"mssql+pyodbc:///?odbc_connect={encoded_settings}"
+        return f"{values['DB_DIALECT']}://{values['DB_USER']}:{values['DB_PASS']}@{values['DB_HOST']}:{values['DB_PORT']}/{values['TEST_DB_NAME']}"
 
     # Dynamic
     MAIN_CONFIG_FILE: str = "./config/main.yml"
@@ -82,7 +74,7 @@ class Settings(BaseSettings):
     )
 
     # @note: These will be overwritten and based on earlier input
-    # These are for the Depedency Injector library
+    # These are for the Dependency Injector library
 
     DB_TYPE: str = Field("")
     DEBUG_MODE_STR: str = Field("")

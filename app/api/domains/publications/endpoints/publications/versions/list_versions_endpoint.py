@@ -30,11 +30,11 @@ def get_list_versions_endpoint(
             )
         ),
     ],
-    publication_uuid: uuid.UUID | None = None,
+    publication_id: uuid.UUID | None = None,
 ) -> PagedResponse[PublicationVersionShort]:
     paginated_result = version_repository.get_with_filters(
         session=session,
-        publication_uuid=publication_uuid,
+        publication_id=publication_id,
         offset=pagination.offset,
         limit=pagination.limit,
     )

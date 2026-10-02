@@ -32,7 +32,7 @@ def get_files_list_endpoint(
 ) -> PagedResponse[StorageFileBasic]:
     pagination: SortedPagination = optional_pagination.with_sort(
         Sort(
-            column=StorageFileSortColumn.Created_Date,
+            column=StorageFileSortColumn.created_date,
             order=SortOrder.DESC,
         )
     )

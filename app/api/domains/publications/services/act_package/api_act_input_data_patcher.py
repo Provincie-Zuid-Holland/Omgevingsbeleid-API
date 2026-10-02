@@ -27,7 +27,7 @@ class ApiActInputDataPatcher:
         # We do no support this flow anyware in our system yet,
         # Therefor I did not take the time to fix it here
         active_act: ActiveAct | None = self._state.get_act(
-            data.Publication_Version.Publication.Document_Type,
+            data.Publication_Version.publication.document_type,
             ProcedureType.FINAL.value,
         )
 

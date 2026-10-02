@@ -18,7 +18,7 @@ def _status_count(session: Session, module_id: int) -> int:
         session.scalar(
             select(func.count())
             .select_from(ModuleStatusHistoryTable)
-            .where(ModuleStatusHistoryTable.Module_ID == module_id)
+            .where(ModuleStatusHistoryTable.module_id == module_id)
         )
         or 0
     )
@@ -27,8 +27,8 @@ def _status_count(session: Session, module_id: int) -> int:
 def _latest_status(session: Session, module_id: int) -> ModuleStatusHistoryTable | None:
     return session.scalar(
         select(ModuleStatusHistoryTable)
-        .where(ModuleStatusHistoryTable.Module_ID == module_id)
-        .order_by(desc(ModuleStatusHistoryTable.Created_Date), desc(ModuleStatusHistoryTable.ID))
+        .where(ModuleStatusHistoryTable.module_id == module_id)
+        .order_by(desc(ModuleStatusHistoryTable.created_date), desc(ModuleStatusHistoryTable.id))
     )
 
 
@@ -42,9 +42,9 @@ def test_closes_an_active_module(admin: TestClient, ctx: Context):
 
     module = ctx.session.get(ModuleTable, 1)
     assert module
-    assert module.Closed is True
-    assert module.Successful is False
-    assert module.Modified_By_UUID == admin_uuid
+    assert module.closed is True
+    assert module.successful is False
+    assert module.modified_by_id == admin_uuid
 
 
 def test_creates_a_module_status_history_record(admin: TestClient, ctx: Context):
@@ -58,8 +58,8 @@ def test_creates_a_module_status_history_record(admin: TestClient, ctx: Context)
 
     latest = _latest_status(ctx.session, 1)
     assert latest
-    assert latest.Status == ModuleStatusCodeInternal.Gesloten
-    assert latest.Created_By_UUID == admin_uuid
+    assert latest.status == ModuleStatusCodeInternal.Gesloten
+    assert latest.created_by_id == admin_uuid
 
 
 def test_already_closed_module_returns_404(admin: TestClient, ctx: Context):
@@ -88,7 +88,7 @@ def test_module_manager_without_role_permission_can_close(ambtenaar: TestClient,
 
     module = ctx.session.get(ModuleTable, 4)
     assert module
-    assert module.Closed is True
+    assert module.closed is True
 
 
 @pytest.mark.parametrize(

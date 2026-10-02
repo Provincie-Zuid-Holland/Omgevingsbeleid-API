@@ -10,8 +10,8 @@ class SqliteAreaGeometryRepository(AreaGeometryRepository):
     def _shape_to_text(self, column: str) -> str:
         return f"AsText({column})"
 
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
-        return uuidx.hex
+    def _format_uuid(self, idx: uuid.UUID) -> str:
+        return idx.hex
 
     def _calculate_hex(self, column: str) -> str:
         return f"hex({column})"

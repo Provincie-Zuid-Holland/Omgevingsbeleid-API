@@ -44,10 +44,10 @@ class JoinGebiedenGroepenService:
         return rows
 
     def _fetch_gebiedengroepen(self) -> dict[str, BaseModel]:
-        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(self._config.gebiedengroepen_codes))
+        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.code.in_(self._config.gebiedengroepen_codes))
         rows = self._session.execute(stmt).scalars().all()
 
-        return {r.Code: ObjectStatics.model_validate(r) for r in rows}
+        return {r.code: ObjectStatics.model_validate(r) for r in rows}
 
 
 class JoinGebiedenGroepenServiceFactory:

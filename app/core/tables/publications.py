@@ -1,6 +1,6 @@
-import uuid
 from datetime import date, datetime
 from typing import Any, Optional
+from uuid import UUID
 
 from pydantic import TypeAdapter
 from sqlalchemy import Column, Date, DateTime, ForeignKey, LargeBinary, String, Unicode, UnicodeText, UniqueConstraint
@@ -15,19 +15,19 @@ from app.core.tables.modules import ModuleStatusHistoryTable, ModuleTable
 class PublicationStorageFileTable(Base):
     __tablename__ = "publication_storage_files"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
 
     # Lookup for faster access
-    Lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
-    Checksum: Mapped[str] = mapped_column(String(64), nullable=False)
+    lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
+    checksum: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    Filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    Content_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
-    Size: Mapped[int] = mapped_column(Integer, nullable=False)
-    Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
+    filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    content_type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    size: Mapped[int] = mapped_column(Integer, nullable=False)
+    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 ObjectFieldMapTypeAdapter = TypeAdapter(dict[str, list[str]])
@@ -36,244 +36,238 @@ ObjectFieldMapTypeAdapter = TypeAdapter(dict[str, list[str]])
 class PublicationTemplateTable(Base, UserMetaData):
     __tablename__ = "publication_templates"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Title: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Description: Mapped[str] = mapped_column(Unicode, nullable=False)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(Unicode, nullable=False)
+    description: Mapped[str] = mapped_column(Unicode, nullable=False)
 
-    Is_Active: Mapped[bool]
-    Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Object_Types: Mapped[Any] = mapped_column(JSON, nullable=False)
-    Text_Template: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Object_Templates: Mapped[Any] = mapped_column(JSON, nullable=False)
-    Field_Map: Mapped[Any] = mapped_column(JSON, nullable=True)
-    Object_Field_Map: Mapped[Any] = mapped_column(JSON, nullable=True)
+    is_active: Mapped[bool]
+    document_type: Mapped[str] = mapped_column(Unicode, nullable=False)
+    object_types: Mapped[Any] = mapped_column(JSON, nullable=False)
+    text_template: Mapped[str] = mapped_column(Unicode, nullable=False)
+    object_templates: Mapped[Any] = mapped_column(JSON, nullable=False)
+    field_map: Mapped[Any] = mapped_column(JSON, nullable=True)
+    object_field_map: Mapped[Any] = mapped_column(JSON, nullable=True)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
 
 class PublicationEnvironmentTable(Base, UserMetaData):
     __tablename__ = "publication_environments"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Title: Mapped[str] = mapped_column(Unicode)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(Unicode)
 
     # Used to map secret data to the environment like API Keys
-    Code: Mapped[str | None] = mapped_column(Unicode(32), nullable=True)
-    Description: Mapped[str] = mapped_column(Unicode)
+    code: Mapped[str | None] = mapped_column(Unicode(32), nullable=True)
+    description: Mapped[str] = mapped_column(Unicode)
 
-    Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Authority_ID: Mapped[str] = mapped_column(Unicode(20), nullable=False)
-    Submitter_ID: Mapped[str] = mapped_column(Unicode(20), nullable=False)
-    Governing_Body_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
-    Frbr_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
-    Frbr_Language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
+    province_id: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    authority_id: Mapped[str] = mapped_column(Unicode(20), nullable=False)
+    submitter_id: Mapped[str] = mapped_column(Unicode(20), nullable=False)
+    governing_body_type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    frbr_country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
+    frbr_language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
 
-    Is_Active: Mapped[bool]
-    Has_State: Mapped[bool]
-    Can_Validate: Mapped[bool]
-    Can_Publicate: Mapped[bool]
+    is_active: Mapped[bool]
+    has_state: Mapped[bool]
+    can_validate: Mapped[bool]
+    can_publicate: Mapped[bool]
 
-    Is_Locked: Mapped[bool]
+    is_locked: Mapped[bool]
 
-    Active_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_environment_states.UUID"), nullable=True
-    )
-    Active_State: Mapped[Optional["PublicationEnvironmentStateTable"]] = relationship(
+    active_state_id: Mapped[UUID | None] = mapped_column(ForeignKey("publication_environment_states.id"), nullable=True)
+    active_state: Mapped[Optional["PublicationEnvironmentStateTable"]] = relationship(
         "PublicationEnvironmentStateTable",
-        primaryjoin="PublicationEnvironmentTable.Active_State_UUID == PublicationEnvironmentStateTable.UUID",
+        primaryjoin="PublicationEnvironmentTable.active_state_id == PublicationEnvironmentStateTable.id",
     )
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
 
 class PublicationEnvironmentStateTable(Base):
     __tablename__ = "publication_environment_states"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
-    Adjust_On_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_environment_states.UUID"), nullable=True
-    )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
+    adjust_on_id: Mapped[UUID | None] = mapped_column(ForeignKey("publication_environment_states.id"), nullable=True)
 
-    State = Column(JSON)
+    state = Column(JSON)
 
-    Is_Activated: Mapped[bool]
-    Activated_Datetime: Mapped[datetime | None]
+    is_activated: Mapped[bool]
+    activated_datetime: Mapped[datetime | None]
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationAreaOfJurisdictionTable(Base):
     # Ambtsgebied
     __tablename__ = "publication_area_of_jurisdictions"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
 
-    Title: Mapped[str] = mapped_column(Unicode, server_default="")
-    Administrative_Borders_ID: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    Administrative_Borders_Domain: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    Administrative_Borders_Date: Mapped[date] = mapped_column(Date, nullable=False)
+    title: Mapped[str] = mapped_column(Unicode, server_default="")
+    administrative_borders_id: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    administrative_borders_domain: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    administrative_borders_date: Mapped[date] = mapped_column(Date, nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationPurposeTable(Base):
     __tablename__ = "publication_purposes"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
-    Purpose_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
+    purpose_type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
 
     # "Ontwerp" does not have a time
-    Effective_Date: Mapped[date | None]
+    effective_date: Mapped[date | None]
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_niet-tekst.html#doel
-    Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
+    work_province_id: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    work_date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    work_other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_pur_env_other"),)
+    __table_args__ = (UniqueConstraint("environment_id", "work_other", name="uix_pub_pur_env_other"),)
 
 
 class PublicationActTable(Base, UserMetaData):
     __tablename__ = "publication_acts"
 
-    # This unique auto increment gives us a small sized unique idenitifier
+    # This unique auto increment gives us a small sized unique identifier
     # to consolidate GIO's with.
-    ID: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
 
     # This UUID would not really be needed
     # But we keep it as it is less confusing that everything is linked by UUID
-    UUID: Mapped[uuid.UUID] = mapped_column(unique=True)
+    uuid: Mapped[UUID] = mapped_column(unique=True)
 
-    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
+    environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
 
-    Document_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
+    document_type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
 
     # @deprecated
-    Procedure_Type: Mapped[str | None] = mapped_column(Unicode(50), nullable=True)
+    procedure_type: Mapped[str | None] = mapped_column(Unicode(50), nullable=True)
 
-    Title: Mapped[str] = mapped_column(Unicode)
-    Is_Active: Mapped[bool] = mapped_column(default=False)
+    title: Mapped[str] = mapped_column(Unicode)
+    is_active: Mapped[bool] = mapped_column(default=False)
 
     # RegelingMetadata
-    Metadata = Column(JSON)
-    Metadata_Is_Locked: Mapped[bool] = mapped_column(default=False)
+    meta_data = Column(JSON)
+    meta_data_is_locked: Mapped[bool] = mapped_column(default=False)
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
-    Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Work_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
-    Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
+    work_province_id: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    work_country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
+    work_date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    work_other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
-    Withdrawal_Purpose_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_purposes.UUID"), nullable=True
-    )
+    withdrawal_purpose_id: Mapped[UUID | None] = mapped_column(ForeignKey("publication_purposes.id"), nullable=True)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    Environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
-    Withdrawal_Purpose: Mapped[PublicationPurposeTable | None] = relationship(
+    environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
+    withdrawal_purpose: Mapped[PublicationPurposeTable | None] = relationship(
         "PublicationPurposeTable",
-        primaryjoin="PublicationActTable.Withdrawal_Purpose_UUID == PublicationPurposeTable.UUID",
+        primaryjoin="PublicationActTable.withdrawal_purpose_id == PublicationPurposeTable.id",
     )
 
-    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_act_env_other"),)
+    __table_args__ = (UniqueConstraint("environment_id", "work_other", name="uix_pub_act_env_other"),)
 
 
 class PublicationActVersionTable(Base):
     __tablename__ = "publication_act_versions"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Act_UUID: Mapped[int] = mapped_column(ForeignKey("publication_acts.UUID"))
-    Consolidation_Purpose_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_purposes.UUID"))
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    act_id: Mapped[int] = mapped_column(ForeignKey("publication_acts.id"))
+    consolidation_purpose_id: Mapped[UUID] = mapped_column(ForeignKey("publication_purposes.id"))
 
-    Expression_Language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
-    Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Expression_Version: Mapped[int] = mapped_column(Integer, nullable=False)
+    expression_language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
+    expression_date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    expression_version: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Act: Mapped[PublicationActTable] = relationship()
+    act: Mapped[PublicationActTable] = relationship()
 
-    Consolidation_Purpose: Mapped[PublicationPurposeTable] = relationship(
+    consolidation_purpose: Mapped[PublicationPurposeTable] = relationship(
         "PublicationPurposeTable",
-        primaryjoin="PublicationActVersionTable.Consolidation_Purpose_UUID == PublicationPurposeTable.UUID",
+        primaryjoin="PublicationActVersionTable.consolidation_purpose_id == PublicationPurposeTable.id",
     )
 
-    __table_args__ = (UniqueConstraint("Act_UUID", "Expression_Version", name="uix_act_version"),)
+    __table_args__ = (UniqueConstraint("act_id", "expression_version", name="uix_act_version"),)
 
 
 class PublicationTable(Base, UserMetaData):
     __tablename__ = "publications"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
 
-    Module_ID: Mapped[int] = mapped_column(Integer, ForeignKey("modules.Module_ID"), nullable=False)
+    module_id: Mapped[int] = mapped_column(Integer, ForeignKey("modules.module_id"), nullable=False)
 
-    Document_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
-    Procedure_Type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
-    Template_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_templates.UUID"), nullable=False)
-    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
-    Act_UUID: Mapped[int] = mapped_column(ForeignKey("publication_acts.UUID"))
+    document_type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
+    procedure_type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
+    template_id: Mapped[UUID] = mapped_column(ForeignKey("publication_templates.id"), nullable=False)
+    environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
+    act_id: Mapped[int] = mapped_column(ForeignKey("publication_acts.id"))
 
-    Is_Locked: Mapped[bool] = mapped_column(default=False)
+    is_locked: Mapped[bool] = mapped_column(default=False)
 
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Modified_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    modified_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
-    Module: Mapped[ModuleTable] = relationship("ModuleTable")
-    Template: Mapped["PublicationTemplateTable"] = relationship("PublicationTemplateTable")
-    Environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
-    Act: Mapped[PublicationActTable] = relationship()
+    module: Mapped[ModuleTable] = relationship("ModuleTable")
+    template: Mapped["PublicationTemplateTable"] = relationship("PublicationTemplateTable")
+    environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
+    act: Mapped[PublicationActTable] = relationship()
 
 
 class PublicationVersionTable(Base, UserMetaData):
     __tablename__ = "publication_versions"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
 
-    Publication_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publications.UUID"), nullable=False)
-    Module_Status_ID: Mapped[int] = mapped_column(ForeignKey("module_status_history.ID"), nullable=False)
+    publication_id: Mapped[UUID] = mapped_column(ForeignKey("publications.id"), nullable=False)
+    module_status_id: Mapped[int] = mapped_column(ForeignKey("module_status_history.id"), nullable=False)
 
     # BesluitMetadata
-    Bill_Metadata = Column(JSON)
+    bill_metadata = Column(JSON)
     # BesluitCompact
-    Bill_Compact = Column(JSON)
+    bill_compact = Column(JSON)
     # Procedureverloop
-    Procedural = Column(JSON)
+    procedural = Column(JSON)
 
     # ConsolidatieInformatie.Tijdstempels.juridischWerkendVanaf
-    Effective_Date: Mapped[date | None]
+    effective_date: Mapped[date | None]
     # opdracht-xml.datumBekendmaking
-    Announcement_Date: Mapped[date | None]
+    announcement_date: Mapped[date | None]
 
-    Is_Locked: Mapped[bool] = mapped_column(default=False)
-    Deleted_At: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    is_locked: Mapped[bool] = mapped_column(default=False)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
-    Mutation_Strategy: Mapped[str] = mapped_column(Unicode(64), nullable=False, server_default="renvooi")
+    status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    mutation_strategy: Mapped[str] = mapped_column(Unicode(64), nullable=False, server_default="renvooi")
 
-    Publication: Mapped[PublicationTable] = relationship("PublicationTable")
-    Module_Status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")
-    Attachments: Mapped[list["PublicationVersionAttachmentTable"]] = relationship(
-        back_populates="Publication_Version", order_by="asc(PublicationVersionAttachmentTable.ID)"
+    publication: Mapped[PublicationTable] = relationship("PublicationTable")
+    module_status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")
+    attachments: Mapped[list["PublicationVersionAttachmentTable"]] = relationship(
+        back_populates="publication_version", order_by="asc(PublicationVersionAttachmentTable.id)"
     )
 
-    Act_Packages: Mapped[list["PublicationActPackageTable"]] = relationship(
-        back_populates="Publication_Version", order_by="asc(PublicationActPackageTable.Created_Date)"
+    act_packages: Mapped[list["PublicationActPackageTable"]] = relationship(
+        back_populates="publication_version", order_by="asc(PublicationActPackageTable.created_date)"
     )
 
 
@@ -281,247 +275,241 @@ class PublicationVersionAttachmentTable(Base, UserMetaData):
     __tablename__ = "publication_version_attachments"
 
     # We need a small unique identifier for publications
-    ID: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
 
-    Publication_Version_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_versions.UUID"), nullable=False)
-    File_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_storage_files.UUID"), nullable=False)
-    Filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    Title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    publication_version_id: Mapped[UUID] = mapped_column(ForeignKey("publication_versions.id"), nullable=False)
+    file_id: Mapped[UUID] = mapped_column(ForeignKey("publication_storage_files.id"), nullable=False)
+    filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    Publication_Version: Mapped["PublicationVersionTable"] = relationship()
-    File: Mapped[PublicationStorageFileTable] = relationship()
+    publication_version: Mapped["PublicationVersionTable"] = relationship()
+    file: Mapped[PublicationStorageFileTable] = relationship()
 
-    __table_args__ = (UniqueConstraint("Publication_Version_UUID", "File_UUID", name="uix_publication_version_file"),)
+    __table_args__ = (UniqueConstraint("publication_version_id", "file_id", name="uix_publication_version_file"),)
 
 
 class PublicationBillTable(Base, UserMetaData):
     __tablename__ = "publication_bills"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
-    Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
+    document_type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
-    Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Work_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
-    Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
+    work_province_id: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    work_country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
+    work_date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    work_other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_bil_env_other"),)
+    __table_args__ = (UniqueConstraint("environment_id", "work_other", name="uix_pub_bil_env_other"),)
 
 
 class PublicationBillVersionTable(Base):
     __tablename__ = "publication_bill_versions"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Bill_UUID: Mapped[int] = mapped_column(ForeignKey("publication_bills.UUID"))
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    bill_id: Mapped[int] = mapped_column(ForeignKey("publication_bills.id"))
 
-    Expression_Language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
-    Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Expression_Version: Mapped[int] = mapped_column(Integer, nullable=False)
+    expression_language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
+    expression_date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    expression_version: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Bill: Mapped[PublicationBillTable] = relationship()
+    bill: Mapped[PublicationBillTable] = relationship()
 
-    __table_args__ = (UniqueConstraint("Bill_UUID", "Expression_Version", name="uix_bill_version"),)
+    __table_args__ = (UniqueConstraint("bill_id", "expression_version", name="uix_bill_version"),)
 
 
 class PublicationPackageZipTable(Base):
     __tablename__ = "publication_package_zips"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
 
-    Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
-    Checksum: Mapped[str] = mapped_column(String(64), nullable=False)
+    filename: Mapped[str] = mapped_column(Unicode, nullable=False)
+    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
+    checksum: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    Latest_Download_Date: Mapped[datetime | None]
-    Latest_Download_By_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
+    latest_download_date: Mapped[datetime | None]
+    latest_download_by_id: Mapped[UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationActPackageTable(Base, UserMetaData):
     __tablename__ = "publication_act_packages"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Publication_Version_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_versions.UUID"), nullable=False)
-    Bill_Version_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_bill_versions.UUID"), nullable=True
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    publication_version_id: Mapped[UUID] = mapped_column(ForeignKey("publication_versions.id"), nullable=False)
+    bill_version_id: Mapped[UUID | None] = mapped_column(ForeignKey("publication_bill_versions.id"), nullable=True)
+    act_version_id: Mapped[UUID | None] = mapped_column(ForeignKey("publication_act_versions.id"), nullable=True)
+    zip_id: Mapped[UUID] = mapped_column(ForeignKey("publication_package_zips.id"), nullable=False)
+
+    package_type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    report_status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+
+    delivery_id: Mapped[str] = mapped_column(String(80), nullable=False)
+
+    used_environment_state_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("publication_environment_states.id"), nullable=True
     )
-    Act_Version_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_act_versions.UUID"), nullable=True
+    created_environment_state_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("publication_environment_states.id"), nullable=True
     )
-    Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
+    module_id: Mapped[int | None] = mapped_column(ForeignKey("modules.module_id"), nullable=True)
+    module_status_id: Mapped[int | None] = mapped_column(ForeignKey("module_status_history.id"), nullable=True)
 
-    Package_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
-    Report_Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
-
-    Used_Environment_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_environment_states.UUID"), nullable=True
-    )
-    Created_Environment_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_environment_states.UUID"), nullable=True
-    )
-    Module_ID: Mapped[int | None] = mapped_column(ForeignKey("modules.Module_ID"), nullable=True)
-    Module_Status_ID: Mapped[int | None] = mapped_column(ForeignKey("module_status_history.ID"), nullable=True)
-
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
-
-    Publication_Version: Mapped["PublicationVersionTable"] = relationship()
-    Bill_Version: Mapped["PublicationBillVersionTable"] = relationship()
-    Act_Version: Mapped["PublicationActVersionTable"] = relationship()
-    Zip: Mapped[PublicationPackageZipTable] = relationship()
-    Created_Environment_State: Mapped["PublicationEnvironmentStateTable"] = relationship(
+    publication_version: Mapped["PublicationVersionTable"] = relationship()
+    bill_version: Mapped["PublicationBillVersionTable"] = relationship()
+    act_version: Mapped["PublicationActVersionTable"] = relationship()
+    zip: Mapped[PublicationPackageZipTable] = relationship()
+    created_environment_state: Mapped["PublicationEnvironmentStateTable"] = relationship(
         "PublicationEnvironmentStateTable",
-        primaryjoin="PublicationActPackageTable.Created_Environment_State_UUID == PublicationEnvironmentStateTable.UUID",
+        primaryjoin="PublicationActPackageTable.created_environment_state_id == PublicationEnvironmentStateTable.id",
     )
-    Module: Mapped[ModuleTable | None] = relationship("ModuleTable")
-    Module_Status: Mapped[ModuleStatusHistoryTable | None] = relationship("ModuleStatusHistoryTable")
+    module: Mapped[ModuleTable | None] = relationship("ModuleTable")
+    module_status: Mapped[ModuleStatusHistoryTable | None] = relationship("ModuleStatusHistoryTable")
 
 
 class PublicationActPackageReportTable(Base):
     __tablename__ = "publication_act_package_reports"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Act_Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_act_packages.UUID"), nullable=False)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    act_package_id: Mapped[UUID] = mapped_column(ForeignKey("publication_act_packages.id"), nullable=False)
 
-    Report_Status: Mapped[str] = mapped_column(Unicode, nullable=False)
+    report_status: Mapped[str] = mapped_column(Unicode, nullable=False)
 
-    Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Source_Document: Mapped[str] = mapped_column(UnicodeText)
+    filename: Mapped[str] = mapped_column(Unicode, nullable=False)
+    source_document: Mapped[str] = mapped_column(UnicodeText)
 
-    Main_Outcome: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Sub_Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
-    Sub_Progress: Mapped[str] = mapped_column(Unicode(100), nullable=False)
-    Sub_Outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
+    main_outcome: Mapped[str] = mapped_column(Unicode, nullable=False)
+    sub_delivery_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    sub_progress: Mapped[str] = mapped_column(Unicode(100), nullable=False)
+    sub_outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
 
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
 
 class PublicationDocTable(Base, UserMetaData):
     __tablename__ = "publication_docs"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Environment_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_environments.UUID"))
-    Document_Type: Mapped[str] = mapped_column(Unicode, nullable=False)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
+    document_type: Mapped[str] = mapped_column(Unicode, nullable=False)
 
     # @see: https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html#docbg
-    Work_Province_ID: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Work_Country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
-    Work_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Work_Other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
+    work_province_id: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    work_country: Mapped[str] = mapped_column(Unicode(2), nullable=False)
+    work_date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    work_other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    __table_args__ = (UniqueConstraint("Environment_UUID", "Work_Other", name="uix_pub_doc_env_other"),)
+    __table_args__ = (UniqueConstraint("environment_id", "work_other", name="uix_pub_doc_env_other"),)
 
 
 class PublicationDocVersionTable(Base):
     __tablename__ = "publication_doc_versions"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Doc_UUID: Mapped[int] = mapped_column(ForeignKey("publication_docs.UUID"))
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    doc_id: Mapped[int] = mapped_column(ForeignKey("publication_docs.id"))
 
-    Expression_Language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
-    Expression_Date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
-    Expression_Version: Mapped[int] = mapped_column(Integer, nullable=False)
+    expression_language: Mapped[str] = mapped_column(Unicode(3), nullable=False)
+    expression_date: Mapped[str] = mapped_column(Unicode(32), nullable=False)
+    expression_version: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Doc: Mapped[PublicationDocTable] = relationship()
+    doc: Mapped[PublicationDocTable] = relationship()
 
-    __table_args__ = (UniqueConstraint("Doc_UUID", "Expression_Version", name="uix_doc_version"),)
+    __table_args__ = (UniqueConstraint("doc_id", "expression_version", name="uix_doc_version"),)
 
 
 class PublicationAnnouncementTable(Base, UserMetaData):
     __tablename__ = "publication_announcements"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
 
     # We attach an announcement to a Package as the Package has al the information
-    Act_Package_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_act_packages.UUID"), nullable=False)
-    Publication_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publications.UUID"), nullable=False)
+    act_package_id: Mapped[UUID] = mapped_column(ForeignKey("publication_act_packages.id"), nullable=False)
+    publication_id: Mapped[UUID] = mapped_column(ForeignKey("publications.id"), nullable=False)
 
-    Metadata = Column(JSON)
-    Procedural = Column(JSON)
-    Content = Column(JSON)
+    meta_data = Column(JSON)
+    procedural = Column(JSON)
+    content = Column(JSON)
 
-    Announcement_Date: Mapped[date | None]
-    Is_Locked: Mapped[bool] = mapped_column(default=False)
+    announcement_date: Mapped[date | None]
+    is_locked: Mapped[bool] = mapped_column(default=False)
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    Act_Package: Mapped[PublicationActPackageTable] = relationship("PublicationActPackageTable")
-    Publication: Mapped[PublicationTable] = relationship("PublicationTable")
+    act_package: Mapped[PublicationActPackageTable] = relationship("PublicationActPackageTable")
+    publication: Mapped[PublicationTable] = relationship("PublicationTable")
 
 
 class PublicationAnnouncementPackageTable(Base, UserMetaData):
     __tablename__ = "publication_announcement_packages"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Announcement_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_announcements.UUID"), nullable=False)
-    Doc_Version_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_doc_versions.UUID"), nullable=True
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    announcement_id: Mapped[UUID] = mapped_column(ForeignKey("publication_announcements.id"), nullable=False)
+    doc_version_id: Mapped[UUID | None] = mapped_column(ForeignKey("publication_doc_versions.id"), nullable=True)
+    zip_id: Mapped[UUID] = mapped_column(ForeignKey("publication_package_zips.id"), nullable=False)
+
+    package_type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+    report_status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
+
+    delivery_id: Mapped[str] = mapped_column(String(80), nullable=False)
+
+    used_environment_state_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("publication_environment_states.id"), nullable=True
     )
-    Zip_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("publication_package_zips.UUID"), nullable=False)
-
-    Package_Type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
-    Report_Status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
-
-    Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
-
-    Used_Environment_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_environment_states.UUID"), nullable=True
-    )
-    Created_Environment_State_UUID: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("publication_environment_states.UUID"), nullable=True
+    created_environment_state_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("publication_environment_states.id"), nullable=True
     )
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    Announcement: Mapped["PublicationAnnouncementTable"] = relationship()
-    Zip: Mapped["PublicationPackageZipTable"] = relationship()
-    Created_Environment_State: Mapped["PublicationEnvironmentStateTable"] = relationship(
+    announcement: Mapped["PublicationAnnouncementTable"] = relationship()
+    zip: Mapped["PublicationPackageZipTable"] = relationship()
+    created_environment_state: Mapped["PublicationEnvironmentStateTable"] = relationship(
         "PublicationEnvironmentStateTable",
-        primaryjoin="PublicationAnnouncementPackageTable.Created_Environment_State_UUID == PublicationEnvironmentStateTable.UUID",
+        primaryjoin="PublicationAnnouncementPackageTable.created_environment_state_id == PublicationEnvironmentStateTable.id",
     )
 
 
 class PublicationAnnouncementPackageReportTable(Base):
     __tablename__ = "publication_announcement_package_reports"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Announcement_Package_UUID: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("publication_announcement_packages.UUID"), nullable=False
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    announcement_package_id: Mapped[UUID] = mapped_column(
+        ForeignKey("publication_announcement_packages.id"), nullable=False
     )
 
-    Report_Status: Mapped[str] = mapped_column(Unicode, nullable=False)
+    report_status: Mapped[str] = mapped_column(Unicode, nullable=False)
 
-    Filename: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Source_Document: Mapped[str] = mapped_column(UnicodeText)
+    filename: Mapped[str] = mapped_column(Unicode, nullable=False)
+    source_document: Mapped[str] = mapped_column(UnicodeText)
 
-    Main_Outcome: Mapped[str] = mapped_column(Unicode, nullable=False)
-    Sub_Delivery_ID: Mapped[str] = mapped_column(String(80), nullable=False)
-    Sub_Progress: Mapped[str] = mapped_column(Unicode(100), nullable=False)
-    Sub_Outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
+    main_outcome: Mapped[str] = mapped_column(Unicode, nullable=False)
+    sub_delivery_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    sub_progress: Mapped[str] = mapped_column(Unicode(100), nullable=False)
+    sub_outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
 
-    Created_Date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))

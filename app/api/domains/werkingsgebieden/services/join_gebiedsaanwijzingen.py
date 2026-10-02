@@ -43,7 +43,7 @@ class JoinGebiedsaanwijzingenService:
                         aanwijzing_codes_current_row.add(aanwijzing_code)
                 except TypeError:
                     continue
-            aanwijzing_codes_per_object[row.Code] = aanwijzing_codes_current_row
+            aanwijzing_codes_per_object[row.code] = aanwijzing_codes_current_row
 
         if len(all_aanwijzing_codes) <= 0:
             return rows
@@ -51,7 +51,7 @@ class JoinGebiedsaanwijzingenService:
         gebiedsaanwijzingen: dict[str, ObjectStatics] = self._fetch_object_statics(all_aanwijzing_codes)
 
         for row in rows:
-            object_code: str = row.Code
+            object_code: str = row.code
             aanwijzing_statics: list[ObjectStatics] = []
             for aanwijzing_code in aanwijzing_codes_per_object[object_code]:
                 object_statics: ObjectStatics = gebiedsaanwijzingen.get(aanwijzing_code)
@@ -64,9 +64,9 @@ class JoinGebiedsaanwijzingenService:
         return result_rows
 
     def _fetch_object_statics(self, aanwijzing_codes: set[str]) -> dict[str, ObjectStatics]:
-        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(aanwijzing_codes))
+        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.code.in_(aanwijzing_codes))
         rows: Sequence[ObjectStaticsTable] = self._session.execute(stmt).scalars().all()
-        return {r.Code: ObjectStatics.model_validate(r) for r in rows}
+        return {r.code: ObjectStatics.model_validate(r) for r in rows}
 
 
 class JoinGebiedsaanwijzingenServiceFactory:

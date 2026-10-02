@@ -16,140 +16,138 @@ from app.core.tables.users import UsersTable
 class ModuleTable(Base, TimeStamped, UserMetaData):
     __tablename__ = "modules"
 
-    Module_ID: Mapped[int] = mapped_column(primary_key=True)
+    module_id: Mapped[int] = mapped_column(primary_key=True)
 
-    Activated: Mapped[bool] = mapped_column(default=False)
-    Closed: Mapped[bool] = mapped_column(default=False)
-    Successful: Mapped[bool] = mapped_column(default=False)
-    Temporary_Locked: Mapped[bool] = mapped_column(default=False)
+    activated: Mapped[bool] = mapped_column(default=False)
+    closed: Mapped[bool] = mapped_column(default=False)
+    successful: Mapped[bool] = mapped_column(default=False)
+    temporary_locked: Mapped[bool] = mapped_column(default=False)
 
-    Title: Mapped[str] = mapped_column(default="")
-    Description: Mapped[str] = mapped_column(default="")
-    Module_Manager_1_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
-    Module_Manager_2_UUID: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    title: Mapped[str] = mapped_column(default="")
+    description: Mapped[str] = mapped_column(default="")
+    module_manager_1_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    module_manager_2_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
     @property
-    def Status(self) -> Optional["ModuleStatusHistoryTable"]:
+    def status(self) -> Optional["ModuleStatusHistoryTable"]:
         return None if not self.status_history else self.status_history[-1]
 
     @hybrid_property
-    def Current_Status(self) -> str | None:
+    def current_status(self) -> str | None:
         if not self.status_history:
             return None
-        return self.status_history[-1].Status
+        return self.status_history[-1].status
 
-    @Current_Status.expression
-    def Current_Status(cls):
+    @current_status.expression
+    def current_status(cls):
         return (
-            select(ModuleStatusHistoryTable.Status)
-            .filter(cls.Module_ID == ModuleStatusHistoryTable.Module_ID)
-            .order_by(ModuleStatusHistoryTable.ID.desc())
+            select(ModuleStatusHistoryTable.status)
+            .filter(cls.module_id == ModuleStatusHistoryTable.module_id)
+            .order_by(ModuleStatusHistoryTable.id.desc())
             .limit(1)
             .scalar_subquery()
         )
 
     @hybrid_method
-    def is_manager(self, user_uuid):
-        return user_uuid in [self.Module_Manager_1_UUID, self.Module_Manager_2_UUID]
+    def is_manager(self, user_id):
+        return user_id in [self.module_manager_1_id, self.module_manager_2_id]
 
     @is_manager.expression
-    def is_manager(cls, user_uuid):
+    def is_manager(cls, user_id):
         return or_(
-            cls.Module_Manager_1_UUID == user_uuid,
-            cls.Module_Manager_2_UUID == user_uuid,
+            cls.module_manager_1_id == user_id,
+            cls.module_manager_2_id == user_id,
         )
 
     @hybrid_property
     def is_active(self) -> bool:
-        return not self.Closed and self.Activated
+        return not self.closed and self.activated
 
     @is_active.expression
     def is_active(cls):
-        return (cls.Activated == True) & (cls.Closed == False)  # type: ignore
+        return (cls.activated == True) & (cls.closed == False)  # type: ignore
 
     status_history: Mapped[list["ModuleStatusHistoryTable"]] = relationship(
-        back_populates="Module", order_by="asc(ModuleStatusHistoryTable.ID)"
+        back_populates="module", order_by="asc(ModuleStatusHistoryTable.id)"
     )
 
-    Created_By: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.Created_By_UUID == UsersTable.UUID")
-    Modified_By: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.Modified_By_UUID == UsersTable.UUID"
+    created_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.created_by_id == UsersTable.UUID")
+    modified_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.modified_by_id == UsersTable.UUID")
+    module_manager_1: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.module_manager_1_id == UsersTable.UUID"
     )
-    Module_Manager_1: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.Module_Manager_1_UUID == UsersTable.UUID"
-    )
-    Module_Manager_2: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.Module_Manager_2_UUID == UsersTable.UUID"
+    module_manager_2: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.module_manager_2_id == UsersTable.UUID"
     )
 
     def __repr__(self) -> str:
-        return f"Module(Module_ID={self.Module_ID!r}, Title={self.Title!r})"
+        return f"Module(module_id={self.module_id!r}, title={self.title!r})"
 
 
 class ModuleStatusHistoryTable(Base):
     __tablename__ = "module_status_history"
 
-    ID: Mapped[int] = mapped_column(primary_key=True)
-    Module_ID: Mapped[int] = mapped_column(ForeignKey("modules.Module_ID"))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    module_id: Mapped[int] = mapped_column(ForeignKey("modules.module_id"))
 
-    Created_Date: Mapped[datetime]
-    Created_By_UUID: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_date: Mapped[datetime]
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
 
-    Status: Mapped[str]
+    status: Mapped[str]
 
-    Module: Mapped[ModuleTable] = relationship(back_populates="status_history")
+    module: Mapped[ModuleTable] = relationship(back_populates="status_history")
 
     def __repr__(self) -> str:
-        return f"ModuleStatusHistory(ID={self.ID!r}, Module_ID={self.Module_ID!r}, Status={self.Status!r})"
+        return f"ModuleStatusHistory(id={self.id!r}, module_id={self.module_id!r}, status={self.status!r})"
 
 
 class ModuleObjectsTable(Base):
     __tablename__ = "module_objects"
 
-    Module_ID: Mapped[int] = mapped_column(ForeignKey("modules.Module_ID"))
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.Code"))
-    Deleted: Mapped[bool] = mapped_column(default=False)
+    module_id: Mapped[int] = mapped_column(ForeignKey("modules.module_id"))
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.code"))
+    deleted: Mapped[bool] = mapped_column(default=False)
 
-    ModuleObjectContext: Mapped["ModuleObjectContextTable"] = relationship()
-    ObjectStatics: Mapped[ObjectStaticsTable] = relationship(
-        primaryjoin="ModuleObjectsTable.Code == ObjectStaticsTable.Code",
+    module_object_context: Mapped["ModuleObjectContextTable"] = relationship()
+    object_statics: Mapped[ObjectStaticsTable] = relationship(
+        primaryjoin="ModuleObjectsTable.code == ObjectStaticsTable.code",
         viewonly=True,
     )
 
     __table_args__ = (
         ForeignKeyConstraint(
-            ["Module_ID", "Code"],
-            ["module_object_context.Module_ID", "module_object_context.Code"],
+            ["module_id", "code"],
+            ["module_object_context.module_id", "module_object_context.code"],
         ),
     )
 
     def __repr__(self) -> str:
-        return f"ModuleObjectsTable(Module_ID={self.Module_ID!r}, UUID={self.UUID!r}, Code={self.Code!r})"
+        return f"ModuleObjectsTable(module_id={self.module_id!r}, uuid={self.id!r}, code={self.code!r})"
 
 
 class ModuleObjectContextTable(Base, TimeStamped, UserMetaData, SerializerMixin):
     __tablename__ = "module_object_context"
 
-    Module_ID = mapped_column(ForeignKey("modules.Module_ID"), primary_key=True)
+    module_id = mapped_column(ForeignKey("modules.module_id"), primary_key=True)
 
-    Object_Type: Mapped[str] = mapped_column(Unicode(25))
-    Object_ID: Mapped[int]
-    Code: Mapped[str] = mapped_column(Unicode(35), primary_key=True)
+    object_type: Mapped[str] = mapped_column(Unicode(25))
+    object_id: Mapped[int]
+    code: Mapped[str] = mapped_column(Unicode(35), primary_key=True)
 
-    Original_Adjust_On: Mapped[uuid.UUID | None]
+    original_adjust_on: Mapped[uuid.UUID | None]
 
-    Hidden: Mapped[bool] = mapped_column(default=False)
-    Action: Mapped[str]
-    Explanation: Mapped[str]
-    Conclusion: Mapped[str]
+    hidden: Mapped[bool] = mapped_column(default=False)
+    action: Mapped[str]
+    explanation: Mapped[str]
+    conclusion: Mapped[str]
 
-    Created_By: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleObjectContextTable.Created_By_UUID == UsersTable.UUID"
+    created_by: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleObjectContextTable.created_by_id == UsersTable.UUID"
     )
-    Modified_By: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleObjectContextTable.Modified_By_UUID == UsersTable.UUID"
+    modified_by: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleObjectContextTable.modified_by_id == UsersTable.UUID"
     )
 
     def __repr__(self) -> str:
-        return f"ModuleObjectContextTable(Module_ID={self.Module_ID!r}, Code={self.Code!r}, Action={self.Action!r})"
+        return f"ModuleObjectContextTable(module_id={self.module_id!r}, code={self.code!r}, action={self.action!r})"

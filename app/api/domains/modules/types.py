@@ -67,105 +67,112 @@ class PublicModuleStatusCode(str, Enum):
 
 
 class PublicModuleObjectRevision(BaseModel):
-    Module_ID: int
-    Module_Title: str
-    Module_Status: ModuleStatusCode
-    Module_Object_UUID: uuid.UUID
-    Module_Object_Code: str
-    Module_Object_Status: PublicModuleStatusCode
-    Action: ModuleObjectActionFull
+    module_id: int
+    module_title: str
+    module_status: ModuleStatusCode
+    module_object_id: uuid.UUID
+    module_object_code: str
+    module_object_status: PublicModuleStatusCode
+    action: ModuleObjectActionFull
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleStatus(BaseModel):
-    ID: int
-    Module_ID: int
-    Status: str
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
+    id: int
+    module_id: int
+    status: str
+    created_date: datetime
+    created_by_id: uuid.UUID
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleShort(BaseModel):
-    Module_ID: int
-    Closed: bool
-    Title: str
-    Description: str
-    Status: ModuleStatus | None = None
-    Module_Manager_1: UserShort | None = None
-    Module_Manager_2: UserShort | None = None
+    module_id: int
+    closed: bool
+    title: str
+    description: str
+    status: ModuleStatus | None = None
+    module_manager_1: UserShort | None = None
+    module_manager_2: UserShort | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class ActiveModuleObject(BaseModel):
-    Module_ID: int | None = None
-    UUID: uuid.UUID
-    Modified_Date: datetime
-    Title: str
+    module_id: int | None = None
+    id: uuid.UUID
+    modified_date: datetime
+    title: str
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class ObjectStaticShort(BaseModel):
-    Owner_1_UUID: uuid.UUID | None = None
-    Owner_2_UUID: uuid.UUID | None = None
-    Portfolio_Holder_1_UUID: uuid.UUID | None = None
-    Portfolio_Holder_2_UUID: uuid.UUID | None = None
-    Client_1_UUID: uuid.UUID | None = None
+    owner_1_id: uuid.UUID | None = None
+    owner_2_id: uuid.UUID | None = None
+    portfolio_holder_1_id: uuid.UUID | None = None
+    portfolio_holder_2_id: uuid.UUID | None = None
+    client_1_id: uuid.UUID | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleObjectContextShort(BaseModel):
-    Action: str
-    Original_Adjust_On: uuid.UUID | None = None
+    action: str
+    original_adjust_on: uuid.UUID | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class ModuleObjectShort(BaseModel):
-    Module_ID: int
-    Object_Type: str
-    Object_ID: int
-    Code: str
-    UUID: uuid.UUID
+    module_id: int
+    object_type: str
+    object_id: int
+    code: str
+    id: uuid.UUID
 
-    Modified_Date: datetime
-    Title: str
+    modified_date: datetime
+    title: str
 
-    ObjectStatics: ObjectStaticShort | None = None
-    ModuleObjectContext: ModuleObjectContextShort | None = None
+    object_statics: ObjectStaticShort | None = None
+    module_object_context: ModuleObjectContextShort | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class Module(BaseModel):
-    Module_ID: int
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
-    Activated: bool
-    Closed: bool
-    Successful: bool
-    Temporary_Locked: bool
-    Title: str
-    Description: str
-    Module_Manager_1_UUID: uuid.UUID
-    Module_Manager_2_UUID: uuid.UUID | None = None
-    Status: ModuleStatus | None = None
+    module_id: int
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
+    activated: bool
+    closed: bool
+    successful: bool
+    temporary_locked: bool
+    title: str
+    description: str
+    module_manager_1_id: uuid.UUID
+    module_manager_2_id: uuid.UUID | None = None
+    status: ModuleStatus | None = None
 
-    Created_By: UserShort | None = None
-    Modified_By: UserShort | None = None
-    Module_Manager_1: UserShort | None = None
-    Module_Manager_2: UserShort | None = None
+    created_by: UserShort | None = None
+    modified_by: UserShort | None = None
+    module_manager_1: UserShort | None = None
+    module_manager_2: UserShort | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicModuleShort(BaseModel):
-    Module_ID: int
-    Title: str
-    Description: str
-    Status: ModuleStatus | None = None
+    module_id: int
+    title: str
+    description: str
+    status: ModuleStatus | None = None
 
-    @field_validator("Title", "Description", mode="before")
+    @field_validator("title", "description", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -173,19 +180,20 @@ class PublicModuleShort(BaseModel):
 
 
 class ModuleSortColumn(str, Enum):
-    Module_ID = "Module_ID"
-    Title = "Title"
-    Created_Date = "Created_Date"
-    Modified_Date = "Modified_Date"
-    Activated = "Activated"
-    Closed = "Closed"
-    Successful = "Successful"
-    Temporary_Locked = "Temporary_Locked"
+    module_id = "module_id"
+    title = "title"
+    created_date = "created_date"
+    modified_date = "modified_date"
+    activated = "activated"
+    closed = "closed"
+    successful = "successful"
+    temporary_locked = "temporary_locked"
 
 
 class GenericObjectShort(BaseModel):
-    Object_Type: str
-    Object_ID: int
-    UUID: uuid.UUID
-    Title: str | None = None
+    object_type: str
+    object_id: int
+    id: uuid.UUID
+    title: str | None = None
+
     model_config = ConfigDict(from_attributes=True)

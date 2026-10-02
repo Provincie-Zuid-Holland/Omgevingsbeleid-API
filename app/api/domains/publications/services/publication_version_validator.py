@@ -9,7 +9,7 @@ from app.core.tables.publications import PublicationVersionTable
 class PublicationVersionValidator:
     def get_errors(self, publication_version: PublicationVersionTable) -> list[ErrorDetails]:
         try:
-            if publication_version.Publication.Procedure_Type == ProcedureType.DRAFT.value:
+            if publication_version.publication.procedure_type == ProcedureType.DRAFT.value:
                 _ = PublicationVersionDraftValidated.model_validate(publication_version)
             else:
                 _ = PublicationVersionFinalValidated.model_validate(publication_version)

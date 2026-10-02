@@ -78,12 +78,12 @@ def post_create_user_endpoint(
         Wachtwoord=password_hash,
     )
 
-    change_log = ChangeLogTable(
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=logged_in_user.UUID,
-        Action_Type="create_user",
-        Action_Data=object_in.model_dump_json(),
-        After=json.dumps(user.to_dict_safe()),
+    change_log: ChangeLogTable = ChangeLogTable(
+        created_date=datetime.now(UTC),
+        created_by_id=logged_in_user.UUID,
+        action_type="create_user",
+        action_data=object_in.model_dump_json(),
+        after=json.dumps(user.to_dict_safe()),
     )
 
     session.add(change_log)

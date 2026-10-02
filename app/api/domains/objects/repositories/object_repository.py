@@ -18,72 +18,72 @@ class ObjectRepository(BaseRepository):
         row_number = (
             func.row_number()
             .over(
-                partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                partition_by=ObjectsTable.code,
+                order_by=desc(ObjectsTable.modified_date),
             )
-            .label("_RowNumber")
+            .label("_row_number")
         )
 
         subq = (
             select(ObjectsTable, row_number)
-            .options(selectinload(ObjectsTable.ObjectStatics))
-            .join(ObjectsTable.ObjectStatics)
+            .options(selectinload(ObjectsTable.object_statics))
+            .join(ObjectsTable.object_statics)
             .filter(
                 or_(
-                    ObjectStaticsTable.Owner_1_UUID == user_uuid,
-                    ObjectStaticsTable.Owner_2_UUID == user_uuid,
-                    ObjectStaticsTable.Portfolio_Holder_1_UUID == user_uuid,
-                    ObjectStaticsTable.Portfolio_Holder_2_UUID == user_uuid,
-                    ObjectStaticsTable.Client_1_UUID == user_uuid,
+                    ObjectStaticsTable.owner_1_id == user_uuid,
+                    ObjectStaticsTable.owner_2_id == user_uuid,
+                    ObjectStaticsTable.portfolio_holder_1_id == user_uuid,
+                    ObjectStaticsTable.portfolio_holder_2_id == user_uuid,
+                    ObjectStaticsTable.client_1_id == user_uuid,
                 ).self_group()
             )
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
         )
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
         stmt = (
             select(aliased_objects)
-            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c._row_number == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(UTC),
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > datetime.now(UTC),
+                    subq.c.end_validity.is_(None),
                 )
             )
         )
         main_query = stmt.subquery()
 
-        final_query = select(main_query.c.Object_Type, func.count()).group_by(main_query.c.Object_Type)
+        final_query = select(main_query.c.object_type, func.count()).group_by(main_query.c.object_type)
 
         rows = session.execute(final_query).fetchall()
         result = [ObjectCount(object_type=r[0], count=r[1]) for r in rows]
         return result
 
-    def get_by_uuid(self, session: Session, uuid: UUID) -> ObjectsTable | None:
-        stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid)
+    def get_by_id(self, session: Session, idx: UUID) -> ObjectsTable | None:
+        stmt = select(ObjectsTable).filter(ObjectsTable.id == idx)
         return self.fetch_first(session, stmt)
 
-    def get_by_object_type_and_uuid(self, session: Session, object_type: str, uuid: UUID) -> ObjectsTable | None:
-        stmt = select(ObjectsTable).filter(ObjectsTable.UUID == uuid).filter(ObjectsTable.Object_Type == object_type)
+    def get_by_object_type_and_id(self, session: Session, object_type: str, idx: UUID) -> ObjectsTable | None:
+        stmt = select(ObjectsTable).filter(ObjectsTable.id == idx).filter(ObjectsTable.object_type == object_type)
         return self.fetch_first(session, stmt)
 
     def get_next_valid_object(self, session: Session, object_uuid: UUID) -> ObjectsTable | None:
-        reference_obj = (select(ObjectsTable).filter(ObjectsTable.UUID == object_uuid)).subquery()
+        reference_obj = (select(ObjectsTable).filter(ObjectsTable.id == object_uuid)).subquery()
 
         stmt = (
             select(ObjectsTable)
-            .options(selectinload(ObjectsTable.ObjectStatics))
-            .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Code == reference_obj.c.Code)
-            .filter(ObjectsTable.Modified_Date > reference_obj.c.Modified_Date)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
-            .order_by(ObjectsTable.Modified_Date.asc())
+            .options(selectinload(ObjectsTable.object_statics))
+            .join(ObjectsTable.object_statics)
+            .filter(ObjectsTable.code == reference_obj.c.code)
+            .filter(ObjectsTable.modified_date > reference_obj.c.modified_date)
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
+            .order_by(ObjectsTable.modified_date.asc())
         )
         stmt = stmt.filter(
             or_(
-                ObjectsTable.End_Validity > datetime.now(UTC),
-                ObjectsTable.End_Validity.is_(None),
+                ObjectsTable.end_validity > datetime.now(UTC),
+                ObjectsTable.end_validity.is_(None),
             )
         )
 
@@ -93,33 +93,33 @@ class ObjectRepository(BaseRepository):
         row_number = (
             func.row_number()
             .over(
-                partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                partition_by=ObjectsTable.code,
+                order_by=desc(ObjectsTable.modified_date),
             )
-            .label("_RowNumber")
+            .label("_row_number")
         )
 
         subq = (
             select(ObjectsTable, row_number)
-            .options(selectinload(ObjectsTable.ObjectStatics))
-            .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Object_Type == object_type)
-            .filter(ObjectsTable.Object_ID == object_id)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
+            .options(selectinload(ObjectsTable.object_statics))
+            .join(ObjectsTable.object_statics)
+            .filter(ObjectsTable.object_type == object_type)
+            .filter(ObjectsTable.object_id == object_id)
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
         )
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
         stmt = (
             select(aliased_objects)
-            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c._row_number == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(UTC),
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > datetime.now(UTC),
+                    subq.c.end_validity.is_(None),
                 )
             )
-            .order_by(desc(subq.c.Modified_Date))
+            .order_by(desc(subq.c.modified_date))
         )
         result = self.fetch_first(session, stmt)
         return result
@@ -127,9 +127,9 @@ class ObjectRepository(BaseRepository):
     def get_latest_by_id(self, session: Session, object_type: str, object_id: int) -> ObjectsTable | None:
         stmt = (
             select(ObjectsTable)
-            .filter(ObjectsTable.Object_Type == object_type)
-            .filter(ObjectsTable.Object_ID == object_id)
-            .order_by(desc(ObjectsTable.Modified_Date))
+            .filter(ObjectsTable.object_type == object_type)
+            .filter(ObjectsTable.object_id == object_id)
+            .order_by(desc(ObjectsTable.modified_date))
         )
         return self.fetch_first(session, stmt)
 
@@ -137,45 +137,45 @@ class ObjectRepository(BaseRepository):
         self,
         session: Session,
         pagination: SortedPagination,
-        owner_uuid: UUID | None = None,
+        owner_id: UUID | None = None,
         object_types: Sequence[str] = (),
     ) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
             .over(
-                partition_by=ObjectsTable.Code,
-                order_by=desc(ObjectsTable.Modified_Date),
+                partition_by=ObjectsTable.code,
+                order_by=desc(ObjectsTable.modified_date),
             )
-            .label("_RowNumber")
+            .label("_row_number")
         )
 
         subq = (
             select(ObjectsTable, row_number)
-            .options(joinedload(ObjectsTable.ObjectStatics))
-            .join(ObjectsTable.ObjectStatics)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
+            .options(joinedload(ObjectsTable.object_statics))
+            .join(ObjectsTable.object_statics)
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
         )
 
         filters = []
-        if owner_uuid is not None:
+        if owner_id is not None:
             owner_filter = or_(
-                ObjectStaticsTable.Owner_1_UUID == owner_uuid,
-                ObjectStaticsTable.Owner_2_UUID == owner_uuid,
-                ObjectStaticsTable.Portfolio_Holder_1_UUID == owner_uuid,
-                ObjectStaticsTable.Portfolio_Holder_2_UUID == owner_uuid,
-                ObjectStaticsTable.Client_1_UUID == owner_uuid,
+                ObjectStaticsTable.owner_1_id == owner_id,
+                ObjectStaticsTable.owner_2_id == owner_id,
+                ObjectStaticsTable.portfolio_holder_1_id == owner_id,
+                ObjectStaticsTable.portfolio_holder_2_id == owner_id,
+                ObjectStaticsTable.client_1_id == owner_id,
             )
             filters.append(owner_filter)
 
         if object_types:
-            filters.append(ObjectsTable.Object_Type.in_(object_types))
+            filters.append(ObjectsTable.object_type.in_(object_types))
 
         if len(filters) > 0:
             subq = subq.filter(and_(*filters))
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
+        stmt = select(aliased_objects).filter(subq.c._row_number == 1)
 
         return self.fetch_paginated(
             session=session,
@@ -191,30 +191,30 @@ class ObjectRepository(BaseRepository):
                 ObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
+                    partition_by=ObjectsTable.code,
+                    order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ObjectsTable)
-            .filter(ObjectsTable.Object_Type == object_type)
-            .filter(ObjectsTable.Start_Validity <= datetime.now(UTC))
+            .filter(ObjectsTable.object_type == object_type)
+            .filter(ObjectsTable.start_validity <= datetime.now(UTC))
             .subquery()
         )
 
         aliased_objects = aliased(ObjectsTable, subq)
         stmt = (
             select(aliased_objects)
-            .filter(subq.c._RowNumber == 1)
+            .filter(subq.c._row_number == 1)
             .filter(
                 or_(
-                    subq.c.End_Validity > datetime.now(UTC),
-                    subq.c.End_Validity.is_(None),
+                    subq.c.end_validity > datetime.now(UTC),
+                    subq.c.end_validity.is_(None),
                 )
             )
         )
         if filter_title:
-            stmt = stmt.filter(subq.c.Title.like(filter_title))
+            stmt = stmt.filter(subq.c.title.like(filter_title))
 
         return PreparedQuery(
             query=stmt,
@@ -224,8 +224,8 @@ class ObjectRepository(BaseRepository):
     def prepare_list_valid_lineage_tree(self, object_type: str, lineage_id: int) -> PreparedQuery:
         stmt = (
             select(ObjectsTable)
-            .filter(ObjectsTable.Object_Type == object_type)
-            .filter(ObjectsTable.Object_ID == lineage_id)
+            .filter(ObjectsTable.object_type == object_type)
+            .filter(ObjectsTable.object_id == lineage_id)
         )
         return PreparedQuery(
             query=stmt,

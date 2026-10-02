@@ -29,7 +29,7 @@ def view_object_version_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     context: Annotated[ObjectVersionEndpointContext, Depends()],
 ) -> BaseModel:
-    maybe_object: ObjectsTable | None = object_repository.get_by_object_type_and_uuid(
+    maybe_object: ObjectsTable | None = object_repository.get_by_object_type_and_id(
         session,
         context.object_type,
         object_uuid,

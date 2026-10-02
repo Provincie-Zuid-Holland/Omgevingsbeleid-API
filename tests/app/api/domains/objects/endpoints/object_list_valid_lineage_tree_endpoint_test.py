@@ -46,28 +46,28 @@ def test_returns_full_version_history_of_a_lineage(
 
     assert body["total"] == expected_total
     assert len(body["results"]) == expected_total
-    assert all(r["Code"] == f"{object_type}-{lineage_id}" for r in body["results"])
-    assert str(latest.UUID) in {r["UUID"] for r in body["results"]}
+    assert all(r["code"] == f"{object_type}-{lineage_id}" for r in body["results"])
+    assert str(latest.id) in {r["id"] for r in body["results"]}
 
 
 def test_tree_includes_future_version_that_valid_list_excludes(client: TestClient, ctx: Context):
     future: BeleidsdoelSpec = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_3_future")).spec
 
-    tree = {r["UUID"] for r in client.get("/beleidsdoelen/valid/3").json()["results"]}
-    valid = {r["UUID"] for r in client.get("/beleidsdoelen/valid").json()["results"]}
+    tree = {r["id"] for r in client.get("/beleidsdoelen/valid/3").json()["results"]}
+    valid = {r["id"] for r in client.get("/beleidsdoelen/valid").json()["results"]}
 
-    assert str(future.UUID) in tree
-    assert str(future.UUID) not in valid
+    assert str(future.id) in tree
+    assert str(future.id) not in valid
 
 
 def test_tree_includes_past_end_validity_version_that_valid_list_excludes(client: TestClient, ctx: Context):
     expired: MaatregelSpec = ctx.f.find(Ref(MaatregelSpec, "maatregel_6_past_end_validity")).spec
 
-    tree = {r["UUID"] for r in client.get("/maatregelen/valid/6").json()["results"]}
-    valid_codes = {r["Code"] for r in client.get("/maatregelen/valid").json()["results"]}
+    tree = {r["id"] for r in client.get("/maatregelen/valid/6").json()["results"]}
+    valid_codes = {r["code"] for r in client.get("/maatregelen/valid").json()["results"]}
 
-    assert str(expired.UUID) in tree
-    assert expired.Code not in valid_codes
+    assert str(expired.id) in tree
+    assert expired.code not in valid_codes
 
 
 @pytest.mark.parametrize(
@@ -85,7 +85,7 @@ def test_lineage_without_versions_returns_empty(client: TestClient, url: str):
 
 
 def test_default_sort_is_modified_date_descending(client: TestClient):
-    mods = [r["Modified_Date"] for r in client.get("/beleidsdoelen/valid/1").json()["results"]]
+    mods = [r["modified_date"] for r in client.get("/beleidsdoelen/valid/1").json()["results"]]
 
     assert mods == sorted(mods, reverse=True)
 
@@ -98,8 +98,8 @@ def test_default_sort_is_modified_date_descending(client: TestClient):
     ],
 )
 def test_sort_by_modified_date(client: TestClient, sort_order: str, reverse: bool):
-    url = f"/beleidsdoelen/valid/1?sort_column=Modified_Date&sort_order={sort_order}"
-    mods = [r["Modified_Date"] for r in client.get(url).json()["results"]]
+    url = f"/beleidsdoelen/valid/1?sort_column=modified_date&sort_order={sort_order}"
+    mods = [r["modified_date"] for r in client.get(url).json()["results"]]
 
     assert mods == sorted(mods, reverse=reverse)
 

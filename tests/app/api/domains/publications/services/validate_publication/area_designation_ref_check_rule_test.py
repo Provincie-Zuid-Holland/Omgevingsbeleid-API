@@ -11,12 +11,12 @@ from app.api.domains.publications.services.validate_publication import (
 )
 from app.api.domains.publications.types.api_input_data import PublicationGebiedsaanwijzing
 from app.api.domains.publications.types.enums import DocumentType
-from tests.app.api.domains.publication.services.validate_publication.type_factories import (
+from tests.app.api.domains.publications.services.validate_publication.type_factories import (
     make_api_act_input_data,
     make_publication_data,
     make_publication_gebiedsaanwijzing,
 )
-from tests.dso.factories.gebiedsaanwijzing import make_gebiedsaanwijzing as make_dso_gebiedsaanwijzing
+from tests.dso_tests.factories.gebiedsaanwijzing import make_gebiedsaanwijzing as make_dso_gebiedsaanwijzing
 
 
 def test_validate():
