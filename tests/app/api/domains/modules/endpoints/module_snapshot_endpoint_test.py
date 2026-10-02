@@ -28,3 +28,9 @@ def test_returns_the_objects_as_they_were_at_the_status(admin: TestClient, ctx: 
         "Changed the titel via Module 1",
         "Beleidsdoel 4 from module 1",
     ]
+
+
+def test_doesnt_find_module_status(admin: TestClient, ctx: Context):
+    response = admin.get("/modules/1/snapshot/9999")
+    assert response.status_code == 404, response.text
+    assert response.json()["detail"] == "Module status niet gevonden"

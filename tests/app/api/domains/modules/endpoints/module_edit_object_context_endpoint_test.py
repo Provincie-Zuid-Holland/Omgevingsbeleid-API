@@ -50,6 +50,14 @@ def test_edits_the_object_context_no_changes(admin: TestClient, ctx: Context):
         "/modules/1/object-context/beleidsdoel/1",
         json={},
     )
-
     assert response.status_code == 400, response.text
     assert response.json()["detail"] == "Nothing to update"
+
+
+def test_edits_the_object_context_object_not_found(admin: TestClient, ctx: Context):
+    response = admin.post(
+        "/modules/1/object-context/beleidsdoel/99999",
+        json={"explanation": "New explanation"},
+    )
+    assert response.status_code == 404, response.text
+    assert response.json()["detail"] == "Module object niet gevonden"
