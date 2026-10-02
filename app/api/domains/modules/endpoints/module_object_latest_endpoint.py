@@ -26,7 +26,7 @@ class ModuleObjectLatestEndpointContext(BaseEndpointContext):
 @inject
 def view_module_object_latest_endpoint(
     lineage_id: int,
-    _: Annotated[UsersTable, Depends(depends_current_user)],
+    user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_module)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
@@ -52,6 +52,8 @@ def view_module_object_latest_endpoint(
             [row],
             context.builder_data.endpoint_id,
             context.response_config_model,
+            user=user,
+            module_id=module.Module_ID,
         ),
     )
     row = event.payload.rows[0]
