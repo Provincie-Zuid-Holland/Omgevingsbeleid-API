@@ -1,7 +1,9 @@
 import uuid
 from collections.abc import Sequence
 from datetime import datetime
-from typing import ClassVar
+from typing import ClassVar, Literal
+
+from pydantic import Field
 
 from app.core.db import Base
 from app.core.tables.publications import PublicationTemplateTable
@@ -27,14 +29,50 @@ class PublicationTemplateSpec(Spec):
     title: str
     description: str
     is_active: bool
-    document_type: str
-    object_types: list[str]
+    document_type: Literal["omgevingsvisie", "programma"] = "omgevingsvisie"
+
+    """
+    ["visie_algemeen", "ambitie", "beleidsdoel", "beleidskeuze", "gebiedengroep", "gebied", "gebiedsaanwijzing"]
+    """
+    object_types: list[str] = Field(default_factory=list)
+
+    """
+    <div data-hint-element="divisietekst"><object code="beleidsdoel-1" /></div>
+    <div data-hint-element="divisietekst"><object code="beleidskeuze-1" /></div>
+    """
     text_template: str
-    object_templates: dict[str, str]
-    object_field_map: dict[str, str | list[str]]
+
+    """
+    {
+        "beleidsdoel":
+            ```
+            <h1>{{ o.Title }}</h1>
+            <!--[OBJECT-CODE: {{ o.Code }}]-->
+            {{ o.Description | default('', true)}}
+            ```
+        "beleidskeuze": ...
+    }
+    """
+    object_templates: dict[str, str] = Field(default_factory=dict)
+
+    """
+    {
+        "beleidsdoel": [
+            "Title",
+            "Description"
+        ],
+        "beleidskeuze": [
+            "Title",
+            "Description",
+            "Explanation",
+            "Gebiedengroep_Code"
+        ]
+    }
+    """
+    object_field_map: dict[str, str | list[str]] = Field(default_factory=dict)
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.id, "UUID is not set which is expected to happen at this stage."
+        assert self.id, "`id` is not set which is expected to happen at this stage."
         return self.id
 
 
