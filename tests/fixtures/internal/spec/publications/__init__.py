@@ -8,10 +8,35 @@ from .publication_act_version_spec import (
     PublicationActVersionPrefillHandler,
     PublicationActVersionSpec,
 )
+from .publication_announcement_spec import (
+    PublicationAnnouncementPersistHandler,
+    PublicationAnnouncementPrefillHandler,
+    PublicationAnnouncementSpec,
+)
 from .publication_area_of_jurisdiction_spec import (
     PublicationAreaOfJurisdictionPersistHandler,
     PublicationAreaOfJurisdictionPrefillHandler,
     PublicationAreaOfJurisdictionSpec,
+)
+from .publication_bill_spec import (
+    PublicationBillPersistHandler,
+    PublicationBillPrefillHandler,
+    PublicationBillSpec,
+)
+from .publication_bill_version_spec import (
+    PublicationBillVersionPersistHandler,
+    PublicationBillVersionPrefillHandler,
+    PublicationBillVersionSpec,
+)
+from .publication_doc_spec import (
+    PublicationDocPersistHandler,
+    PublicationDocPrefillHandler,
+    PublicationDocSpec,
+)
+from .publication_doc_version_spec import (
+    PublicationDocVersionPersistHandler,
+    PublicationDocVersionPrefillHandler,
+    PublicationDocVersionSpec,
 )
 from .publication_environment_spec import (
     PublicationEnvironmentPersistHandler,
@@ -28,6 +53,11 @@ from .publication_purpose_spec import (
     PublicationPurposePrefillHandler,
     PublicationPurposeSpec,
 )
+from .publication_spec import (
+    PublicationPersistHandler,
+    PublicationPrefillHandler,
+    PublicationSpec,
+)
 from .publication_storage_file_spec import (
     PublicationStorageFilePersistHandler,
     PublicationStorageFilePrefillHandler,
@@ -37,4 +67,14 @@ from .publication_template_spec import (
     PublicationTemplatePersistHandler,
     PublicationTemplatePrefillHandler,
     PublicationTemplateSpec,
+)
+from .publication_version_attachment_spec import (
+    PublicationVersionAttachmentPersistHandler,
+    PublicationVersionAttachmentPrefillHandler,
+    PublicationVersionAttachmentSpec,
+)
+from .publication_version_spec import (
+    PublicationVersionPersistHandler,
+    PublicationVersionPrefillHandler,
+    PublicationVersionSpec,
 )
