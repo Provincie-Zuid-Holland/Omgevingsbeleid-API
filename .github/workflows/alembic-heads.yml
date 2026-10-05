@@ -1,0 +1,39 @@
+name: Check Alembic has a single head
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  alembic-heads:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unixodbc
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Check Alembic heads
+        run: |
+          set -euo pipefail
+          HEADS="$(alembic heads)"
+          echo "$HEADS"
+          COUNT="$(grep -c '(head)' <<< "$HEADS" || true)"
+          if [ "$COUNT" -ne 1 ]; then
+            echo "::error::Alembic has $COUNT heads, expected 1. Rebase on main and set your migration's down_revision to the current head."
+            exit 1
+          fi
