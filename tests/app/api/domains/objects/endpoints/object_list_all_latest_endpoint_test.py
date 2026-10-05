@@ -14,8 +14,8 @@ def test_lists_latest_valid_version_per_lineage(client: TestClient):
     assert response.status_code == 200, response.text
 
     body = response.json()
-    assert body["total"] == 18
-    assert len(body["results"]) == 18
+    assert body["total"] == 21
+    assert len(body["results"]) == 20
 
     first = body["results"][0]
     assert set(first.keys()) == {"Object_Type", "ObjectStatics", "Model"}
@@ -44,13 +44,13 @@ def test_unknown_object_type_returns_400(client: TestClient):
 
 def test_pagination_limits_results_but_not_total(client: TestClient):
     body = client.get("/objects/valid?limit=5&offset=0").json()
-    assert body["total"] == 18
+    assert body["total"] == 21
     assert body["limit"] == 5
     assert len(body["results"]) == 5
 
-    last_page = client.get("/objects/valid?limit=5&offset=15").json()
-    assert last_page["offset"] == 15
-    assert len(last_page["results"]) == 3
+    last_page = client.get("/objects/valid?limit=5&offset=20").json()
+    assert last_page["offset"] == 20
+    assert len(last_page["results"]) == 1
 
 
 @pytest.mark.parametrize(
@@ -82,7 +82,7 @@ def test_past_end_validity_is_still_returned(client: TestClient, ctx: Context):
 
 
 def test_owner_uuid_filters_across_static_owner_columns(client: TestClient, ctx: Context):
-    owner_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "owner-1"))
+    owner_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "owner_1"))
     body = client.get(f"/objects/valid?owner_uuid={owner_uuid}").json()
     found_results = sorted((r["Object_Type"], r["Model"]["Object_ID"]) for r in body["results"])
 
