@@ -307,6 +307,7 @@ models:
       - gebiedsprogramma_minimal
       - werkingsgebied_basic
       - werkingsgebied_statics
+      - gebied_basic
     services:
       next_object_version:
         to_field: Next_Version
@@ -323,10 +324,14 @@ models:
         to_field: Gebiedengroep_Static
         from_field: Gebiedengroep_Code
       join_gebiedsaanwijzingen:
-        to_field: Gebiedsaanwijzingen_Statics
+        to_field: Gebiedsaanwijzingen_Gebieden
+        to_model: gebied_basic
         from_fields:
           - Description
           - Effect
+        columns:
+          - Target_Codes
+          - Gebieden
       join_hoofdlijnen:
         to_field: Hoofdlijnen_Statics
         from_fields:
