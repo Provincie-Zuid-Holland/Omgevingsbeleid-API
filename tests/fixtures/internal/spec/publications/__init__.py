@@ -1,3 +1,13 @@
+from .publication_act_spec import (
+    PublicationActPersistHandler,
+    PublicationActPrefillHandler,
+    PublicationActSpec,
+)
+from .publication_act_version_spec import (
+    PublicationActVersionPersistHandler,
+    PublicationActVersionPrefillHandler,
+    PublicationActVersionSpec,
+)
 from .publication_area_of_jurisdiction_spec import (
     PublicationAreaOfJurisdictionPersistHandler,
     PublicationAreaOfJurisdictionPrefillHandler,

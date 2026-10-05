@@ -53,7 +53,14 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPrefillHandler(),
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPrefillHandler(),
             # Publications
+            publications_types.PublicationStorageFileSpec: publications_types.PublicationStorageFilePrefillHandler(),
             publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePrefillHandler(),
+            publications_types.PublicationEnvironmentSpec: publications_types.PublicationEnvironmentPrefillHandler(),
+            publications_types.PublicationEnvironmentStateSpec: publications_types.PublicationEnvironmentStatePrefillHandler(),
+            publications_types.PublicationAreaOfJurisdictionSpec: publications_types.PublicationAreaOfJurisdictionPrefillHandler(),
+            publications_types.PublicationPurposeSpec: publications_types.PublicationPurposePrefillHandler(),
+            publications_types.PublicationActSpec: publications_types.PublicationActPrefillHandler(),
+            publications_types.PublicationActVersionSpec: publications_types.PublicationActVersionPrefillHandler(),
         }
 
     def prefill(self, input_records: list[Record]) -> list[Record]:

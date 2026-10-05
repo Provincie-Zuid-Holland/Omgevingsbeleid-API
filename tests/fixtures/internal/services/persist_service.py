@@ -62,7 +62,14 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPersistHandler(),
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPersistHandler(),
             # Publications
+            publications_types.PublicationStorageFileSpec: publications_types.PublicationStorageFilePersistHandler(),
             publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePersistHandler(),
+            publications_types.PublicationEnvironmentSpec: publications_types.PublicationEnvironmentPersistHandler(),
+            publications_types.PublicationEnvironmentStateSpec: publications_types.PublicationEnvironmentStatePersistHandler(),
+            publications_types.PublicationAreaOfJurisdictionSpec: publications_types.PublicationAreaOfJurisdictionPersistHandler(),
+            publications_types.PublicationPurposeSpec: publications_types.PublicationPurposePersistHandler(),
+            publications_types.PublicationActSpec: publications_types.PublicationActPersistHandler(),
+            publications_types.PublicationActVersionSpec: publications_types.PublicationActVersionPersistHandler(),
         }
 
     def persist(self, records: list[Record[S]], session: Session) -> FixtureData:

@@ -147,6 +147,7 @@ class PublicationActTable(Base, UserMetaData):
 
     # This UUID would not really be needed
     # But we keep it as it is less confusing that everything is linked by UUID
+    # @todo; we should remove this
     uuid: Mapped[UUID] = mapped_column(unique=True)
 
     environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
