@@ -2,10 +2,12 @@ from datetime import UTC, datetime
 
 from app.api.domains.modules.types import ModuleStatusCode, ModuleStatusCodeInternal
 from tests.fixtures.internal.services.collector import Collector
+from tests.fixtures.internal.spec.area_spec import AreaSpec
 from tests.fixtures.internal.spec.modules import (
     ModuleGebiedengroepSpec,
     ModuleGebiedsaanwijzingSpec,
     ModuleGebiedSpec,
+    ModuleMaatregelSpec,
     ModuleSpec,
 )
 from tests.fixtures.internal.spec.modules.module_status_history_spec import ModuleStatusHistorySpec
@@ -32,13 +34,13 @@ def load(col: Collector) -> None:
         with col.in_module(6):
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCodeInternal.Niet_Actief,
+                    status=ModuleStatusCodeInternal.Niet_Actief,
                 )
             )
             col.move_at(hours=1)
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCode.Ontwerp_GS_Concept,
+                    status=ModuleStatusCode.Ontwerp_GS_Concept,
                 )
             )
 
@@ -53,6 +55,16 @@ def load(col: Collector) -> None:
                     ModuleGebiedSpec(key="mod_6_gebied_610", object_id=610, title="Gebied 610 in Module 6"),
                     ModuleGebiedsaanwijzingSpec(
                         key="mod_6_gebiedsaanwijzing_610", object_id=610, title="Gebiedsaanwijzing 610 in Module 6"
+                    ),
+                    # These 2 objects are added to test resolve of gebiedsaanwijzing.
+                    ModuleMaatregelSpec(
+                        key="maatregel_6_mod_6",
+                        object_id=6,
+                    ),
+                    ModuleGebiedSpec(
+                        key="nature_west_v1_mod_6",
+                        object_id=1,
+                        area_id=col.ref(AreaSpec, "sea_v1"),
                     ),
                 ]
             )

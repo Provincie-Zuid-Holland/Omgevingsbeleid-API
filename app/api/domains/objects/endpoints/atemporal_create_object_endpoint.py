@@ -78,7 +78,7 @@ def atemporal_create_object_endpoint(
             session,
             static_fields,
             context.object_type,
-            object_in_data.get("Title", ""),
+            object_in_data.get("title", ""),
         )
 
         timepoint: datetime = datetime.now(UTC)

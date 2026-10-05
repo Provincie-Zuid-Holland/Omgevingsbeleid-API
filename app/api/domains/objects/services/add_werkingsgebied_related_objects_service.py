@@ -74,10 +74,10 @@ class AddWerkingsgebiedRelatedObjectsService:
         subq = (
             select(
                 row_number,
-                ObjectsTable.id.label("UUID"),
+                ObjectsTable.id.label("id"),
                 ObjectsTable.object_id.label("object_id"),
                 ObjectsTable.object_type.label("object_type"),
-                ObjectsTable.Title.label("Title"),
+                ObjectsTable.Title.label("title"),
                 ObjectsTable.code,
                 ObjectsTable.Werkingsgebied_Code.label("Werkingsgebied_Code"),
                 ObjectsTable.modified_date,
@@ -111,15 +111,15 @@ class AddWerkingsgebiedRelatedObjectsService:
     def _fetch_module_objects(self) -> dict[str, list[WerkingsgebiedRelatedModuleObjectShort]]:
         subq = (
             select(
-                ModuleObjectsTable.id.label("UUID"),
+                ModuleObjectsTable.id.label("id"),
                 ModuleObjectsTable.object_id.label("object_id"),
                 ModuleObjectsTable.object_type.label("object_type"),
-                ModuleObjectsTable.Title.label("Title"),
+                ModuleObjectsTable.title.label("title"),
                 ModuleObjectsTable.code,
                 ModuleObjectsTable.Werkingsgebied_Code.label("Werkingsgebied_Code"),
                 ModuleObjectsTable.modified_date,
                 ModuleTable.module_id.label("module_id"),
-                ModuleTable.title.label("Module_Title"),
+                ModuleTable.title.label("module_title"),
                 ModuleObjectContextTable.action.label("context_action"),
                 func.row_number()
                 .over(

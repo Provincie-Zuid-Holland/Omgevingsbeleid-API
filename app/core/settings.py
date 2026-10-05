@@ -12,7 +12,6 @@ class KoopSettings(BaseModel):
 
 class Settings(BaseSettings):
     PROJECT_VERSION: str = "5.0.0"
-    DEBUG_MODE: bool = False
     LOCAL_DEVELOPMENT_MODE: bool = False
 
     PROJECT_NAME: str = "Omgevingsbeleid API"
@@ -77,11 +76,9 @@ class Settings(BaseSettings):
     # These are for the Dependency Injector library
 
     DB_TYPE: str = Field("")
-    DEBUG_MODE_STR: str = Field("")
 
     @model_validator(mode="after")
     def set_values_for_containers(self) -> Self:
-        self.DEBUG_MODE_STR = "yes" if self.DEBUG_MODE else "no"
         # "mssql+pyodbc://..." → "mssql"
         # "sqlite+pysqlite:///..." → "sqlite"
         # "sqlite:///:memory:" → "sqlite"

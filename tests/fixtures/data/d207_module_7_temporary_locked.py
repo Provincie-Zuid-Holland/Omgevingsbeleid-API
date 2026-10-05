@@ -28,13 +28,13 @@ def load(col: Collector) -> None:
         with col.in_module(7):
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCodeInternal.Niet_Actief,
+                    status=ModuleStatusCodeInternal.Niet_Actief,
                 )
             )
             col.move_at(hours=1)
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCode.Ontwerp_GS_Concept,
+                    status=ModuleStatusCode.Ontwerp_GS_Concept,
                 )
             )
 
