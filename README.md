@@ -64,7 +64,6 @@ The Omgevingsbeleid API is a comprehensive policy management system developed fo
    
    Edit `.env` with your configuration. For development with SQLite:
    ```env
-   DEBUG_MODE=True
    LOCAL_DEVELOPMENT_MODE=True
    SQLALCHEMY_DATABASE_URI="sqlite+pysqlite:///api.db"
    SECRET_KEY="your-secret-key-here"
@@ -174,7 +173,6 @@ Key environment variables (see `app/core/settings.py` for full list):
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DEBUG_MODE` | Enable debug mode | `False` |
 | `LOCAL_DEVELOPMENT_MODE` | Enable local development features | `False` |
 | `SQLALCHEMY_DATABASE_URI` | Database connection string | - |
 | `SECRET_KEY` | JWT secret key for authentication | - |
