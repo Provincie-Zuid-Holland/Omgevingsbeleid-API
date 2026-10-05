@@ -1,11 +1,18 @@
 import hashlib
 import uuid
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from shapely import wkt
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+
+
+# A datetime before this system could have exists
+# As the DSO system did not exists then
+# This is ment as a replacement for datetime.min
+# as datetime.min can not use timezones
+DATETIME_MIN = datetime(2010, 1, 1, tzinfo=UTC)
 
 
 def table_to_dict(object_table) -> dict:
