@@ -8,7 +8,7 @@ from .acknowledged_relation_list_endpoint import (
 )
 from .acknowledged_relation_request_endpoint import (
     AcknowledgedRelationRequestEndpointContext,
-    get_acknowledged_relation_request_endpoint,
+    post_acknowledged_relation_request_endpoint,
 )
 from .atemporal_create_object_endpoint import AtemporalCreateObjectEndpointContext, atemporal_create_object_endpoint
 from .atemporal_delete_object_endpoint import AtemporalDeleteObjectEndpointContext, atemporal_delete_object_endpoint

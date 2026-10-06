@@ -83,10 +83,10 @@ def atemporal_create_object_endpoint(
 
         timepoint: datetime = datetime.now(UTC)
         new_object: ObjectsTable = ObjectsTable(
+            id=uuid.uuid4(),
             object_type=object_static.object_type,
             object_id=object_static.object_id,
             code=object_static.code,
-            UUID=uuid.uuid4(),
             created_date=timepoint,
             modified_date=timepoint,
             created_by_id=user.UUID,

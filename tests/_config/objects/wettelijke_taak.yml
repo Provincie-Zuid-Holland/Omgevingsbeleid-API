@@ -1,0 +1,254 @@
+id: wettelijke_taak
+object_type: wettelijke_taak
+
+sort_allowed_columns: &sort_allowed_columns
+  - object_id
+  - title
+  - modified_date
+
+sort_default_title: &sort_default_title
+  default:
+    column: title
+    order: asc
+  allowed_columns: *sort_allowed_columns
+
+sort_default_modified_date: &sort_default_modified_date
+  default:
+    column: modified_date
+    order: desc
+  allowed_columns: *sort_allowed_columns
+
+api:
+  routers:
+    - prefix: /wettelijke-taak
+      endpoints:
+        - resolver: atemporal_create_object
+          resolver_data:
+            request_model: wettelijke_taak_create
+            response_model: wettelijke_taak_id
+        - resolver: atemporal_edit_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: wettelijke_taak_edit
+        - resolver: atemporal_delete_object
+          resolver_data:
+            path: /{lineage_id}
+        - resolver: valid_list_lineages
+          resolver_data:
+            path: /valid
+            response_model: wettelijke_taak_basic
+            allowed_filter_columns:
+              - title
+              - weblink
+            sort: *sort_default_title
+        - resolver: object_latest
+          resolver_data:
+            path: /latest/{lineage_id}
+            response_model: wettelijke_taak_full
+        - resolver: list_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+        - resolver: overwrite_relations
+          resolver_data:
+            path: /relations/{lineage_id}
+            allowed_object_types_relations:
+              - beleidskeuze
+              - verplicht_programma
+    - prefix: /wettelijke-taak/static/{lineage_id}
+      endpoints:
+        - resolver: get_object_static
+          resolver_data:
+            response_model: wettelijke_taak_static
+        - resolver: edit_object_static
+          resolver_data:
+            request_model: wettelijke_taak_static_post
+            result_model: wettelijke_taak_static_post_validated
+
+fields:
+  title:
+    name: title
+    type: str
+    column: title
+    validators:
+      - id: none_to_default_value
+  weblink:
+    name: weblink
+    type: str
+    column: weblink
+    validators:
+      - id: none_to_default_value
+
+  # Statics
+  owner_1_id:
+    name: owner_1_id
+    type: uuid
+    column: owner_1_id
+    optional: true
+  owner_2_id:
+    name: owner_2_id
+    type: uuid
+    column: owner_2_id
+    optional: true
+
+models:
+  wettelijke_taak_minimal:
+    name: WettelijkeTaakMinimal
+    fields:
+      object_type:
+      object_id:
+      code:
+      id:
+      created_date:
+      modified_date:
+      title:
+  wettelijke_taak_basic:
+    name: WettelijkeTaakBasic
+    fields:
+      object_type:
+      object_id:
+      code:
+      id:
+      created_date:
+      modified_date:
+      title:
+      weblink:
+  wettelijke_taak_extended:
+    name: WettelijkeTaakExtended
+    fields:
+      object_type:
+      object_id:
+      code:
+      id:
+      created_date:
+      modified_date:
+      title:
+      weblink:
+      start_validity:
+      end_validity:
+    dependency_model_ids:
+      - user_short
+    services:
+      foreign_keys_extender:
+        fields_map:
+          - to_field: created_by
+            model_id: user_short
+          - to_field: modified_by
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: owner_1
+            model_id: user_short
+          - to_field: owner_2
+            model_id: user_short
+  wettelijke_taak_full:
+    name: WettelijkeTaakFull
+    fields:
+      object_type:
+      object_id:
+      code:
+      id:
+      created_date:
+      modified_date:
+      title:
+      weblink:
+      start_validity:
+      end_validity:
+    dependency_model_ids:
+      - user_short
+      - hierarchy_statics
+      - verplicht_programma_minimal
+    services:
+      relations:
+        objects:
+          - object_type: verplicht_programma
+            object_id: verplicht_programma
+            to_field: "verplicht_programmas"
+            model_id: verplicht_programma_minimal
+          - object_type: beleidskeuze
+            object_id: beleidskeuze
+            to_field: "beleidskeuzes"
+            model_id: beleidskeuze_minimal
+            wrapped_with_relation_data: true
+      foreign_keys_extender:
+        fields_map:
+          - to_field: created_by
+            model_id: user_short
+          - to_field: modified_by
+            model_id: user_short
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: owner_1
+            model_id: user_short
+          - to_field: owner_2
+            model_id: user_short
+  wettelijke_taak_create:
+    name: WettelijkeTaakCreate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      weblink:
+        optional: true
+        validators:
+          - id: plain_text
+      owner_1_id:
+      owner_2_id:
+  wettelijke_taak_edit:
+    name: WettelijkeTaakEdit
+    fields:
+      title:
+        default: none
+        optional: true
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      weblink:
+        default: none
+        optional: true
+        validators:
+          - id: plain_text
+  wettelijke_taak_static:
+    name: WettelijkeTaakStatic
+    static_only: true
+    fields: {}
+    dependency_model_ids:
+      - user_short
+    services:
+      static_foreign_keys_extender:
+        fields_map:
+          - to_field: owner_1
+            model_id: user_short
+          - to_field: owner_2
+            model_id: user_short
+  wettelijke_taak_static_post:
+    name: WettelijkeTaakStaticPost
+    static_only: true
+    fields:
+      owner_1_id:
+      owner_2_id:
+  wettelijke_taak_static_post_validated:
+    name: WettelijkeTaakStaticPostValidated
+    static_only: true
+    model_validators:
+      - id: not_equal_root
+        data:
+          fields:
+            - owner_1_id
+            - owner_2_id
+          allow_none: True
+          error_message: Owners should vary
+    fields:
+      owner_1_id:
+      owner_2_id:
+  wettelijke_taak_id:
+    name: WettelijkeTaakUUID
+    fields:
+      object_id:
+      id:

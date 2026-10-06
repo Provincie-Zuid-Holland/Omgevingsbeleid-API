@@ -332,6 +332,13 @@ columns:
     serializers: []
     deserializers: ["str"]
     nullable: true
+  # Weblink
+  weblink:
+    name: weblink
+    type: str
+    serializers: []
+    deserializers: ["str"]
+    nullable: true
   # Gebied id
   gebied_id:
     name: gebied_id
