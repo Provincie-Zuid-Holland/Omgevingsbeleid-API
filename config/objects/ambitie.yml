@@ -359,13 +359,6 @@ models:
             - Owner_3_UUID
           allow_none: True
           error_message: Owners should vary
-      - id: not_equal_root
-        data:
-          fields:
-            - Portfolio_Holder_1_UUID
-            - Portfolio_Holder_2_UUID
-          allow_none: True
-          error_message: Portfolio Holders should vary
       - id: required_fields
         data:
           fields:
