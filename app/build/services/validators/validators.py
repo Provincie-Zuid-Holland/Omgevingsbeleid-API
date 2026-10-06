@@ -523,6 +523,27 @@ class NotEmptyValidator(Validator):
         )
 
 
+class RequiredFieldsValidator(Validator):
+    def get_id(self) -> str:
+        return "required_fields"
+
+    def get_validator_func(self, config: dict) -> PydanticValidator:
+        field_keys: str = config["fields"]
+        error_message: str = config["error_message"]
+
+        def pydantic_required_fields_validator(self, info: ValidationInfo):
+            for key in field_keys:
+                if not getattr(self, key):
+                    raise ValueError(error_message)
+
+            return self
+
+        return PydanticValidator(
+            mode="after",
+            func=pydantic_required_fields_validator,
+        )
+
+
 class AllowedValuesListValidator(Validator):
     def get_id(self) -> str:
         return "allowed_values_list"
