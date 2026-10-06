@@ -279,6 +279,11 @@ models:
             - Owner_2_UUID
           allow_none: True
           error_message: Owners should vary
+      - id: required_fields
+        data:
+          fields:
+            - Owner_1_UUID
+          error_message: Missing required value
     fields:
       owner_1_uuid:
       owner_2_uuid:

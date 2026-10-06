@@ -93,3 +93,13 @@ def test_edit_permission_matrix(
     assert response.status_code == expected_status, response.text
     if expected_detail is not None:
         assert response.json()["detail"] == expected_detail
+
+
+def test_owner_1_required_returns_422(admin: TestClient, ctx: Context):
+    response = admin.post(
+        "/beleidsdoel/static/1",
+        json={"Owner_1_UUID": None},
+    )
+
+    assert response.status_code == 422
+    assert "Missing required value" in response.text
