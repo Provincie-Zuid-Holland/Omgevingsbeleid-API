@@ -78,6 +78,11 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             publications_types.PublicationDocSpec: publications_types.PublicationDocPersistHandler(),
             publications_types.PublicationDocVersionSpec: publications_types.PublicationDocVersionPersistHandler(),
             publications_types.PublicationAnnouncementSpec: publications_types.PublicationAnnouncementPersistHandler(),
+            publications_types.PublicationPackageZipSpec: publications_types.PublicationPackageZipPersistHandler(),
+            publications_types.PublicationActPackageSpec: publications_types.PublicationActPackagePersistHandler(),
+            publications_types.PublicationActPackageReportSpec: publications_types.PublicationActPackageReportPersistHandler(),
+            publications_types.PublicationAnnouncementPackageSpec: publications_types.PublicationAnnouncementPackagePersistHandler(),
+            publications_types.PublicationAnnouncementPackageReportSpec: publications_types.PublicationAnnouncementPackageReportPersistHandler(),
         }
 
     def persist(self, records: list[Record[S]], session: Session) -> FixtureData:

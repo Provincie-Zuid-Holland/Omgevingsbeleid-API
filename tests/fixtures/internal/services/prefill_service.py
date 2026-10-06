@@ -69,6 +69,11 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             publications_types.PublicationDocSpec: publications_types.PublicationDocPrefillHandler(),
             publications_types.PublicationDocVersionSpec: publications_types.PublicationDocVersionPrefillHandler(),
             publications_types.PublicationAnnouncementSpec: publications_types.PublicationAnnouncementPrefillHandler(),
+            publications_types.PublicationPackageZipSpec: publications_types.PublicationPackageZipPrefillHandler(),
+            publications_types.PublicationActPackageSpec: publications_types.PublicationActPackagePrefillHandler(),
+            publications_types.PublicationActPackageReportSpec: publications_types.PublicationActPackageReportPrefillHandler(),
+            publications_types.PublicationAnnouncementPackageSpec: publications_types.PublicationAnnouncementPackagePrefillHandler(),
+            publications_types.PublicationAnnouncementPackageReportSpec: publications_types.PublicationAnnouncementPackageReportPrefillHandler(),
         }
 
     def prefill(self, input_records: list[Record]) -> list[Record]:
