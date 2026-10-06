@@ -270,6 +270,7 @@ class ModuleObjectRepository(BaseRepository):
                     or_(
                         ObjectStaticsTable.Owner_1_UUID == mine,
                         ObjectStaticsTable.Owner_2_UUID == mine,
+                        ObjectStaticsTable.Owner_3_UUID == mine,
                     ).self_group()
                 )
             case OwnerFilter(is_mine=False, owner_uuid=others):
@@ -277,6 +278,7 @@ class ModuleObjectRepository(BaseRepository):
                     and_(
                         ObjectStaticsTable.Owner_1_UUID.is_distinct_from(others),
                         ObjectStaticsTable.Owner_2_UUID.is_distinct_from(others),
+                        ObjectStaticsTable.Owner_3_UUID.is_distinct_from(others),
                     ).self_group()
                 )
         if object_types:

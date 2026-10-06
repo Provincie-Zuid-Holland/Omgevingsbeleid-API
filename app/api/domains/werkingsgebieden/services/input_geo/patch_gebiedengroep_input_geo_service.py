@@ -141,6 +141,7 @@ class PatchGebiedengroepInputGeoService:
                 # These are inherited from the parent object
                 Owner_1_UUID=main_obj.ObjectStatics.Owner_1_UUID,
                 Owner_2_UUID=main_obj.ObjectStatics.Owner_2_UUID,
+                Owner_3_UUID=main_obj.ObjectStatics.Owner_3_UUID,
                 Client_1_UUID=main_obj.ObjectStatics.Client_1_UUID,
             )
             .returning(ObjectStaticsTable)

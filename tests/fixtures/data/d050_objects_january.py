@@ -90,6 +90,7 @@ def load(col: Collector) -> None:
                     Title="Beleidsdoel 1 from januari",
                     Description="Description of beleidsdoel 1",
                     Owner_1_UUID=col.ref(UserSpec, "owner_1"),
+                    Owner_3_UUID=col.ref(UserSpec, "owner_3"),
                 ),
                 BeleidsdoelSpec(
                     Object_ID=2,

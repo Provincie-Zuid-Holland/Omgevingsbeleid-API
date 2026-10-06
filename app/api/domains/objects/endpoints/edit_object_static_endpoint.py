@@ -57,8 +57,8 @@ def edit_object_static_endpoint(
         [
             object_static.Owner_1_UUID,
             object_static.Owner_2_UUID,
+            object_static.Owner_3_UUID,
             object_static.Portfolio_Holder_1_UUID,
-            object_static.Portfolio_Holder_2_UUID,
             object_static.Client_1_UUID,
         ],
     )

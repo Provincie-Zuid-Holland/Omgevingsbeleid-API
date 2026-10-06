@@ -61,16 +61,30 @@ def test_unknown_lineage_returns_404(admin: TestClient, ctx: Context):
     assert response.json()["detail"] == "lineage_id does not exist"
 
 
-def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context):
-    viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
+@pytest.mark.parametrize(
+    "fields",
+    [
+        pytest.param(["Owner_1_UUID", "Owner_2_UUID"], id="owner-1-and-owner-2"),
+        pytest.param(["Owner_1_UUID", "Owner_3_UUID"], id="owner-1-and-owner-3"),
+        pytest.param(["Owner_2_UUID", "Owner_3_UUID"], id="owner-2-and-owner-3"),
+        pytest.param(["Owner_1_UUID", "Owner_2_UUID", "Owner_3_UUID"], id="all-three-owners"),
+    ],
+)
+def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context, fields: list[str]):
 
+    viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
+    response = admin.post("/beleidsdoel/static/1", json={f: str(viewer) for f in fields})
+
+    assert response.status_code == 422, response.text
+    assert "Owners should vary" in response.text
+
+
+def test_empty_owner_2_or_3_is_allowed(admin: TestClient, ctx: Context):
     response = admin.post(
         "/beleidsdoel/static/1",
-        json={"Owner_1_UUID": str(viewer), "Owner_2_UUID": str(viewer)},
+        json={"Owner_2_UUID": None, "Owner_3_UUID": None},
     )
-
-    assert response.status_code == 422
-    assert "Owners should vary" in response.text
+    assert response.status_code == 200, response.text
 
 
 @pytest.mark.parametrize(
@@ -78,7 +92,8 @@ def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context):
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
         pytest.param("viewer", 401, "Invalid user role", id="role-without-permission"),
-        pytest.param("owner_1", 200, None, id="owner-via-whitelist"),
+        pytest.param("owner_1", 200, None, id="owner-1-via-whitelist"),
+        pytest.param("owner_3", 200, None, id="owner-3-via-whitelist"),
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],
 )

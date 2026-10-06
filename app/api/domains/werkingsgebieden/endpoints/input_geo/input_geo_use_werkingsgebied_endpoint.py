@@ -67,7 +67,7 @@ def patch_input_geo_use_werkingsgebied_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_patch_object_in_module,
         user,
-        [object_static.Owner_1_UUID, object_static.Owner_2_UUID],
+        [object_static.Owner_1_UUID, object_static.Owner_2_UUID, object_static.Owner_3_UUID],
     )
     guard_module_not_locked(module)
 
