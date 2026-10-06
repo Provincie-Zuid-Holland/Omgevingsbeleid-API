@@ -25,7 +25,7 @@ class EditAcknowledgedRelation(AcknowledgedRelationBase):
     @model_validator(mode="after")
     def validate_denied_acknowledged_deleted(self):
         if sum(bool(val) for val in [self.acknowledged, self.denied, self.deleted]) > 1:
-            raise ValueError("Only one of Denied, Acknowledged, and Deleted can be set to True")
+            raise ValueError("Only one of denied, acknowledged, and deleted can be set to True")
         return self
 
 

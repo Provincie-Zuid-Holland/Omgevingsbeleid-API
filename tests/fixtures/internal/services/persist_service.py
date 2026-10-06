@@ -6,6 +6,10 @@ import tests.fixtures.internal.spec.modules as module_types
 import tests.fixtures.internal.spec.objects as objects_types
 import tests.fixtures.internal.spec.publications as publications_types
 from app.core.db.base import Base
+from tests.fixtures.internal.spec.acknowledged_relation_spec import (
+    AcknowledgedRelationPersistHandler,
+    AcknowledgedRelationSpec,
+)
 from tests.fixtures.internal.spec.area_spec import AreaPersistHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPersistHandler, AssetSpec
 from tests.fixtures.internal.spec.hoofdlijn_spec import HoofdlijnPersistHandler, HoofdlijnSpec
@@ -51,6 +55,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             objects_types.GebiedengroepSpec: objects_types.GebiedengroepPersistHandler(),
             objects_types.GebiedsaanwijzingSpec: objects_types.GebiedsaanwijzingPersistHandler(),
             objects_types.MaatregelSpec: objects_types.MaatregelPersistHandler(),
+            AcknowledgedRelationSpec: AcknowledgedRelationPersistHandler(),
             # Module
             module_types.ModuleSpec: module_types.ModulePersistHandler(),
             module_types.ModuleStatusHistorySpec: module_types.ModuleStatusHistoryPersistHandler(),
