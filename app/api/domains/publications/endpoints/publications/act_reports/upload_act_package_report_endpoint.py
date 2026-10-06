@@ -43,12 +43,10 @@ class RunningStatus(BaseModel):
 class FileParser:
     def __init__(
         self,
-        debug: bool,
         act_package: PublicationActPackageTable,
         created_by_id: uuid.UUID,
         timepoint: datetime,
     ):
-        self._debug: bool = debug
         self._act_package: PublicationActPackageTable = act_package
         self._created_by_id: uuid.UUID = created_by_id
         self._timepoint: datetime = timepoint
@@ -62,7 +60,7 @@ class FileParser:
         file.file.close()
 
         report: PublicationActPackageReportTable = self._parse_report_xml(content, file.filename or "")
-        if not self._debug and report.sub_delivery_id != self._act_package.delivery_id:
+        if report.sub_delivery_id != self._act_package.delivery_id:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST, "Report idLevering does not match publication package UUID"
             )
@@ -117,7 +115,6 @@ class EndpointHandler:
     def __init__(
         self,
         session: Session,
-        debug: bool,
         report_repository: PublicationActReportRepository,
         user: UsersTable,
         uploaded_files: list[UploadFile],
@@ -131,7 +128,6 @@ class EndpointHandler:
         self._timepoint: datetime = datetime.now(UTC)
         self._starting_status: ReportStatusType = ReportStatusType(self._act_package.report_status)
         self._file_parser: FileParser = FileParser(
-            debug=debug,
             act_package=act_package,
             created_by_id=user.UUID,
             timepoint=self._timepoint,
@@ -295,12 +291,10 @@ def post_upload_act_package_report_endpoint(
         ),
     ],
     session: Annotated[Session, Depends(depends_db_session)],
-    debug: Annotated[bool, Depends(Provide[ApiContainer.config.DEBUG_MODE])],
     uploaded_files: Annotated[list[UploadFile], File(...)],
 ) -> UploadPackageReportResponse:
     handler: EndpointHandler = EndpointHandler(
         session,
-        debug,
         report_repository,
         user,
         uploaded_files,

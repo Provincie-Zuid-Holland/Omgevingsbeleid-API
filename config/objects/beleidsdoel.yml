@@ -256,6 +256,7 @@ models:
       - ambitie_minimal
       - beleidskeuze_minimal
       - hierarchy_statics
+      - gebied_basic
     services:
       next_object_version:
         to_field: next_version
@@ -301,9 +302,13 @@ models:
           - to_field: client_1
             model_id: user_short
       join_gebiedsaanwijzingen:
-        to_field: gebiedsaanwijzingen_statics
+        to_field: gebiedsaanwijzingen_gebieden
+        to_model: gebied_basic
         from_fields:
           - description
+        columns:
+          - target_codes
+          - gebieden
       join_hoofdlijnen:
         to_field: hoofdlijnen_statics
         from_fields:

@@ -78,7 +78,7 @@ def test_filters_on_only_mine(request: FixtureRequest, client_fixture: str, expe
     "object_type, lineage_id, expected_module_ids",
     [
         pytest.param("beleidsdoel", 1, [1], id="beleidsdoel-1"),
-        pytest.param("gebied", 1, [5], id="gebied-1"),
+        pytest.param("gebied", 1, [6, 5], id="gebied-1"),
         pytest.param("beleidsdoel", 999999, [], id="unknown-lineage"),
     ],
 )

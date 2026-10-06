@@ -34,13 +34,13 @@ def load(col: Collector) -> None:
         with col.in_module(5):
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCodeInternal.Niet_Actief,
+                    status=ModuleStatusCodeInternal.Niet_Actief,
                 )
             )
             col.move_at(hours=1)
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCode.Ontwerp_GS_Concept,
+                    status=ModuleStatusCode.Ontwerp_GS_Concept,
                 )
             )
 
@@ -105,7 +105,18 @@ def load(col: Collector) -> None:
                         description="Description of beleidskeuze 510",
                         context_explanation="Explanation of beleidskeuze 510",
                         context_conclusion="Conclusion of beleidskeuze 510",
-                        owner_1_id=col.ref(UserSpec, "owner-1"),
+                        owner_1_id=col.ref(UserSpec, "owner_1"),
+                    ),
+                    # We add for testing resolve of gebied
+                    ModuleMaatregelSpec(
+                        key="maatregel_6_mod_5",
+                        object_id=6,
+                    ),
+                    # This changed target_codes from gebiedengroep-1 to gebied-3
+                    ModuleGebiedsaanwijzingSpec(
+                        key="gebiedsaanwijzing_1_mod_5",
+                        object_id=1,
+                        target_codes=["gebied-3"],
                     ),
                 ]
             )

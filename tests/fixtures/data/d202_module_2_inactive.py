@@ -27,6 +27,6 @@ def load(col: Collector) -> None:
         with col.in_module(2):
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCodeInternal.Niet_Actief,
+                    status=ModuleStatusCodeInternal.Niet_Actief,
                 )
             )

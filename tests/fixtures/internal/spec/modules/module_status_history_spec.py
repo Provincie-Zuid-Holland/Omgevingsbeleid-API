@@ -13,7 +13,7 @@ class ModuleStatusHistorySpec(Spec):
 
     id: int | None = None
     module_id: int | None = None
-    Status: str | None = None
+    status: str | None = None
 
     created_date: datetime | None = None
     created_by_id: Link | None = None
@@ -40,7 +40,7 @@ class ModuleStatusHistoryPersistHandler(BasePersistHandler[ModuleStatusHistorySp
             ModuleStatusHistoryTable(
                 id=spec.id,
                 module_id=spec.module_id,
-                status=spec.Status,
+                status=spec.status,
                 created_date=spec.created_date,
                 created_by_id=spec.created_by_id,
             )

@@ -10,6 +10,7 @@ from tests.fixtures.internal.spec.objects import (
     GebiedSpec,
     MaatregelSpec,
 )
+from tests.fixtures.internal.spec.objects.gebiedsaanwijzing_spec import GebiedsaanwijzingSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
 
 
@@ -21,6 +22,66 @@ def load(col: Collector) -> None:
         created_by_id=col.ref(UserSpec, "ambtenaar"),
         modified_by_id=col.ref(UserSpec, "ambtenaar"),
     ):
+        # Gebiedengroep Nature
+        col.adds(
+            [
+                GebiedengroepSpec(
+                    key="nature_v1",
+                    object_id=1,
+                    title="Nature",
+                    description="Description of Natuur",
+                    gebieden=["gebied-1", "gebied-2"],
+                    source_title="Nature",
+                    source_uuid=col.ref(InputGeoWerkingsgebiedenSpec, "nature_v1"),
+                ),
+                GebiedSpec(
+                    key="nature_west_v1",
+                    object_id=1,
+                    title="Nature West",
+                    area_id=col.ref(AreaSpec, "nature_west_v1"),
+                ),
+                GebiedSpec(
+                    key="nature_east_v1",
+                    object_id=2,
+                    title="Nature East",
+                    area_id=col.ref(AreaSpec, "nature_east_v1"),
+                ),
+                GebiedSpec(
+                    key="nature_south_v1",
+                    object_id=3,
+                    title="Nature South",
+                    area_id=col.ref(AreaSpec, "nature_south_v1"),
+                ),
+            ]
+        )
+
+        # Gebiedsaanwijzingen
+        col.adds(
+            [
+                GebiedsaanwijzingSpec(
+                    object_id=1,
+                    title="Gebiedsaanwijzing 1",
+                    ref_type="bodem",
+                    ref_group="bodembeheergebied",
+                    target_codes=["gebiedengroep-1"],
+                ),
+                GebiedsaanwijzingSpec(
+                    object_id=2,
+                    title="Gebiedsaanwijzing 2",
+                    ref_type="bouw",
+                    ref_group="bouwvlak",
+                    target_codes=["gebied-1"],
+                ),
+                GebiedsaanwijzingSpec(
+                    object_id=3,
+                    title="Gebiedsaanwijzing 3",
+                    ref_type="bouw",
+                    ref_group="rooilijn",
+                    target_codes=["gebied-2"],
+                ),
+            ]
+        )
+
         # Beleidsdoel
         col.adds(
             [
@@ -28,7 +89,7 @@ def load(col: Collector) -> None:
                     object_id=1,
                     title="Beleidsdoel 1 from januari",
                     description="Description of beleidsdoel 1",
-                    owner_1_id=col.ref(UserSpec, "owner-1"),
+                    owner_1_id=col.ref(UserSpec, "owner_1"),
                 ),
                 BeleidsdoelSpec(
                     object_id=2,
@@ -53,7 +114,7 @@ def load(col: Collector) -> None:
                     description="Description of beleidskeuze 1",
                     explanation="Explanation of beleidskeuze 1",
                     hierarchy_code="beleidsdoel-1",
-                    portfolio_holder_1_id=col.ref(UserSpec, "owner-1"),
+                    portfolio_holder_1_id=col.ref(UserSpec, "owner_1"),
                 ),
                 BeleidskeuzeSpec(
                     object_id=2,
@@ -90,7 +151,7 @@ def load(col: Collector) -> None:
                     description="Description of maatregel 1",
                     effect="Effect of maatregel 1",
                     hierarchy_code="beleidskeuze-1",
-                    client_1_id=col.ref(UserSpec, "owner-1"),
+                    client_1_id=col.ref(UserSpec, "owner_1"),
                 ),
                 # Attached to beleidskeuze-2
                 MaatregelSpec(
@@ -123,44 +184,16 @@ def load(col: Collector) -> None:
                     hierarchy_code="beleidskeuze-3",
                 ),
                 MaatregelSpec(
+                    key="maatregel_6_initial",
                     object_id=6,
                     title="Maatregel 6 from januari",
-                    description="Description of maatregel 6",
+                    description="""
+<p>Description of maatregel 6</p>
+<p>
+    Here is <a data-hint-type="gebiedsaanwijzing" data-code="gebiedsaanwijzing-1" href="#">Nature</a>
+</p>""",
                     effect="Effect of maatregel 6",
                     hierarchy_code="beleidskeuze-3",
-                ),
-            ]
-        )
-
-        # Gebiedengroep Nature
-        col.adds(
-            [
-                GebiedengroepSpec(
-                    key="nature-v1",
-                    object_id=1,
-                    title="Nature",
-                    description="Description of Natuur",
-                    gebieden=["gebied-1", "gebied-2"],
-                    source_title="Nature",
-                    source_uuid=col.ref(InputGeoWerkingsgebiedenSpec, "nature-v1"),
-                ),
-                GebiedSpec(
-                    key="nature-west-v1",
-                    object_id=1,
-                    title="Nature West",
-                    area_id=col.ref(AreaSpec, "nature-west-v1"),
-                ),
-                GebiedSpec(
-                    key="nature-east-v1",
-                    object_id=2,
-                    title="Nature East",
-                    area_id=col.ref(AreaSpec, "nature-east-v1"),
-                ),
-                GebiedSpec(
-                    key="nature-south-v1",
-                    object_id=3,
-                    title="Nature South",
-                    area_id=col.ref(AreaSpec, "nature-south-v1"),
                 ),
             ]
         )

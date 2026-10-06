@@ -62,8 +62,8 @@ def atemporal_edit_object_endpoint(
     maybe_object.modified_date = timepoint
     session.add(maybe_object)
 
-    if "Title" in changes:
-        maybe_object.object_statics.cached_title = changes["Title"]
+    if "title" in changes:
+        maybe_object.object_statics.cached_title = changes["title"]
         session.add(maybe_object.object_statics)
 
     change_log: ChangeLogTable = ChangeLogTable(

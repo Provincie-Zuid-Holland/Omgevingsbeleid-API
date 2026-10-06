@@ -278,6 +278,7 @@ models:
       - user_short
       - hierarchy_statics
       - beleidskeuze_minimal
+      - gebied_basic
     services:
       next_object_version:
         to_field: next_version
@@ -290,10 +291,14 @@ models:
         to_field: gebiedengroep_static
         from_field: gebiedengroep_code
       join_gebiedsaanwijzingen:
-        to_field: gebiedsaanwijzingen_statics
+        to_field: gebiedsaanwijzingen_gebieden
+        to_model: gebied_basic
         from_fields:
           - description
           - effect
+        columns:
+          - target_codes
+          - gebieden
       join_hoofdlijnen:
         to_field: hoofdlijnen_statics
         from_fields:

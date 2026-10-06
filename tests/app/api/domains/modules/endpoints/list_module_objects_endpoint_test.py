@@ -23,7 +23,12 @@ def test_lists_latest_module_objects_per_module_id(beheerder: TestClient, ctx: C
 
     assert response.status_code == 200, response.text
     body: dict[str, str] = response.json()
-    assert {r["model"]["code"] for r in body["results"]} == {"beleidsdoel-1", "beleidsdoel-2", "beleidsdoel-4"}
+    assert {r["model"]["code"] for r in body["results"]} == {
+        "beleidsdoel-1",
+        "beleidsdoel-2",
+        "beleidsdoel-4",
+        "maatregel-6",
+    }
 
 
 def test_lists_latest_module_objects_per_module_id_object_type(beheerder: TestClient, ctx: Context):
@@ -34,11 +39,11 @@ def test_lists_latest_module_objects_per_module_id_object_type(beheerder: TestCl
 
     assert response.status_code == 200, response.text
     body: dict[str, str] = response.json()
-    assert {r["model"]["code"] for r in body["results"]} == {"gebied-610"}
+    assert {r["model"]["code"] for r in body["results"]} == {"gebied-1", "gebied-610"}
 
 
 def test_lists_latest_module_objects_per_module_id_owner_id_mine(beheerder: TestClient, ctx: Context):
-    owner_1_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "owner-1"))
+    owner_1_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "owner_1"))
 
     response = beheerder.get(
         "/modules/objects/latest",
@@ -51,7 +56,7 @@ def test_lists_latest_module_objects_per_module_id_owner_id_mine(beheerder: Test
 
 
 def test_lists_latest_module_objects_per_module_id_owner_id_others(beheerder: TestClient, ctx: Context):
-    owner_1_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "owner-1"))
+    owner_1_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "owner_1"))
 
     response = beheerder.get(
         "/modules/objects/latest",
@@ -65,8 +70,10 @@ def test_lists_latest_module_objects_per_module_id_owner_id_others(beheerder: Te
         "gebied-1",
         "gebied-510",
         "gebiedengroep-510",
+        "gebiedsaanwijzing-1",
         "gebiedsaanwijzing-510",
         "maatregel-1",
+        "maatregel-6",
     }
 
 
@@ -107,6 +114,7 @@ def test_lists_latest_module_objects_per_minimum_status(beheerder: TestClient, c
         "beleidsdoel-8",
         "beleidskeuze-8",
         "beleidskeuze-9",
+        "maatregel-6",
     }
 
 

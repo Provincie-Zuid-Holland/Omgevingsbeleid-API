@@ -31,15 +31,19 @@ def test_returns_the_latest_module_object_of_the_lineage(admin: TestClient, ctx:
 
 
 def test_returns_the_context_action_of_the_module_object(admin: TestClient, ctx: Context):
-    expected_module_object: ModuleGebiedSpec = ctx.f.find(Ref(ModuleGebiedSpec, "mod_5_gebied_1")).spec
+    expected_module_object_mod_5: ModuleGebiedSpec = ctx.f.find(Ref(ModuleGebiedSpec, "mod_5_gebied_1")).spec
+    expected_module_object_mod_6: ModuleGebiedSpec = ctx.f.find(Ref(ModuleGebiedSpec, "nature_west_v1_mod_6")).spec
 
     response = admin.get("/modules/object/gebied/active/1?minimum_status=Ontwerp GS Concept")
 
     assert response.status_code == 200, response.text
     body = response.json()
-    assert len(body) == 1
+    assert len(body) == 2
     item = body[0]
-    assert item["module_object"]["id"] == str(expected_module_object.id)
+    assert item["module_object"]["id"] == str(expected_module_object_mod_6.id)
+    assert item["action"] == "Edit"
+    item = body[1]
+    assert item["module_object"]["id"] == str(expected_module_object_mod_5.id)
     assert item["action"] == "Terminate"
 
 

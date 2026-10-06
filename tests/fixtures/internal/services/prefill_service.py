@@ -5,6 +5,10 @@ import tests.fixtures.internal.spec.objects as objects_types
 import tests.fixtures.internal.spec.publications as publications_types
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.services.collector import Record
+from tests.fixtures.internal.spec.acknowledged_relation_spec import (
+    AcknowledgedRelationPrefillHandler,
+    AcknowledgedRelationSpec,
+)
 from tests.fixtures.internal.spec.area_spec import AreaPrefillHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPrefillHandler, AssetSpec
 from tests.fixtures.internal.spec.hoofdlijn_spec import HoofdlijnPrefillHandler, HoofdlijnSpec
@@ -42,6 +46,7 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             objects_types.GebiedengroepSpec: objects_types.GebiedengroepPrefillHandler(),
             objects_types.GebiedsaanwijzingSpec: objects_types.GebiedsaanwijzingPrefillHandler(),
             objects_types.MaatregelSpec: objects_types.MaatregelPrefillHandler(),
+            AcknowledgedRelationSpec: AcknowledgedRelationPrefillHandler(),
             # Module
             module_types.ModuleSpec: module_types.ModulePrefillHandler(),
             module_types.ModuleStatusHistorySpec: module_types.ModuleStatusHistoryPrefillHandler(),

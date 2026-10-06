@@ -24,9 +24,9 @@ def load(col: Collector) -> None:
                 Roles=["Portefeuillehouder"],
             ),
             UserSpec(
-                key="owner-1",
+                key="owner_1",
                 Gebruikersnaam="Owner of a few objects",
-                Email="owner-1@pzh.nl",
+                Email="owner_1@pzh.nl",
                 Roles=["Behandelend Ambtenaar"],
             ),
             UserSpec(
