@@ -18,7 +18,6 @@ services:
       DB_NAME: ${DB_NAME}
       DB_DRIVER: ODBC Driver 17 for SQL Server
       JWT_SECRET: secret
-      DEBUG_MODE: True
       SQLALCHEMY_DATABASE_URI: ""
       PYTHONPATH: "/code"
       PUBLICATION_KOOP__PROD__API_KEY: ""
