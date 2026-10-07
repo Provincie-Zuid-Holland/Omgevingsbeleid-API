@@ -202,6 +202,9 @@ api:
             response_model_name: PagedListModuleObjectsResponse
     - prefix: /objects/valid
       endpoints:
+        - resolver: object_counts
+          resolver_data:
+            path: /count
         - resolver: list_all_latest_objects
           resolver_data:
             allowed_object_types:
