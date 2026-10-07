@@ -34,8 +34,8 @@ class BaseObjectSpec(Spec):
         "modified_by_id",
         "owner_1_id",
         "owner_2_id",
+        "owner_3_id",
         "portfolio_holder_1_id",
-        "portfolio_holder_2_id",
         "client_1_id",
     }
     __object_fields__: ClassVar[set[str]] = {
@@ -57,8 +57,8 @@ class BaseObjectSpec(Spec):
         "code",
         "owner_1_id",
         "owner_2_id",
+        "owner_3_id",
         "portfolio_holder_1_id",
-        "portfolio_holder_2_id",
         "client_1_id",
     }
 
@@ -75,8 +75,8 @@ class BaseObjectSpec(Spec):
     end_validity: datetime | None = None
     owner_1_id: Link | None = None
     owner_2_id: Link | None = None
+    owner_3_id: Link | None = None
     portfolio_holder_1_id: Link | None = None
-    portfolio_holder_2_id: Link | None = None
     client_1_id: Link | None = None
 
     @model_validator(mode="before")

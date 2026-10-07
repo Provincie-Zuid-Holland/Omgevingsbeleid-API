@@ -61,16 +61,29 @@ def test_unknown_lineage_returns_404(admin: TestClient, ctx: Context):
     assert response.json()["detail"] == "lineage_id does not exist"
 
 
-def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context):
+@pytest.mark.parametrize(
+    "fields",
+    [
+        pytest.param(["owner_1_id", "owner_2_id"], id="owner-1-and-owner-2"),
+        pytest.param(["owner_1_id", "owner_3_id"], id="owner-1-and-owner-3"),
+        pytest.param(["owner_2_id", "owner_3_id"], id="owner-2-and-owner-3"),
+        pytest.param(["owner_1_id", "owner_2_id", "owner_3_id"], id="all-three-owners"),
+    ],
+)
+def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context, fields: list[str]):
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
+    response = admin.post("/beleidsdoel/static/1", json={f: str(viewer) for f in fields})
 
+    assert response.status_code == 422, response.text
+    assert "Owners should vary" in response.text
+
+
+def test_empty_owner_2_or_3_is_allowed(admin: TestClient, ctx: Context):
     response = admin.post(
         "/beleidsdoel/static/1",
-        json={"owner_1_id": str(viewer), "owner_2_id": str(viewer)},
+        json={"owner_2_id": None, "owner_3_id": None},
     )
-
-    assert response.status_code == 422
-    assert "Owners should vary" in response.text
+    assert response.status_code == 200, response.text
 
 
 @pytest.mark.parametrize(
@@ -78,7 +91,8 @@ def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context):
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
         pytest.param("viewer", 401, "Invalid user role", id="role-without-permission"),
-        pytest.param("owner_1", 200, None, id="owner-via-whitelist"),
+        pytest.param("owner_1", 200, None, id="owner-1-via-whitelist"),
+        pytest.param("owner_3", 200, None, id="owner-3-via-whitelist"),
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],
 )
@@ -93,3 +107,13 @@ def test_edit_permission_matrix(
     assert response.status_code == expected_status, response.text
     if expected_detail is not None:
         assert response.json()["detail"] == expected_detail
+
+
+def test_owner_1_required_returns_422(admin: TestClient, ctx: Context):
+    response = admin.post(
+        "/beleidsdoel/static/1",
+        json={"owner_1_id": None},
+    )
+
+    assert response.status_code == 422
+    assert "Missing required value" in response.text

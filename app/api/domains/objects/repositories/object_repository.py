@@ -32,8 +32,8 @@ class ObjectRepository(BaseRepository):
                 or_(
                     ObjectStaticsTable.owner_1_id == user_uuid,
                     ObjectStaticsTable.owner_2_id == user_uuid,
+                    ObjectStaticsTable.owner_3_id == user_uuid,
                     ObjectStaticsTable.portfolio_holder_1_id == user_uuid,
-                    ObjectStaticsTable.portfolio_holder_2_id == user_uuid,
                     ObjectStaticsTable.client_1_id == user_uuid,
                 ).self_group()
             )
@@ -161,8 +161,8 @@ class ObjectRepository(BaseRepository):
             owner_filter = or_(
                 ObjectStaticsTable.owner_1_id == owner_id,
                 ObjectStaticsTable.owner_2_id == owner_id,
+                ObjectStaticsTable.owner_3_id == owner_id,
                 ObjectStaticsTable.portfolio_holder_1_id == owner_id,
-                ObjectStaticsTable.portfolio_holder_2_id == owner_id,
                 ObjectStaticsTable.client_1_id == owner_id,
             )
             filters.append(owner_filter)

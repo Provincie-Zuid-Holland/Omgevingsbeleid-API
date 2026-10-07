@@ -262,7 +262,7 @@ models:
       owner_1_id:
       owner_2_id:
   verplicht_programma_id:
-    name: VerplichtProgrammaUUID
+    name: VerplichtProgrammaID
     fields:
       object_id:
       id:

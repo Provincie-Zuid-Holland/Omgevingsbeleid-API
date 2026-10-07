@@ -145,13 +145,13 @@ fields:
     type: uuid
     column: owner_2_id
     optional: true
+  owner_3_id:
+    name: owner_3_id
+    type: uuid
+    column: owner_3_id
+    optional: true
   portfolio_holder_1_id:
     name: portfolio_holder_1_id
-    type: uuid
-    column: portfolio_holder_1_id
-    optional: true
-  portfolio_holder_2_id:
-    name: portfolio_holder_2_id
     type: uuid
     column: portfolio_holder_1_id
     optional: true
@@ -213,9 +213,9 @@ models:
             model_id: user_short
           - to_field: owner_2
             model_id: user_short
-          - to_field: portfolio_holder_1
+          - to_field: owner_3
             model_id: user_short
-          - to_field: portfolio_holder_2
+          - to_field: portfolio_holder_1
             model_id: user_short
           - to_field: client_1
             model_id: user_short
@@ -267,9 +267,9 @@ models:
             model_id: user_short
           - to_field: owner_2
             model_id: user_short
-          - to_field: portfolio_holder_1
+          - to_field: owner_3
             model_id: user_short
-          - to_field: portfolio_holder_2
+          - to_field: portfolio_holder_1
             model_id: user_short
           - to_field: client_1
             model_id: user_short
@@ -332,9 +332,9 @@ models:
             model_id: user_short
           - to_field: owner_2
             model_id: user_short
-          - to_field: portfolio_holder_1
+          - to_field: owner_3
             model_id: user_short
-          - to_field: portfolio_holder_2
+          - to_field: portfolio_holder_1
             model_id: user_short
           - to_field: client_1
             model_id: user_short
@@ -344,8 +344,8 @@ models:
     fields:
       owner_1_id:
       owner_2_id:
+      owner_3_id:
       portfolio_holder_1_id:
-      portfolio_holder_2_id:
       client_1_id:
   ambitie_static_post_validated:
     name: AmbitieStaticPostValidated
@@ -356,20 +356,19 @@ models:
           fields:
             - owner_1_id
             - owner_2_id
+            - owner_3_id
           allow_none: True
           error_message: Owners should vary
-      - id: not_equal_root
+      - id: required_fields
         data:
           fields:
-            - portfolio_holder_1_id
-            - portfolio_holder_2_id
-          allow_none: True
-          error_message: Portfolio Holders should vary
+            - owner_1_id
+          error_message: Missing required value
     fields:
       owner_1_id:
       owner_2_id:
+      owner_3_id:
       portfolio_holder_1_id:
-      portfolio_holder_2_id:
       client_1_id:
   ambitie_id:
     name: AmbitieID

@@ -831,22 +831,22 @@ columns:
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
+  # Eigenaar 3 
+  owner_3_id:
+    name: owner_3_id
+    type: user_uuid
+    type_data:
+      relation_field: owner_3
+    serializers: ["optional_str"]
+    deserializers: ["optional_uuid"]
+    nullable: true
+    static: true
   # Portefeuillehouder 1
   portfolio_holder_1_id:
     name: portfolio_holder_1_id
     type: user_uuid
     type_data:
       relation_field: portfolio_holder_1
-    serializers: ["optional_str"]
-    deserializers: ["optional_uuid"]
-    nullable: true
-    static: true
-  # Portefeuillehouder 2
-  portfolio_holder_2_id:
-    name: portfolio_holder_2_id
-    type: user_uuid
-    type_data:
-      relation_field: portfolio_holder_2
     serializers: ["optional_str"]
     deserializers: ["optional_uuid"]
     nullable: true

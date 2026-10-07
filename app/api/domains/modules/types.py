@@ -112,8 +112,8 @@ class ActiveModuleObject(BaseModel):
 class ObjectStaticShort(BaseModel):
     owner_1_id: uuid.UUID | None = None
     owner_2_id: uuid.UUID | None = None
+    owner_3_id: uuid.UUID | None = None
     portfolio_holder_1_id: uuid.UUID | None = None
-    portfolio_holder_2_id: uuid.UUID | None = None
     client_1_id: uuid.UUID | None = None
 
     model_config = ConfigDict(from_attributes=True)

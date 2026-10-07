@@ -123,6 +123,11 @@ fields:
     type: uuid
     column: owner_2_id
     optional: true
+  owner_3_id:
+    name: owner_3_id
+    type: uuid
+    column: owner_3_id
+    optional: true
 
 models:
   gebiedsaanwijzing_minimal:
@@ -174,6 +179,8 @@ models:
             model_id: user_short
           - to_field: owner_2
             model_id: user_short
+          - to_field: owner_3
+            model_id: user_short
   gebiedsaanwijzing_full:
     name: GebiedsaanwijzingFull
     fields:
@@ -206,6 +213,8 @@ models:
           - to_field: owner_1
             model_id: user_short
           - to_field: owner_2
+            model_id: user_short
+          - to_field: owner_3
             model_id: user_short
   gebiedsaanwijzing_patch:
     name: GebiedsaanwijzingPatch
@@ -244,12 +253,15 @@ models:
             model_id: user_short
           - to_field: owner_2
             model_id: user_short
+          - to_field: owner_3
+            model_id: user_short
   gebiedsaanwijzing_static_post:
     name: GebiedsaanwijzingStaticPost
     static_only: true
     fields:
       owner_1_id:
       owner_2_id:
+      owner_3_id:
   gebiedsaanwijzing_static_post_validated:
     name: GebiedsaanwijzingStaticPostValidated
     static_only: true
@@ -259,11 +271,18 @@ models:
           fields:
             - owner_1_id
             - owner_2_id
+            - owner_3_id
           allow_none: True
           error_message: Owners should vary
+      - id: required_fields
+        data:
+          fields:
+            - owner_1_id
+          error_message: Missing required value
     fields:
       owner_1_id:
       owner_2_id:
+      owner_3_id:
   gebiedsaanwijzing_id:
     name: GebiedsaanwijzingID
     fields:

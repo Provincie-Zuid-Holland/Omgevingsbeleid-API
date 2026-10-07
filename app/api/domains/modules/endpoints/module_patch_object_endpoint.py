@@ -59,7 +59,7 @@ def post_module_patch_object_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_patch_object_in_module,
         user,
-        [object_static.owner_1_id, object_static.owner_2_id],
+        [object_static.owner_1_id, object_static.owner_2_id, object_static.owner_3_id],
     )
     guard_module_not_locked(module)
 

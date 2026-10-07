@@ -48,8 +48,8 @@ def post_module_edit_object_context_endpoint(
         whitelisted_ids=[
             module_object.object_statics.owner_1_id,
             module_object.object_statics.owner_2_id,
+            module_object.object_statics.owner_3_id,
             module_object.object_statics.portfolio_holder_1_id,
-            module_object.object_statics.portfolio_holder_2_id,
             module_object.object_statics.client_1_id,
         ],
     )

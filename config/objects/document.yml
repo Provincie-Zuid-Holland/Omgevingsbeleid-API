@@ -134,6 +134,11 @@ fields:
     type: uuid
     column: owner_2_id
     optional: true
+  owner_3_id:
+    name: owner_3_id
+    type: uuid
+    column: owner_3_id
+    optional: true
 
 models:
   document_minimal:
@@ -190,6 +195,8 @@ models:
             model_id: user_short
           - to_field: owner_2
             model_id: user_short
+          - to_field: owner_3
+            model_id: user_short
   document_full:
     name: DocumentFull
     fields:
@@ -227,6 +234,8 @@ models:
             model_id: user_short
           - to_field: owner_2
             model_id: user_short
+          - to_field: owner_3
+            model_id: user_short
   document_patch:
     name: DocumentPatch
     fields:
@@ -262,12 +271,15 @@ models:
             model_id: user_short
           - to_field: owner_2
             model_id: user_short
+          - to_field: owner_3
+            model_id: user_short
   document_static_post:
     name: DocumentStaticPost
     static_only: true
     fields:
       owner_1_id:
       owner_2_id:
+      owner_3_id:
   document_static_post_validated:
     name: DocumentStaticPostValidated
     static_only: true
@@ -277,13 +289,20 @@ models:
           fields:
             - owner_1_id
             - owner_2_id
+            - owner_3_id
           allow_none: True
           error_message: Owners should vary
+      - id: required_fields
+        data:
+          fields:
+            - owner_1_id
+          error_message: Missing required value
     fields:
       owner_1_id:
       owner_2_id:
+      owner_3_id:
   document_id:
-    name: DocumentUUID
+    name: DocumentID
     fields:
       object_id:
       id:

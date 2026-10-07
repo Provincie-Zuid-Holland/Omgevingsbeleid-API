@@ -43,8 +43,8 @@ class ModuleRepository(BaseRepository):
                         ModuleTable.module_manager_2_id == mine,
                         ObjectStaticsTable.owner_1_id == mine,
                         ObjectStaticsTable.owner_2_id == mine,
+                        ObjectStaticsTable.owner_3_id == mine,
                         ObjectStaticsTable.portfolio_holder_1_id == mine,
-                        ObjectStaticsTable.portfolio_holder_2_id == mine,
                         ObjectStaticsTable.client_1_id == mine,
                     ).self_group()
                 ).self_group()

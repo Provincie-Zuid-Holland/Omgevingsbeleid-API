@@ -248,7 +248,7 @@ models:
       owner_1_id:
       owner_2_id:
   wettelijke_taak_id:
-    name: WettelijkeTaakUUID
+    name: WettelijkeTaakID
     fields:
       object_id:
       id:

@@ -241,7 +241,7 @@ models:
       owner_1_id:
       owner_2_id:
   nationaal_belang_id:
-    name: NationaalBelangUUID
+    name: NationaalBelangID
     fields:
       object_id:
       id:

@@ -37,6 +37,7 @@ def delete_object_related_files_delete_endpoint(
         [
             maybe_file.object_statics.owner_1_id,
             maybe_file.object_statics.owner_2_id,
+            maybe_file.object_statics.owner_3_id,
         ],
     )
 
