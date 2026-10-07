@@ -52,6 +52,7 @@ model_map: &model_map
   gebiedengroep: gebiedengroep_basic
   gebied: gebied_basic
   gebiedsaanwijzing: gebiedsaanwijzing_basic
+  verplicht_programma: verplicht_programma_basic
 
 api:
   routers:
@@ -214,6 +215,7 @@ api:
               - gebiedengroep
               - gebied
               - gebiedsaanwijzing
+              - verplicht_programma
             sort:
               default:
                 column: title
@@ -229,6 +231,7 @@ api:
               gebiedengroep: gebiedengroep_basic
               gebied: gebied_basic
               gebiedsaanwijzing: gebiedsaanwijzing_basic
+              verplicht_programma: verplicht_programma_basic
             response_model_name: PagedListAllLatestObjectsResponse
     - prefix: /publication-templates
       endpoints:

@@ -18,6 +18,12 @@ def load(col: Collector) -> None:
                 Roles=["Behandelend Ambtenaar"],
             ),
             UserSpec(
+                key="manager_of_module_4",
+                Gebruikersnaam="Ambtenaar Bernard",
+                Email="manager_of_module_4@pzh.nl",
+                Roles=["Behandelend Ambtenaar"],
+            ),
+            UserSpec(
                 key="viewer",
                 Gebruikersnaam="Viewer",
                 Email="viewer@pzh.nl",

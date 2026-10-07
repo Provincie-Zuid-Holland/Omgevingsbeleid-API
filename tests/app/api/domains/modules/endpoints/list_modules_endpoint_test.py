@@ -62,7 +62,7 @@ def test_filters_modules(admin: TestClient, params: dict[str, str], expected_mod
     "client_fixture, expected_module_ids",
     [
         pytest.param("owner_1", [5, 1], id="owner-of-module-objects"),
-        pytest.param("ambtenaar", [4], id="module-manager"),
+        pytest.param("manager_of_module_4", [4], id="module-manager"),
     ],
 )
 def test_filters_on_only_mine(request: FixtureRequest, client_fixture: str, expected_module_ids: list[int]):

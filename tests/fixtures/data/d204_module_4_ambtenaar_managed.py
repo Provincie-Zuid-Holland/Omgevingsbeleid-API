@@ -13,9 +13,9 @@ def load(col: Collector) -> None:
         modified_date=datetime(2025, 6, 4, tzinfo=UTC),
         created_by_id=col.ref(UserSpec, "admin"),
         modified_by_id=col.ref(UserSpec, "admin"),
-        # Managed by the ambtenaar, whose role lacks module_can_close_module:
+        # Managed by manager_of_module_4 (behandelend ambtenaar), whose role lacks module_can_close_module:
         # the close permission must come from the manager whitelist, not the role.
-        module_manager_1_id=col.ref(UserSpec, "ambtenaar"),
+        module_manager_1_id=col.ref(UserSpec, "manager_of_module_4"),
     ):
         col.add(
             ModuleSpec(

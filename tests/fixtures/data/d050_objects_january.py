@@ -22,6 +22,7 @@ def load(col: Collector) -> None:
         start_validity=datetime(2025, 1, 1, tzinfo=UTC),
         created_by_id=col.ref(UserSpec, "ambtenaar"),
         modified_by_id=col.ref(UserSpec, "ambtenaar"),
+        owner_1_id=col.ref(UserSpec, "ambtenaar"),
     ):
         # Gebiedengroep Nature
         col.adds(

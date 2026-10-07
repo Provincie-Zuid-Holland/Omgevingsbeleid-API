@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from tests.conftest import Context
 
 
-def test_returns_object_static(ambtenaar: TestClient, ctx: Context):
+def test_returns_object_valid_count_for_logged_in_ambtenaar(ambtenaar: TestClient, ctx: Context):
     response = ambtenaar.get("/objects/valid/count")
     assert response.status_code == 200, response.text
     body = response.json()
@@ -18,7 +18,7 @@ def test_returns_object_static(ambtenaar: TestClient, ctx: Context):
     ]
 
 
-def test_returns_object_static_admin(admin: TestClient, ctx: Context):
+def test_returns_object_valid_count_for_logged_in_admin(admin: TestClient, ctx: Context):
     response = admin.get("/objects/valid/count")
     assert response.status_code == 200, response.text
     body = response.json()

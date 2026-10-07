@@ -306,7 +306,7 @@ def test_inaccessible_module_returns_404(admin: TestClient, module_id: int, deta
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
         pytest.param("viewer", 401, "Invalid user role", id="role-without-permission"),
-        pytest.param("ambtenaar", 401, "Invalid user role", id="role-without-permission-and-not-owner"),
+        pytest.param("manager_of_module_4", 401, "Invalid user role", id="role-without-permission-and-not-owner"),
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],
 )

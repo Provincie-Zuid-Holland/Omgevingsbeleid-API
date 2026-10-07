@@ -79,10 +79,10 @@ def test_unknown_module_returns_404(admin: TestClient):
     assert response.json()["detail"] == "Module niet gevonden"
 
 
-def test_module_manager_without_role_permission_can_close(ambtenaar: TestClient, ctx: Context):
+def test_module_manager_without_role_permission_can_close(manager_of_module_4: TestClient, ctx: Context):
     # The ambtenaar role lacks module_can_close_module, but is manager of module 4,
     # so the manager whitelist grants access.
-    response = ambtenaar.post("/modules/4/close")
+    response = manager_of_module_4.post("/modules/4/close")
 
     assert response.status_code == 200, response.text
 
