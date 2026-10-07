@@ -31,11 +31,11 @@ def test_creates_atemporal_object(admin: TestClient, ctx: Context):
         },
     )
 
-    verplicht_programma = _get_object(ctx.session, "verplicht_programma", 1)
+    verplicht_programma = _get_object(ctx.session, "verplicht_programma", 2)
 
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["id"] == str(verplicht_programma.id)
-    assert body["object_id"] == 1
+    assert body["object_id"] == 2
     assert verplicht_programma.title == "New verplicht programma - title"
     assert verplicht_programma.description == "New verplicht programma - description"

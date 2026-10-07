@@ -47,6 +47,7 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             objects_types.GebiedsaanwijzingSpec: objects_types.GebiedsaanwijzingPrefillHandler(),
             objects_types.MaatregelSpec: objects_types.MaatregelPrefillHandler(),
             AcknowledgedRelationSpec: AcknowledgedRelationPrefillHandler(),
+            objects_types.VerplichtProgrammaSpec: objects_types.VerplichtProgrammaPrefillHandler(),
             # Module
             module_types.ModuleSpec: module_types.ModulePrefillHandler(),
             module_types.ModuleStatusHistorySpec: module_types.ModuleStatusHistoryPrefillHandler(),
@@ -57,6 +58,7 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             module_types.ModuleGebiedengroepSpec: module_types.ModuleGebiedengroepPrefillHandler(),
             module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPrefillHandler(),
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPrefillHandler(),
+            module_types.ModuleVerplichtProgrammaSpec: module_types.ModuleVerplichtProgrammaPersistHandler(),
             # Publications
             publications_types.PublicationStorageFileSpec: publications_types.PublicationStorageFilePrefillHandler(),
             publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePrefillHandler(),

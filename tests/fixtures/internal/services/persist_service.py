@@ -22,6 +22,10 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
     InputGeoWerkingsgebiedenSpec,
 )
 from tests.fixtures.internal.spec.object_related_file_spec import ObjectRelatedFilePersistHandler, ObjectRelatedFileSpec
+from tests.fixtures.internal.spec.objects.verplicht_programma_spec import (
+    VerplichtProgrammaPersistHandler,
+    VerplichtProgrammaSpec,
+)
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePersistHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserPersistHandler, UserSpec
 from tests.fixtures.internal.types import (
@@ -56,6 +60,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             objects_types.GebiedsaanwijzingSpec: objects_types.GebiedsaanwijzingPersistHandler(),
             objects_types.MaatregelSpec: objects_types.MaatregelPersistHandler(),
             AcknowledgedRelationSpec: AcknowledgedRelationPersistHandler(),
+            VerplichtProgrammaSpec: VerplichtProgrammaPersistHandler(),
             # Module
             module_types.ModuleSpec: module_types.ModulePersistHandler(),
             module_types.ModuleStatusHistorySpec: module_types.ModuleStatusHistoryPersistHandler(),
@@ -66,6 +71,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             module_types.ModuleGebiedengroepSpec: module_types.ModuleGebiedengroepPersistHandler(),
             module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPersistHandler(),
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPersistHandler(),
+            module_types.ModuleVerplichtProgrammaSpec: module_types.ModuleVerplichtProgrammaPersistHandler(),
             # Publications
             publications_types.PublicationStorageFileSpec: publications_types.PublicationStorageFilePersistHandler(),
             publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePersistHandler(),

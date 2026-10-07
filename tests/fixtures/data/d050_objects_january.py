@@ -11,6 +11,7 @@ from tests.fixtures.internal.spec.objects import (
     MaatregelSpec,
 )
 from tests.fixtures.internal.spec.objects.gebiedsaanwijzing_spec import GebiedsaanwijzingSpec
+from tests.fixtures.internal.spec.objects.verplicht_programma_spec import VerplichtProgrammaSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
 
 
@@ -195,6 +196,17 @@ def load(col: Collector) -> None:
 </p>""",
                     effect="Effect of maatregel 6",
                     hierarchy_code="beleidskeuze-3",
+                ),
+            ]
+        )
+
+        # Verplicht programma
+        col.adds(
+            [
+                VerplichtProgrammaSpec(
+                    object_id=1,
+                    title="Verplicht programma 1 from januari",
+                    description="Description of verplicht programma 1",
                 ),
             ]
         )
