@@ -311,7 +311,7 @@ class ModuleObjectRepository(BaseRepository):
 
         # This field changes per record and must therefor be compared after gaining the newest record
         if title is not None:
-            stmt = stmt.filter(subq.c.title.like(f"%{title}%"))
+            stmt = stmt.filter(subq.c.title.like(title))
 
         return self.fetch_paginated_no_scalars(
             session=session,

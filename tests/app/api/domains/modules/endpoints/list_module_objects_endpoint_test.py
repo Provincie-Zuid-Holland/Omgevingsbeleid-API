@@ -132,7 +132,7 @@ def test_lists_latest_module_objects_per_active(beheerder: TestClient, ctx: Cont
 def test_lists_latest_module_objects_per_title(beheerder: TestClient, ctx: Context):
     response = beheerder.get(
         "/modules/objects/latest",
-        params={"module_id": 6, "title": "Gebiedengroep"},
+        params={"module_id": 6, "title": "%Gebiedengroep%"},
     )
 
     assert response.status_code == 200, response.text
