@@ -36,7 +36,7 @@ class GioLocatie(BaseModel):
 
 
 class Gio(BaseModel):
-    # The GIO key will be the code from the source, as that is unique enough for now
+    # The GIO key will be the `code` from the source, as that is unique enough for now
     # Since the latest communications it's oke if we generate 1 GIO per gebiedengroep/gebiedsaanwijzing.
     # Even if they have the same locations
     #
@@ -87,24 +87,24 @@ class Gebiedsaanwijzing(BaseModel):
 
 
 class Document(BaseModel):
-    id: str
-    code: str
-    frbr: Frbr
-    filename: str
-    title: str
-    owner_act: str
-    content_type: str
-    object_id: int
-    hash: str
+    UUID: str
+    Code: str
+    Frbr: Frbr
+    Filename: str
+    Title: str
+    Owner_Act: str
+    Content_Type: str
+    Object_ID: int
+    Hash: str
 
 
 class Asset(BaseModel):
-    id: str
+    UUID: str
 
 
 class WidData(BaseModel):
-    known_wid_map: dict[str, str]
-    known_wids: list[str]
+    Known_Wid_Map: dict[str, str]
+    Known_Wids: list[str]
 
 
 # OwState

@@ -26,7 +26,7 @@ class StateV7Upgrader(StateUpgrader):
     def get_input_schema_version() -> int:
         return state_v6.StateV6.get_schema_version()
 
-    def upgrade(self, session: Session, environment_id: UUID, old_state: State) -> State:
+    def upgrade(self, session: Session, environment_uuid: UUID, old_state: State) -> State:
         if old_state.get_schema_version() != state_v6.StateV6.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 
@@ -94,7 +94,7 @@ class StateV7Upgrader(StateUpgrader):
     def _resolve_assets(self, old_act_text: str) -> dict[str, models_v7.Asset]:
         parser: ActTextAssetParser = ActTextAssetParser()
         asset_uuids: set[str] = parser.get_asset_uuids(old_act_text)
-        assets: dict[str, models_v7.Asset] = {idx: models_v7.Asset(id=idx) for idx in asset_uuids}
+        assets: dict[str, models_v7.Asset] = {uuidx: models_v7.Asset(UUID=uuidx) for uuidx in asset_uuids}
         return assets
 
     def _resolve_gios(self, old_act: models_v6.ActiveAct) -> dict[str, models_v7.Gio]:

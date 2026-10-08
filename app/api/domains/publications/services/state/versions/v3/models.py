@@ -43,7 +43,7 @@ class Werkingsgebied(BaseModel):
 
 class Document(BaseModel):
     UUID: str
-    code: str
+    Code: str
     Frbr: Frbr
     Filename: str
     Title: str

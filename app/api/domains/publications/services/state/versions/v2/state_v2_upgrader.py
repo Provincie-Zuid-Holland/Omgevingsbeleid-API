@@ -27,7 +27,7 @@ class StateV2Upgrader(StateUpgrader):
     def get_input_schema_version() -> int:
         return state_v1.StateV1.get_schema_version()
 
-    def upgrade(self, session: Session, environment_id: uuid.UUID, old_state: State) -> State:
+    def upgrade(self, session: Session, environment_uuid: uuid.UUID, old_state: State) -> State:
         if old_state.get_schema_version() != state_v1.StateV1.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 
@@ -35,7 +35,7 @@ class StateV2Upgrader(StateUpgrader):
             raise RuntimeError("Unexpected state provided")
 
         purposes = self._mutate_purposes(old_state)
-        acts = self._mutate_acts(session, environment_id, old_state)
+        acts = self._mutate_acts(session, environment_uuid, old_state)
         announcements = self._mutate_announcements(old_state)
 
         new_state = state_v2.StateV2(
@@ -56,20 +56,20 @@ class StateV2Upgrader(StateUpgrader):
         return purposes
 
     def _mutate_acts(
-        self, session: Session, environment_id: uuid.UUID, old_state: state_v1.StateV1
+        self, session: Session, environment_uuid: uuid.UUID, old_state: state_v1.StateV1
     ) -> dict[str, models_v2.ActiveAct]:
         acts: dict[str, models_v2.ActiveAct] = {}
 
         for key, old_act in old_state.Acts.items():
-            new_act: models_v2.ActiveAct = self._mutate_act(session, environment_id, old_act)
+            new_act: models_v2.ActiveAct = self._mutate_act(session, environment_uuid, old_act)
             acts[key] = new_act
 
         return acts
 
     def _mutate_act(
-        self, session: Session, environment_id: uuid.UUID, old_act: state_v1.ActiveAct
+        self, session: Session, environment_uuid: uuid.UUID, old_act: state_v1.ActiveAct
     ) -> models_v2.ActiveAct:
-        original_data, publication_version_id = self._get_original_input_data(session, environment_id, old_act)
+        original_data, publication_version_uuid = self._get_original_input_data(session, environment_uuid, old_act)
 
         werkingsgebieden: dict[int, models_v2.Werkingsgebied] = self._get_act_werkingsgebieden(
             original_data,
@@ -88,7 +88,7 @@ class StateV2Upgrader(StateUpgrader):
             Wid_Data=models_v2.WidData.model_validate(old_act.Wid_Data.model_dump()),
             Ow_Data=ow_data,
             Act_Text=old_act.Act_Text,
-            Publication_Version_UUID=str(publication_version_id),
+            Publication_Version_UUID=str(publication_version_uuid),
         )
         return act
 
@@ -139,7 +139,7 @@ class StateV2Upgrader(StateUpgrader):
 
         act_package: PublicationActPackageTable | None = self._act_package_repository.get_by_act_version(
             session,
-            act_version.id,
+            act_version.UUID,
         )
         if act_package is None:
             raise RuntimeError("PublicationActPackageTable not found while upgrading state1 to state2")
@@ -208,7 +208,7 @@ class StateV2Upgrader(StateUpgrader):
                 "OW_ID": ow_id,
                 "status": None,
                 "procedure_status": None,
-                "mapped_id": str(original_data.area_of_jurisdiction["UUID"]),
+                "mapped_uuid": str(original_data.area_of_jurisdiction["UUID"]),
                 "noemer": original_data.area_of_jurisdiction["Title"],
                 "bestuurlijke_grenzen_verwijzing": {
                     "bestuurlijke_grenzen_id": original_data.area_of_jurisdiction["Administrative_Borders_ID"],
@@ -233,14 +233,14 @@ class StateV2Upgrader(StateUpgrader):
         # Gebieden
         for werkingsgebied_code, ow_id in old_id_mapping.get("gebieden", {}).items():
             original_werkingsgebied: dict | None = next(
-                (w for w in original_data.werkingsgebieden if w["code"] == werkingsgebied_code), unknown_werkingsgebied
+                (w for w in original_data.werkingsgebieden if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
             )
 
             ow = {
                 "OW_ID": ow_id,
                 "status": None,
                 "procedure_status": None,
-                "mapped_id": str(original_werkingsgebied["UUID"]),
+                "mapped_uuid": str(original_werkingsgebied["UUID"]),
                 "noemer": original_werkingsgebied["Title"],
                 "mapped_geo_code": werkingsgebied_code,
                 "ow_type": "OWGebied",
@@ -250,7 +250,7 @@ class StateV2Upgrader(StateUpgrader):
         # Gebiedengroep
         for werkingsgebied_code, ow_id in old_id_mapping.get("gebiedengroep", {}).items():
             original_werkingsgebied: dict | None = next(
-                (w for w in original_data.werkingsgebieden if w["code"] == werkingsgebied_code), unknown_werkingsgebied
+                (w for w in original_data.werkingsgebieden if w["Code"] == werkingsgebied_code), unknown_werkingsgebied
             )
             gebied_ow_id: str | None = old_id_mapping.get("gebieden", {}).get(werkingsgebied_code)
             gebieden_ow_ids = [gebied_ow_id] if gebied_ow_id else []
@@ -258,7 +258,7 @@ class StateV2Upgrader(StateUpgrader):
                 "OW_ID": ow_id,
                 "status": None,
                 "procedure_status": None,
-                "mapped_id": str(original_werkingsgebied["UUID"]),
+                "mapped_uuid": str(original_werkingsgebied["UUID"]),
                 "noemer": original_werkingsgebied["Title"],
                 "mapped_geo_code": werkingsgebied_code,
                 "gebieden": gebieden_ow_ids,
