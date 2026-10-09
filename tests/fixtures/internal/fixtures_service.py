@@ -16,12 +16,21 @@ from tests.fixtures.data import (
     d080_objects_2099,
     d101_object_related_files,
     d102_hoofdlijnen,
+    d103_acknowledged_relations,
     d201_module_1_basic,
     d202_module_2_inactive,
     d203_module_3_closed,
     d204_module_4_ambtenaar_managed,
     d205_module_5_patch_module_1,
     d206_module_6_patch_module_2,
+    d207_module_7_temporary_locked,
+    d208_module_8_to_be_completed,
+    d301_publication_templates,
+    d302_publication_environments,
+    d303_publications_acts,
+    d310_publications_module_1,
+    d311_publications_module_4,
+    d320_publication_packages,
 )
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.services.linker_service import LinkerService
@@ -47,20 +56,29 @@ class FixturesService:
             d080_objects_2099.load,
             d101_object_related_files.load,
             d102_hoofdlijnen.load,
+            d103_acknowledged_relations.load,
             d201_module_1_basic.load,
             d202_module_2_inactive.load,
             d203_module_3_closed.load,
             d204_module_4_ambtenaar_managed.load,
             d205_module_5_patch_module_1.load,
             d206_module_6_patch_module_2.load,
+            d207_module_7_temporary_locked.load,
+            d208_module_8_to_be_completed.load,
+            d301_publication_templates.load,
+            d302_publication_environments.load,
+            d303_publications_acts.load,
+            d310_publications_module_1.load,
+            d311_publications_module_4.load,
+            d320_publication_packages.load,
         ]
 
         collector: Collector = Collector()
         for source in sources:
             collector.at(DATETIME_T0)
             with collector.with_defaults(
-                Created_By_UUID=collector.ref(UserSpec, "admin"),
-                Modified_By_UUID=collector.ref(UserSpec, "admin"),
+                created_by_id=collector.ref(UserSpec, "admin"),
+                modified_by_id=collector.ref(UserSpec, "admin"),
             ):
                 source(collector)
 

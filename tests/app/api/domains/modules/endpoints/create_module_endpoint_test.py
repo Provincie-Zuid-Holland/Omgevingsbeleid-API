@@ -15,7 +15,7 @@ from tests.fixtures.internal.types import Ref
 
 def _statuses(session: Session, module_id: int) -> list[ModuleStatusHistoryTable]:
     return list(
-        session.scalars(select(ModuleStatusHistoryTable).where(ModuleStatusHistoryTable.Module_ID == module_id))
+        session.scalars(select(ModuleStatusHistoryTable).where(ModuleStatusHistoryTable.module_id == module_id))
     )
 
 
@@ -26,12 +26,12 @@ def _payload(
     description: str = "Description of the new module",
 ) -> dict:
     body: dict = {
-        "Title": title,
-        "Description": description,
-        "Module_Manager_1_UUID": str(manager_1),
+        "title": title,
+        "description": description,
+        "module_manager_1_id": str(manager_1),
     }
     if manager_2 is not None:
-        body["Module_Manager_2_UUID"] = str(manager_2)
+        body["module_manager_2_id"] = str(manager_2)
     return body
 
 
@@ -43,20 +43,20 @@ def test_creates_a_module(admin: TestClient, ctx: Context):
     response = admin.post("/modules", json=_payload(manager_1, manager_2))
 
     assert response.status_code == 200, response.text
-    module_id: int = response.json()["Module_ID"]
+    module_id: int = response.json()["module_id"]
 
     module = ctx.session.get(ModuleTable, module_id)
     assert module
-    assert module.Title == "A brand new module"
-    assert module.Description == "Description of the new module"
-    assert module.Module_Manager_1_UUID == manager_1
-    assert module.Module_Manager_2_UUID == manager_2
-    assert module.Activated is False
-    assert module.Closed is False
-    assert module.Successful is False
-    assert module.Temporary_Locked is False
-    assert module.Created_By_UUID == admin_uuid
-    assert module.Modified_By_UUID == admin_uuid
+    assert module.title == "A brand new module"
+    assert module.description == "Description of the new module"
+    assert module.module_manager_1_id == manager_1
+    assert module.module_manager_2_id == manager_2
+    assert module.activated is False
+    assert module.closed is False
+    assert module.successful is False
+    assert module.temporary_locked is False
+    assert module.created_by_id == admin_uuid
+    assert module.modified_by_id == admin_uuid
 
 
 def test_creates_an_initial_niet_actief_status(admin: TestClient, ctx: Context):
@@ -66,12 +66,12 @@ def test_creates_an_initial_niet_actief_status(admin: TestClient, ctx: Context):
     response = admin.post("/modules", json=_payload(manager_1))
 
     assert response.status_code == 200, response.text
-    module_id: int = response.json()["Module_ID"]
+    module_id: int = response.json()["module_id"]
 
     statuses = _statuses(ctx.session, module_id)
     assert len(statuses) == 1
-    assert statuses[0].Status == ModuleStatusCodeInternal.Niet_Actief
-    assert statuses[0].Created_By_UUID == admin_uuid
+    assert statuses[0].status == ModuleStatusCodeInternal.Niet_Actief
+    assert statuses[0].created_by_id == admin_uuid
 
 
 def test_creates_a_module_without_second_manager(admin: TestClient, ctx: Context):
@@ -80,9 +80,9 @@ def test_creates_a_module_without_second_manager(admin: TestClient, ctx: Context
     response = admin.post("/modules", json=_payload(manager_1))
 
     assert response.status_code == 200, response.text
-    module = ctx.session.get(ModuleTable, response.json()["Module_ID"])
+    module = ctx.session.get(ModuleTable, response.json()["module_id"])
     assert module
-    assert module.Module_Manager_2_UUID is None
+    assert module.module_manager_2_id is None
 
 
 def test_duplicate_managers_returns_400(admin: TestClient, ctx: Context):
@@ -97,10 +97,10 @@ def test_duplicate_managers_returns_400(admin: TestClient, ctx: Context):
 @pytest.mark.parametrize(
     "overrides",
     [
-        pytest.param({"Title": "ab"}, id="title-too-short"),
-        pytest.param({"Description": "ab"}, id="description-too-short"),
-        pytest.param({"Module_Manager_1_UUID": None}, id="missing-manager-1"),
-        pytest.param({"Module_Manager_1_UUID": "not-a-uuid"}, id="manager-1-not-a-uuid"),
+        pytest.param({"title": "ab"}, id="title-too-short"),
+        pytest.param({"description": "ab"}, id="description-too-short"),
+        pytest.param({"module_manager_1_id": None}, id="missing-manager-1"),
+        pytest.param({"module_manager_1_id": "not-a-uuid"}, id="manager-1-not-a-uuid"),
     ],
 )
 def test_invalid_body_returns_422(admin: TestClient, ctx: Context, overrides: dict):

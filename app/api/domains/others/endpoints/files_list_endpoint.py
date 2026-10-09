@@ -32,14 +32,14 @@ def get_files_list_endpoint(
 ) -> PagedResponse[StorageFileBasic]:
     pagination: SortedPagination = optional_pagination.with_sort(
         Sort(
-            column=StorageFileSortColumn.Created_Date,
+            column=StorageFileSortColumn.created_date,
             order=SortOrder.DESC,
         )
     )
 
     filter_on_me: UUID | None = None
     if only_mine:
-        filter_on_me = user.UUID
+        filter_on_me = user.id
 
     paginated_result: PaginatedQueryResult = storage_file_repository.get_with_filters(
         session=session,

@@ -21,10 +21,10 @@ def get_public_list_modules_endpoint(
 
     modules: list[PublicModuleShort] = [
         PublicModuleShort(
-            Module_ID=module.Module_ID,
-            Title=module.Title,
-            Description=module.Description,
-            Status=status,
+            module_id=module.module_id,
+            title=module.title,
+            description=module.description,
+            status=status,
         )
         for status, module in paginated_result.items
     ]

@@ -15,30 +15,30 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationActPackageDetailResponse(BaseModel):
-    UUID: uuid.UUID
-    Package_Type: str
-    Report_Status: str
-    Delivery_ID: str
-    Document_Type: str
+    id: uuid.UUID
+    package_type: str
+    report_status: str
+    delivery_id: str
+    document_type: str
 
-    Publication_Version_UUID: uuid.UUID
-    Bill_Version_UUID: uuid.UUID | None
-    Act_Version_UUID: uuid.UUID | None
-    Zip: PackageZipShort
-    Created_Environment_State_UUID: uuid.UUID | None
-    Used_Environment_State_UUID: uuid.UUID | None
+    publication_version_id: uuid.UUID
+    bill_version_id: uuid.UUID | None
+    act_version_id: uuid.UUID | None
+    zip: PackageZipShort
+    created_environment_state_id: uuid.UUID | None
+    used_environment_state_id: uuid.UUID | None
 
-    Created_Date: datetime
-    Modified_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Modified_By_UUID: uuid.UUID
+    created_date: datetime
+    modified_date: datetime
+    created_by_id: uuid.UUID
+    modified_by_id: uuid.UUID
 
-    Module_ID: int | None
-    Module_Title: str | None
-    Module_Status_ID: int | None
-    Module_Status_Status: str | None
-    Environment_UUID: uuid.UUID
-    Environment_Title: str
+    module_id: int | None
+    module_title: str | None
+    module_status_id: int | None
+    module_status_status: str | None
+    environment_id: uuid.UUID
+    environment_title: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -54,34 +54,34 @@ def get_detail_act_package_endpoint(
         ),
     ],
 ) -> PublicationActPackageDetailResponse:
-    publication: PublicationTable = act_package.Publication_Version.Publication
-    module: ModuleTable | None = act_package.Module
-    module_status: ModuleStatusHistoryTable | None = act_package.Module_Status
-    environment: PublicationEnvironmentTable = publication.Environment
-    zip: PackageZipShort = PackageZipShort.model_validate(act_package.Zip)
+    publication: PublicationTable = act_package.publication_version.publication
+    module: ModuleTable | None = act_package.module
+    module_status: ModuleStatusHistoryTable | None = act_package.module_status
+    environment: PublicationEnvironmentTable = publication.environment
+    zip: PackageZipShort = PackageZipShort.model_validate(act_package.zip)
 
     result = PublicationActPackageDetailResponse(
-        UUID=act_package.UUID,
-        Package_Type=act_package.Package_Type,
-        Report_Status=act_package.Report_Status,
-        Delivery_ID=act_package.Delivery_ID,
-        Document_Type=publication.Document_Type,
-        Publication_Version_UUID=act_package.Publication_Version_UUID,
-        Bill_Version_UUID=act_package.Bill_Version_UUID,
-        Act_Version_UUID=act_package.Act_Version_UUID,
-        Zip=zip,
-        Created_Environment_State_UUID=act_package.Created_Environment_State_UUID,
-        Used_Environment_State_UUID=act_package.Used_Environment_State_UUID,
-        Created_Date=act_package.Created_Date,
-        Modified_Date=act_package.Modified_Date,
-        Created_By_UUID=act_package.Created_By_UUID,
-        Modified_By_UUID=act_package.Modified_By_UUID,
-        Module_ID=module.Module_ID if module else None,
-        Module_Title=module.Title if module else None,
-        Module_Status_ID=module_status.ID if module_status else None,
-        Module_Status_Status=module_status.Status if module_status else None,
-        Environment_UUID=environment.UUID,
-        Environment_Title=environment.Title,
+        id=act_package.id,
+        package_type=act_package.package_type,
+        report_status=act_package.report_status,
+        delivery_id=act_package.delivery_id,
+        document_type=publication.document_type,
+        publication_version_id=act_package.publication_version_id,
+        bill_version_id=act_package.bill_version_id,
+        act_version_id=act_package.act_version_id,
+        zip=zip,
+        created_environment_state_id=act_package.created_environment_state_id,
+        used_environment_state_id=act_package.used_environment_state_id,
+        created_date=act_package.created_date,
+        modified_date=act_package.modified_date,
+        created_by_id=act_package.created_by_id,
+        modified_by_id=act_package.modified_by_id,
+        module_id=module.module_id if module else None,
+        module_title=module.title if module else None,
+        module_status_id=module_status.id if module_status else None,
+        module_status_status=module_status.status if module_status else None,
+        environment_id=environment.id,
+        environment_title=environment.title,
     )
 
     return result

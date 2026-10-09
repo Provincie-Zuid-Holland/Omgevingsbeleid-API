@@ -24,7 +24,7 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
+    def _format_uuid(self, idx: uuid.UUID) -> str:
         pass
 
     @abstractmethod
@@ -42,15 +42,15 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         session.commit()
 
         params = {
-            "uuid": self._format_uuid(onderverdeling.UUID),
+            "id": self._format_uuid(onderverdeling.id),
             "geometry": geometry,
         }
         sql = f"""
             UPDATE
-                Input_GEO_Onderverdeling
+                input_geo_onderverdeling
             SET
-                Geometry = {self._text_to_shape("geometry")}
+                geometry = {self._text_to_shape("geometry")}
             WHERE
-                UUID = :uuid
+                id = :id
             """
         session.execute(text(sql), params)

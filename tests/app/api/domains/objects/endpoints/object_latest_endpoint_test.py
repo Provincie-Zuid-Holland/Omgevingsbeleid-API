@@ -18,12 +18,12 @@ from tests.fixtures.internal.types import Ref
 def test_object_latest_returns_most_recent_version(client: TestClient, ctx: Context, prefix: str, ref: Ref):
     expected = ctx.f.find(ref).spec
 
-    response = client.get(f"{prefix}/latest/{expected.Object_ID}")
+    response = client.get(f"{prefix}/latest/{expected.object_id}")
     assert response.status_code == 200, response.text
 
     body = response.json()
-    assert body["UUID"] == str(expected.UUID)
-    assert body["Next_Version"] is None
+    assert body["id"] == str(expected.id)
+    assert body["next_version"] is None
 
 
 @pytest.mark.parametrize("prefix", ["/beleidsdoelen", "/beleidskeuzes", "/maatregelen"])

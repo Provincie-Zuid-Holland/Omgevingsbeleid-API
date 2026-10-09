@@ -17,7 +17,7 @@ class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Unicode(35), ForeignKey("object_statics.Code"), nullable=column.nullable),
+            mapped_column(column.name, Unicode(35), ForeignKey("object_statics.code"), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -28,7 +28,7 @@ class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
                 relation_field,
                 relationship(
                     "ObjectStaticsTable",
-                    primaryjoin=f"{event.table_name}.{column.name} == ObjectStaticsTable.Code",
+                    primaryjoin=f"{event.table_name}.{column.name} == ObjectStaticsTable.code",
                     viewonly=True,
                 ),
             )
@@ -37,14 +37,14 @@ class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
 class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
     def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
-        if column.type != "area_uuid":
+        if column.type != "area_id":
             return
 
         # Add the column itself
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, ForeignKey(AreasTable.UUID), nullable=column.nullable),
+            mapped_column(column.name, Uuid, ForeignKey(AreasTable.id), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -55,7 +55,7 @@ class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
                 relation_field,
                 relationship(
                     AreasTable,
-                    primaryjoin=f"{event.table_name}.{column.name} == AreasTable.UUID",
+                    primaryjoin=f"{event.table_name}.{column.name} == AreasTable.id",
                     viewonly=True,
                 ),
             )
@@ -71,7 +71,7 @@ class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, ForeignKey("Gebruikers.UUID"), nullable=column.nullable),
+            mapped_column(column.name, Uuid, ForeignKey("users.id"), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -82,7 +82,7 @@ class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
                 relation_field,
                 relationship(
                     UsersTable,
-                    primaryjoin=f"{event.table_name}.{column.name} == UsersTable.UUID",
+                    primaryjoin=f"{event.table_name}.{column.name} == UsersTable.id",
                     viewonly=True,
                 ),
             )
@@ -91,14 +91,14 @@ class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
 class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent]):
     def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
-        if column.type != "werkingsgebied_uuid":
+        if column.type != "werkingsgebied_id":
             return
 
         # Add the column itself
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, ForeignKey("Werkingsgebieden.UUID"), nullable=column.nullable),
+            mapped_column(column.name, Uuid, ForeignKey("werkingsgebieden.id"), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -109,7 +109,7 @@ class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent])
                 relation_field,
                 relationship(
                     "SourceWerkingsgebiedenTable",
-                    primaryjoin=f"{event.table_name}.{column.name} == SourceWerkingsgebiedenTable.UUID",
+                    primaryjoin=f"{event.table_name}.{column.name} == SourceWerkingsgebiedenTable.id",
                     viewonly=True,
                 ),
             )
@@ -118,15 +118,15 @@ class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent])
 class AddStoreageFileRelationshipListener(BuildListener[GenerateTableEvent]):
     def handle_event(self, event: GenerateTableEvent) -> GenerateTableEvent | None:
         column = event.column
-        if column.type != "file_uuid":
+        if column.type != "file_id":
             return
 
         # Add the column itself
-        fk_name = f"fk_{event.table_name}_{column.name}_to_storagefile_uuid"
+        fk_name = f"fk_{event.table_name}_{column.name}_to_storagefile_id"
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, ForeignKey(StorageFileTable.UUID, name=fk_name), nullable=column.nullable),
+            mapped_column(column.name, Uuid, ForeignKey(StorageFileTable.id, name=fk_name), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -137,7 +137,7 @@ class AddStoreageFileRelationshipListener(BuildListener[GenerateTableEvent]):
                 relation_field,
                 relationship(
                     StorageFileTable,
-                    primaryjoin=f"{event.table_name}.{column.name} == StorageFileTable.UUID",
+                    primaryjoin=f"{event.table_name}.{column.name} == StorageFileTable.id",
                     viewonly=True,
                 ),
             )

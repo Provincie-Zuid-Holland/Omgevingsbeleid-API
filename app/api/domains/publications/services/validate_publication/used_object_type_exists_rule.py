@@ -16,7 +16,7 @@ class UsedObjectTypeExistsRule(ValidatePublicationRule):
         object_tags: ResultSet[Tag] = soup.find_all("object")
         objects: list[str] = [obj.get("code") for obj in object_tags if obj.get("code")]
         object_types: set[str] = {v.split("-", 1)[0] for v in objects}
-        object_templates: set[str] = request.input_data.Publication_Version.Publication.Template.Object_Templates.keys()
+        object_templates: set[str] = request.input_data.Publication_Version.publication.template.object_templates.keys()
 
         for object_type in object_types:
             if object_type not in object_templates:

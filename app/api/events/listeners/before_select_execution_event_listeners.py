@@ -40,7 +40,7 @@ class OptimizeSelectQueryListener(ApiListener[BeforeSelectExecutionEvent]):
             load_options.append(selectinload(getattr(objects_table_reference, field_map["to_field"])))
         for field_map in model_config.get("static_foreign_keys_extender", {}).get("fields_map", []):
             load_options.append(
-                selectinload(objects_table_reference.ObjectStatics).selectinload(
+                selectinload(objects_table_reference.object_statics).selectinload(
                     getattr(ObjectStaticsTable, field_map["to_field"])
                 )
             )

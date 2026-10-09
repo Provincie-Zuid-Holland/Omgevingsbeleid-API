@@ -49,9 +49,9 @@ def get_module_list_lineage_tree_endpoint(
 
     stmt = (
         select(ModuleObjectsTable)
-        .filter(ModuleObjectsTable.Module_ID == module.Module_ID)
-        .filter(ModuleObjectsTable.Object_Type == context.object_type)
-        .filter(ModuleObjectsTable.Object_ID == lineage_id)
+        .filter(ModuleObjectsTable.module_id == module.module_id)
+        .filter(ModuleObjectsTable.object_type == context.object_type)
+        .filter(ModuleObjectsTable.object_id == lineage_id)
     )
     query_event: BeforeSelectExecutionEvent = event_manager.dispatch(
         session,
@@ -81,7 +81,7 @@ def get_module_list_lineage_tree_endpoint(
             context.builder_data.endpoint_id,
             context.response_config_model,
             user=user,
-            module_id=module.Module_ID,
+            module_id=module.module_id,
         ),
     )
     rows = rows_event.payload.rows

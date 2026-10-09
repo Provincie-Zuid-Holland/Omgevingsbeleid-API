@@ -11,11 +11,11 @@ from tests.fixtures.internal.spec.objects.base_object_spec import (
 
 class BeleidsdoelMixin(BaseModel):
     __object_type__: ClassVar[str] = "beleidsdoel"
-    __inheritable__: ClassVar[set[str]] = {"Title", "Description"}
-    __object_fields__: ClassVar[set[str]] = {"Title", "Description"}
+    __inheritable__: ClassVar[set[str]] = {"title", "description"}
+    __object_fields__: ClassVar[set[str]] = {"title", "description"}
 
-    Title: str | None = None
-    Description: str | None = None
+    title: str | None = None
+    description: str | None = None
 
 
 class BeleidsdoelSpec(BeleidsdoelMixin, BaseObjectSpec):

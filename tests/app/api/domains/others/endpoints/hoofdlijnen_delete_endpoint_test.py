@@ -16,10 +16,10 @@ def test_deletes_the_specified_hoofdlijn(
     client: TestClient = request.getfixturevalue(client_fixture)
     original: HoofdlijnSpec = ctx.f.find(Ref(HoofdlijnSpec, hoofdlijn_key)).spec
 
-    response = client.delete(f"/hoofdlijnen/{original.UUID}")
+    response = client.delete(f"/hoofdlijnen/{original.id}")
 
     assert response.status_code == 200, response.text
 
     # The hoofdlijn is deleted
-    row: HoofdlijnTable | None = session.get(HoofdlijnTable, original.UUID)
+    row: HoofdlijnTable | None = session.get(HoofdlijnTable, original.id)
     assert row is None

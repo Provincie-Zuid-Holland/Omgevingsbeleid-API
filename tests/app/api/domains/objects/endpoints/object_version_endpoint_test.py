@@ -22,19 +22,19 @@ from tests.fixtures.internal.types import Ref
 def test_returns_the_requested_version_by_uuid(client: TestClient, ctx: Context, prefix: str, ref: Ref):
     expected: BaseObjectSpec = ctx.f.find(ref).spec
 
-    response = client.get(f"{prefix}/version/{expected.UUID}")
+    response = client.get(f"{prefix}/version/{expected.id}")
     assert response.status_code == 200, response.text
 
     body = response.json()
-    assert body["UUID"] == str(expected.UUID)
-    assert body["Code"] == expected.Code
+    assert body["id"] == str(expected.id)
+    assert body["code"] == expected.code
 
 
 def test_version_is_scoped_to_object_type(client: TestClient, ctx: Context):
     # A maatregel UUID must not resolve under the beleidsdoel routes.
     maatregel: MaatregelSpec = ctx.f.find(Ref(MaatregelSpec, "maatregel_6_past_end_validity")).spec
 
-    response = client.get(f"/beleidsdoelen/version/{maatregel.UUID}")
+    response = client.get(f"/beleidsdoelen/version/{maatregel.id}")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "object_uuid does not exist"
@@ -51,7 +51,7 @@ def test_response_matches_the_full_model_shape(client: TestClient, ctx: Context)
     expected: BeleidsdoelSpec = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_1_latest_valid")).spec
     model: type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_full")
 
-    body: dict = client.get(f"/beleidsdoelen/version/{expected.UUID}").json()
+    body: dict = client.get(f"/beleidsdoelen/version/{expected.id}").json()
 
     assert set(body.keys()) == set(model.model_fields)
 
@@ -75,11 +75,11 @@ def test_gebiedsaanwijzingen_from_text(
     source_object: MaatregelSpec = ctx.f.find(object_ref).spec
     expected_gebied_uuids: set[str] = {str(ctx.f.primary_key_uuid(gebied_key)) for gebied_key in expected_gebied_refs}
 
-    url = f"{url_prefix}/{source_object.UUID}"
+    url = f"{url_prefix}/{source_object.id}"
     response = client.get(url)
     assert response.status_code == 200
 
     body: dict = response.json()
-    gebieden_uuids: set[UUID] = {gebied["UUID"] for gebied in body.get("Gebiedsaanwijzingen_Gebieden", [])}
+    gebieden_uuids: set[UUID] = {gebied["id"] for gebied in body.get("gebiedsaanwijzingen_gebieden", [])}
 
     assert gebieden_uuids == expected_gebied_uuids

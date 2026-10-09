@@ -59,26 +59,26 @@ class PatchGebiedengroepInputGeoService:
                 main_obj,
                 onderverdeling,
             )
-            area_uuid: uuid.UUID = self._ensure_area(onderverdeling)
+            area_id: uuid.UUID = self._ensure_area(onderverdeling)
             _sub_object_context: ModuleObjectContextTable = self._ensure_object_context(
                 sub_object_static,
-                main_obj.Module_ID,
+                main_obj.module_id,
             )
 
             object_result_action, _sub_object = self._ensure_object_newest_area(
                 sub_object_static,
-                main_obj.Module_ID,
-                area_uuid,
-                onderverdeling.Title,
+                main_obj.module_id,
+                area_id,
+                onderverdeling.title,
             )
             if object_result_action in [ObjectResultType.CREATED, ObjectResultType.UPDATED]:
                 something_changed = True
 
-            used_sub_codes.add(sub_object_static.Code)
+            used_sub_codes.add(sub_object_static.code)
 
-        if main_obj.Source_Title != self._input_geo_werkingsgebied.Title:
+        if main_obj.source_title != self._input_geo_werkingsgebied.title:
             something_changed = True
-        if main_obj.Source_UUID != self._input_geo_werkingsgebied.UUID:
+        if main_obj.source_uuid != self._input_geo_werkingsgebied.id:
             something_changed = True
 
         # Patch the main object and set the "gebieden"
@@ -87,12 +87,12 @@ class PatchGebiedengroepInputGeoService:
                 self._session,
                 main_obj,
                 {
-                    "Gebieden": list(used_sub_codes),
-                    "Source_Title": self._input_geo_werkingsgebied.Title,
-                    "Source_UUID": self._input_geo_werkingsgebied.UUID,
+                    "gebieden": list(used_sub_codes),
+                    "source_title": self._input_geo_werkingsgebied.title,
+                    "source_id": self._input_geo_werkingsgebied.id,
                 },
                 self._timepoint,
-                self._user.UUID,
+                self._user.id,
             )
             self._session.add(new_main_obj)
             self._session.flush()
@@ -107,7 +107,7 @@ class PatchGebiedengroepInputGeoService:
         main_obj: ModuleObjectsTable,
         onderverdeling: InputGeoOnderverdelingenTable,
     ) -> ObjectStaticsTable:
-        source_key: str = slugify(f"igo:{onderverdeling.Title}")
+        source_key: str = slugify(f"igo:{onderverdeling.title}")
         sub_obj_static: ObjectStaticsTable | None = self._object_static_repository.get_by_source(
             self._session,
             source_key,
@@ -124,25 +124,25 @@ class PatchGebiedengroepInputGeoService:
         source_key: str,
     ) -> ObjectStaticsTable:
         generate_id_subq = (
-            select(func.coalesce(func.max(ObjectStaticsTable.Object_ID), 0) + 1)
+            select(func.coalesce(func.max(ObjectStaticsTable.object_id), 0) + 1)
             .select_from(ObjectStaticsTable)
-            .filter(ObjectStaticsTable.Object_Type == self._onderverdeling_object_type)
+            .filter(ObjectStaticsTable.object_type == self._onderverdeling_object_type)
             .scalar_subquery()
         )
 
         stmt = (
             insert(ObjectStaticsTable)
             .values(
-                Object_Type=self._onderverdeling_object_type,
-                Object_ID=generate_id_subq,
-                Code=(self._onderverdeling_object_type + "-" + func.cast(generate_id_subq, String)),
-                Cached_Title=onderverdeling.Title,
-                Source_Identifier=source_key,
+                object_type=self._onderverdeling_object_type,
+                object_id=generate_id_subq,
+                code=(self._onderverdeling_object_type + "-" + func.cast(generate_id_subq, String)),
+                cached_title=onderverdeling.Title,
+                source_identifier=source_key,
                 # These are inherited from the parent object
-                Owner_1_UUID=main_obj.ObjectStatics.Owner_1_UUID,
-                Owner_2_UUID=main_obj.ObjectStatics.Owner_2_UUID,
-                Owner_3_UUID=main_obj.ObjectStatics.Owner_3_UUID,
-                Client_1_UUID=main_obj.ObjectStatics.Client_1_UUID,
+                owner_1_id=main_obj.object_statics.owner_1_id,
+                owner_2_id=main_obj.object_statics.owner_2_id,
+                owner_3_id=main_obj.object_statics.owner_3_id,
+                client_1_id=main_obj.object_statics.client_1_id,
             )
             .returning(ObjectStaticsTable)
         )
@@ -154,39 +154,39 @@ class PatchGebiedengroepInputGeoService:
         return response
 
     def _ensure_area(self, onderverdeling: InputGeoOnderverdelingenTable) -> uuid.UUID:
-        if not onderverdeling.Geometry_Hash:
+        if not onderverdeling.geometry_hash:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Onderverdeling does not have an Hash")
 
         # These sources hashes are not unique sadly
         # We try to push for the most correct area by filtering by title first
         existing_area: AreasTable | None = self._area_repository.get_by_source_hash_and_title(
             self._session,
-            onderverdeling.Geometry_Hash,
-            onderverdeling.Title,
+            onderverdeling.geometry_hash,
+            onderverdeling.title,
         )
         if existing_area:
-            return existing_area.UUID
+            return existing_area.id
 
-        area_uuid: uuid.UUID = uuid.uuid4()
+        area_id: uuid.UUID = uuid.uuid4()
         self._area_geometry_repository.create_area(
             self._session,
-            area_uuid,
+            area_id,
             self._timepoint,
-            self._user.UUID,
+            self._user.id,
             onderverdeling,
         )
-        return area_uuid
+        return area_id
 
     def _ensure_object_context(self, sub_object_static: ObjectStaticsTable, module_id: int) -> ModuleObjectContextTable:
         request = mocs.ExistRequest(
             module_id=module_id,
-            object_type=sub_object_static.Object_Type,
-            object_id=sub_object_static.Object_ID,
+            object_type=sub_object_static.object_type,
+            object_id=sub_object_static.object_id,
             timepoint=self._timepoint,
             original_adjust_on=None,
             explanation="",
             conclusion="",
-            user_uuid=self._user.UUID,
+            user_uuid=self._user.id,
         )
         result: mocs.Result = self._object_context_service.ensure_exists(
             self._session,
@@ -198,19 +198,19 @@ class PatchGebiedengroepInputGeoService:
         self,
         sub_object_static: ObjectStaticsTable,
         module_id: int,
-        area_uuid: uuid.UUID,
+        area_id: uuid.UUID,
         title: str,
     ) -> tuple[ObjectResultType, ModuleObjectsTable]:
         existing_object: ModuleObjectsTable | None = self._module_object_repository.get_latest_by_module_id_object_code(
             self._session,
             module_id,
-            sub_object_static.Code,
+            sub_object_static.code,
         )
         if existing_object is None:
-            return ObjectResultType.CREATED, self._create_sub_object(sub_object_static, module_id, area_uuid, title)
+            return ObjectResultType.CREATED, self._create_sub_object(sub_object_static, module_id, area_id, title)
 
-        if existing_object.Area_UUID != area_uuid or existing_object.Deleted:
-            return ObjectResultType.UPDATED, self._modify_sub_object(existing_object, area_uuid, title)
+        if existing_object.area_id != area_id or existing_object.deleted:
+            return ObjectResultType.UPDATED, self._modify_sub_object(existing_object, area_id, title)
 
         return ObjectResultType.IGNORED, existing_object
 
@@ -218,40 +218,40 @@ class PatchGebiedengroepInputGeoService:
         self,
         sub_object_static: ObjectStaticsTable,
         module_id: int,
-        area_uuid: uuid.UUID,
+        area_id: uuid.UUID,
         title: str,
     ) -> ModuleObjectsTable:
         module_object = ModuleObjectsTable()
 
-        module_object.Module_ID = module_id
-        module_object.Object_Type = sub_object_static.Object_Type
-        module_object.Object_ID = sub_object_static.Object_ID
-        module_object.Code = sub_object_static.Code
-        module_object.Area_UUID = area_uuid
-        module_object.Title = title
-        module_object.Adjust_On = None
-        module_object.UUID = uuid.uuid4()
-        module_object.Created_Date = self._timepoint
-        module_object.Created_By_UUID = self._user.UUID
-        module_object.Modified_Date = self._timepoint
-        module_object.Modified_By_UUID = self._user.UUID
+        module_object.module_id = module_id
+        module_object.object_type = sub_object_static.object_type
+        module_object.object_id = sub_object_static.object_id
+        module_object.code = sub_object_static.code
+        module_object.area_id = area_id
+        module_object.title = title
+        module_object.adjust_on = None
+        module_object.id = uuid.uuid4()
+        module_object.created_date = self._timepoint
+        module_object.created_by_id = self._user.id
+        module_object.modified_date = self._timepoint
+        module_object.modified_by_id = self._user.id
 
         self._session.add(module_object)
         return module_object
 
     def _modify_sub_object(
-        self, existing_object: ModuleObjectsTable, area_uuid: uuid.UUID, title: str
+        self, existing_object: ModuleObjectsTable, area_id: uuid.UUID, title: str
     ) -> ModuleObjectsTable:
         patched_sub_object: ModuleObjectsTable = self._module_object_repository.patch_module_object(
             self._session,
             existing_object,
             {
-                "Area_UUID": area_uuid,
-                "Title": title,
-                "Deleted": False,
+                "area_id": area_id,
+                "title": title,
+                "deleted": False,
             },
             self._timepoint,
-            self._user.UUID,
+            self._user.id,
         )
         self._session.add(patched_sub_object)
         return patched_sub_object

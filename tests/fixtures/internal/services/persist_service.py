@@ -4,7 +4,12 @@ from sqlalchemy.orm import Session
 
 import tests.fixtures.internal.spec.modules as module_types
 import tests.fixtures.internal.spec.objects as objects_types
+import tests.fixtures.internal.spec.publications as publications_types
 from app.core.db.base import Base
+from tests.fixtures.internal.spec.acknowledged_relation_spec import (
+    AcknowledgedRelationPersistHandler,
+    AcknowledgedRelationSpec,
+)
 from tests.fixtures.internal.spec.area_spec import AreaPersistHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPersistHandler, AssetSpec
 from tests.fixtures.internal.spec.hoofdlijn_spec import HoofdlijnPersistHandler, HoofdlijnSpec
@@ -17,6 +22,10 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import (
     InputGeoWerkingsgebiedenSpec,
 )
 from tests.fixtures.internal.spec.object_related_file_spec import ObjectRelatedFilePersistHandler, ObjectRelatedFileSpec
+from tests.fixtures.internal.spec.objects.verplicht_programma_spec import (
+    VerplichtProgrammaPersistHandler,
+    VerplichtProgrammaSpec,
+)
 from tests.fixtures.internal.spec.storage_file_spec import StorageFilePersistHandler, StorageFileSpec
 from tests.fixtures.internal.spec.user_spec import UserPersistHandler, UserSpec
 from tests.fixtures.internal.types import (
@@ -50,6 +59,8 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             objects_types.GebiedengroepSpec: objects_types.GebiedengroepPersistHandler(),
             objects_types.GebiedsaanwijzingSpec: objects_types.GebiedsaanwijzingPersistHandler(),
             objects_types.MaatregelSpec: objects_types.MaatregelPersistHandler(),
+            AcknowledgedRelationSpec: AcknowledgedRelationPersistHandler(),
+            VerplichtProgrammaSpec: VerplichtProgrammaPersistHandler(),
             # Module
             module_types.ModuleSpec: module_types.ModulePersistHandler(),
             module_types.ModuleStatusHistorySpec: module_types.ModuleStatusHistoryPersistHandler(),
@@ -60,6 +71,29 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             module_types.ModuleGebiedengroepSpec: module_types.ModuleGebiedengroepPersistHandler(),
             module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPersistHandler(),
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPersistHandler(),
+            module_types.ModuleVerplichtProgrammaSpec: module_types.ModuleVerplichtProgrammaPersistHandler(),
+            # Publications
+            publications_types.PublicationStorageFileSpec: publications_types.PublicationStorageFilePersistHandler(),
+            publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePersistHandler(),
+            publications_types.PublicationEnvironmentSpec: publications_types.PublicationEnvironmentPersistHandler(),
+            publications_types.PublicationEnvironmentStateSpec: publications_types.PublicationEnvironmentStatePersistHandler(),
+            publications_types.PublicationAreaOfJurisdictionSpec: publications_types.PublicationAreaOfJurisdictionPersistHandler(),
+            publications_types.PublicationPurposeSpec: publications_types.PublicationPurposePersistHandler(),
+            publications_types.PublicationActSpec: publications_types.PublicationActPersistHandler(),
+            publications_types.PublicationActVersionSpec: publications_types.PublicationActVersionPersistHandler(),
+            publications_types.PublicationSpec: publications_types.PublicationPersistHandler(),
+            publications_types.PublicationVersionSpec: publications_types.PublicationVersionPersistHandler(),
+            publications_types.PublicationVersionAttachmentSpec: publications_types.PublicationVersionAttachmentPersistHandler(),
+            publications_types.PublicationBillSpec: publications_types.PublicationBillPersistHandler(),
+            publications_types.PublicationBillVersionSpec: publications_types.PublicationBillVersionPersistHandler(),
+            publications_types.PublicationDocSpec: publications_types.PublicationDocPersistHandler(),
+            publications_types.PublicationDocVersionSpec: publications_types.PublicationDocVersionPersistHandler(),
+            publications_types.PublicationAnnouncementSpec: publications_types.PublicationAnnouncementPersistHandler(),
+            publications_types.PublicationPackageZipSpec: publications_types.PublicationPackageZipPersistHandler(),
+            publications_types.PublicationActPackageSpec: publications_types.PublicationActPackagePersistHandler(),
+            publications_types.PublicationActPackageReportSpec: publications_types.PublicationActPackageReportPersistHandler(),
+            publications_types.PublicationAnnouncementPackageSpec: publications_types.PublicationAnnouncementPackagePersistHandler(),
+            publications_types.PublicationAnnouncementPackageReportSpec: publications_types.PublicationAnnouncementPackageReportPersistHandler(),
         }
 
     def persist(self, records: list[Record[S]], session: Session) -> FixtureData:

@@ -17,12 +17,12 @@ class ObjectProvider:
         self._object_repository: ObjectRepository = object_repository
         self._module_object_repository: ModuleObjectRepository = module_object_repository
 
-    def get_by_uuid(self, session: Session, uuid: UUID) -> dict | None:
-        maybe_object: ObjectsTable | None = self._object_repository.get_by_uuid(session, uuid)
+    def get_by_id(self, session: Session, idx: UUID) -> dict | None:
+        maybe_object: ObjectsTable | None = self._object_repository.get_by_id(session, idx)
         if maybe_object:
             return table_to_dict(maybe_object)
 
-        maybe_module_object = self._module_object_repository.get_by_uuid(session, uuid)
+        maybe_module_object = self._module_object_repository.get_by_id(session, idx)
         if maybe_module_object:
             return table_to_dict(maybe_module_object)
 

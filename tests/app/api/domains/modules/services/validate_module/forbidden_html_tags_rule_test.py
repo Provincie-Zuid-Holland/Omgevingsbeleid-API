@@ -15,7 +15,7 @@ from app.core.tables.modules import ModuleObjectsTable
 def test_validate():
     config: Mock | MainConfig = Mock(MainConfig)
     rule_config: ForbiddenHtmlTagsRuleConfig = ForbiddenHtmlTagsRuleConfig(
-        fields=["Description"],
+        fields=["description"],
         forbidden_html_tags=["p"],
     )
     config.get_as_model.return_value = rule_config
@@ -24,25 +24,25 @@ def test_validate():
         module_id=1,
         module_objects=[
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="1",
-                Code="ambitie-1",
-                Title="A1 title",
-                Description="<p>A1 description</p>",  # has forbidden p tag
+                object_type="ambitie",
+                object_id="1",
+                code="ambitie-1",
+                title="A1 title",
+                description="<p>A1 description</p>",  # has forbidden p tag
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="2",
-                Code="ambitie-2",
-                Title="A2 title",
-                Description="<span>A2 description</span>",  # valid
+                object_type="ambitie",
+                object_id="2",
+                code="ambitie-2",
+                title="A2 title",
+                description="<span>A2 description</span>",  # valid
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="3",
-                Code="ambitie-3",
-                Title="A3 title",
-                Explanation="<p>A3 explanation</p>",  # field is not checked
+                object_type="ambitie",
+                object_id="3",
+                code="ambitie-3",
+                title="A3 title",
+                explanation="<p>A3 explanation</p>",  # field is not checked
             ),
         ],
     )

@@ -21,7 +21,7 @@ def view_module_list_statuses_endpoint(
     module: Annotated[ModuleTable, Depends(depends_module)],
     status_repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],
 ) -> list[ModuleStatus]:
-    statuses: list[ModuleStatusHistoryTable] = status_repository.get_all_by_module_id(session, module.Module_ID)
+    statuses: list[ModuleStatusHistoryTable] = status_repository.get_all_by_module_id(session, module.module_id)
 
     response: list[ModuleStatus] = [ModuleStatus.model_validate(r) for r in statuses]
     return response

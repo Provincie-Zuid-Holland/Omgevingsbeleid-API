@@ -13,22 +13,23 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleObjectContext(BaseModel):
-    Module_ID: int
-    Object_Type: str
-    Object_ID: int
-    Code: str
+    module_id: int
+    object_type: str
+    object_id: int
+    code: str
 
-    Created_Date: datetime
-    Modified_Date: datetime
+    created_date: datetime
+    modified_date: datetime
 
-    Action: str
-    Explanation: str
-    Conclusion: str
+    action: str
+    explanation: str
+    conclusion: str
 
-    Original_Adjust_On: uuid.UUID | None = None
+    original_adjust_on: uuid.UUID | None = None
 
-    Created_By: UserShort | None = None
-    Modified_By: UserShort | None = None
+    created_by: UserShort | None = None
+    modified_by: UserShort | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
 

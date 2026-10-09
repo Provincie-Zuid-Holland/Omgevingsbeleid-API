@@ -8,23 +8,23 @@ from app.api.utils.pagination import OrderConfig, SortOrder
 
 
 class AreaBasic(BaseModel):
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
-    Source_UUID: uuid.UUID
-    Source_Title: str
-    Source_Created_Date: datetime
+    id: uuid.UUID
+    created_date: datetime
+    created_by_id: uuid.UUID
+    source_id: uuid.UUID
+    source_title: str
+    source_created_date: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class WerkingsgebiedStatics(BaseModel):
-    Object_Type: str
-    Object_ID: int
-    Code: str
-    Cached_Title: str
+    object_type: str
+    object_id: int
+    code: str
+    cached_title: str
 
-    @field_validator("Cached_Title", mode="before")
+    @field_validator("cached_title", mode="before")
     def default_empty_string(cls, v):
         return "" if v is None else v
 
@@ -32,50 +32,52 @@ class WerkingsgebiedStatics(BaseModel):
 
 
 class Werkingsgebied(BaseModel):
-    ID: int | None = None
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Modified_Date: datetime
-    Title: str
-    Start_Validity: datetime | None = Field(None)
-    End_Validity: datetime | None = Field(None)
-    Geometry_Hash: str | None = Field(None)
+    id: uuid.UUID
+    ref_id: int | None = None
+    created_date: datetime
+    modified_date: datetime
+    title: str
+    geometry_hash: str | None = Field(None)
+
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class InputGeoWerkingsgebiedenSortColumn(str, Enum):
-    Title = "Title"
-    Created_Date = "Created_Date"
+    title = "title"
+    created_date = "created_date"
 
 
 input_geo_werkingsgebieden_order_config = OrderConfig(
-    default_column=InputGeoWerkingsgebiedenSortColumn.Created_Date.value,
+    default_column=InputGeoWerkingsgebiedenSortColumn.created_date.value,
     default_order=SortOrder.DESC,
     allowed_columns=[col.value for col in InputGeoWerkingsgebiedenSortColumn],
 )
 
 
 class InputGeoOnderverdeling(BaseModel):
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Title: str
-    Description: str
-    Geometry_Hash: str
+    id: uuid.UUID
+    created_date: datetime
+    title: str
+    description: str
+    geometry_hash: str
+
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class InputGeoWerkingsgebied(BaseModel):
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Title: str
-    Description: str
+    id: uuid.UUID
+    created_date: datetime
+    title: str
+    description: str
+
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class InputGeoWerkingsgebiedDetailed(BaseModel):
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Title: str
-    Description: str
-    Onderverdelingen: list[InputGeoOnderverdeling]
+    id: uuid.UUID
+    created_date: datetime
+    title: str
+    description: str
+    onderverdelingen: list[InputGeoOnderverdeling]
+
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

@@ -24,23 +24,23 @@ from tests.fixtures.internal.types import (
 
 
 class InputGeoOnderverdelingSpec(Spec):
-    __link_fields__: ClassVar[set[str]] = {"Owners"}
+    __link_fields__: ClassVar[set[str]] = {"owners"}
 
-    UUID: uuid.UUID | None = None
-    Title: str
-    Description: str = ""
-    Created_Date: datetime | None = None
-    Symbol: str | None = None
-    Points: list[tuple[int, int]]
-    Owners: list[Link]
+    id: uuid.UUID | None = None
+    title: str
+    description: str = ""
+    created_date: datetime | None = None
+    symbol: str | None = None
+    points: list[tuple[int, int]]
+    owners: list[Link]
 
-    Geometry: bytes | None = None
-    Geometry_Hash: str = ""
-    GML: str = ""
+    geometry: bytes | None = None
+    geometry_hash: str = ""
+    gml: str = ""
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.UUID, "UUID is not set which is expected to happen at this stage."
-        return self.UUID
+        assert self.id, "id is not set which is expected to happen at this stage."
+        return self.id
 
 
 class InputGeoOnderverdelingPrefillHandler(BasePrefillHandler[InputGeoOnderverdelingSpec]):
@@ -49,18 +49,18 @@ class InputGeoOnderverdelingPrefillHandler(BasePrefillHandler[InputGeoOnderverde
     ) -> Record[InputGeoOnderverdelingSpec]:
         record = super().fill(record, context)
 
-        if record.spec.UUID is None:
-            record.spec.UUID = uuid.uuid4()
+        if record.spec.id is None:
+            record.spec.id = uuid.uuid4()
 
-        polygon = Polygon(record.spec.Points)
+        polygon = Polygon(record.spec.points)
         gml: str = self._polygon_gml(polygon, f"gml-id-{context.spec_count}")
         binary: bytes = wkb.dumps(polygon)
         checksum: str = hashlib.sha512(binary).hexdigest()
 
-        record.spec.Geometry = binary
-        record.spec.Geometry_Hash = checksum
-        record.spec.GML = gml
-        record.spec.Symbol = record.spec.Symbol or "ES225"
+        record.spec.geometry = binary
+        record.spec.geometry_hash = checksum
+        record.spec.gml = gml
+        record.spec.symbol = record.spec.symbol or "ES225"
 
         return record
 
@@ -82,21 +82,21 @@ class InputGeoOnderverdelingPersistHandler(BasePersistHandler[InputGeoOnderverde
 
         records: list[Base] = [
             InputGeoOnderverdelingenTable(
-                UUID=spec.UUID,
-                Created_Date=spec.Created_Date,
-                Title=spec.Title,
-                Description=spec.Description,
-                Symbol=spec.Symbol,
-                Geometry=spec.Geometry,
-                Geometry_Hash=spec.Geometry_Hash,
-                GML=spec.GML,
+                id=spec.id,
+                created_date=spec.created_date,
+                title=spec.title,
+                description=spec.description,
+                symbol=spec.symbol,
+                geometry=spec.geometry,
+                geometry_hash=spec.geometry_hash[:64],
+                gml=spec.gml,
             )
         ]
-        for owner_uuid in spec.Owners:
+        for owner_uuid in spec.owners:
             records.append(
                 InputGeoWerkingsgebiedOnderverdelingTable(
-                    Werkingsgebied_UUID=owner_uuid,
-                    Onderverdeling_UUID=spec.UUID,
+                    werkingsgebied_id=owner_uuid,
+                    onderverdeling_id=spec.id,
                 )
             )
 

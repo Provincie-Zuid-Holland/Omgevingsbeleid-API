@@ -107,7 +107,7 @@ class ObjectModelsBuilder:
             # Attach the Statics Model to the main model
             # @note: the name is hardcoded to 'ObjectStatics'
             #           because that is the same name in the sqlalchemy ObjectsTable
-            pydantic_fields["ObjectStatics"] = (
+            pydantic_fields["object_statics"] = (
                 pydantic_static_model,
                 pydantic.Field(
                     default=None,
