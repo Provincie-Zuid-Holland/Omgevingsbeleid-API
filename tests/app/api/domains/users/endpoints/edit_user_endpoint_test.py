@@ -7,7 +7,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from app.core.tables.others import ChangeLogTable
-from app.core.tables.users import IS_ACTIVE, UsersTable
+from app.core.tables.users import UsersTable
 from tests.conftest import Context
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
@@ -26,9 +26,9 @@ def target_uuid(ctx: Context) -> uuid.UUID:
 
 def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: Session):
     payload = {
-        "Gebruikersnaam": "Edited Name",
-        "Email": "edited@pzh.nl",
-        "Roles": [ALLOWED_ROL],
+        "name": "Edited Name",
+        "email": "edited@pzh.nl",
+        "roles": [ALLOWED_ROL],
     }
 
     response = admin.post(f"/users/{target_uuid}", json=payload)
@@ -37,29 +37,27 @@ def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: S
 
     row: UsersTable | None = session.get(UsersTable, target_uuid)
     assert row is not None
-    assert row.Gebruikersnaam == "Edited Name"
-    assert row.Email == "edited@pzh.nl"
-    assert row.Roles == [ALLOWED_ROL]
-    assert row.Status == IS_ACTIVE
+    assert row.name == "Edited Name"
+    assert row.email == "edited@pzh.nl"
+    assert row.roles == [ALLOWED_ROL]
+    assert row.is_active is True
 
 
 def test_edit_user_deactivate_and_reactivate(admin: TestClient, target_uuid: uuid.UUID, session: Session):
-    deactivate = admin.post(f"/users/{target_uuid}", json={"IsActive": False})
+    deactivate = admin.post(f"/users/{target_uuid}", json={"is_active": False})
     assert deactivate.status_code == 200, deactivate.text
     row: UsersTable | None = session.get(UsersTable, target_uuid)
     assert row is not None
-    assert row.Status == ""
-    assert row.IsActive is False
+    assert row.is_active is False
 
-    reactivate = admin.post(f"/users/{target_uuid}", json={"IsActive": True})
+    reactivate = admin.post(f"/users/{target_uuid}", json={"is_active": True})
     assert reactivate.status_code == 200, reactivate.text
     session.refresh(row)
-    assert row.Status == IS_ACTIVE
-    assert row.IsActive is True
+    assert row.is_active is True
 
 
 def test_edit_user_writes_changelog_without_password(admin: TestClient, target_uuid: uuid.UUID, ctx: Context):
-    response = admin.post(f"/users/{target_uuid}", json={"Gebruikersnaam": "Edited Name"})
+    response = admin.post(f"/users/{target_uuid}", json={"name": "Edited Name"})
     assert response.status_code == 200, response.text
 
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
@@ -71,29 +69,31 @@ def test_edit_user_writes_changelog_without_password(admin: TestClient, target_u
     assert change_log is not None
     assert change_log.created_by_id == admin_uuid
 
-    assert '"Gebruikersnaam": "Viewer"' in (change_log.before or "")
-    assert '"Gebruikersnaam": "Edited Name"' in (change_log.after or "")
-    assert "Wachtwoord" not in (change_log.before or "")
-    assert "Wachtwoord" not in (change_log.after or "")
+    assert '"name": "Viewer"' in (change_log.before or "")
+    assert '"name": "Edited Name"' in (change_log.after or "")
+    assert "password" not in (change_log.before or "")
+    assert "password" not in (change_log.after or "")
+    assert "password_hashed" not in (change_log.before or "")
+    assert "password_hashed" not in (change_log.after or "")
 
 
 def test_edit_user_email_already_in_use(admin: TestClient, target_uuid: uuid.UUID, session: Session, ctx: Context):
     # Try to steal the admin's email.
-    response = admin.post(f"/users/{target_uuid}", json={"Email": "admin@pzh.nl"})
+    response = admin.post(f"/users/{target_uuid}", json={"email": "admin@pzh.nl"})
     assert response.status_code == 400
     assert response.json()["detail"] == "Email already in use"
 
     # The target kept its own email.
     row: UsersTable | None = session.get(UsersTable, target_uuid)
     assert row is not None
-    assert row.Email == "viewer@pzh.nl"
+    assert row.email == "viewer@pzh.nl"
 
 
 def test_edit_user_same_email_is_allowed(admin: TestClient, target_uuid: uuid.UUID):
     # Re-submitting the user's own email must not trip the "already in use" guard.
     response = admin.post(
         f"/users/{target_uuid}",
-        json={"Email": "viewer@pzh.nl", "Gebruikersnaam": "Renamed"},
+        json={"email": "viewer@pzh.nl", "name": "Renamed"},
     )
     assert response.status_code == 200, response.text
 
@@ -102,19 +102,19 @@ def test_edit_user_same_email_is_allowed(admin: TestClient, target_uuid: uuid.UU
     "client_fixture, use_existing_user, payload, expected_status, expected_detail",
     [
         # Cant be done without an account.
-        pytest.param("client", True, {"Gebruikersnaam": "X"}, 401, "Not authenticated", id="unauthenticated"),
+        pytest.param("client", True, {"name": "X"}, 401, "Not authenticated", id="unauthenticated"),
         # Ambtenaar lacks `user_can_edit_user`.
-        pytest.param("ambtenaar", True, {"Gebruikersnaam": "X"}, 401, "Invalid user role", id="no_permission"),
+        pytest.param("ambtenaar", True, {"name": "X"}, 401, "Invalid user role", id="no_permission"),
         # An empty body has nothing to change.
         pytest.param("admin", True, {}, 400, "Nothing to update", id="nothing_to_update"),
         # Editing a user that does not exist.
-        pytest.param("admin", False, {"Gebruikersnaam": "X"}, 400, "User does not exist", id="user_does_not_exist"),
+        pytest.param("admin", False, {"name": "X"}, 400, "User does not exist", id="user_does_not_exist"),
         # The resulting email must be valid (EditUser has no field validator, so this is a 400, not 422).
-        pytest.param("admin", True, {"Email": "not-an-email"}, 400, "Invalid email", id="invalid_email"),
+        pytest.param("admin", True, {"email": "not-an-email"}, 400, "Invalid email", id="invalid_email"),
         # "Superuser" is not in the resolver's allowed_roles.
-        pytest.param("admin", True, {"Roles": ["Superuser"]}, 400, "Invalid Roles", id="disallowed_role"),
+        pytest.param("admin", True, {"roles": ["Superuser"]}, 400, "Invalid Roles", id="disallowed_role"),
         # Roles must not be empty.
-        pytest.param("admin", True, {"Roles": []}, 400, "At least one role is required", id="no_roles"),
+        pytest.param("admin", True, {"roles": []}, 400, "At least one role is required", id="no_roles"),
     ],
 )
 def test_edit_user_rejected(

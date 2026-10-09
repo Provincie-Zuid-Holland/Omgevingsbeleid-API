@@ -86,7 +86,7 @@ class EndpointHandler:
                 latest_download_date=None,
                 latest_download_by_id=None,
                 created_date=self._timepoint,
-                created_by_id=self._user.UUID,
+                created_by_id=self._user.id,
             )
             self._session.add(package_zip)
             self._session.flush()
@@ -100,8 +100,8 @@ class EndpointHandler:
                 report_status=report_status,
                 created_date=self._timepoint,
                 modified_date=self._timepoint,
-                created_by_id=self._user.UUID,
-                modified_by_id=self._user.UUID,
+                created_by_id=self._user.id,
+                modified_by_id=self._user.id,
             )
             self._session.add(package)
             self._session.flush()
@@ -151,7 +151,7 @@ class EndpointHandler:
 
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
         new_state.created_date = self._timepoint
-        new_state.created_by_id = self._user.UUID
+        new_state.created_by_id = self._user.id
         self._session.add(new_state)
         self._session.flush()
 
@@ -181,8 +181,8 @@ class EndpointHandler:
             work_other=doc_frbr.Work_Other,
             created_date=self._timepoint,
             modified_date=self._timepoint,
-            created_by_id=self._user.UUID,
-            modified_by_id=self._user.UUID,
+            created_by_id=self._user.id,
+            modified_by_id=self._user.id,
         )
         self._session.add(doc)
         self._session.flush()
@@ -194,7 +194,7 @@ class EndpointHandler:
             expression_date=doc_frbr.Expression_Date,
             expression_version=doc_frbr.Expression_Version,
             created_date=self._timepoint,
-            created_by_id=self._user.UUID,
+            created_by_id=self._user.id,
         )
         self._session.add(doc_version)
         self._session.flush()

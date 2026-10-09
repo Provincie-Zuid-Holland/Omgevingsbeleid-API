@@ -16,52 +16,52 @@ def load(col: Collector) -> None:
                 # Nature - We added a North
                 InputGeoWerkingsgebiedenSpec(
                     key="nature_v3",
-                    Title="Nature",
+                    title="Nature",
                 ),
                 InputGeoOnderverdelingSpec(
                     key="nature_west_v3",
-                    Title="Nature West",
-                    Points=[(100, 100), (110, 100), (110, 110)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v3")],
+                    title="Nature West",
+                    points=[(100, 100), (110, 100), (110, 110)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v3")],
                 ),
                 InputGeoOnderverdelingSpec(
                     key="nature_east_v3",
-                    Title="Nature east",
-                    Points=[(110, 110), (120, 110), (120, 120)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v3")],
+                    title="Nature east",
+                    points=[(110, 110), (120, 110), (120, 120)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v3")],
                 ),
                 InputGeoOnderverdelingSpec(
                     key="nature_noord_v3",
-                    Title="Nature Noord",
-                    Points=[(120, 120), (130, 120), (130, 130)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v3")],
+                    title="Nature Noord",
+                    points=[(120, 120), (130, 120), (130, 130)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v3")],
                 ),
                 # Water - The sea moved again, and we removed the lakes
                 InputGeoWerkingsgebiedenSpec(
                     key="water_v3",
-                    Title="Water",
+                    title="Water",
                 ),
                 InputGeoOnderverdelingSpec(
-                    Title="sea",
+                    title="sea",
                     key="sea_v3",
-                    Points=[(202, 202), (212, 202), (212, 212)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v3")],
+                    points=[(202, 202), (212, 202), (212, 212)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v3")],
                 ),
                 InputGeoOnderverdelingSpec(
                     key="river_v3",
-                    Title="river",
-                    Points=[(220, 220), (230, 220), (230, 230)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v3")],
+                    title="river",
+                    points=[(220, 220), (230, 220), (230, 230)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v3")],
                 ),
                 # Molens - mill A was removed
                 InputGeoWerkingsgebiedenSpec(
                     key="mill_v3",
-                    Title="Molens",
+                    title="Molens",
                 ),
                 InputGeoOnderverdelingSpec(
-                    Title="mill C",
-                    Points=[(320, 320), (330, 320), (330, 330)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "mill_v3")],
+                    title="mill C",
+                    points=[(320, 320), (330, 320), (330, 330)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "mill_v3")],
                 ),
             ]
         )

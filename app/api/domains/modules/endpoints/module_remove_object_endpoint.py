@@ -49,7 +49,7 @@ def post_module_remove_object_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
     object_context.hidden = True
-    object_context.modified_by_id = user.UUID
+    object_context.modified_by_id = user.id
     object_context.modified_date = timepoint
     session.add(object_context)
 
@@ -62,7 +62,7 @@ def post_module_remove_object_endpoint(
             "deleted": True,
         },
         timepoint,
-        user.UUID,
+        user.id,
     )
     session.add(new_record)
     session.flush()

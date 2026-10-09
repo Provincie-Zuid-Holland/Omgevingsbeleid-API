@@ -54,8 +54,8 @@ def post_create_template_endpoint(
         object_templates=object_in.object_templates,
         created_date=timepoint,
         modified_date=timepoint,
-        created_by_id=user.UUID,
-        modified_by_id=user.UUID,
+        created_by_id=user.id,
+        modified_by_id=user.id,
     )
 
     session.add(template)

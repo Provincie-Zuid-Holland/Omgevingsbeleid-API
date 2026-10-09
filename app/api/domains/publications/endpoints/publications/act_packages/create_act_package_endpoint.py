@@ -100,7 +100,7 @@ class EndpointHandler:
                 latest_download_date=None,
                 latest_download_by_id=None,
                 created_date=self._timepoint,
-                created_by_id=self._user.UUID,
+                created_by_id=self._user.id,
             )
             self._session.add(package_zip)
             self._session.flush()
@@ -116,8 +116,8 @@ class EndpointHandler:
                 module_status_id=self._publication_version.module_status_id,
                 created_date=self._timepoint,
                 modified_date=self._timepoint,
-                created_by_id=self._user.UUID,
-                modified_by_id=self._user.UUID,
+                created_by_id=self._user.id,
+                modified_by_id=self._user.id,
             )
             self._session.add(package)
             self._session.flush()
@@ -191,7 +191,7 @@ class EndpointHandler:
 
         new_state: PublicationEnvironmentStateTable = package_builder.create_new_state()
         new_state.created_date = self._timepoint
-        new_state.created_by_id = self._user.UUID
+        new_state.created_by_id = self._user.id
         self._session.add(new_state)
         self._session.flush()
 
@@ -220,7 +220,7 @@ class EndpointHandler:
             work_date=purpose.Work_Date,
             work_other=purpose.Work_Other,
             created_date=self._timepoint,
-            created_by_id=self._user.UUID,
+            created_by_id=self._user.id,
         )
         self._session.add(purpose_table)
         self._session.flush()
@@ -236,8 +236,8 @@ class EndpointHandler:
             work_other=bill_frbr.Work_Other,
             created_date=self._timepoint,
             modified_date=self._timepoint,
-            created_by_id=self._user.UUID,
-            modified_by_id=self._user.UUID,
+            created_by_id=self._user.id,
+            modified_by_id=self._user.id,
         )
         self._session.add(bill)
         self._session.flush()
@@ -249,7 +249,7 @@ class EndpointHandler:
             expression_date=bill_frbr.Expression_Date,
             expression_version=bill_frbr.Expression_Version,
             created_date=self._timepoint,
-            created_by_id=self._user.UUID,
+            created_by_id=self._user.id,
         )
         self._session.add(bill_version)
 
@@ -262,7 +262,7 @@ class EndpointHandler:
             expression_date=act_frbr.Expression_Date,
             expression_version=act_frbr.Expression_Version,
             created_date=self._timepoint,
-            created_by_id=self._user.UUID,
+            created_by_id=self._user.id,
         )
         self._session.add(act_version)
         self._session.flush()

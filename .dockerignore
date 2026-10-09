@@ -1,7 +1,6 @@
 # Ignore the other docker directories
 docker/frontend/
 docker/geoserver/
-docker/mssql/
 docker/nginx/
 
 # Ignoring git and cache folders

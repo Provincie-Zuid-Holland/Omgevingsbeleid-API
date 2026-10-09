@@ -46,14 +46,14 @@ def post_hoofdlijnen_edit_endpoint(
     for key, value in changes.items():
         setattr(hoofdlijn, key, value)
 
-    hoofdlijn.modified_by_id = logged_in_user.UUID
+    hoofdlijn.modified_by_id = logged_in_user.id
     hoofdlijn.modified_date = timepoint
 
     hoofdlijn_after = hoofdlijn.to_dict()
 
     change_log: ChangeLogTable = ChangeLogTable(
         created_date=datetime.now(UTC),
-        created_by_id=logged_in_user.UUID,
+        created_by_id=logged_in_user.id,
         action_type="edit_hoofdlijn",
         action_data=json.dumps(changes),
         before=json.dumps(hoofdlijn_before),

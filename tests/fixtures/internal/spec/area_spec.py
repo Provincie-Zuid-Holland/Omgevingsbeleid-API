@@ -41,7 +41,7 @@ class AreaSpec(Spec):
     source_geometry_hash: str | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.id, "UUID is not set which is expected to happen at this stage."
+        assert self.id, "id is not set which is expected to happen at this stage."
         return self.id
 
 
@@ -56,14 +56,14 @@ class AreaPrefillHandler(BasePrefillHandler[AreaSpec]):
         source_generic: Record[Spec] = context.find(record.spec.source_ref)
         source: Record[InputGeoOnderverdelingSpec] = cast(Record[InputGeoOnderverdelingSpec], source_generic)
 
-        record.spec.source_id = source.spec.UUID
-        record.spec.shape = source.spec.Geometry
-        record.spec.gml = source.spec.GML
-        record.spec.source_title = source.spec.Title
-        record.spec.source_symbol = source.spec.Symbol
-        record.spec.source_created_date = source.spec.Created_Date
-        record.spec.source_geometry_index = source.spec.Geometry_Hash[:10]
-        record.spec.source_geometry_hash = source.spec.Geometry_Hash[:64]
+        record.spec.source_id = source.spec.id
+        record.spec.shape = source.spec.geometry
+        record.spec.gml = source.spec.gml
+        record.spec.source_title = source.spec.title
+        record.spec.source_symbol = source.spec.symbol
+        record.spec.source_created_date = source.spec.created_date
+        record.spec.source_geometry_index = source.spec.geometry_hash[:10]
+        record.spec.source_geometry_hash = source.spec.geometry_hash[:64]
 
         return record
 

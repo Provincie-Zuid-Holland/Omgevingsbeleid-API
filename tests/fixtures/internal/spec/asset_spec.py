@@ -42,7 +42,7 @@ class AssetSpec(Spec):
     content: str = ""
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.id, "UUID is not set which is expected to happen at this stage."
+        assert self.id, "id is not set which is expected to happen at this stage."
         return self.id
 
 

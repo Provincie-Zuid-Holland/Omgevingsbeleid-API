@@ -11,7 +11,7 @@ class WerkingsgebiedenRepository(BaseRepository):
     def get_by_title_paginated(
         self, session: Session, pagination: SortedPagination, title: str
     ) -> PaginatedQueryResult:
-        stmt = select(SourceWerkingsgebiedenTable).filter(SourceWerkingsgebiedenTable.Title == title)
+        stmt = select(SourceWerkingsgebiedenTable).filter(SourceWerkingsgebiedenTable.title == title)
         return self.fetch_paginated(
             session=session,
             statement=stmt,
@@ -23,9 +23,9 @@ class WerkingsgebiedenRepository(BaseRepository):
     def get_latest_by_title(self, session: Session, title: str) -> SourceWerkingsgebiedenTable:
         stmt = (
             select(SourceWerkingsgebiedenTable)
-            .filter(SourceWerkingsgebiedenTable.Title == title)
-            .options(undefer(SourceWerkingsgebiedenTable.SHAPE))
-            .order_by(desc(SourceWerkingsgebiedenTable.Created_Date))
+            .filter(SourceWerkingsgebiedenTable.title == title)
+            .options(undefer(SourceWerkingsgebiedenTable.shape))
+            .order_by(desc(SourceWerkingsgebiedenTable.created_date))
         )
         return self.fetch_first(
             session=session,
@@ -36,21 +36,21 @@ class WerkingsgebiedenRepository(BaseRepository):
         row_number = (
             func.row_number()
             .over(
-                partition_by=SourceWerkingsgebiedenTable.Title,
-                order_by=desc(SourceWerkingsgebiedenTable.Modified_Date),
+                partition_by=SourceWerkingsgebiedenTable.title,
+                order_by=desc(SourceWerkingsgebiedenTable.modified_date),
             )
             .label("_row_number")
         )
 
         subq = select(
-            SourceWerkingsgebiedenTable.UUID,
-            SourceWerkingsgebiedenTable.ID,
-            SourceWerkingsgebiedenTable.Created_Date,
-            SourceWerkingsgebiedenTable.Modified_Date,
+            SourceWerkingsgebiedenTable.id,
+            SourceWerkingsgebiedenTable.ref_id,
+            SourceWerkingsgebiedenTable.created_date,
+            SourceWerkingsgebiedenTable.modified_date,
             SourceWerkingsgebiedenTable.start_validity,
             SourceWerkingsgebiedenTable.end_validity,
-            SourceWerkingsgebiedenTable.Title,
-            SourceWerkingsgebiedenTable.Geometry_Hash,
+            SourceWerkingsgebiedenTable.title,
+            SourceWerkingsgebiedenTable.geometry_hash,
             row_number,
         ).subquery("subq")
 

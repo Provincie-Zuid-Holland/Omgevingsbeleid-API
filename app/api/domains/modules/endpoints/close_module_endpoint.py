@@ -33,7 +33,7 @@ def post_close_module_endpoint(
     timepoint: datetime = datetime.now(UTC)
 
     module.closed = True
-    module.modified_by_id = user.UUID
+    module.modified_by_id = user.id
     module.modified_date = timepoint
     session.add(module)
 
@@ -41,7 +41,7 @@ def post_close_module_endpoint(
         module_id=module.module_id,
         status=ModuleStatusCodeInternal.Gesloten,
         created_date=timepoint,
-        created_by_id=user.UUID,
+        created_by_id=user.id,
     )
     session.add(status)
 

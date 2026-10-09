@@ -58,7 +58,7 @@ def atemporal_edit_object_endpoint(
         setattr(maybe_object, key, value)
 
     timepoint: datetime = datetime.now(UTC)
-    maybe_object.modified_by_id = user.UUID
+    maybe_object.modified_by_id = user.id
     maybe_object.modified_date = timepoint
     session.add(maybe_object)
 
@@ -70,7 +70,7 @@ def atemporal_edit_object_endpoint(
         object_type=context.object_type,
         object_id=lineage_id,
         created_date=timepoint,
-        created_by_id=user.UUID,
+        created_by_id=user.id,
         action_type="atemporal_edit_object",
         action_data=json.dumps(changes),
         before=log_before,

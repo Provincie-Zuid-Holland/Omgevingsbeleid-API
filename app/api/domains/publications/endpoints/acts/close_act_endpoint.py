@@ -25,7 +25,7 @@ def post_close_act_endpoint(
     act: Annotated[PublicationActTable, Depends(depends_publication_act_active)],
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> ResponseOK:
-    act.modified_by_id = user.UUID
+    act.modified_by_id = user.id
     act.modified_date = datetime.now(UTC)
     act.is_active = False
 

@@ -34,7 +34,7 @@ def post_delete_version_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
     version.deleted_at = timepoint
-    version.modified_by_id = user.UUID
+    version.modified_by_id = user.id
     version.modified_date = timepoint
 
     session.add(version)

@@ -32,54 +32,52 @@ class WerkingsgebiedStatics(BaseModel):
 
 
 class Werkingsgebied(BaseModel):
-    ID: int | None = None
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Modified_Date: datetime
-    Title: str
-    Start_Validity: datetime | None = Field(None)
-    End_Validity: datetime | None = Field(None)
-    Geometry_Hash: str | None = Field(None)
+    id: uuid.UUID
+    ref_id: int | None = None
+    created_date: datetime
+    modified_date: datetime
+    title: str
+    geometry_hash: str | None = Field(None)
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class InputGeoWerkingsgebiedenSortColumn(str, Enum):
-    Title = "Title"
-    Created_Date = "Created_Date"
+    title = "title"
+    created_date = "created_date"
 
 
 input_geo_werkingsgebieden_order_config = OrderConfig(
-    default_column=InputGeoWerkingsgebiedenSortColumn.Created_Date.value,
+    default_column=InputGeoWerkingsgebiedenSortColumn.created_date.value,
     default_order=SortOrder.DESC,
     allowed_columns=[col.value for col in InputGeoWerkingsgebiedenSortColumn],
 )
 
 
 class InputGeoOnderverdeling(BaseModel):
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Title: str
-    Description: str
-    Geometry_Hash: str
+    id: uuid.UUID
+    created_date: datetime
+    title: str
+    description: str
+    geometry_hash: str
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class InputGeoWerkingsgebied(BaseModel):
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Title: str
-    Description: str
+    id: uuid.UUID
+    created_date: datetime
+    title: str
+    description: str
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class InputGeoWerkingsgebiedDetailed(BaseModel):
-    UUID: uuid.UUID
-    Created_Date: datetime
-    Title: str
-    Description: str
-    Onderverdelingen: list[InputGeoOnderverdeling]
+    id: uuid.UUID
+    created_date: datetime
+    title: str
+    description: str
+    onderverdelingen: list[InputGeoOnderverdeling]
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

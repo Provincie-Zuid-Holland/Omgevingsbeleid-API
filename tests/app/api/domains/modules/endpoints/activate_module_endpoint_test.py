@@ -33,7 +33,7 @@ def _latest_status(session: Session, module_id: int) -> ModuleStatusHistoryTable
 
 
 def test_activates_an_inactive_module(admin: TestClient, ctx: Context):
-    admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
+    admin_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
 
     response = admin.post("/modules/2/activate")
 
@@ -43,7 +43,7 @@ def test_activates_an_inactive_module(admin: TestClient, ctx: Context):
     module = ctx.session.get(ModuleTable, 2)
     assert module
     assert module.activated is True
-    assert module.modified_by_id == admin_uuid
+    assert module.modified_by_id == admin_id
 
 
 def test_creates_a_module_status_history_record(admin: TestClient, ctx: Context):

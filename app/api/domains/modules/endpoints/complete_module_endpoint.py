@@ -87,7 +87,7 @@ def _create_objects(
         new_object.adjust_on = module_object_dict["id"]
         new_object.id = uuid.uuid4()
 
-        new_object.modified_by_id = user.UUID
+        new_object.modified_by_id = user.id
         new_object.modified_date = timepoint
 
         validities: ObjectValidities = _get_validities(
@@ -132,7 +132,7 @@ def post_complete_module_endpoint(
             module_id=module.module_id,
             status=ModuleStatusCodeInternal.Module_afgerond,
             created_date=timepoint,
-            created_by_id=user.UUID,
+            created_by_id=user.id,
         )
         session.add(status)
 
@@ -140,7 +140,7 @@ def post_complete_module_endpoint(
 
         module.closed = True
         module.successful = True
-        module.modified_by_id = user.UUID
+        module.modified_by_id = user.id
         module.modified_date = timepoint
         session.add(module)
 

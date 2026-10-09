@@ -49,7 +49,7 @@ def get_list_modules_endpoint(
 
     filter_on_me: uuid.UUID | None = None
     if only_mine:
-        filter_on_me = user.UUID
+        filter_on_me = user.id
 
     paginated_result: PaginatedQueryResult = module_repository.get_with_filters(
         session=session,

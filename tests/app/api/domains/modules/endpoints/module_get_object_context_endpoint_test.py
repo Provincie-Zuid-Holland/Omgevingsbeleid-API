@@ -22,8 +22,8 @@ def test_returns_the_object_context(admin: TestClient, ctx: Context):
     assert body["explanation"] == first_entry.context_explanation
     assert body["conclusion"] == first_entry.context_conclusion
     assert body["original_adjust_on"] == "None" or str(first_entry.adjust_on)
-    assert body["created_by"]["UUID"] == str(first_entry.created_by_id)
-    assert body["modified_by"]["UUID"] == str(first_entry.modified_by_id)
+    assert body["created_by"]["id"] == str(first_entry.created_by_id)
+    assert body["modified_by"]["id"] == str(first_entry.modified_by_id)
 
 
 @pytest.mark.parametrize(

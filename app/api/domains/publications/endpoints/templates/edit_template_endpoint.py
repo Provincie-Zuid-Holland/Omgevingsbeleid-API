@@ -47,7 +47,7 @@ def post_edit_template_endpoint(
     for key, value in changes.items():
         setattr(template, key, value)
 
-    template.modified_by_id = user.UUID
+    template.modified_by_id = user.id
     template.modified_date = datetime.now(UTC)
 
     session.add(template)

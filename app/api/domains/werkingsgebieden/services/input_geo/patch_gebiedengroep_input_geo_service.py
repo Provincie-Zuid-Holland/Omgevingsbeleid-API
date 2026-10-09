@@ -69,16 +69,16 @@ class PatchGebiedengroepInputGeoService:
                 sub_object_static,
                 main_obj.module_id,
                 area_id,
-                onderverdeling.Title,
+                onderverdeling.title,
             )
             if object_result_action in [ObjectResultType.CREATED, ObjectResultType.UPDATED]:
                 something_changed = True
 
             used_sub_codes.add(sub_object_static.code)
 
-        if main_obj.source_title != self._input_geo_werkingsgebied.Title:
+        if main_obj.source_title != self._input_geo_werkingsgebied.title:
             something_changed = True
-        if main_obj.source_uuid != self._input_geo_werkingsgebied.UUID:
+        if main_obj.source_uuid != self._input_geo_werkingsgebied.id:
             something_changed = True
 
         # Patch the main object and set the "gebieden"
@@ -88,11 +88,11 @@ class PatchGebiedengroepInputGeoService:
                 main_obj,
                 {
                     "gebieden": list(used_sub_codes),
-                    "source_title": self._input_geo_werkingsgebied.Title,
-                    "source_uuid": self._input_geo_werkingsgebied.UUID,
+                    "source_title": self._input_geo_werkingsgebied.title,
+                    "source_id": self._input_geo_werkingsgebied.id,
                 },
                 self._timepoint,
-                self._user.UUID,
+                self._user.id,
             )
             self._session.add(new_main_obj)
             self._session.flush()
@@ -107,7 +107,7 @@ class PatchGebiedengroepInputGeoService:
         main_obj: ModuleObjectsTable,
         onderverdeling: InputGeoOnderverdelingenTable,
     ) -> ObjectStaticsTable:
-        source_key: str = slugify(f"igo:{onderverdeling.Title}")
+        source_key: str = slugify(f"igo:{onderverdeling.title}")
         sub_obj_static: ObjectStaticsTable | None = self._object_static_repository.get_by_source(
             self._session,
             source_key,
@@ -154,15 +154,15 @@ class PatchGebiedengroepInputGeoService:
         return response
 
     def _ensure_area(self, onderverdeling: InputGeoOnderverdelingenTable) -> uuid.UUID:
-        if not onderverdeling.Geometry_Hash:
+        if not onderverdeling.geometry_hash:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Onderverdeling does not have an Hash")
 
         # These sources hashes are not unique sadly
         # We try to push for the most correct area by filtering by title first
         existing_area: AreasTable | None = self._area_repository.get_by_source_hash_and_title(
             self._session,
-            onderverdeling.Geometry_Hash,
-            onderverdeling.Title,
+            onderverdeling.geometry_hash,
+            onderverdeling.title,
         )
         if existing_area:
             return existing_area.id
@@ -172,7 +172,7 @@ class PatchGebiedengroepInputGeoService:
             self._session,
             area_id,
             self._timepoint,
-            self._user.UUID,
+            self._user.id,
             onderverdeling,
         )
         return area_id
@@ -186,7 +186,7 @@ class PatchGebiedengroepInputGeoService:
             original_adjust_on=None,
             explanation="",
             conclusion="",
-            user_uuid=self._user.UUID,
+            user_uuid=self._user.id,
         )
         result: mocs.Result = self._object_context_service.ensure_exists(
             self._session,
@@ -232,9 +232,9 @@ class PatchGebiedengroepInputGeoService:
         module_object.adjust_on = None
         module_object.id = uuid.uuid4()
         module_object.created_date = self._timepoint
-        module_object.created_by_id = self._user.UUID
+        module_object.created_by_id = self._user.id
         module_object.modified_date = self._timepoint
-        module_object.modified_by_id = self._user.UUID
+        module_object.modified_by_id = self._user.id
 
         self._session.add(module_object)
         return module_object
@@ -251,7 +251,7 @@ class PatchGebiedengroepInputGeoService:
                 "deleted": False,
             },
             self._timepoint,
-            self._user.UUID,
+            self._user.id,
         )
         self._session.add(patched_sub_object)
         return patched_sub_object

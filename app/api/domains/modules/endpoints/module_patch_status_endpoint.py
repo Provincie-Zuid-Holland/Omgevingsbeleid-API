@@ -56,7 +56,7 @@ def post_module_patch_status_endpoint(
         module_id=module.module_id,
         status=object_in.status,
         created_date=datetime.now(UTC),
-        created_by_id=user.UUID,
+        created_by_id=user.id,
     )
     session.add(module_status_history)
     session.flush()

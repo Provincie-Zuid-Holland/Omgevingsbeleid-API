@@ -10,6 +10,7 @@ from app.core.tables.others import AreasTable
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
+# @todo: can we simplify this whole file now?
 class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
     @abstractmethod
     def _text_to_shape(self, key: str) -> str:
@@ -59,31 +60,32 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             created_date=created_date,
             created_by_id=created_by_id,
             shape=None,
-            gml=onderverdeling.GML,
-            source_uuid=onderverdeling.UUID,
-            source_title=onderverdeling.Title,
-            source_symbol=onderverdeling.Symbol,
-            source_created_date=onderverdeling.Created_Date,
-            source_geometry_index=onderverdeling.Geometry_Hash[0:10],
-            source_geometry_hash=onderverdeling.Geometry_Hash,
+            gml=onderverdeling.gml,
+            source_uuid=onderverdeling.id,
+            source_title=onderverdeling.title,
+            source_symbol=onderverdeling.symbol,
+            source_created_date=onderverdeling.created_date,
+            source_geometry_index=onderverdeling.geometry_hash[0:10],
+            source_geometry_hash=onderverdeling.geometry_hash,
         )
         session.add(area)
         session.flush()
 
         put_geometry_params = {
-            "input_id": self._format_uuid(onderverdeling.UUID),
+            "input_id": self._format_uuid(onderverdeling.id),
             "area_id": self._format_uuid(idx),
         }
         # TODO to SQLAlchemy
+        # @todo: fix this
         put_geometry_stmt = """
             UPDATE
                 areas
             SET
                 shape = (
                     SELECT
-                        Geometry
+                        geometry
                     FROM
-                        Input_GEO_Onderverdeling
+                        input_geo_onderverdeling
                     WHERE
                         id = :input_id
                 )

@@ -12,7 +12,6 @@ class KoopSettings(BaseModel):
 
 class Settings(BaseSettings):
     PROJECT_VERSION: str = "5.0.0"
-    LOCAL_DEVELOPMENT_MODE: bool = False
 
     PROJECT_NAME: str = "Omgevingsbeleid API"
     PROJECT_DESC: str = """
@@ -25,7 +24,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 4
 
     # Database
-    SQLALCHEMY_ECHO: bool = True
+    SQLALCHEMY_ECHO: bool = False
     DB_DRIVER: str = Field("PostgreSQL Unicode", description="The driver for the SQL database")
     DB_HOST: str = Field("postgres", description="The host address of the database")
     DB_NAME: str = Field("omgevingsbeleid", description="The name of the database")
@@ -33,10 +32,8 @@ class Settings(BaseSettings):
     DB_PASS: str = Field("password", description="The password for the database user")
     DB_PORT: str = Field("5432", description="The port for the database connection")
     DB_DIALECT: str = Field("postgresql+psycopg", description="The dialect for the database")
-    TEST_DB_NAME: str = Field("db_test", description="The name of the test database")
 
     SQLALCHEMY_DATABASE_URI: str = ""
-    SQLALCHEMY_TEST_DATABASE_URI: str = ""
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     def assemble_db_connection(cls, v: str | None, info) -> Any:
@@ -45,14 +42,6 @@ class Settings(BaseSettings):
 
         values = info.data
         return f"{values['DB_DIALECT']}://{values['DB_USER']}:{values['DB_PASS']}@{values['DB_HOST']}:{values['DB_PORT']}/{values['DB_NAME']}"
-
-    @field_validator("SQLALCHEMY_TEST_DATABASE_URI", mode="before")
-    def assemble_test_db_connection(cls, v: str | None, info) -> Any:
-        if isinstance(v, str) and len(v):
-            return v
-
-        values = info.data
-        return f"{values['DB_DIALECT']}://{values['DB_USER']}:{values['DB_PASS']}@{values['DB_HOST']}:{values['DB_PORT']}/{values['TEST_DB_NAME']}"
 
     # Dynamic
     MAIN_CONFIG_FILE: str = "./config/main.yml"

@@ -52,7 +52,7 @@ def atemporal_delete_object_endpoint(
     log_before: str = json.dumps(maybe_object.to_dict())
 
     maybe_object.end_validity = timepoint
-    maybe_object.modified_by_id = user.UUID
+    maybe_object.modified_by_id = user.id
     maybe_object.modified_date = timepoint
     session.add(maybe_object)
 
@@ -60,7 +60,7 @@ def atemporal_delete_object_endpoint(
         object_type=context.object_type,
         object_id=lineage_id,
         created_date=timepoint,
-        created_by_id=user.UUID,
+        created_by_id=user.id,
         action_type="atemporal_edit_object",
         before=log_before,
         after=json.dumps(maybe_object.to_dict()),

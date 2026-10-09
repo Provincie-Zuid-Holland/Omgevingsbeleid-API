@@ -52,7 +52,7 @@ def post_edit_publication_endpoint(
     for key, value in changes.items():
         setattr(publication, key, value)
 
-    publication.modified_by_id = user.UUID
+    publication.modified_by_id = user.id
     publication.modified_date = datetime.now(UTC)
 
     session.add(publication)

@@ -125,8 +125,8 @@ class ModuleAddNewObjectService:
             code=object_static.code,
             created_date=self._timepoint,
             modified_date=self._timepoint,
-            created_by_id=self._user.UUID,
-            modified_by_id=self._user.UUID,
+            created_by_id=self._user.id,
+            modified_by_id=self._user.id,
             original_adjust_on=None,
             action=ModuleObjectActionFull.Create,
             explanation=self._object_in.explanation,
@@ -144,8 +144,8 @@ class ModuleAddNewObjectService:
             title=self._object_in.title,
             created_date=self._timepoint,
             modified_date=self._timepoint,
-            created_by_id=self._user.UUID,
-            modified_by_id=self._user.UUID,
+            created_by_id=self._user.id,
+            modified_by_id=self._user.id,
         )
         self._session.add(module_object)
 

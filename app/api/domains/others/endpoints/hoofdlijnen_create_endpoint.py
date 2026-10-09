@@ -44,14 +44,14 @@ def post_hoofdlijnen_create_endpoint(
         name=object_in.name,
         type=object_in.type,
         created_date=timepoint,
-        created_by_id=logged_in_user.UUID,
+        created_by_id=logged_in_user.id,
         modified_date=timepoint,
-        modified_by_id=logged_in_user.UUID,
+        modified_by_id=logged_in_user.id,
     )
 
     change_log: ChangeLogTable = ChangeLogTable(
         created_date=datetime.now(UTC),
-        created_by_id=logged_in_user.UUID,
+        created_by_id=logged_in_user.id,
         action_type="create_hoofdlijn",
         action_data=json.dumps(hoofdlijn.to_dict()),
     )
