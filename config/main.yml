@@ -168,11 +168,11 @@ api:
           resolver_data:
             sort:
               default:
-                column: Gebruikersnaam
+                column: name
                 order: asc
               allowed_columns:
-                - Gebruikersnaam
-                - Email
+                - name
+                - email
         - resolver: create_user
           resolver_data:
             allowed_roles:
@@ -188,11 +188,11 @@ api:
           resolver_data:
             sort:
               default:
-                column: Gebruikersnaam
+                column: name
                 order: asc
               allowed_columns:
-                - Gebruikersnaam
-                - Email
+                - name
+                - email
     - prefix: /users/{user_uuid}
       endpoints:
         - resolver: get_user

@@ -5,7 +5,7 @@ from app.core.tables.users import UsersTable
 
 
 def guard_user_is_module_manager(user: UsersTable, module: ModuleTable):
-    if not module.is_manager(user.UUID):
+    if not module.is_manager(user.id):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "You are not allowed to modify this module")
 
 

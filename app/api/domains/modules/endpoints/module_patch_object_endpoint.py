@@ -87,7 +87,7 @@ def post_module_patch_object_endpoint(
             lineage_id,
             changes,
             timepoint,
-            user.UUID,
+            user.id,
         )
     except ValueError as e:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module object niet gevonden") from e

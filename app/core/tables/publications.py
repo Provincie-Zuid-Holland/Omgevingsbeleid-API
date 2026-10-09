@@ -27,7 +27,7 @@ class PublicationStorageFileTable(Base):
     binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
 
 ObjectFieldMapTypeAdapter = TypeAdapter(dict[str, list[str]])
@@ -99,7 +99,7 @@ class PublicationEnvironmentStateTable(Base):
     activated_datetime: Mapped[datetime | None]
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
 
 class PublicationAreaOfJurisdictionTable(Base):
@@ -114,7 +114,7 @@ class PublicationAreaOfJurisdictionTable(Base):
     administrative_borders_date: Mapped[date] = mapped_column(Date, nullable=False)
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
 
 class PublicationPurposeTable(Base):
@@ -133,7 +133,7 @@ class PublicationPurposeTable(Base):
     work_other: Mapped[str] = mapped_column(Unicode(128), nullable=False)
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
     __table_args__ = (UniqueConstraint("environment_id", "work_other", name="uix_pub_pur_env_other"),)
 
@@ -196,7 +196,7 @@ class PublicationActVersionTable(Base):
     expression_version: Mapped[int] = mapped_column(Integer, nullable=False)
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
     act: Mapped[PublicationActTable] = relationship()
 
@@ -322,7 +322,7 @@ class PublicationBillVersionTable(Base):
     expression_version: Mapped[int] = mapped_column(Integer, nullable=False)
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
     bill: Mapped[PublicationBillTable] = relationship()
 
@@ -339,10 +339,10 @@ class PublicationPackageZipTable(Base):
     checksum: Mapped[str] = mapped_column(String(64), nullable=False)
 
     latest_download_date: Mapped[datetime | None]
-    latest_download_by_id: Mapped[UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"), nullable=True)
+    latest_download_by_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
 
 class PublicationActPackageTable(Base, UserMetaData):
@@ -400,7 +400,7 @@ class PublicationActPackageReportTable(Base):
     sub_outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
 
     created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
 
 class PublicationDocTable(Base, UserMetaData):
@@ -433,7 +433,7 @@ class PublicationDocVersionTable(Base):
     expression_version: Mapped[int] = mapped_column(Integer, nullable=False)
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
     doc: Mapped[PublicationDocTable] = relationship()
 
@@ -513,4 +513,4 @@ class PublicationAnnouncementPackageReportTable(Base):
     sub_outcome: Mapped[str] = mapped_column(Unicode(100), nullable=False)
 
     created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))

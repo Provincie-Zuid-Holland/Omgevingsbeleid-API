@@ -43,7 +43,7 @@ class StorageFileSpec(Spec):
     binary: bytes = Field(default_factory=bytes)
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.id, "UUID is not set which is expected to happen at this stage."
+        assert self.id, "id is not set which is expected to happen at this stage."
         return self.id
 
     def __rich_repr__(self):

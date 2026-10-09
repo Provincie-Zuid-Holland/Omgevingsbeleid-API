@@ -25,8 +25,8 @@ class ModuleTable(Base, TimeStamped, UserMetaData):
 
     title: Mapped[str] = mapped_column(default="")
     description: Mapped[str] = mapped_column(default="")
-    module_manager_1_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
-    module_manager_2_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    module_manager_1_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    module_manager_2_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
 
     @property
     def status(self) -> Optional["ModuleStatusHistoryTable"]:
@@ -71,13 +71,13 @@ class ModuleTable(Base, TimeStamped, UserMetaData):
         back_populates="module", order_by="asc(ModuleStatusHistoryTable.id)"
     )
 
-    created_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.created_by_id == UsersTable.UUID")
-    modified_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.modified_by_id == UsersTable.UUID")
+    created_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.created_by_id == UsersTable.id")
+    modified_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.modified_by_id == UsersTable.id")
     module_manager_1: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.module_manager_1_id == UsersTable.UUID"
+        primaryjoin="ModuleTable.module_manager_1_id == UsersTable.id"
     )
     module_manager_2: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.module_manager_2_id == UsersTable.UUID"
+        primaryjoin="ModuleTable.module_manager_2_id == UsersTable.id"
     )
 
     def __repr__(self) -> str:
@@ -91,7 +91,7 @@ class ModuleStatusHistoryTable(Base):
     module_id: Mapped[int] = mapped_column(ForeignKey("modules.module_id"))
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
     status: Mapped[str]
 
@@ -143,10 +143,10 @@ class ModuleObjectContextTable(Base, TimeStamped, UserMetaData, SerializerMixin)
     conclusion: Mapped[str]
 
     created_by: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleObjectContextTable.created_by_id == UsersTable.UUID"
+        primaryjoin="ModuleObjectContextTable.created_by_id == UsersTable.id"
     )
     modified_by: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleObjectContextTable.modified_by_id == UsersTable.UUID"
+        primaryjoin="ModuleObjectContextTable.modified_by_id == UsersTable.id"
     )
 
     def __repr__(self) -> str:

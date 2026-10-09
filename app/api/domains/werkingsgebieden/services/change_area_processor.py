@@ -71,13 +71,13 @@ class AreaProcessorService:
 
         return new_record
 
-    def _get_input_geo_onderverdeling(self, input_geo_onderverdeling_uuid: uuid.UUID) -> InputGeoOnderverdelingenTable:
+    def _get_input_geo_onderverdeling(self, input_geo_onderverdeling_id: uuid.UUID) -> InputGeoOnderverdelingenTable:
         onderverdeling: InputGeoOnderverdelingenTable | None = self._onderverdeling_repository.get_by_uuid(
             self._session,
-            input_geo_onderverdeling_uuid,
+            input_geo_onderverdeling_id,
         )
         if onderverdeling is None:
-            raise ValueError("Invalid UUID for Input Geo Onderverdeling")
+            raise ValueError("Invalid id for Input Geo Onderverdeling")
 
         return onderverdeling
 
@@ -86,14 +86,14 @@ class AreaProcessorService:
     ) -> uuid.UUID:
         existing_area = self._area_repository.get_by_source_hash(
             self._session,
-            onderverdeling.Geometry_Hash,
+            onderverdeling.geometry_hash,
         )
         if existing_area is not None:
             return existing_area.id
 
         existing_area: AreasTable | None = self._area_repository.get_by_source_uuid(
             self._session,
-            onderverdeling.UUID,
+            onderverdeling.id,
         )
         if existing_area is not None:
             return existing_area.id

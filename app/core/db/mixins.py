@@ -17,8 +17,8 @@ class RequireTimeStamped:
 
 
 class UserMetaData:
-    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
-    modified_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    modified_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
 
 class SerializerMixin:

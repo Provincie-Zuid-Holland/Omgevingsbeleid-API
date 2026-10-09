@@ -65,7 +65,7 @@ def post_upload_attachment_endpoint(
         session,
         storage_file_repository,
         timepoint,
-        user.UUID,
+        user.id,
         file_data,
     )
     session.add(file_table)
@@ -77,9 +77,9 @@ def post_upload_attachment_endpoint(
         filename=file_data.normalize_filename(),
         title=title,
         created_date=timepoint,
-        created_by_id=user.UUID,
+        created_by_id=user.id,
         modified_date=timepoint,
-        modified_by_id=user.UUID,
+        modified_by_id=user.id,
     )
     session.add(attachment)
     session.flush()

@@ -65,7 +65,7 @@ def post_module_edit_object_context_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
 
-    object_context.modified_by_id = user.UUID
+    object_context.modified_by_id = user.id
     object_context.modified_date = timepoint
 
     session.add(object_context)
@@ -74,7 +74,7 @@ def post_module_edit_object_context_endpoint(
         object_type=object_context.object_type,
         object_id=object_context.object_id,
         created_date=timepoint,
-        created_by_id=user.UUID,
+        created_by_id=user.id,
         action_type="module_edit_object_context",
         action_data=object_in.model_dump_json(),
         before=log_before,

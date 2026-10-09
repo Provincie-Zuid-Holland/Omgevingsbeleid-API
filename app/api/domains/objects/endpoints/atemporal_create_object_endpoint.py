@@ -89,8 +89,8 @@ def atemporal_create_object_endpoint(
             code=object_static.code,
             created_date=timepoint,
             modified_date=timepoint,
-            created_by_id=user.UUID,
-            modified_by_id=user.UUID,
+            created_by_id=user.id,
+            modified_by_id=user.id,
             start_validity=timepoint,
             # Unpack object_in fields
             **(object_in_data),

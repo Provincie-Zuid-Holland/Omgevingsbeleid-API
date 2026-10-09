@@ -30,11 +30,11 @@ def _payload(
 
 
 def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
-    beheerder_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
-    ambtenaar_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "ambtenaar"))
+    beheerder_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
+    ambtenaar_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "ambtenaar"))
 
     module_id: int = 2
-    payload = _payload(owner_id=beheerder_uuid, owner_id_2=ambtenaar_uuid)
+    payload = _payload(owner_id=beheerder_id, owner_id_2=ambtenaar_id)
     response = beheerder.post(
         f"/modules/{module_id}/add-new-object",
         json=payload,
@@ -68,8 +68,8 @@ def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
     assert module_object_context.action == ModuleObjectActionFull.Create
     assert module_object_context.explanation == payload["explanation"]
     assert module_object_context.conclusion == payload["conclusion"]
-    assert module_object_context.created_by.UUID == beheerder_uuid
-    assert module_object_context.modified_by.UUID == beheerder_uuid
+    assert module_object_context.created_by.id == beheerder_id
+    assert module_object_context.modified_by.id == beheerder_id
 
     stmt = (
         select(ModuleObjectsTable)
@@ -84,8 +84,8 @@ def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
 
 
 def test_adds_new_module_object_duplicate_owner(beheerder: TestClient, ctx: Context):
-    beheerder_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
-    payload = _payload(owner_id=beheerder_uuid, owner_id_2=beheerder_uuid)
+    beheerder_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
+    payload = _payload(owner_id=beheerder_id, owner_id_2=beheerder_id)
     response = beheerder.post(
         "/modules/2/add-new-object",
         json=payload,
@@ -118,8 +118,8 @@ class ModuleNewObjectGuardCase:
     ],
 )
 def test_adds_new_module_object_guards(beheerder: TestClient, ctx: Context, case: ModuleNewObjectGuardCase):
-    beheerder_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
-    payload = _payload(owner_id=beheerder_uuid, object_type=case.object_type)
+    beheerder_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
+    payload = _payload(owner_id=beheerder_id, object_type=case.object_type)
     response = beheerder.post(
         f"/modules/{case.module_id}/add-new-object",
         json=payload,

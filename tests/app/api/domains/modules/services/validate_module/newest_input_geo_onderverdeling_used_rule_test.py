@@ -25,8 +25,8 @@ def test_validate():
     repository: Mock | InputGeoOnderverdelingRepository = Mock(InputGeoOnderverdelingRepository)
     db: Mock | Session = Mock(Session)
 
-    onderverdeling_area_1: InputGeoOnderverdelingenTable | None = InputGeoOnderverdelingenTable(Geometry_Hash="abc123")
-    onderverdeling_area_2: InputGeoOnderverdelingenTable | None = InputGeoOnderverdelingenTable(Geometry_Hash="qwe000")
+    onderverdeling_area_1: InputGeoOnderverdelingenTable | None = InputGeoOnderverdelingenTable(geometry_hash="abc123")
+    onderverdeling_area_2: InputGeoOnderverdelingenTable | None = InputGeoOnderverdelingenTable(geometry_hash="qwe000")
     onderverdeling_area_3: InputGeoOnderverdelingenTable | None = None
 
     def fake_get_latest_by_title(_: Mock | Session, title: str):

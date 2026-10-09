@@ -14,7 +14,7 @@ class AreasTable(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     created_date: Mapped[datetime]
-    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
     shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
     gml: Mapped[str] = deferred(mapped_column(String))
@@ -73,7 +73,7 @@ class AssetsTable(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     created_date: Mapped[datetime]
-    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
     # Lookup for faster access
     lookup: Mapped[str] = mapped_column(Unicode(10), index=True)
@@ -128,7 +128,7 @@ class StorageFileTable(Base):
     binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
 
     created_date: Mapped[datetime]
-    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
     def __repr__(self) -> str:
         return f"StorageFileTable(id={self.id!r}, filename={self.filename!r})"
@@ -144,7 +144,7 @@ class ObjectRelatedFileTable(Base):
 
     title: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     created_date: Mapped[datetime]
-    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
     # Relationships
     object_statics: Mapped["ObjectStaticsTable"] = relationship()

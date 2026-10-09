@@ -18,13 +18,13 @@ class InputGeoOnderverdelingRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     def get_by_uuid(self, session: Session, idx: uuid.UUID) -> InputGeoOnderverdelingenTable | None:
-        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == idx)
+        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.id == idx)
         return self.fetch_first(session, stmt)
 
     def get_latest_by_title(self, session: Session, title: str) -> InputGeoOnderverdelingenTable | None:
         stmt = (
             select(InputGeoOnderverdelingenTable)
-            .filter(InputGeoOnderverdelingenTable.Title == title)
-            .order_by(desc(InputGeoOnderverdelingenTable.Created_Date))
+            .filter(InputGeoOnderverdelingenTable.title == title)
+            .order_by(desc(InputGeoOnderverdelingenTable.created_date))
         )
         return self.fetch_first(session, stmt)

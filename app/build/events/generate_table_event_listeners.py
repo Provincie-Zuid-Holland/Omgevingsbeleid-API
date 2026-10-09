@@ -71,7 +71,7 @@ class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, ForeignKey("Gebruikers.UUID"), nullable=column.nullable),
+            mapped_column(column.name, Uuid, ForeignKey("users.id"), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -82,7 +82,7 @@ class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
                 relation_field,
                 relationship(
                     UsersTable,
-                    primaryjoin=f"{event.table_name}.{column.name} == UsersTable.UUID",
+                    primaryjoin=f"{event.table_name}.{column.name} == UsersTable.id",
                     viewonly=True,
                 ),
             )
@@ -98,7 +98,7 @@ class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent])
         setattr(
             event.table_type,
             column.name,
-            mapped_column(column.name, Uuid, ForeignKey("Werkingsgebieden.UUID"), nullable=column.nullable),
+            mapped_column(column.name, Uuid, ForeignKey("werkingsgebieden.id"), nullable=column.nullable),
         )
 
         # Add a viewonly relationship for easy access
@@ -109,7 +109,7 @@ class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent])
                 relation_field,
                 relationship(
                     "SourceWerkingsgebiedenTable",
-                    primaryjoin=f"{event.table_name}.{column.name} == SourceWerkingsgebiedenTable.UUID",
+                    primaryjoin=f"{event.table_name}.{column.name} == SourceWerkingsgebiedenTable.id",
                     viewonly=True,
                 ),
             )

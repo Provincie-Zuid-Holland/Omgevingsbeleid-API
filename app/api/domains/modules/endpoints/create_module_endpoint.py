@@ -56,8 +56,8 @@ def post_create_module_endpoint(
         module_manager_2_id=object_in.module_manager_2_id,
         created_date=timepoint,
         modified_date=timepoint,
-        created_by_id=user.UUID,
-        modified_by_id=user.UUID,
+        created_by_id=user.id,
+        modified_by_id=user.id,
         activated=0,
         closed=0,
         successful=0,
@@ -67,7 +67,7 @@ def post_create_module_endpoint(
     status: ModuleStatusHistoryTable = ModuleStatusHistoryTable(
         status=ModuleStatusCodeInternal.Niet_Actief,
         created_date=timepoint,
-        created_by_id=user.UUID,
+        created_by_id=user.id,
     )
     module.status_history.append(status)
 

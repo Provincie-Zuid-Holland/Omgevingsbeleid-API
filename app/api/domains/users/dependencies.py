@@ -42,7 +42,7 @@ def _do_depends_current_user(
     user: UsersTable | None = user_repository.get_by_uuid(session, UUID(token_data.sub))
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Token valid, but no matching user found.")
-    if not user.IsActive:
+    if not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Inactive user")
 
     return user

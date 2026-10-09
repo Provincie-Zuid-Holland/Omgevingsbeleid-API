@@ -38,19 +38,19 @@ def post_reset_user_password_endpoint(
     user: UsersTable | None = repository.get_by_uuid(session, user_uuid)
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "User does not exist")
-    if not user.IsActive:
+    if not user.is_active:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "User is inactive")
 
     password = "change-me-" + security.get_random_password()
-    password_hash = security.get_password_hash(password)
+    password_hashed = security.get_password_hash(password)
 
-    user.Wachtwoord = password_hash
+    user.password_hashed = password_hashed
 
     change_log: ChangeLogTable = ChangeLogTable(
         created_date=datetime.now(UTC),
-        created_by_id=logged_in_user.UUID,
+        created_by_id=logged_in_user.id,
         action_type="reset_user_password",
-        action_data=json.dumps({"UUID": str(user.UUID)}),
+        action_data=json.dumps({"UUID": str(user.id)}),
     )
 
     session.add(change_log)
@@ -59,6 +59,6 @@ def post_reset_user_password_endpoint(
     session.commit()
 
     return ResetPasswordResponse(
-        UUID=user.UUID,
+        UUID=user.id,
         NewPassword=password,
     )

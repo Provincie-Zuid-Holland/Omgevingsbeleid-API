@@ -39,7 +39,7 @@ def post_acknowledged_relation_request_endpoint(
         object_id=lineage_id,
         object_type=context.object_type,
         acknowledged=timepoint,
-        acknowledged_by_id=user.UUID,
+        acknowledged_by_id=user.id,
         explanation=object_in.explanation,
     )
     their_side = AcknowledgedRelationSide(
@@ -50,9 +50,9 @@ def post_acknowledged_relation_request_endpoint(
     ack_table = AcknowledgedRelationsTable(
         requested_by_code=my_side.code,
         created_date=timepoint,
-        created_by_id=user.UUID,
+        created_by_id=user.id,
         modified_date=timepoint,
-        modified_by_id=user.UUID,
+        modified_by_id=user.id,
     )
     ack_table.with_sides(my_side, their_side)
 
@@ -79,7 +79,7 @@ def post_acknowledged_relation_request_endpoint(
         # assume we can approve the existing request as both sides have acted
         existing_request.apply_side(my_side)
         existing_request.modified_date = timepoint
-        existing_request.modified_by_id = user.UUID
+        existing_request.modified_by_id = user.id
 
         session.add(existing_request)
         session.flush()

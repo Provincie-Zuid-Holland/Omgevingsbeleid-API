@@ -127,7 +127,7 @@ class EndpointHandler:
         self._starting_status: ReportStatusType = ReportStatusType(self._announcement_package.report_status)
         self._file_parser: FileParser = FileParser(
             announcement_package=announcement_package,
-            created_by_id=user.UUID,
+            created_by_id=user.id,
             timepoint=self._timepoint,
         )
 
@@ -159,7 +159,7 @@ class EndpointHandler:
 
         self._handle_conclusive_status(running_status)
 
-        self._announcement_package.modified_by_id = self._user.UUID
+        self._announcement_package.modified_by_id = self._user.id
         self._announcement_package.modified_date = self._timepoint
 
         self._session.add(self._announcement_package)
@@ -250,7 +250,7 @@ class EndpointHandler:
         environment.active_state_id = new_state.id
         environment.is_locked = False
         environment.modified_date = self._timepoint
-        environment.modified_by_id = self._user.UUID
+        environment.modified_by_id = self._user.id
         self._session.add(environment)
 
         if self._announcement_package.package_type == PackageType.PUBLICATION.value:

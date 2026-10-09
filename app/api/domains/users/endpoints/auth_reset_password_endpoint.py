@@ -27,7 +27,7 @@ def post_auth_reset_password_endpoint(
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
 ) -> ResponseOK:
-    valid: bool = security.verify_password(password_in.password, user.Wachtwoord)
+    valid: bool = security.verify_password(password_in.password, user.password_hashed)
     if not valid:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect password")
 

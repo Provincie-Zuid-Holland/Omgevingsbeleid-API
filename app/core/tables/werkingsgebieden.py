@@ -7,52 +7,52 @@ from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 from app.core.db.base import Base
 
 Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc = Table(
-    "Input_GEO_Werkingsgebieden_Onderverdelingen",
+    "input_geo_werkingsgebieden_onderverdelingen",
     Base.metadata,
-    Column("Werkingsgebied_UUID", ForeignKey("Input_GEO_Werkingsgebieden.UUID"), primary_key=True),
-    Column("Onderverdeling_UUID", ForeignKey("Input_GEO_Onderverdeling.UUID"), primary_key=True),
+    Column("werkingsgebied_id", ForeignKey("input_geo_werkingsgebieden.id"), primary_key=True),
+    Column("onderverdeling_id", ForeignKey("input_geo_onderverdeling.id"), primary_key=True),
 )
 
 
 class InputGeoWerkingsgebiedenTable(Base):
-    __tablename__ = "Input_GEO_Werkingsgebieden"
+    __tablename__ = "input_geo_werkingsgebieden"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Title: Mapped[str]
-    Description: Mapped[str] = mapped_column(server_default="")
-    Created_Date: Mapped[datetime]
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    description: Mapped[str] = mapped_column(server_default="")
+    created_date: Mapped[datetime]
 
-    Onderverdelingen: Mapped[list["InputGeoOnderverdelingenTable"]] = relationship(
+    onderverdelingen: Mapped[list["InputGeoOnderverdelingenTable"]] = relationship(
         secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
-        back_populates="Werkingsgebieden",
+        back_populates="werkingsgebieden",
         viewonly=True,
     )
 
     def __repr__(self) -> str:
-        return f"InputGeoWerkingsgebiedenTable(UUID={self.UUID!r}, Title={self.Title!r})"
+        return f"InputGeoWerkingsgebiedenTable(id={self.id!r}, title={self.title!r})"
 
 
 class InputGeoOnderverdelingenTable(Base):
-    __tablename__ = "Input_GEO_Onderverdeling"
+    __tablename__ = "input_geo_onderverdeling"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    Title: Mapped[str]
-    Description: Mapped[str] = mapped_column(server_default="")
-    Created_Date: Mapped[datetime]
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    description: Mapped[str] = mapped_column(server_default="")
+    created_date: Mapped[datetime]
 
-    Symbol: Mapped[str | None]
-    Geometry: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
-    Geometry_Hash: Mapped[str] = mapped_column(Unicode(64))
-    GML: Mapped[str] = deferred(mapped_column(Unicode))
+    symbol: Mapped[str | None]
+    geometry: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
+    geometry_hash: Mapped[str] = mapped_column(Unicode(64))
+    gml: Mapped[str] = deferred(mapped_column(Unicode))
 
-    Werkingsgebieden: Mapped[list[InputGeoWerkingsgebiedenTable]] = relationship(
+    werkingsgebieden: Mapped[list[InputGeoWerkingsgebiedenTable]] = relationship(
         secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
-        back_populates="Onderverdelingen",
+        back_populates="onderverdelingen",
         viewonly=True,
     )
 
     def __repr__(self) -> str:
-        return f"InputGeoOnderverdelingTable(UUID={self.UUID!r}, Title={self.Title!r})"
+        return f"InputGeoOnderverdelingTable(id={self.id!r}, title={self.title!r})"
 
 
 class InputGeoWerkingsgebiedOnderverdelingTable(Base):
@@ -61,52 +61,49 @@ class InputGeoWerkingsgebiedOnderverdelingTable(Base):
     def __repr__(self) -> str:
         return (
             f"InputGeoWerkingsgebiedOnderverdelingTable("
-            f"Werkingsgebied_UUID={self.Werkingsgebied_UUID!r}, "
-            f"Onderverdeling_UUID={self.Onderverdeling_UUID!r})"
+            f"werkingsgebied_id={self.werkingsgebied_id!r}, "
+            f"onderverdeling_id={self.onderverdeling_id!r})"
         )
 
 
 # @todo: Should be removed when the InputGeo is used
 # @deprecated
 class SourceWerkingsgebiedenTable(Base):
-    __tablename__ = "Werkingsgebieden"
+    __tablename__ = "werkingsgebieden"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    ID: Mapped[int]
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    ref_id: Mapped[int]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    start_validity: Mapped[datetime] = mapped_column(name="Begin_Geldigheid")
-    end_validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
-
-    Title: Mapped[str] = mapped_column(name="Werkingsgebied")
-    SHAPE: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
-    Geometry_Hash: Mapped[str] = mapped_column(Unicode(64), nullable=True)
-    GML: Mapped[str] = deferred(mapped_column(Unicode))
+    title: Mapped[str]
+    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
+    geometry_hash: Mapped[str] = mapped_column(Unicode(64), nullable=True)
+    gml: Mapped[str] = deferred(mapped_column(Unicode))
     symbol: Mapped[str] = mapped_column(Unicode(265))
 
     def __repr__(self) -> str:
-        return f"SourceWerkingsgebiedenTable(UUID={self.UUID!r}, Title={self.Title!r})"
+        return f"SourceWerkingsgebiedenTable(id={self.id!r}, title={self.title!r})"
 
 
 # @deprecated
 class OnderverdelingTable(Base):
-    __tablename__ = "Onderverdeling"
+    __tablename__ = "onderverdeling"
 
-    UUID: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    ID: Mapped[int]
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    ref_id: Mapped[int]
 
-    Title: Mapped[str] = mapped_column(name="Onderverdeling")
-    SHAPE: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
+    title: Mapped[str] = mapped_column(name="Onderverdeling")
+    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
     symbol: Mapped[str]
-    Werkingsgebied: Mapped[str] = mapped_column(Unicode(265))
-    UUID_Werkingsgebied: Mapped[uuid.UUID]
+    werkingsgebied: Mapped[str] = mapped_column(Unicode(265))
+    werkingsgebied_id: Mapped[uuid.UUID]
 
-    Created_Date: Mapped[datetime]
-    Modified_Date: Mapped[datetime]
+    created_date: Mapped[datetime]
+    modified_date: Mapped[datetime]
 
-    start_validity: Mapped[datetime] = mapped_column(name="Begin_Geldigheid")
-    end_validity: Mapped[datetime] = mapped_column(name="Eind_Geldigheid")
+    start_validity: Mapped[datetime]
+    end_validity: Mapped[datetime]
 
     def __repr__(self) -> str:
-        return f"Onderverdeling(UUID={self.UUID!r}, Title={self.Title!r})"
+        return f"Onderverdeling(id={self.id!r}, title={self.title!r})"

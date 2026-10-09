@@ -86,7 +86,7 @@ class EndpointHandler:
             size=self._file_data.get_size(),
             binary=self._file_data.get_binary(),
             created_date=self._timepoint,
-            created_by_id=self._user.UUID,
+            created_by_id=self._user.id,
         )
         self._session.add(file_table)
         self._session.flush()

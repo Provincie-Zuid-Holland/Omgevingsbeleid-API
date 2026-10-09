@@ -73,7 +73,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                 )
                 continue
 
-            if area_hash != onderverdeling.Geometry_Hash:
+            if area_hash != onderverdeling.geometry_hash:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
@@ -84,7 +84,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                             title=object_table.title,
                         ),
                         messages=[
-                            f"Area {area_current.id} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
+                            f"Area {area_current.id} does not use the latest known onderverdeling shape {onderverdeling.id}"
                         ],
                         severity=ValidateModuleSeverity.warning,
                     )

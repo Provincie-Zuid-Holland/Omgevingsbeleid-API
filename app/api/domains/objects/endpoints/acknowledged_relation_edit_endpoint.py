@@ -63,11 +63,11 @@ def post_acknowledged_relation_edit_endpoint(
     if object_in.acknowledged == False:
         side.disapprove()
     if object_in.acknowledged == True:
-        side.approve(user.UUID)
+        side.approve(user.id)
 
     relation.apply_side(side)
     relation.modified_date = timepoint
-    relation.modified_by_id = user.UUID
+    relation.modified_by_id = user.id
 
     if object_in.denied == True:
         relation.deny()

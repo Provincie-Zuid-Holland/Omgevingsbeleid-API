@@ -70,8 +70,8 @@ def post_create_act_endpoint(
         withdrawal_purpose_id=None,
         created_date=timepoint,
         modified_date=timepoint,
-        created_by_id=user.UUID,
-        modified_by_id=user.UUID,
+        created_by_id=user.id,
+        modified_by_id=user.id,
     )
 
     session.add(act)

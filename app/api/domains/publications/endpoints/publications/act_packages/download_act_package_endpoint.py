@@ -25,7 +25,7 @@ def get_download_act_package_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
 ) -> Response:
     package_zip.latest_download_date = datetime.now(UTC)
-    package_zip.latest_download_by_id = user.UUID
+    package_zip.latest_download_by_id = user.id
 
     filename = package_zip.filename
     content = package_zip.binary

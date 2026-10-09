@@ -70,18 +70,18 @@ def post_abort_act_package_endpoint(
 
     act_package.report_status = ReportStatusType.ABORTED
     act_package.modified_date = timepoint
-    act_package.modified_by_id = user.UUID
+    act_package.modified_by_id = user.id
     session.add(act_package)
 
     publication_version.status = PublicationVersionStatus.PUBLICATION_ABORTED
     publication_version.modified_date = timepoint
-    publication_version.modified_by_id = user.UUID
+    publication_version.modified_by_id = user.id
     publication_version.is_locked = False
     session.add(publication_version)
 
     environment.active_state_id = act_package.used_environment_state_id
     environment.modified_date = timepoint
-    environment.modified_by_id = user.UUID
+    environment.modified_by_id = user.id
     session.add(environment)
 
     session.flush()

@@ -17,12 +17,12 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
     requested_by_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"))
     from_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"), primary_key=True)
     from_acknowledged: Mapped[datetime | None]
-    from_acknowledged_by_uuid: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    from_acknowledged_by_uuid: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     from_explanation: Mapped[str] = mapped_column(default="")
 
     to_code: Mapped[str] = mapped_column(ForeignKey("object_statics.code"), primary_key=True)
     to_acknowledged: Mapped[datetime | None] = mapped_column(nullable=True)
-    to_acknowledged_by_uuid: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("Gebruikers.UUID"))
+    to_acknowledged_by_uuid: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     to_explanation: Mapped[str] = mapped_column(default="")
 
     denied: Mapped[datetime | None]

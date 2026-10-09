@@ -1,5 +1,4 @@
 services:
-
   api:
     build:
       context: ./
@@ -30,24 +29,6 @@ services:
     cap_add:
       - SYS_PTRACE
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    ports:
-      - "1433:1433"
-    environment:
-      ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: 'Passw0rd'
-    volumes:
-      - mssql:/var/opt/mssql
-      - ./docker/mssql/:/opt/sql/:ro
-    healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -Q "SELECT 1" -b -C -o /dev/null
-      interval: 1s
-      timeout: 3s
-      retries: 10
-      start_period: 1s
-    restart: "no"
-
   postgres:
     build:
       context: ./
@@ -55,13 +36,12 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: pzh
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: omgevingsbeleid
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - ./docker/postgres/01-extensions.sql:/docker-entrypoint-initdb.d/01-extensions.sql:ro
       - postgres:/var/lib/postgresql
 
 volumes:
-  mssql:
   postgres:

@@ -78,7 +78,7 @@ testcov:
 	python -m pytest --cov --cov-report=xml
 
 # Ment to test MSSQL
-docker-init: docker-up docker-mssql-create-database-dev docker-alembic-do-upgrade
+docker-init: docker-up docker-alembic-do-upgrade
 
 docker-up: ## Starts the docker services
 	docker compose up -d --build --wait
@@ -91,11 +91,8 @@ docker-restart: docker-down docker-init
 docker-api: ## Exec into api
 	docker compose exec api /bin/bash
 
-docker-mssql: ## Exec into mssql
-	docker compose exec mssql /bin/bash
-
-docker-mssql-create-database-dev:
-	@docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-dev.sql
+# docker-psql-create-database-dev:
+# 	@docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-dev.sql
 
 docker-drop-database:
 	docker compose exec api python -m app.cmds dropdb
@@ -111,9 +108,6 @@ docker-alembic-show-upgrade:
 
 docker-alembic-do-upgrade:
 	docker compose exec api python -m alembic upgrade head
-
-docker-mssql-setup-search:
-	docker compose exec api python cmds.py mssql-setup-search-database
 
 docker-load-fixtures:
 	docker compose exec api python -m app.cmds load-fixtures

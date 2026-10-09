@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.api.base_repository import BaseRepository
 from app.api.domains.users.services.security import Security
 from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
-from app.core.tables.users import IS_ACTIVE, UserRoleTable, UsersTable
+from app.core.tables.users import UserRoleTable, UsersTable
 
 
 class UserRepository(BaseRepository):
@@ -14,11 +14,11 @@ class UserRepository(BaseRepository):
         self._security: Security = security
 
     def get_by_uuid(self, session: Session, uuid: UUID) -> UsersTable | None:
-        stmt = select(UsersTable).where(UsersTable.UUID == uuid)
+        stmt = select(UsersTable).where(UsersTable.id == uuid)
         return self.fetch_first(session, stmt)
 
     def get_by_email(self, session: Session, email: str) -> UsersTable | None:
-        stmt = select(UsersTable).where(UsersTable.Email == email)
+        stmt = select(UsersTable).where(UsersTable.email == email)
         return self.fetch_first(session, stmt)
 
     def get_filtered(
@@ -35,13 +35,13 @@ class UserRepository(BaseRepository):
             stmt = stmt.filter(UsersTable.user_roles.any(UserRoleTable.role == role))
 
         if query is not None:
-            stmt = stmt.filter(or_(UsersTable.Gebruikersnaam.like(f"%{query}%"), UsersTable.Email.like(f"%{query}%")))
+            stmt = stmt.filter(or_(UsersTable.name.like(f"%{query}%"), UsersTable.email.like(f"%{query}%")))
 
         if active is not None:
             if active:
-                stmt = stmt.filter(UsersTable.Status == IS_ACTIVE)
+                stmt = stmt.filter(UsersTable.is_active == True)
             else:
-                stmt = stmt.filter(UsersTable.Status != IS_ACTIVE)
+                stmt = stmt.filter(UsersTable.is_active != True)
 
         return self.fetch_paginated(
             session=session,
@@ -52,7 +52,7 @@ class UserRepository(BaseRepository):
         )
 
     def get_active(self, session: Session, pagination: SortedPagination) -> PaginatedQueryResult:
-        stmt = select(UsersTable).filter(UsersTable.Status == IS_ACTIVE)
+        stmt = select(UsersTable).filter(UsersTable.is_active == True)
         return self.fetch_paginated(
             session=session,
             statement=stmt,
@@ -62,25 +62,25 @@ class UserRepository(BaseRepository):
         )
 
     def get_all(self, session: Session) -> list[UsersTable]:
-        stmt = select(UsersTable).order_by(asc(UsersTable.Gebruikersnaam))
+        stmt = select(UsersTable).order_by(asc(UsersTable.name))
         return self.fetch_all(session, stmt)
 
     def authenticate(self, session: Session, username: str, password: str) -> UsersTable | None:
         if not username:
             return None
 
-        stmt = select(UsersTable).filter(UsersTable.Email == username).filter(UsersTable.Status == IS_ACTIVE)
+        stmt = select(UsersTable).filter(UsersTable.email == username).filter(UsersTable.is_active == True)
         maybe_user: UsersTable | None = self.fetch_first(session, stmt)
 
         if not maybe_user:
             return None
-        if not self._security.verify_password(password, maybe_user.Wachtwoord):
+        if not self._security.verify_password(password, maybe_user.password_hash):
             return None
         return maybe_user
 
     def change_password(self, session: Session, user: UsersTable, new_password: str):
         new_hash = self._security.get_password_hash(new_password)
-        user.Wachtwoord = new_hash
+        user.password_hashed = new_hash
         session.add(user)
         session.flush()
         session.commit()

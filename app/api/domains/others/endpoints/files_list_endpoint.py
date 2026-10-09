@@ -39,7 +39,7 @@ def get_files_list_endpoint(
 
     filter_on_me: UUID | None = None
     if only_mine:
-        filter_on_me = user.UUID
+        filter_on_me = user.id
 
     paginated_result: PaginatedQueryResult = storage_file_repository.get_with_filters(
         session=session,
