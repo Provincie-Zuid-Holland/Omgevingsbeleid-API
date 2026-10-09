@@ -26,7 +26,7 @@ class HoofdlijnSpec(Spec):
     modified_by_id: Link | None = None
 
     name: str
-    type: str
+    kind: str
 
     def get_table_primary_key(self) -> PrimaryKey:
         assert self.id, "UUID is not set which is expected to happen at this stage."
@@ -54,6 +54,6 @@ class HoofdlijnPersistHandler(BasePersistHandler[HoofdlijnSpec]):
                 modified_date=spec.modified_date,
                 modified_by_id=spec.modified_by_id,
                 name=spec.name,
-                type=spec.type,
+                kind=spec.kind,
             )
         ]

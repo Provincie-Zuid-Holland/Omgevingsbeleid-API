@@ -23,8 +23,8 @@ def test_lists_the_hoofdlijnen_sort_by_name(admin: TestClient, ctx: Context):
     )
 
 
-def test_lists_the_hoofdlijnen_sort_by_type(admin: TestClient, ctx: Context):
-    response = admin.get("/hoofdlijnen?sort_column=type&sort_order=ASC")
+def test_lists_the_hoofdlijnen_sort_by_kind(admin: TestClient, ctx: Context):
+    response = admin.get("/hoofdlijnen?sort_column=kind&sort_order=ASC")
 
     assert response.status_code == 200
     assert [r["id"] for r in response.json().get("results")] == get_uuids_from_spec(

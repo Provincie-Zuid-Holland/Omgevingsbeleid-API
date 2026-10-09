@@ -19,7 +19,7 @@ from app.core.tables.users import UsersTable
 
 class CreateHoofdlijn(BaseModel):
     name: str = Field(..., min_length=3, max_length=255)
-    type: str = Field(..., min_length=3, max_length=255)
+    kind: str = Field(..., min_length=3, max_length=255)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -42,7 +42,7 @@ def post_hoofdlijnen_create_endpoint(
     hoofdlijn: HoofdlijnTable = HoofdlijnTable(
         id=uuid.uuid4(),
         name=object_in.name,
-        type=object_in.type,
+        kind=object_in.kind,
         created_date=timepoint,
         created_by_id=logged_in_user.UUID,
         modified_date=timepoint,

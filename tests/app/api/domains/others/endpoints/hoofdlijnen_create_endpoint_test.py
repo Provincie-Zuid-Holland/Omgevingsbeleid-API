@@ -9,7 +9,7 @@ from app.core.tables.others import HoofdlijnTable
 def _payload(**overrides) -> dict:
     payload = {
         "name": "New hoofdlijn name",
-        "type": "Some hoofdlijn type",
+        "kind": "Some hoofdlijn kind",
     }
     payload.update(overrides)
     return payload
@@ -30,4 +30,4 @@ def test_creates_a_hoofdlijn_and_it_is_persisted_in_db(admin: TestClient, sessio
     row: HoofdlijnTable | None = session.get(HoofdlijnTable, created_uuid)
     assert row is not None
     assert row.name == payload.get("name")
-    assert row.type == payload.get("type")
+    assert row.kind == payload.get("kind")

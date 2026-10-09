@@ -16,19 +16,19 @@ def load(col: Collector) -> None:
                 HoofdlijnSpec(
                     key="hoofdlijn-1",
                     name="Provinciaal economische groei",
-                    type="Verplicht programma",
+                    kind="Verplicht programma",
                     created_date=datetime(2025, 1, 2, tzinfo=UTC),
                 ),
                 HoofdlijnSpec(
                     key="hoofdlijn-2",
                     name="Regionaal waterprogramma",
-                    type="Gebiedsprogramma",
+                    kind="Gebiedsprogramma",
                     created_date=datetime(2025, 1, 3, tzinfo=UTC),
                 ),
                 HoofdlijnSpec(
                     key="hoofdlijn-3",
                     name="Provinciaal waterprogramma",
-                    type="Actief programma",
+                    kind="Actief programma",
                     created_date=datetime(2025, 1, 4, tzinfo=UTC),
                 ),
             ]

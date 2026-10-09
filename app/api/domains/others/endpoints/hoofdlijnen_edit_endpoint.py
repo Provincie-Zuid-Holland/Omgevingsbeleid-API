@@ -20,7 +20,7 @@ from app.core.tables.users import UsersTable
 
 class EditHoofdlijn(BaseModel):
     name: str | None = Field(default=None, min_length=3, max_length=255)
-    type: str | None = Field(default=None, min_length=3, max_length=255)
+    kind: str | None = Field(default=None, min_length=3, max_length=255)
 
     model_config = ConfigDict(from_attributes=True)
 

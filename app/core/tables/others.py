@@ -160,9 +160,9 @@ class HoofdlijnTable(Base, RequireTimeStamped, UserMetaData, SerializerMixin):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
 
     name: Mapped[str] = mapped_column(Unicode(255), nullable=False)
-    type: Mapped[str] = mapped_column(Unicode(255), nullable=False)
+    kind: Mapped[str] = mapped_column(Unicode(255), nullable=False)
 
-    __table_args__ = (Index("ix_hoofdlijnen_name_type", "name", "type", unique=True),)
+    __table_args__ = (Index("ix_hoofdlijnen_name_kind", "name", "kind", unique=True),)
 
     def __repr__(self) -> str:
-        return f"HoofdlijnTable(id={self.id!r}, name={self.name!r}, type={self.type!r})"
+        return f"HoofdlijnTable(id={self.id!r}, name={self.name!r}, kind={self.kind!r})"

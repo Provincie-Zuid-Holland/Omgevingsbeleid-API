@@ -11,7 +11,7 @@ from tests.fixtures.internal.types import Ref
 def _payload(**overrides) -> dict:
     payload = {
         "name": "Edited hoofdlijn name",
-        "type": "Edited hoofdlijn type",
+        "kind": "Edited hoofdlijn kind",
     }
     payload.update(overrides)
     return payload
@@ -35,7 +35,7 @@ def test_edit_a_hoofdlijn_and_changes_are_persisted_in_db(
     row: HoofdlijnTable | None = session.get(HoofdlijnTable, original.id)
     assert row is not None
     assert row.name == payload.get("name")
-    assert row.type == payload.get("type")
+    assert row.kind == payload.get("kind")
 
 
 @pytest.mark.parametrize("client_fixture", ["admin", "beheerder"])

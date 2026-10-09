@@ -280,7 +280,7 @@ api:
               allowed_columns:
                 - created_date
                 - name
-                - type
+                - kind
     - prefix: /hoofdlijnen/search
       endpoints:
         - resolver: search_hoofdlijn
@@ -292,7 +292,7 @@ api:
               allowed_columns:
                 - created_date
                 - name
-                - type
+                - kind
     - prefix: /hoofdlijnen/{hoofdlijn_uuid}
       endpoints:
         - resolver: delete_hoofdlijn

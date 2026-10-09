@@ -20,7 +20,7 @@ def test_returns_the_requested_hoofdlijn(
     body = response.json()
     assert body["id"] == str(expected.id)
     assert body["name"] == expected.name
-    assert body["type"] == expected.type
+    assert body["kind"] == expected.kind
 
 
 @pytest.mark.parametrize("client_fixture", ["admin", "ambtenaar"])

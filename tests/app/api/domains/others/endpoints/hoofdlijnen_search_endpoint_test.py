@@ -22,8 +22,8 @@ def test_search_hoofdlijn_sort_by_name(viewer: TestClient, ctx: Context):
     )
 
 
-def test_search_hoofdlijn_sort_by_type(viewer: TestClient, ctx: Context):
-    response = viewer.post("/hoofdlijnen/search?query=aal&sort_column=type&sort_order=ASC")
+def test_search_hoofdlijn_sort_by_kind(viewer: TestClient, ctx: Context):
+    response = viewer.post("/hoofdlijnen/search?query=aal&sort_column=kind&sort_order=ASC")
     assert response.status_code == 200
     assert [r["id"] for r in response.json().get("results")] == get_uuids_from_spec(
         ctx, HoofdlijnSpec, ["hoofdlijn-3", "hoofdlijn-2", "hoofdlijn-1"]
