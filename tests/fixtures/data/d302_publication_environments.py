@@ -17,5 +17,12 @@ def load(col: Collector) -> None:
                 code="PRE",
                 description="Pre-productie omgeving",
             ),
+            PublicationEnvironmentSpec(
+                key="publication_environment_inactive",
+                title="Inactive",
+                code="IA",
+                description="Inactive omgeving",
+                is_active=False,
+            ),
         ]
     )

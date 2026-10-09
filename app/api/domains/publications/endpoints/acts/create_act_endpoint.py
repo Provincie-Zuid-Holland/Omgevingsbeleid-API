@@ -27,7 +27,7 @@ class ActCreate(BaseModel):
 
 
 class ActCreatedResponse(BaseModel):
-    id: uuid.UUID
+    uuid: uuid.UUID
 
 
 @inject
@@ -56,7 +56,7 @@ def post_create_act_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
     act: PublicationActTable = PublicationActTable(
-        id=uuid.uuid4(),
+        uuid=uuid.uuid4(),
         environment_id=environment.id,
         document_type=object_in.document_type.value,
         title=object_in.title,
@@ -79,7 +79,7 @@ def post_create_act_endpoint(
     session.commit()
 
     return ActCreatedResponse(
-        id=act.uuid,
+        uuid=act.uuid,
     )
 
 

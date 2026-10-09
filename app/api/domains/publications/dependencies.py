@@ -212,11 +212,11 @@ def depends_publication_environment(
 
 @inject
 def depends_publication_act(
-    act_id: uuid.UUID,
+    act_uuid: uuid.UUID,
     session: Annotated[Session, Depends(depends_db_session)],
     repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
 ) -> PublicationActTable:
-    maybe_act: PublicationActTable | None = repository.get_by_id(session, act_id)
+    maybe_act: PublicationActTable | None = repository.get_by_id(session, act_uuid)
     if not maybe_act:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Publicatie regeling niet gevonden")
     return maybe_act

@@ -803,3 +803,403 @@ users_permissions:
     - hoofdlijnen_can_create_hoofdlijn
     - hoofdlijnen_can_edit_hoofdlijn
     - hoofdlijnen_can_delete_hoofdlijn
+
+publication:
+  act_defaults:
+    omgevingsvisie:
+      meta_data:
+        official_title: ""
+        quote_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+        jurisdictions:
+          - omgevingsrecht
+
+    programma:
+      meta_data:
+        official_title: ""
+        quote_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+        jurisdictions:
+          - omgevingsrecht
+
+  bill_defaults:
+    draft_omgevingsvisie:
+      # @see: class BillMetadata
+      bill_metadata:
+        official_title: ""
+        quote_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+        jurisdictions:
+          - omgevingsrecht
+      # @see: class BillCompact
+      bill_compact:
+        preamble: |
+          <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
+        closing: |
+          <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
+        signed: |
+          <p>Gedeputeerde Staten</p>
+        amendment_article: |
+          De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
+        time_article: |
+          <p>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</p>
+
+    final_omgevingsvisie:
+      # @see: class BillMetadata
+      bill_metadata:
+        official_title: ""
+        quote_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+        jurisdictions:
+          - omgevingsrecht
+      # @see: class BillCompact
+      bill_compact:
+        preamble: |
+          <p>Vaststellingsbesluit Omgevingsvisie Provincie Zuid-Holland.</p>
+        closing: |
+          <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
+        signed: |
+          <p>Gedeputeerde Staten</p>
+        amendment_article: |
+          De Omgevingsvisie wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
+        time_article: |
+          <p>Deze Omgevingsvisie treedt in werking op [[EFFECTIVE_DATE]].</p>
+
+    draft_programma:
+      bill_metadata:
+        official_title: ""
+        quote_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+        jurisdictions:
+          - omgevingsrecht
+      bill_compact:
+        preamble: |
+          <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
+        closing: |
+          <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
+        signed: |
+          <p>Gedeputeerde Staten</p>
+        amendment_article: |
+          Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
+        time_article: |
+          <p>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</p>
+
+    final_programma:
+      bill_metadata:
+        official_title: ""
+        quote_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+        jurisdictions:
+          - omgevingsrecht
+      bill_compact:
+        preamble: |
+          <p>Vaststellingsbesluit Programma Provincie Zuid-Holland.</p>
+        closing: |
+          <p>Aldus vastgesteld in de vergadering van [[SIGNED_DATE]].</p>
+        signed: |
+          <p>Gedeputeerde Staten</p>
+        amendment_article: |
+          Het Programma wordt vastgesteld zoals gegeven in <IntRef ref="cmp_A">Bijlage A</IntRef> van dit Besluit.
+        time_article: |
+          <p>Dit programma treedt in werking op [[EFFECTIVE_DATE]].</p>
+
+  announcement_defaults:
+    draft_omgevingsvisie:
+      meta_data:
+        official_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+      contents:
+        texts:
+          - title: Ontwerp Omgevingsvisie Zuid-Holland
+            description: |
+              <p>Hele mooie tekst</p>
+
+    final_omgevingsvisie:
+      meta_data:
+        official_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+      contents:
+        texts:
+          - title: Ontwerp Omgevingsvisie Zuid-Holland
+            description: |
+              <p>Tekst</p>
+
+    draft_programma:
+      meta_data:
+        official_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+      contents:
+        texts:
+          - title: Ontwerp Programma Zuid-Holland
+            description: |
+              <p>Tekst</p>
+
+    final_programma:
+      meta_data:
+        official_title: ""
+        subjects:
+          - water
+          - ruimtelijke_ordening
+          - waterbeheer
+          - natuur_en_milieu
+          - ruimte_en_infrastructuur
+          - verkeer
+          - cultureel_erfgoed
+          - bouwen_en_verbouwen
+          - wonen
+          - woningmarkt
+          - economie
+          - werk
+          - recreatie
+          - bodem
+          - energie
+          - flora_en_fauna
+          - geluid
+          - veiligheid
+          - natuur_en_landschapsbeheer
+          - luchtvaart
+          - rail_en_wegverkeer
+          - scheepvaart
+          - lucht
+          - netwerken
+          - cultuur_en_recreatie
+          - werkgelegenheid
+      contents:
+        texts:
+          - title: Ontwerp Programma Zuid-Holland
+            description: |
+              <p>Tekst</p>

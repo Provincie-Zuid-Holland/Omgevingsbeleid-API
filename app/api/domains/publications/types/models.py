@@ -67,7 +67,7 @@ class PublicationAOJ(BaseModel):
 
 
 class PublicationAct(BaseModel):
-    id: UUID
+    uuid: UUID
     title: str
     is_active: bool
     environment: PublicationEnvironment
