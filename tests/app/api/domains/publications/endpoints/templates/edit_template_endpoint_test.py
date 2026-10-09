@@ -29,7 +29,7 @@ def _payload(**overrides) -> dict:
 
 
 def test_edit_a_template_and_changes_are_persisted_in_db(beheerder: TestClient, session: Session, ctx: Context):
-    original: PublicationTemplateSpec = ctx.f.find(Ref(PublicationTemplateSpec, "publication-template-visie-2")).spec
+    original: PublicationTemplateSpec = ctx.f.find(Ref(PublicationTemplateSpec, "publication_template_visie_2")).spec
     payload: dict[str, str] = _payload()
     response = beheerder.post(
         f"/publication-templates/{original.id}",
@@ -52,7 +52,7 @@ def test_edit_a_template_and_changes_are_persisted_in_db(beheerder: TestClient, 
 
 
 def test_edit_a_template_no_updates_exception(beheerder: TestClient, ctx: Context):
-    original: PublicationTemplateSpec = ctx.f.find(Ref(PublicationTemplateSpec, "publication-template-visie-2")).spec
+    original: PublicationTemplateSpec = ctx.f.find(Ref(PublicationTemplateSpec, "publication_template_visie_2")).spec
     response = beheerder.post(
         f"/publication-templates/{original.id}",
         json={},

@@ -233,6 +233,29 @@ api:
               gebiedsaanwijzing: gebiedsaanwijzing_basic
               verplicht_programma: verplicht_programma_basic
             response_model_name: PagedListAllLatestObjectsResponse
+    - prefix: /publication-acts
+      endpoints:
+        - resolver: create_publication_act
+        - resolver: close_publication_act
+          resolver_data:
+            path: /{act_uuid}/close
+        - resolver: edit_publication_act
+          resolver_data:
+            path: /{act_uuid}
+        - resolver: detail_publication_act
+          resolver_data:
+            path: /{act_uuid}
+        - resolver: list_publication_acts
+    - prefix: /publication-templates
+      endpoints:
+        - resolver: create_publication_template
+        - resolver: edit_publication_template
+          resolver_data:
+            path: /{template_uuid}
+        - resolver: detail_publication_template
+          resolver_data:
+            path: /{template_uuid}
+        - resolver: list_publication_templates
     # Unified packages (both act and announcement)
     - prefix: /publication-packages
       endpoints:
@@ -251,16 +274,6 @@ api:
                 - publication_type
                 - document_type
                 - module_title
-    - prefix: /publication-templates
-      endpoints:
-        - resolver: create_publication_template
-        - resolver: edit_publication_template
-          resolver_data:
-            path: /{template_uuid}
-        - resolver: detail_publication_template
-          resolver_data:
-            path: /{template_uuid}
-        - resolver: list_publication_templates
 
 columns:
   # Titel

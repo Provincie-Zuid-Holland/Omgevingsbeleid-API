@@ -105,3 +105,4 @@ def test_environment_filter(admin: TestClient, ctx: Context):
     assert response.status_code == 200, response.text
     body = response.json()
     assert {str(env_prod)} == {r["environment_id"] for r in body["results"]}
+    assert len(body["results"]) == 3

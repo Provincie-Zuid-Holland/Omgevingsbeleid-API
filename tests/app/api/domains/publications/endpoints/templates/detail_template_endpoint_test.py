@@ -6,7 +6,7 @@ from tests.fixtures.internal.spec.publications import PublicationTemplateSpec
 from tests.fixtures.internal.types import Ref
 
 
-@pytest.mark.parametrize("template_key", ["publication-template-visie-2", "publication-template-programma-2"])
+@pytest.mark.parametrize("template_key", ["publication_template_visie_2", "publication_template_programma_2"])
 def test_returns_the_requested_template(beheerder: TestClient, ctx: Context, template_key: str):
     expected: PublicationTemplateSpec = ctx.f.find(Ref(PublicationTemplateSpec, template_key)).spec
 

@@ -13,10 +13,10 @@ def test_lists_the_templates_newest_first(admin: TestClient, ctx: Context):
         ctx,
         PublicationTemplateSpec,
         [
-            "publication-template-visie-2",
-            "publication-template-programma-2",
-            "publication-template-visie-1",
-            "publication-template-programma-1",
+            "publication_template_visie_2",
+            "publication_template_programma_2",
+            "publication_template_visie_1",
+            "publication_template_programma_1",
         ],
     )
 
@@ -29,8 +29,8 @@ def test_lists_the_templates_newest_first_filter_is_active(admin: TestClient, ct
         ctx,
         PublicationTemplateSpec,
         [
-            "publication-template-visie-2",
-            "publication-template-programma-2",
+            "publication_template_visie_2",
+            "publication_template_programma_2",
         ],
     )
 
@@ -43,7 +43,7 @@ def test_lists_the_templates_newest_first_filter_document_type_programma(admin: 
         ctx,
         PublicationTemplateSpec,
         [
-            "publication-template-programma-2",
-            "publication-template-programma-1",
+            "publication_template_programma_2",
+            "publication_template_programma_1",
         ],
     )

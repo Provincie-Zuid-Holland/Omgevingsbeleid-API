@@ -1,6 +1,6 @@
-import uuid
 from datetime import date, datetime
 from typing import Any
+from uuid import UUID
 
 from dso.services.koop.waardelijsten.gen import BestuursorgaanType, OnderwerpType, RechtsgebiedType
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -18,7 +18,7 @@ class Waardelijsten(BaseModel):
 
 
 class PublicationTemplate(BaseModel):
-    id: uuid.UUID
+    id: UUID
     title: str
     description: str
     is_active: bool
@@ -35,7 +35,7 @@ class PublicationTemplate(BaseModel):
 
 
 class PublicationEnvironment(BaseModel):
-    id: uuid.UUID
+    id: UUID
     title: str
     description: str
     province_id: str
@@ -57,7 +57,7 @@ class PublicationEnvironment(BaseModel):
 
 
 class PublicationAOJ(BaseModel):
-    id: uuid.UUID
+    id: UUID
     administrative_borders_id: str
     administrative_borders_domain: str
     administrative_borders_date: date
@@ -67,7 +67,7 @@ class PublicationAOJ(BaseModel):
 
 
 class PublicationAct(BaseModel):
-    id: uuid.UUID
+    id: UUID
     title: str
     is_active: bool
     environment: PublicationEnvironment
@@ -86,10 +86,10 @@ class PublicationAct(BaseModel):
 
 
 class PublicationActShort(BaseModel):
-    id: uuid.UUID
+    uuid: UUID
     title: str
     is_active: bool
-    environment_id: uuid.UUID
+    environment_id: UUID
     document_type: str
 
     work_province_id: str
@@ -104,15 +104,15 @@ class PublicationActShort(BaseModel):
 
 
 class Publication(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
     module_id: int
     is_locked: bool
     document_type: str
     procedure_type: str
-    template_id: uuid.UUID | None = None
-    environment_id: uuid.UUID | None = None
-    act_id: uuid.UUID | None = None
+    template_id: UUID | None = None
+    environment_id: UUID | None = None
+    act_id: UUID | None = None
 
     created_date: datetime
     modified_date: datetime
@@ -121,14 +121,14 @@ class Publication(BaseModel):
 
 
 class PublicationShort(BaseModel):
-    id: uuid.UUID
+    id: UUID
     module_id: int
     is_locked: bool
     document_type: str
     procedure_type: str
-    template_id: uuid.UUID | None = None
-    environment_id: uuid.UUID | None = None
-    act_id: uuid.UUID | None = None
+    template_id: UUID | None = None
+    environment_id: UUID | None = None
+    act_id: UUID | None = None
 
     created_date: datetime
     modified_date: datetime
@@ -252,7 +252,7 @@ class ActMetadata(BaseModel):
 
 
 class PublicationVersionFinalValidated(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
     bill_metadata: BillMetadata
     bill_compact: BillCompact
@@ -265,7 +265,7 @@ class PublicationVersionFinalValidated(BaseModel):
 
 
 class PublicationVersionDraftValidated(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
     bill_metadata: BillMetadata
     bill_compact: BillCompact
@@ -278,7 +278,7 @@ class PublicationVersionDraftValidated(BaseModel):
 
 class AttachmentShort(BaseModel):
     id: int
-    file_id: uuid.UUID
+    file_id: UUID
     filename: str
     title: str
     created_date: datetime
@@ -288,7 +288,7 @@ class AttachmentShort(BaseModel):
 
 
 class PublicationVersion(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
     publication: PublicationShort
     module_status: ModuleStatus
@@ -313,7 +313,7 @@ class PublicationVersion(BaseModel):
 
 
 class PublicationPackageShort(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
     package_type: str
     report_status: str
@@ -321,16 +321,16 @@ class PublicationPackageShort(BaseModel):
 
     created_date: datetime
     modified_date: datetime
-    created_by_id: uuid.UUID
-    modified_by_id: uuid.UUID
+    created_by_id: UUID
+    modified_by_id: UUID
 
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
 class PublicationVersionShort(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
-    publication_id: uuid.UUID
+    publication_id: UUID
     module_status: ModuleStatus
 
     bill_metadata: dict
@@ -350,8 +350,8 @@ class PublicationVersionShort(BaseModel):
 
 
 class PublicationActPackageReportShort(BaseModel):
-    id: uuid.UUID
-    act_package_id: uuid.UUID
+    id: UUID
+    act_package_id: UUID
 
     report_status: str
     filename: str
@@ -363,8 +363,8 @@ class PublicationActPackageReportShort(BaseModel):
 
 
 class PublicationActPackageReport(BaseModel):
-    id: uuid.UUID
-    act_package_id: uuid.UUID
+    id: UUID
+    act_package_id: UUID
 
     report_status: str
     filename: str
@@ -380,16 +380,16 @@ class PublicationActPackageReport(BaseModel):
 
 
 class PackageZipShort(BaseModel):
-    id: uuid.UUID
+    id: UUID
     filename: str
     latest_download_date: datetime | None = None
-    latest_download_by_id: uuid.UUID | None = None
+    latest_download_by_id: UUID | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class PublicationPackage(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
     package_type: str
     report_status: str
@@ -397,8 +397,8 @@ class PublicationPackage(BaseModel):
 
     created_date: datetime
     modified_date: datetime
-    created_by_id: uuid.UUID
-    modified_by_id: uuid.UUID
+    created_by_id: UUID
+    modified_by_id: UUID
 
     zip: PackageZipShort
 
@@ -444,7 +444,7 @@ class AnnouncementContent(BaseModel):
 
 
 class PublicationAnnouncement(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
     act_package: PublicationPackageShort
     publication: PublicationShort
@@ -463,7 +463,7 @@ class PublicationAnnouncement(BaseModel):
 
 
 class PublicationAnnouncementShort(BaseModel):
-    id: uuid.UUID
+    id: UUID
 
     meta_data: dict
 
@@ -477,8 +477,8 @@ class PublicationAnnouncementShort(BaseModel):
 
 
 class PublicationAnnouncementPackageReportShort(BaseModel):
-    id: uuid.UUID
-    announcement_package_id: uuid.UUID
+    id: UUID
+    announcement_package_id: UUID
 
     report_status: str
     filename: str
@@ -490,8 +490,8 @@ class PublicationAnnouncementPackageReportShort(BaseModel):
 
 
 class PublicationAnnouncementPackageReport(BaseModel):
-    id: uuid.UUID
-    announcement_package_id: uuid.UUID
+    id: UUID
+    announcement_package_id: UUID
 
     report_status: str
     filename: str
