@@ -13,7 +13,7 @@ def load(col: Collector) -> None:
         col.adds(
             [
                 PublicationTemplateSpec(
-                    key="publication-template-programma-1",
+                    key="publication_template_programma_1",
                     title="Programma Versie 2025.01",
                     description="Programma template description",
                     is_active=False,
@@ -26,7 +26,7 @@ def load(col: Collector) -> None:
                     modified_date=datetime(2025, 1, 1, tzinfo=UTC),
                 ),
                 PublicationTemplateSpec(
-                    key="publication-template-programma-2",
+                    key="publication_template_programma_2",
                     title="Programma Versie 2025.02",
                     description="Programma template description",
                     is_active=True,
@@ -45,7 +45,7 @@ def load(col: Collector) -> None:
                     modified_date=datetime(2025, 2, 1, tzinfo=UTC),
                 ),
                 PublicationTemplateSpec(
-                    key="publication-template-visie-1",
+                    key="publication_template_visie_1",
                     title="Omgevingsvisie Versie 2025.01",
                     description="Omgevingsvisie template description",
                     is_active=False,
@@ -58,7 +58,7 @@ def load(col: Collector) -> None:
                     modified_date=datetime(2025, 1, 2, tzinfo=UTC),
                 ),
                 PublicationTemplateSpec(
-                    key="publication-template-visie-2",
+                    key="publication_template_visie_2",
                     title="Omgevingsvisie Versie 2025.02",
                     description="Omgevingsvisie template description",
                     is_active=True,

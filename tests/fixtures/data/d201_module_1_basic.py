@@ -72,6 +72,7 @@ def load(col: Collector) -> None:
             col.move_at(hours=1)
             col.add(
                 ModuleStatusHistorySpec(
+                    key="module_1_status_ter_inzage",
                     status=PublicModuleStatusCode.Ter_Inzage,
                 )
             )

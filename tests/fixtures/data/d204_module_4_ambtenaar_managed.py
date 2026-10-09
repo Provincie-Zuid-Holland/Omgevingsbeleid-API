@@ -34,6 +34,7 @@ def load(col: Collector) -> None:
             col.move_at(hours=1)
             col.add(
                 ModuleStatusHistorySpec(
+                    key="module_4_status_ontwerp_gs_concept",
                     status=ModuleStatusCode.Ontwerp_GS_Concept,
                 )
             )

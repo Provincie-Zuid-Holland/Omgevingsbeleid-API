@@ -26,6 +26,11 @@ from tests.fixtures.data import (
     d207_module_7_temporary_locked,
     d208_module_8_to_be_completed,
     d301_publication_templates,
+    d302_publication_environments,
+    d303_publications_acts,
+    d310_publications_module_1,
+    d311_publications_module_4,
+    d320_publication_packages,
 )
 from tests.fixtures.internal.services.collector import Collector
 from tests.fixtures.internal.services.linker_service import LinkerService
@@ -61,6 +66,11 @@ class FixturesService:
             d207_module_7_temporary_locked.load,
             d208_module_8_to_be_completed.load,
             d301_publication_templates.load,
+            d302_publication_environments.load,
+            d303_publications_acts.load,
+            d310_publications_module_1.load,
+            d311_publications_module_4.load,
+            d320_publication_packages.load,
         ]
 
         collector: Collector = Collector()

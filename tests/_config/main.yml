@@ -233,6 +233,24 @@ api:
               gebiedsaanwijzing: gebiedsaanwijzing_basic
               verplicht_programma: verplicht_programma_basic
             response_model_name: PagedListAllLatestObjectsResponse
+    # Unified packages (both act and announcement)
+    - prefix: /publication-packages
+      endpoints:
+        - resolver: list_unified_publication_packages
+          resolver_data:
+            sort:
+              default:
+                column: created_date
+                order: DESC
+              allowed_columns:
+                - created_date
+                - modified_date
+                - package_type
+                - report_status
+                - module_id
+                - publication_type
+                - document_type
+                - module_title
     - prefix: /publication-templates
       endpoints:
         - resolver: create_publication_template

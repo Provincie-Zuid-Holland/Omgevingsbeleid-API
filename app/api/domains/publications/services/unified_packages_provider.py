@@ -20,7 +20,7 @@ class UnifiedPackagesProvider:
     def _build_act_packages_query(self):
         return (
             select(
-                literal("act").label("Publication_Type"),
+                literal("act").label("publication_type"),
                 PublicationActPackageTable.id,
                 PublicationActPackageTable.created_date,
                 PublicationActPackageTable.modified_date,
@@ -28,9 +28,9 @@ class UnifiedPackagesProvider:
                 PublicationActPackageTable.report_status,
                 PublicationActPackageTable.delivery_id,
                 ModuleTable.module_id,
-                ModuleTable.title.label("Module_Title"),
+                ModuleTable.title.label("module_title"),
                 PublicationTable.document_type,
-                PublicationEnvironmentTable.id.label("Environment_UUID"),
+                PublicationEnvironmentTable.id.label("environment_id"),
             )
             .select_from(PublicationActPackageTable)
             .join(PublicationActPackageTable.publication_version)
@@ -42,7 +42,7 @@ class UnifiedPackagesProvider:
     def _build_announcement_packages_query(self):
         return (
             select(
-                literal("announcement").label("Publication_Type"),
+                literal("announcement").label("publication_type"),
                 PublicationAnnouncementPackageTable.id,
                 PublicationAnnouncementPackageTable.created_date,
                 PublicationAnnouncementPackageTable.modified_date,
@@ -50,9 +50,9 @@ class UnifiedPackagesProvider:
                 PublicationAnnouncementPackageTable.report_status,
                 PublicationAnnouncementPackageTable.delivery_id,
                 ModuleTable.module_id,
-                ModuleTable.title.label("Module_Title"),
+                ModuleTable.title.label("module_title"),
                 PublicationTable.document_type,
-                PublicationEnvironmentTable.id.label("Environment_UUID"),
+                PublicationEnvironmentTable.id.label("environment_id"),
             )
             .select_from(PublicationAnnouncementPackageTable)
             .join(PublicationAnnouncementPackageTable.announcement)
