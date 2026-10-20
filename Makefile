@@ -91,9 +91,6 @@ docker-restart: docker-down docker-init
 docker-api: ## Exec into api
 	docker compose exec api /bin/bash
 
-# docker-psql-create-database-dev:
-# 	@docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-dev.sql
-
 docker-drop-database:
 	docker compose exec api python -m app.cmds dropdb
 
@@ -113,4 +110,4 @@ docker-load-fixtures:
 	docker compose exec api python -m app.cmds load-fixtures
 
 docker-psql:
-	docker compose exec -it postgres psql -U pzh omgevingsbeleid
+	docker compose exec -it postgres psql -U omgevingsbeleid omgevingsbeleid

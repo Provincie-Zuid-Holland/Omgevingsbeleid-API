@@ -111,7 +111,6 @@ class PublicationEnvironmentStateTable(Base):
 
     environment: Mapped["PublicationEnvironmentTable"] = relationship(
         "PublicationEnvironmentTable",
-        back_populates="states",
         foreign_keys=[environment_id],
     )
 

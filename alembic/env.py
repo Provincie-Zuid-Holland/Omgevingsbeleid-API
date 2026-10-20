@@ -4,11 +4,9 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+from geoalchemy2 import alembic_helpers
 
-import importlib
-import pkgutil
-
-import app.core.tables
+import app.main  # noqa: F401
 from app.core.db.base import Base
 from app.core.settings import Settings
 
@@ -31,10 +29,6 @@ target_metadata = Base.metadata
 
 
 
-url: str = Settings().SQLALCHEMY_DATABASE_URI.replace("%", "%%")
-print("\n\n\n\n\n")
-print(url)
-print("\n\n\n\n\n")
 config.set_main_option("sqlalchemy.url", Settings().SQLALCHEMY_DATABASE_URI.replace("%", "%%"))
 
 # other values from the config, defined by the needs of env.py,
@@ -59,6 +53,7 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
+        include_object=alembic_helpers.include_object,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -78,11 +73,15 @@ def run_migrations_online() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        # PostGIS adds its tiger/topology schemas to the search_path; SQLAlchemy would reflect them as ours
+        connect_args={"options": "-csearch_path=public"},
     )
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=alembic_helpers.include_object,
         )
 
         with context.begin_transaction():
