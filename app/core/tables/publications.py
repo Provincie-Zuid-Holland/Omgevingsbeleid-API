@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from pydantic import TypeAdapter
@@ -76,10 +76,18 @@ class PublicationEnvironmentTable(Base, UserMetaData):
 
     is_locked: Mapped[bool]
 
-    active_state_id: Mapped[UUID | None] = mapped_column(ForeignKey("publication_environment_states.id"), nullable=True)
-    active_state: Mapped[Optional["PublicationEnvironmentStateTable"]] = relationship(
+    active_state_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey(
+            "publication_environment_states.id",
+            use_alter=True,
+            name="fk_publication_environments_active_state_id",
+        ),
+        nullable=True,
+    )
+    active_state: Mapped["PublicationEnvironmentStateTable | None"] = relationship(
         "PublicationEnvironmentStateTable",
-        primaryjoin="PublicationEnvironmentTable.active_state_id == PublicationEnvironmentStateTable.id",
+        foreign_keys=[active_state_id],
+        post_update=True,
     )
 
     created_date: Mapped[datetime]
@@ -90,7 +98,7 @@ class PublicationEnvironmentStateTable(Base):
     __tablename__ = "publication_environment_states"
 
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
+    environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"), nullable=False)
     adjust_on_id: Mapped[UUID | None] = mapped_column(ForeignKey("publication_environment_states.id"), nullable=True)
 
     state = Column(JSON)
@@ -100,6 +108,11 @@ class PublicationEnvironmentStateTable(Base):
 
     created_date: Mapped[datetime]
     created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+
+    environment: Mapped["PublicationEnvironmentTable"] = relationship(
+        "PublicationEnvironmentTable",
+        foreign_keys=[environment_id],
+    )
 
 
 class PublicationAreaOfJurisdictionTable(Base):
