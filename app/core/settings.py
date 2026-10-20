@@ -46,7 +46,7 @@ class Settings(BaseSettings):
 
         values = info.data
         return URL.create(
-            "postgresql+psycopg",
+            values["DB_DIALECT"],
             username=values["DB_USER"],
             password=values["DB_PASS"],
             host=values["DB_HOST"],
