@@ -2,6 +2,7 @@ from typing import Any, Self
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
 
 
 class KoopSettings(BaseModel):
@@ -25,13 +26,16 @@ class Settings(BaseSettings):
 
     # Database
     SQLALCHEMY_ECHO: bool = False
-    DB_DRIVER: str = Field("PostgreSQL Unicode", description="The driver for the SQL database")
+
+    DB_DIALECT: str = Field(
+        "postgresql+psycopg",
+        description="SQLAlchemy dialect+driver, e.g. postgresql+psycopg or sqlite+pysqlite",
+    )
     DB_HOST: str = Field("postgres", description="The host address of the database")
+    DB_PORT: int = Field(5432, description="The port for the database connection")
     DB_NAME: str = Field("omgevingsbeleid", description="The name of the database")
-    DB_USER: str = Field("pzh", description="The database username")
-    DB_PASS: str = Field("password", description="The password for the database user")
-    DB_PORT: str = Field("5432", description="The port for the database connection")
-    DB_DIALECT: str = Field("postgresql+psycopg", description="The dialect for the database")
+    DB_USER: str = Field("omgevingsbeleid", description="The database username")
+    DB_PASS: str = Field("omgevingsbeleid", description="The password for the database user")
 
     SQLALCHEMY_DATABASE_URI: str = ""
 
@@ -41,7 +45,14 @@ class Settings(BaseSettings):
             return v
 
         values = info.data
-        return f"{values['DB_DIALECT']}://{values['DB_USER']}:{values['DB_PASS']}@{values['DB_HOST']}:{values['DB_PORT']}/{values['DB_NAME']}"
+        return URL.create(
+            "postgresql+psycopg",
+            username=values["DB_USER"],
+            password=values["DB_PASS"],
+            host=values["DB_HOST"],
+            port=values["DB_PORT"],
+            database=values["DB_NAME"],
+        ).render_as_string(hide_password=False)
 
     # Dynamic
     MAIN_CONFIG_FILE: str = "./config/main.yml"

@@ -9,4 +9,3 @@ convention = {
 }
 
 table_metadata = MetaData(naming_convention=convention)
-

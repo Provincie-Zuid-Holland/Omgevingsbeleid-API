@@ -3,9 +3,16 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from app.core.db.base import Base
-
 from alembic import context
+
+import importlib
+import pkgutil
+
+import app.core.tables
+from app.core.db.base import Base
+from app.core.settings import Settings
+
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,6 +28,14 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+
+
+
+url: str = Settings().SQLALCHEMY_DATABASE_URI.replace("%", "%%")
+print("\n\n\n\n\n")
+print(url)
+print("\n\n\n\n\n")
+config.set_main_option("sqlalchemy.url", Settings().SQLALCHEMY_DATABASE_URI.replace("%", "%%"))
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
