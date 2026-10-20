@@ -58,10 +58,6 @@ class Settings(BaseSettings):
     MAIN_CONFIG_FILE: str = "./config/main.yml"
     OBJECT_CONFIG_PATH: str = "./config/objects/"
 
-    # Mssql Search
-    MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
-    MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
-
     PUBLICATION_KOOP: dict[str, KoopSettings] = Field(default_factory=dict)
     PUBLICATION_OW_DATASET: str = Field(
         "provincie Zuid-holland",
@@ -79,10 +75,15 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def set_values_for_containers(self) -> Self:
-        # "mssql+pyodbc://..." → "mssql"
         # "sqlite+pysqlite:///..." → "sqlite"
         # "sqlite:///:memory:" → "sqlite"
         self.DB_TYPE = self.SQLALCHEMY_DATABASE_URI.split("://", 1)[0].split("+")[0]
+        valid_db_types: set[str] = {"sqlite", "postgres"}
+        if self.DB_TYPE not in valid_db_types:
+            raise RuntimeError(
+                f"DB_TYPE `{self.DB_TYPE}` is not supported. Supported databases are {', '.join(valid_db_types)}"
+            )
+
         return self
 
     model_config = SettingsConfigDict(

@@ -77,7 +77,6 @@ testcase:
 testcov:
 	python -m pytest --cov --cov-report=xml
 
-# Ment to test MSSQL
 docker-init: docker-up docker-alembic-do-upgrade
 
 docker-up: ## Starts the docker services

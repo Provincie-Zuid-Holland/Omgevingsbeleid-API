@@ -20,8 +20,6 @@ def _disable_foreign_keys(dialect: str, session: Session) -> None:
         session.execute(text("PRAGMA foreign_keys = OFF"))
     elif dialect == "postgresql":
         session.execute(text("""SET session_replication_role = 'replica';"""))
-    elif dialect == "mssql":
-        session.execute(text("""EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT ALL";"""))
 
 
 def _enable_foreign_keys(dialect: str, session: Session) -> None:
@@ -29,8 +27,6 @@ def _enable_foreign_keys(dialect: str, session: Session) -> None:
         session.execute(text("PRAGMA foreign_keys = OFF"))
     elif dialect == "postgresql":
         session.execute(text("""SET session_replication_role = 'origin';"""))
-    elif dialect == "mssql":
-        session.execute(text("""EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT ALL";"""))
 
 
 @click.command()

@@ -2,12 +2,9 @@ from .area_repository import AreaRepository
 from .input_geo import (
     InputGeoOnderverdelingRepository,
     InputGeoWerkingsgebiedenRepository,
-    MssqlInputGeoOnderverdelingRepository,
     PostgresqlInputGeoOnderverdelingRepository,
     SqliteInputGeoOnderverdelingRepository,
 )
-from .mssql_area_geometry_repository import MssqlAreaGeometryRepository
-from .mssql_geometry_repository import MssqlGeometryRepository
 from .postgresql_area_geometry_repository import PostgresqlAreaGeometryRepository
 from .postgresql_geometry_repository import PostgresqlGeometryRepository
 from .sqlite_area_geometry_repository import SqliteAreaGeometryRepository
