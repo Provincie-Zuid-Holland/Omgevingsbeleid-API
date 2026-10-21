@@ -1,7 +1,8 @@
 import uuid
 from collections.abc import Sequence
 
-from passlib.context import CryptContext
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
 
 from app.core.db.base import Base
 from app.core.tables.users import UsersTable
@@ -28,7 +29,7 @@ class UserSpec(Spec):
 
 class UserPrefillHandler(BasePrefillHandler[UserSpec]):
     def __init__(self):
-        self._pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self._pwd_hash: PasswordHash = PasswordHash((Argon2Hasher(),))
 
     def fill(self, record: Record[UserSpec], context: PrefillContext) -> Record[UserSpec]:
         record = super().fill(record, context)
@@ -36,7 +37,7 @@ class UserPrefillHandler(BasePrefillHandler[UserSpec]):
         if record.spec.id is None:
             record.spec.id = uuid.uuid5(UUID_NAMESPACE, record.spec.email)
 
-        record.spec.password_hashed = self._pwd_context.hash(record.spec.password)
+        record.spec.password_hashed = self._pwd_hash.hash(record.spec.password)
 
         return record
 
