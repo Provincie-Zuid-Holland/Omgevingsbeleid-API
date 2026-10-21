@@ -6,7 +6,7 @@ from typing import Annotated
 import validators
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -26,16 +26,6 @@ class EditUser(BaseModel):
     email: str | None = Field(None)
     roles: list[str] | None = Field(None)
     is_active: bool | None = Field(None)
-
-    @field_validator("email", mode="before")
-    def valid_email(cls, v):
-        if v is None:
-            return v
-        if not validators.email(v):
-            raise ValueError("Invalid email")
-        if v.strip().lower() != v:
-            raise ValueError("Invalid email")
-        return v
 
 
 class EditUserEndpointContext(BaseEndpointContext):
@@ -76,6 +66,8 @@ def post_edit_user_endpoint(
     if not user.roles:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "At least one role is required")
 
+    if user.email.strip().lower() != user.email:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid email")
     if not validators.email(user.email):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid email")
     if not set(user.roles) <= set(context.allowed_roles):
