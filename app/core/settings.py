@@ -77,12 +77,17 @@ class Settings(BaseSettings):
     def set_values_for_containers(self) -> Self:
         # "sqlite+pysqlite:///..." → "sqlite"
         # "sqlite:///:memory:" → "sqlite"
-        self.DB_TYPE = self.SQLALCHEMY_DATABASE_URI.split("://", 1)[0].split("+")[0]
+        db_type: str = self.SQLALCHEMY_DATABASE_URI.split("://", 1)[0].split("+")[0]
+        db_type_map: dict[str, str] = {"postgresql": "postgres"}
+        if db_type in db_type_map:
+            db_type = db_type_map[db_type]
+
         valid_db_types: set[str] = {"sqlite", "postgres"}
-        if self.DB_TYPE not in valid_db_types:
+        if db_type not in valid_db_types:
             raise RuntimeError(
-                f"DB_TYPE `{self.DB_TYPE}` is not supported. Supported databases are {', '.join(valid_db_types)}"
+                f"DB_TYPE `{db_type}` is not supported. Supported databases are {', '.join(valid_db_types)}"
             )
+        self.DB_TYPE = db_type
 
         return self
 

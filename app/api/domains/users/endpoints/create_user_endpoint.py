@@ -30,6 +30,8 @@ class UserCreate(BaseModel):
     def valid_email(cls, v):
         if not validators.email(v):
             raise ValueError("Invalid email")
+        if v.strip().lower() != v:
+            raise ValueError("Invalid email")
         return v
 
 

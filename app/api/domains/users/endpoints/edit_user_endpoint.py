@@ -6,7 +6,7 @@ from typing import Annotated
 import validators
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.api.api_container import ApiContainer
@@ -26,6 +26,16 @@ class EditUser(BaseModel):
     email: str | None = Field(None)
     roles: list[str] | None = Field(None)
     is_active: bool | None = Field(None)
+
+    @field_validator("email", mode="before")
+    def valid_email(cls, v):
+        if v is None:
+            return v
+        if not validators.email(v):
+            raise ValueError("Invalid email")
+        if v.strip().lower() != v:
+            raise ValueError("Invalid email")
+        return v
 
 
 class EditUserEndpointContext(BaseEndpointContext):

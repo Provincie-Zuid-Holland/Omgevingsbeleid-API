@@ -1,22 +1,22 @@
 """Initial postgres setup
 
-Revision ID: ff315212f16d
+Revision ID: 235e725d7bf1
 Revises:
-Create Date: 2026-10-20 11:38:28.784939
+Create Date: 2026-10-21 10:47:18.618776
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "ff315212f16d"
-down_revision: Union[str, Sequence[str], None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+revision: str = "235e725d7bf1"
+down_revision: str | Sequence[str] | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -74,10 +74,11 @@ def upgrade() -> None:
         "users",
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("name", sa.String(), nullable=True),
-        sa.Column("email", sa.Unicode(length=256), nullable=False),
+        sa.Column("email", sa.Unicode(length=255), nullable=False),
         sa.Column("role", sa.Unicode(length=100), nullable=True),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("password_hashed", sa.String(), nullable=True),
+        sa.CheckConstraint("email = lower(email)", name=op.f("ck_users_email_lowercase")),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_users")),
         sa.UniqueConstraint("email", name=op.f("uq_users_email")),
     )
