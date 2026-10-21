@@ -12,18 +12,18 @@ class StateVersionFactory:
         self._versions: dict[int, type[State]] = {v.get_schema_version(): v for v in versions}
         self._upgraders: dict[int, StateUpgrader] = {u.get_input_schema_version(): u for u in upgraders}
 
-    def get_state_model(self, session: Session, environment_uuid: uuid.UUID, state_dict: dict) -> ActiveState:
+    def get_state_model(self, session: Session, environment_id: uuid.UUID, state_dict: dict) -> ActiveState:
         schema: StateSchema = StateSchema.model_validate(state_dict)
         if schema.Schema_Version not in self._versions:
             raise RuntimeError(f"State schema version '{schema.Schema_Version}' is not registered")
 
         version_model: type[State] = self._versions[schema.Schema_Version]
         state: State = version_model.model_validate(state_dict["Data"])
-        state = self._upgrade(session, environment_uuid, state)
+        state = self._upgrade(session, environment_id, state)
 
         return state
 
-    def _upgrade(self, session: Session, environment_uuid: uuid.UUID, state: State) -> ActiveState:
+    def _upgrade(self, session: Session, environment_id: uuid.UUID, state: State) -> ActiveState:
         guard_counter: int = len(self._upgraders)
 
         while not isinstance(state, ActiveState):
@@ -33,7 +33,7 @@ class StateVersionFactory:
 
             state = upgrader.upgrade(
                 session=session,
-                environment_uuid=environment_uuid,
+                environment_id=environment_id,
                 old_state=state,
             )
 

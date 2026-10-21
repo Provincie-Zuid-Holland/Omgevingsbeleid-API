@@ -7,7 +7,10 @@ from typing import Any
 import jwt
 from fastapi import HTTPException, status
 from jwt import PyJWTError
-from passlib.context import CryptContext
+from pwdlib import PasswordHash
+from pwdlib.exceptions import UnknownHashError
+from pwdlib.hashers.argon2 import Argon2Hasher
+from pwdlib.hashers.bcrypt import BcryptHasher
 from pydantic import ValidationError
 
 from app.api.domains.users.types import TokenPayload
@@ -16,6 +19,8 @@ from app.api.domains.users.types import TokenPayload
 class Security:
     ALGORITHM = "HS256"
 
+    _BCRYPT_MAX_BYTES = 72
+
     def __init__(
         self,
         secret_key: str,
@@ -23,7 +28,12 @@ class Security:
     ):
         self._secret_key: str = secret_key
         self._token_lifetime: timedelta = token_lifetime
-        self._pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self._pwd_hash: PasswordHash = PasswordHash(
+            (
+                Argon2Hasher(),
+                BcryptHasher(),
+            )
+        )
 
     def decode_token(self, token: str) -> TokenPayload:
         try:
@@ -60,7 +70,12 @@ class Security:
             plain_password,
             plain_password.strip(),
         }
-        return any(self._pwd_context.verify(p, hashed_password) for p in variants)
+        try:
+            return any(
+                self._pwd_hash.verify(self._prepare_for_hash(p, hashed_password), hashed_password) for p in variants
+            )
+        except (UnknownHashError, ValueError):
+            return False
 
     def validate_password(self, password: str) -> str:
         """Trim and validate password against complexity requirements.
@@ -78,9 +93,19 @@ class Security:
         return password
 
     def get_password_hash(self, password: str) -> str:
-        return self._pwd_context.hash(password)
+        return self._pwd_hash.hash(password)
 
     def get_random_password(self, length: int = 32):
         alphabet = string.ascii_letters + string.digits
-        password = "".join(secrets.choice(alphabet) for i in range(length))
+        password = "".join(secrets.choice(alphabet) for _ in range(length))
         return password
+
+    def _prepare_for_hash(self, password: str, hashed_password: str) -> str:
+        """Truncate the password to 72 bytes when checking it against a bcrypt hash."""
+        if not hashed_password.startswith("$2"):
+            return password
+
+        encoded = password.encode("utf-8")
+        if len(encoded) <= self._BCRYPT_MAX_BYTES:
+            return password
+        return encoded[: self._BCRYPT_MAX_BYTES].decode("utf-8", errors="ignore")

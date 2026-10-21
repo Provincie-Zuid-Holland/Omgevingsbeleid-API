@@ -37,7 +37,7 @@ def get_list_act_packages_endpoint(
         ),
     ],
     context: Annotated[ListActPackagesEndpointContext, Depends()],
-    version_uuid: uuid.UUID | None = None,
+    version_id: uuid.UUID | None = None,
     package_type: PackageType | None = None,
 ) -> PagedResponse[PublicationActPackage]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
@@ -45,7 +45,7 @@ def get_list_act_packages_endpoint(
 
     paginated_result = package_repository.get_with_filters(
         session=session,
-        version_uuid=version_uuid,
+        version_id=version_id,
         package_type=package_type,
         pagination=pagination,
     )

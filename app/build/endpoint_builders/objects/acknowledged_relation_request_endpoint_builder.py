@@ -1,6 +1,6 @@
 from app.api.domains.objects.endpoints.acknowledged_relation_request_endpoint import (
     AcknowledgedRelationRequestEndpointContext,
-    get_acknowledged_relation_request_endpoint,
+    post_acknowledged_relation_request_endpoint,
 )
 from app.api.endpoint import EndpointContextBuilderData
 from app.api.types import ResponseOK
@@ -30,7 +30,7 @@ class AcknowledgedRelationRequestEndpointBuilder(EndpointBuilder):
             allowed_object_types=allowed_object_types,
             builder_data=builder_data,
         )
-        endpoint = self._inject_context(get_acknowledged_relation_request_endpoint, context)
+        endpoint = self._inject_context(post_acknowledged_relation_request_endpoint, context)
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,

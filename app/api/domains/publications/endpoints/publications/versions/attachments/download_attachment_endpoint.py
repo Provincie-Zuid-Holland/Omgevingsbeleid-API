@@ -25,9 +25,9 @@ def get_download_attachment_endpoint(
     ],
 ) -> Response:
     _guard(version, attachment)
-    filename = attachment.File.Filename
-    content = attachment.File.Binary
-    content_type = attachment.File.Content_Type
+    filename = attachment.file.filename
+    content = attachment.file.binary
+    content_type = attachment.file.content_type
 
     return Response(
         content=content,
@@ -41,9 +41,9 @@ def get_download_attachment_endpoint(
 
 
 def _guard(version: PublicationVersionTable, attachment: PublicationVersionAttachmentTable) -> None:
-    if attachment.Publication_Version_UUID != version.UUID:
+    if attachment.publication_version_id != version.id:
         raise HTTPException(
             status.HTTP_409_CONFLICT, "You can not download an attachment of another publication version"
         )
-    if not version.Publication.Act.Is_Active:
+    if not version.publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")

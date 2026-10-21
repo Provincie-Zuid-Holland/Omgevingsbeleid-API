@@ -472,7 +472,7 @@ class GebiedsaanwijzingValidator(Validator):
             """
             used_codes: set[str] = set()
             for aanwijzing_html in soup.select('a[data-hint-type="gebiedsaanwijzing"]'):
-                # Code of the gebiedsaanwijzing object
+                # code of the gebiedsaanwijzing object
                 data_code: str = str(aanwijzing_html.get("data-code", ""))
 
                 inner_text: str = aanwijzing_html.get_text(strip=True)

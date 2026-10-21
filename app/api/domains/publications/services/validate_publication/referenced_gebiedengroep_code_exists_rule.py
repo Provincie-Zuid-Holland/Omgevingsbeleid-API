@@ -26,10 +26,10 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
                     ValidatePublicationError(
                         rule="referenced_gebiedengroep_code_exists_rule",
                         object=ValidatePublicationObject(
-                            code=used_object.get("Code"),
-                            object_id=used_object.get("Object_ID"),
-                            object_type=used_object.get("Object_Type"),
-                            title=used_object.get("Title"),
+                            code=used_object.get("code"),
+                            object_id=used_object.get("object_id"),
+                            object_type=used_object.get("object_type"),
+                            title=used_object.get("title"),
                         ),
                         messages=[f"Gebiedengroep code '{gebiedengroep_code}' can't be found in publication"],
                     )

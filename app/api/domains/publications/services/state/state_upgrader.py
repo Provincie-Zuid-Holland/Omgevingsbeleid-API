@@ -13,5 +13,5 @@ class StateUpgrader(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def upgrade(self, session: Session, environment_uuid: uuid.UUID, old_state: State) -> State:
+    def upgrade(self, session: Session, environment_id: uuid.UUID, old_state: State) -> State:
         pass

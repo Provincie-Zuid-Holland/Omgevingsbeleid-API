@@ -18,9 +18,9 @@ from app.core.tables.users import UsersTable
 
 
 class ActiveModuleObjectsResponse(BaseModel):
-    Module: ModuleShort
-    Module_Object: ActiveModuleObject
-    Action: ModuleObjectActionFull
+    module: ModuleShort
+    module_object: ActiveModuleObject
+    action: ModuleObjectActionFull
 
 
 class ListActiveModuleObjectsEndpointContext(BaseEndpointContext):
@@ -48,9 +48,9 @@ def get_list_active_module_objects_endpoint(
 
     result: list[ActiveModuleObjectsResponse] = [
         ActiveModuleObjectsResponse(
-            Module=ModuleShort.model_validate(item.module),
-            Module_Object=ActiveModuleObject.model_validate(item.module_object),
-            Action=item.context_action,
+            module=ModuleShort.model_validate(item.module),
+            module_object=ActiveModuleObject.model_validate(item.module_object),
+            action=item.context_action,
         )
         for item in items
     ]

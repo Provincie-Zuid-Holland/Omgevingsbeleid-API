@@ -15,7 +15,7 @@ class BillFrbrProvider:
         environment: PublicationEnvironmentTable,
         act_frbr: ActFrbr,
     ) -> BillFrbr:
-        if environment.Has_State:
+        if environment.has_state:
             return self._create_real(session, environment, act_frbr)
 
         return self._create_fake(environment, act_frbr)
@@ -51,11 +51,11 @@ class BillFrbrProvider:
 
         timepoint: datetime = datetime.now(UTC)
         frbr: BillFrbr = BillFrbr(
-            Work_Province_ID=environment.Province_ID,
-            Work_Country=environment.Frbr_Country,
+            Work_Province_ID=environment.province_id,
+            Work_Country=environment.frbr_country,
             Work_Date=str(timepoint.year),
             Work_Other=work_other,
-            Expression_Language=environment.Frbr_Language,
+            Expression_Language=environment.frbr_language,
             Expression_Date=timepoint.strftime("%Y-%m-%d"),
             Expression_Version=1,
         )

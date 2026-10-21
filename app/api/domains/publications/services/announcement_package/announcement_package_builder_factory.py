@@ -45,13 +45,13 @@ class AnnouncementPackageBuilderFactory:
             About_Act_Frbr=about_act_frbr,
             Package_Type=package_type,
             Announcement=announcement,
-            Announcement_Metadata=AnnouncementMetadata.model_validate(announcement.Metadata),
-            Announcement_Procedural=AnnouncementProcedural.model_validate(announcement.Procedural),
-            Announcement_Content=AnnouncementContent.model_validate(announcement.Content),
+            Announcement_Metadata=AnnouncementMetadata.model_validate(announcement.meta_data),
+            Announcement_Procedural=AnnouncementProcedural.model_validate(announcement.procedural),
+            Announcement_Content=AnnouncementContent.model_validate(announcement.content),
         )
 
         state: ActiveState | None = self._state_loader.load_from_environment(
-            session, announcement.Publication.Environment
+            session, announcement.publication.environment
         )
 
         input_data_builder = DsoAnnouncementInputDataBuilder(api_input_data)
@@ -65,30 +65,30 @@ class AnnouncementPackageBuilderFactory:
         return builder
 
     def _get_about_bill_frbr(self, announcement: PublicationAnnouncementTable) -> BillFrbr:
-        bill_version_table: PublicationBillVersionTable = announcement.Act_Package.Bill_Version
+        bill_version_table: PublicationBillVersionTable = announcement.act_package.bill_version
 
         result = BillFrbr(
-            Work_Province_ID=bill_version_table.Bill.Work_Province_ID,
-            Work_Country=bill_version_table.Bill.Work_Country,
-            Work_Date=bill_version_table.Bill.Work_Date,
-            Work_Other=bill_version_table.Bill.Work_Other,
-            Expression_Language=bill_version_table.Expression_Language,
-            Expression_Date=bill_version_table.Expression_Date,
-            Expression_Version=bill_version_table.Expression_Version,
+            Work_Province_ID=bill_version_table.bill.work_province_id,
+            Work_Country=bill_version_table.bill.work_country,
+            Work_Date=bill_version_table.bill.work_date,
+            Work_Other=bill_version_table.bill.work_other,
+            Expression_Language=bill_version_table.expression_language,
+            Expression_Date=bill_version_table.expression_date,
+            Expression_Version=bill_version_table.expression_version,
         )
         return result
 
     def _get_about_act_frbr(self, announcement: PublicationAnnouncementTable) -> ActFrbr:
-        act_version_table: PublicationActVersionTable = announcement.Act_Package.Act_Version
+        act_version_table: PublicationActVersionTable = announcement.act_package.act_version
 
         result = ActFrbr(
-            Act_ID=act_version_table.Act.ID,
-            Work_Province_ID=act_version_table.Act.Work_Province_ID,
-            Work_Country=act_version_table.Act.Work_Country,
-            Work_Date=act_version_table.Act.Work_Date,
-            Work_Other=act_version_table.Act.Work_Other,
-            Expression_Language=act_version_table.Expression_Language,
-            Expression_Date=act_version_table.Expression_Date,
-            Expression_Version=act_version_table.Expression_Version,
+            Act_ID=act_version_table.act.id,
+            Work_Province_ID=act_version_table.act.work_province_id,
+            Work_Country=act_version_table.act.work_country,
+            Work_Date=act_version_table.act.work_date,
+            Work_Other=act_version_table.act.work_other,
+            Expression_Language=act_version_table.expression_language,
+            Expression_Date=act_version_table.expression_date,
+            Expression_Version=act_version_table.expression_version,
         )
         return result

@@ -12,22 +12,22 @@ from app.core.tables.publications import (
 
 
 class PublicationZipRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> PublicationPackageZipTable | None:
-        stmt = select(PublicationPackageZipTable).filter(PublicationPackageZipTable.UUID == uuidx)
+    def get_by_id(self, session: Session, idx: UUID) -> PublicationPackageZipTable | None:
+        stmt = select(PublicationPackageZipTable).filter(PublicationPackageZipTable.id == idx)
         return self.fetch_first(session, stmt)
 
-    def get_by_act_package_uuid(self, session: Session, uuidx: UUID) -> PublicationPackageZipTable | None:
+    def get_by_act_package_id(self, session: Session, idx: UUID) -> PublicationPackageZipTable | None:
         stmt = (
             select(PublicationPackageZipTable)
             .join(PublicationActPackageTable)
-            .filter(PublicationActPackageTable.UUID == uuidx)
+            .filter(PublicationActPackageTable.id == idx)
         )
         return self.fetch_first(session, stmt)
 
-    def get_by_announcement_package_uuid(self, session: Session, uuidx: UUID) -> PublicationPackageZipTable | None:
+    def get_by_announcement_package_id(self, session: Session, idx: UUID) -> PublicationPackageZipTable | None:
         stmt = (
             select(PublicationPackageZipTable)
             .join(PublicationAnnouncementPackageTable)
-            .filter(PublicationAnnouncementPackageTable.UUID == uuidx)
+            .filter(PublicationAnnouncementPackageTable.id == idx)
         )
         return self.fetch_first(session, stmt)

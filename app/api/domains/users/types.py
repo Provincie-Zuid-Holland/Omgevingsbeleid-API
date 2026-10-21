@@ -8,20 +8,19 @@ class TokenPayload(BaseModel):
 
 
 class UserShort(BaseModel):
-    UUID: UUID
+    id: UUID
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class User(BaseModel):
-    UUID: UUID
-    Gebruikersnaam: str
-    Email: str
-    Roles: list[str]
-    Status: str
-    IsActive: bool
+    id: UUID
+    name: str
+    email: str
+    roles: list[str]
+    is_active: bool
 
-    @field_validator("Email", mode="before")
+    @field_validator("email", mode="before")
     def default_empty_string(cls, v):
         return v or "<geen email>"
 
@@ -29,9 +28,9 @@ class User(BaseModel):
 
 
 class UserLoginDetail(BaseModel):
-    UUID: UUID
-    Roles: list[str]
-    Gebruikersnaam: str
+    id: UUID
+    roles: list[str]
+    name: str
 
     model_config = ConfigDict(from_attributes=True)
 

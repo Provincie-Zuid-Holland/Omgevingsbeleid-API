@@ -39,7 +39,7 @@ class JoinHoofdlijnenService:
                 for hoofdlijn_id in hoofdlijn_ids:
                     all_hoofdlijn_codes.add(hoofdlijn_id)
                     hoofdlijn_codes_current_row.add(hoofdlijn_id)
-            hoofdlijn_codes_per_object[row.Code] = hoofdlijn_codes_current_row
+            hoofdlijn_codes_per_object[row.code] = hoofdlijn_codes_current_row
 
         if not all_hoofdlijn_codes:
             return rows
@@ -47,7 +47,7 @@ class JoinHoofdlijnenService:
         hoofdlijnen: dict[UUID, Hoofdlijn] = self._fetch_hoofdlijnen(all_hoofdlijn_codes)
 
         for row in rows:
-            object_code: str = row.Code
+            object_code: str = row.code
             hoofdlijnen_statics: list[Hoofdlijn] = []
             for hoofdlijn_id in hoofdlijn_codes_per_object[object_code]:
                 hoofdlijn_statics: Hoofdlijn | None = hoofdlijnen.get(UUID(hoofdlijn_id))
@@ -60,10 +60,10 @@ class JoinHoofdlijnenService:
         return result_rows
 
     def _fetch_hoofdlijnen(self, hoofdlijnen_ids: set[str]) -> dict[UUID, Hoofdlijn]:
-        hoofdlijnen_uuids: set[UUID] = {UUID(idx) for idx in hoofdlijnen_ids}
-        stmt = select(HoofdlijnTable).filter(HoofdlijnTable.UUID.in_(hoofdlijnen_uuids))
+        hoofdlijnen_ids: set[UUID] = {UUID(idx) for idx in hoofdlijnen_ids}
+        stmt = select(HoofdlijnTable).filter(HoofdlijnTable.id.in_(hoofdlijnen_ids))
         rows: Sequence[HoofdlijnTable] = self._session.execute(stmt).scalars().all()
-        return {r.UUID: Hoofdlijn.model_validate(r) for r in rows}
+        return {r.id: Hoofdlijn.model_validate(r) for r in rows}
 
 
 class JoinHoofdlijnenServiceFactory:

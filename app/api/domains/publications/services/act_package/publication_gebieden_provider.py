@@ -11,15 +11,15 @@ from app.api.domains.publications.services.validate_publication.validate_publica
 
 
 class InputGebied(BaseModel):
-    # Represents an Object_Type=gebied and which convert to a DSO.GioLocatie
+    # Represents an object_type=gebied and which convert to a DSO.GioLocatie
     uuid: UUID
     object_id: int
     code: str
     # An Area will be transformed to the Locatie
-    area_uuid: UUID
+    area_id: UUID
     # The basisgeo_id needs to exists for each Locatie
-    # We used to use the area_uuid, but this value needs to be unique over all different Document_Types
-    # Therefor we can not use area_uuid as this will be send to both Omgevingsvisie and Programma
+    # We used to use the area_id, but this value needs to be unique over all different Document_Types
+    # Therefor we can not use area_id as this will be send to both Omgevingsvisie and Programma
     basisgeo_id: UUID
     # We overwrite this with the area.Title at the moment
     # But I think we should use the objects title instead as we can modify it
@@ -68,52 +68,52 @@ class PublicationGebiedenProvider:
         used_objects: list[dict],
     ) -> list[InputGebiedengroep]:
         gebiedengroep_codes: set[str] = self._calculate_gebiedengroep_codes(used_objects)
-        groep_objects: list[dict] = [o for o in all_objects if o["Object_Type"] == "gebiedengroep"]
+        groep_objects: list[dict] = [o for o in all_objects if o["object_type"] == "gebiedengroep"]
         used_groep_objects: list[InputGebiedengroep] = [
             InputGebiedengroep(
-                uuid=g["UUID"],
-                object_id=g["Object_ID"],
-                code=g["Code"],
-                title=g["Title"],
-                gebied_codes=set(g["Gebieden"] or []),
-                modified_date=g["Modified_Date"],
+                uuid=g["id"],
+                object_id=g["object_id"],
+                code=g["code"],
+                title=g["title"],
+                gebied_codes=set(g["gebieden"] or []),
+                modified_date=g["modified_date"],
             )
             for g in groep_objects
-            if g["Code"] in gebiedengroep_codes
+            if g["code"] in gebiedengroep_codes
         ]
         return used_groep_objects
 
     def _calculate_gebiedengroep_codes(self, used_objects: list[dict]) -> set[str]:
         used_codes: set[str] = {
-            o.get("Gebiedengroep_Code") for o in used_objects if o.get("Gebiedengroep_Code", None) is not None
+            o.get("gebiedengroep_code") for o in used_objects if o.get("gebiedengroep_code", None) is not None
         }  # type: ignore
         return used_codes
 
     def _get_gebied_objects(self, all_objects: list[dict]) -> dict[str, InputGebied]:
-        gebied_objects: list[dict] = [o for o in all_objects if o["Object_Type"] == "gebied"]
+        gebied_objects: list[dict] = [o for o in all_objects if o["object_type"] == "gebied"]
 
         result: dict[str, InputGebied] = {}
         for gebied in gebied_objects:
-            code: str = gebied["Code"]
-            area_uuid: str | None = gebied.get("Area_UUID")
-            if area_uuid is None:
+            code: str = gebied["code"]
+            area_id: str | None = gebied.get("area_id")
+            if area_id is None:
                 raise validation_exception(
                     [
                         ValidatePublicationError(
-                            rule="gebied_missing_area_uuid",
+                            rule="gebied_missing_area_id",
                             object=ValidatePublicationObject(code=code),
-                            messages=[f"Missing Area_UUID for gebied with code `{code}`"],
+                            messages=[f"Missing area_id for gebied with code `{code}`"],
                         )
                     ]
                 )
 
             input_gebied: InputGebied = InputGebied(
-                uuid=gebied["UUID"],
-                object_id=gebied["Object_ID"],
+                uuid=gebied["id"],
+                object_id=gebied["object_id"],
                 code=code,
-                area_uuid=area_uuid,
+                area_id=area_id,
                 basisgeo_id=uuid4(),
-                title=gebied["Title"],
+                title=gebied["title"],
             )
             result[code] = input_gebied
 

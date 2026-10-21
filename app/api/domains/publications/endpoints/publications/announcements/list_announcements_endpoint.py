@@ -32,11 +32,11 @@ def get_list_announcements_endpoint(
             )
         ),
     ],
-    act_package_uuid: uuid.UUID | None = None,
+    act_package_id: uuid.UUID | None = None,
 ) -> PagedResponse[PublicationAnnouncementShort]:
     paginated_result = repository.get_with_filters(
         session=session,
-        act_package_uuid=act_package_uuid,
+        act_package_id=act_package_id,
         offset=pagination.offset,
         limit=pagination.limit,
     )

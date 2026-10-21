@@ -15,7 +15,7 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
     def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
-        bill_compact: dict[str, Any] = request.input_data.Publication_Version.Bill_Compact or {}
+        bill_compact: dict[str, Any] = request.input_data.Publication_Version.bill_compact or {}
         referenced_ids: set[int] = self._extract_ref_ids(bill_compact)
 
         attachment_ids: set[int] = set()

@@ -23,10 +23,10 @@ def post_auth_login_access_token_endpoint(
     user: UsersTable | None = user_repository.authenticate(session, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect email or password")
-    elif not user.IsActive:
+    elif not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Inactive user")
 
-    access_token: str = security.create_access_token(user.UUID)
+    access_token: str = security.create_access_token(user.id)
     user_login_detail: UserLoginDetail = UserLoginDetail.model_validate(user)
 
     response: AuthToken = AuthToken.model_validate(

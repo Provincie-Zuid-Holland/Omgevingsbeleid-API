@@ -187,14 +187,14 @@ class PublicationGiosProvider:
         return gebied
 
     def _fetch_area(self, input_gebied: InputGebied) -> AreasTable:
-        area: AreasTable | None = self._area_repository.get_with_gml(self._session, input_gebied.area_uuid)
+        area: AreasTable | None = self._area_repository.get_with_gml(self._session, input_gebied.area_id)
         if area is None:
             raise validation_exception(
                 [
                     ValidatePublicationError(
                         rule="area_not_found",
                         object=ValidatePublicationObject(code=input_gebied.code),
-                        messages=[f"Area UUID {input_gebied.area_uuid} does not exist"],
+                        messages=[f"Area UUID {input_gebied.area_id} does not exist"],
                     )
                 ]
             )
@@ -203,14 +203,14 @@ class PublicationGiosProvider:
     def _as_location(self, input_gebied: InputGebied) -> PublicationGioLocatie:
         area: AreasTable = self._fetch_area(input_gebied)
         gml_hash = hashlib.sha512()
-        gml_hash.update(area.Gml.encode())
+        gml_hash.update(area.gml.encode())
 
         return PublicationGioLocatie(
             code=input_gebied.code,
             title=input_gebied.title,
             basisgeo_id=str(input_gebied.basisgeo_id),
             source_hash=gml_hash.hexdigest(),
-            gml=area.Gml,
+            gml=area.gml,
         )
 
     def _new_gio_key(self) -> str:

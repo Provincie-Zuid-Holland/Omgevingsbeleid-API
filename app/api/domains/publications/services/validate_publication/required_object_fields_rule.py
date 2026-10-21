@@ -19,7 +19,7 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
         object_map = self._document_type_map.get(request.document_type)
 
         for object_to_validate in request.input_data.Publication_Data.used_objects:
-            model: type[BaseModel] | None = object_map.get(object_to_validate.get("Object_Type"))
+            model: type[BaseModel] | None = object_map.get(object_to_validate.get("object_type"))
             if not model:
                 continue
 
@@ -30,10 +30,10 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
                     ValidatePublicationError(
                         rule="required_object_fields_rule",
                         object=ValidatePublicationObject(
-                            code=object_to_validate.get("Code"),
-                            object_id=object_to_validate.get("Object_ID"),
-                            object_type=object_to_validate.get("Object_Type"),
-                            title=object_to_validate.get("Title"),
+                            code=object_to_validate.get("code"),
+                            object_id=object_to_validate.get("object_id"),
+                            object_type=object_to_validate.get("object_type"),
+                            title=object_to_validate.get("title"),
                         ),
                         messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
                     )

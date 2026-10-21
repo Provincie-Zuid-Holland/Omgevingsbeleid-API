@@ -60,7 +60,7 @@ class JoinGebiedsaanwijzingenService:
             )
             collected_aanwijzing_codes.update(fields_aanwijzing_codes)
 
-        # If we dont have any then we wont need to merge any data back in
+        # If we don't have any then we won't need to merge any data back in
         if len(collected_aanwijzing_codes) == 0:
             return rows
 
@@ -80,7 +80,7 @@ class JoinGebiedsaanwijzingenService:
 
         gebiedsaanwijzingen = self._get_latests(module_timepoint, module_id, aanwijzing_codes)
         for gebiedsaanwijzing in gebiedsaanwijzingen:
-            refs: list[str] = gebiedsaanwijzing.Target_Codes
+            refs: list[str] = gebiedsaanwijzing.target_codes
             for ref in refs:
                 object_type, _ = ref.split("-", 1)
                 match object_type:
@@ -92,7 +92,7 @@ class JoinGebiedsaanwijzingenService:
         if gebiedengroep_codes:
             gebiedengroepen = self._get_latests(module_timepoint, module_id, gebiedengroep_codes)
             for gebiedengroep in gebiedengroepen:
-                refs: list[str] = gebiedengroep.Gebieden
+                refs: list[str] = gebiedengroep.gebieden
                 gebied_codes.update(refs)
 
         if not gebied_codes:
@@ -130,18 +130,18 @@ class JoinGebiedsaanwijzingenService:
         # And use that ModuleStatus datetime
         stmt = (
             select(ModuleStatusHistoryTable)
-            .filter(ModuleStatusHistoryTable.Module_ID == module_id)
-            .filter(ModuleStatusHistoryTable.Status.in_(PublicModuleStatusCode.values()))
-            .order_by(ModuleStatusHistoryTable.Created_Date.desc())
+            .filter(ModuleStatusHistoryTable.module_id == module_id)
+            .filter(ModuleStatusHistoryTable.status.in_(PublicModuleStatusCode.values()))
+            .order_by(ModuleStatusHistoryTable.created_date.desc())
             .limit(1)
         )
         row = self._session.execute(stmt).scalar_one_or_none()
 
-        # If we do not have a row, than we are not allowed to search for objects in this module
+        # If we do not have a row, then we are not allowed to search for objects in this module
         if not row:
             return DATETIME_MIN, None
 
-        return row.Created_Date, module_id
+        return row.created_date, module_id
 
 
 class JoinGebiedsaanwijzingenServiceFactory:

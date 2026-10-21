@@ -10,13 +10,13 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class StorageFileBasic(BaseModel):
-    UUID: uuid.UUID
-    Checksum: str
-    Filename: str
-    Content_Type: str
-    Size: int
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
+    id: uuid.UUID
+    checksum: str
+    filename: str
+    content_type: str
+    size: int
+    created_date: datetime
+    created_by_id: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -28,28 +28,28 @@ class GraphEdgeType(str, Enum):
 
 
 class GraphEdge(BaseModel):
-    Vertice_A_Code: str
-    Vertice_B_Code: str
-    Type: GraphEdgeType
+    vertice_a_code: str
+    vertice_b_code: str
+    type: GraphEdgeType
 
     def __hash__(self):
-        return hash((self.Vertice_A_Code, self.Vertice_B_Code))
+        return hash((self.vertice_a_code, self.vertice_b_code))
 
     def __eq__(self, other):
         if not isinstance(other, GraphEdge):
             return False
 
-        return self.Vertice_A_Code == other.Vertice_A_Code and self.Vertice_B_Code == other.Vertice_B_Code
+        return self.vertice_a_code == other.vertice_a_code and self.vertice_b_code == other.vertice_b_code
 
 
 class GraphVertice(BaseModel):
-    UUID: uuid.UUID
-    Object_Type: str
-    Object_ID: int
-    Code: str
-    Title: str
+    id: uuid.UUID
+    object_type: str
+    object_id: int
+    code: str
+    title: str
 
-    @field_validator("Title", mode="before")
+    @field_validator("title", mode="before")
     def default_empty_string(cls, v):
         return v or ""
 
@@ -57,27 +57,27 @@ class GraphVertice(BaseModel):
 
 
 class GraphResponse(BaseModel):
-    Vertices: list[GraphVertice]
-    Edges: list[GraphEdge]
+    vertices: list[GraphVertice]
+    edges: list[GraphEdge]
 
 
 class ObjectRelatedFileResponse(BaseModel):
-    UUID: uuid.UUID
-    Code: str
-    File_UUID: uuid.UUID
-    Title: str
-    Created_Date: datetime
-    Created_By_UUID: uuid.UUID
+    id: uuid.UUID
+    code: str
+    file_id: uuid.UUID
+    title: str
+    created_date: datetime
+    created_by_id: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class FileData(BaseModel):
-    File: UploadFile
+    file_in: UploadFile
 
     def __init__(self, /, **data: Any):
         super().__init__(**data)
-        self._binary = self.File.file.read()
+        self._binary = self.file_in.file.read()
         self._checksum = hashlib.sha256(self._binary).hexdigest()
 
     def get_binary(self) -> bytes:
@@ -87,7 +87,7 @@ class FileData(BaseModel):
         return self._checksum
 
     def get_content_type(self) -> str | None:
-        return self.File.content_type
+        return self.file_in.content_type
 
     def get_size(self) -> int:
         return len(self._binary)
@@ -96,7 +96,7 @@ class FileData(BaseModel):
         return self._checksum[0:10]
 
     def normalize_filename(self) -> str:
-        normalized_filename = self.File.filename.lower()
+        normalized_filename = self.file_in.filename.lower()
 
         normalized_filename = re.sub(r"[^a-z0-9.]", "-", normalized_filename)
         normalized_filename = re.sub(r"-+", "-", normalized_filename)
@@ -105,8 +105,8 @@ class FileData(BaseModel):
 
 
 class Hoofdlijn(BaseModel):
-    UUID: uuid.UUID
-    Name: str
-    Type: str
+    id: uuid.UUID
+    name: str
+    kind: str
 
     model_config = ConfigDict(from_attributes=True)

@@ -41,7 +41,7 @@ def create_dso_json_scenario(
     version_uuid = UUID(publication_version)
     package_type_obj = PackageType.PUBLICATION
 
-    pub_version = publication_version_repository.get_by_uuid(version_uuid)
+    pub_version = publication_version_repository.get_by_id(version_uuid)
     if not pub_version:
         click.echo(click.style("Publication version UUID does not exist in DB", fg="red"))
         return

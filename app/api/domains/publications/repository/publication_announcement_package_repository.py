@@ -10,23 +10,23 @@ from app.core.tables.publications import PublicationAnnouncementPackageTable
 
 
 class PublicationAnnouncementPackageRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> PublicationAnnouncementPackageTable | None:
-        stmt = select(PublicationAnnouncementPackageTable).filter(PublicationAnnouncementPackageTable.UUID == uuid)
+    def get_by_id(self, session: Session, uuid: UUID) -> PublicationAnnouncementPackageTable | None:
+        stmt = select(PublicationAnnouncementPackageTable).filter(PublicationAnnouncementPackageTable.id == uuid)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
         self,
         session: Session,
         pagination: SortedPagination,
-        announcement_uuid: UUID | None = None,
+        announcement_id: UUID | None = None,
         package_type: PackageType | None = None,
     ) -> PaginatedQueryResult:
         filters = []
-        if announcement_uuid is not None:
-            filters.append(and_(PublicationAnnouncementPackageTable.Announcement_UUID == announcement_uuid))
+        if announcement_id is not None:
+            filters.append(and_(PublicationAnnouncementPackageTable.announcement_id == announcement_id))
 
         if package_type is not None:
-            filters.append(and_(PublicationAnnouncementPackageTable.Package_Type == package_type.value))
+            filters.append(and_(PublicationAnnouncementPackageTable.package_type == package_type.value))
 
         stmt = select(PublicationAnnouncementPackageTable).filter(*filters)
 

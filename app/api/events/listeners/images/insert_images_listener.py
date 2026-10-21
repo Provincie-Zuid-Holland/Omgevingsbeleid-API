@@ -45,18 +45,18 @@ class HtmlImagesInserter:
 
                 for img in soup.find_all("img", src=re.compile(r"^\[ASSET")):
                     try:
-                        asset_uuid = UUID(img["src"].split(":")[1][:-1])
+                        asset_id = UUID(img["src"].split(":")[1][:-1])
                     except ValueError:
                         continue
 
-                    asset: AssetsTable | None = self._asset_repository.get_by_uuid(self._session, asset_uuid)
+                    asset: AssetsTable | None = self._asset_repository.get_by_id(self._session, asset_id)
                     if not asset:
                         continue
 
-                    content: str = asset.Content
+                    content: str = asset.content
                     # @note: We have some invalid entries in the database where the data:image prefix is not present
                     if content[0:10] != "data:image":
-                        meta: dict[str, str] = json.loads(asset.Meta)
+                        meta: dict[str, str] = json.loads(asset.meta)
                         mime_type = meta.get("ext", "png").lower()
                         content = f"data:image/{mime_type};base64,{content}"
 

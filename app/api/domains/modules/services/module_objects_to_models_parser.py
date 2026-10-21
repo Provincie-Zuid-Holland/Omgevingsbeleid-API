@@ -12,9 +12,9 @@ class ModuleObjectsToModelsParser:
         self._models_provider = models_provider
 
     def parse(self, obj: ObjectsTable | ModuleObjectsTable, model_map: dict[str, str]) -> BaseModel:
-        model_id = model_map.get(obj.Object_Type)
+        model_id = model_map.get(obj.object_type)
         if model_id is None:
-            raise RuntimeError(f"Object type {obj.Object_Type} is not mapped to a model")
+            raise RuntimeError(f"Object type {obj.object_type} is not mapped to a model")
         pydantic_model: type[BaseModel] = self._models_provider.get_pydantic_model(model_id)
         model_instance: BaseModel = pydantic_model.model_validate(obj)
         return model_instance

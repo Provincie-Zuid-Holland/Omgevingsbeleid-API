@@ -16,21 +16,21 @@ class StateLoader:
     def load_from_publication_version(
         self, session: Session, publication_version: PublicationVersionTable
     ) -> ActiveState | None:
-        environment: PublicationEnvironmentTable = publication_version.Publication.Environment
+        environment: PublicationEnvironmentTable = publication_version.publication.environment
         return self.load_from_environment(session, environment)
 
     def load_from_environment(self, session, environment: PublicationEnvironmentTable) -> ActiveState | None:
-        if not environment.Has_State:
+        if not environment.has_state:
             return None
 
-        if environment.Active_State is None:
+        if environment.active_state is None:
             raise RuntimeError("Unexpecting to not have an active state while the environment is stateful")
-        current_state_table: PublicationEnvironmentStateTable = environment.Active_State
-        current_state_dict: dict = current_state_table.State
+        current_state_table: PublicationEnvironmentStateTable = environment.active_state
+        current_state_dict: dict = current_state_table.state
 
         state: ActiveState = self._state_version_factory.get_state_model(
             session,
-            environment.UUID,
+            environment.id,
             current_state_dict,
         )
 

@@ -66,18 +66,20 @@ class ApiContainer(containers.DeclarativeContainer):
     werkingsgebieden_repository = providers.Singleton(werkingsgebieden_repositories.WerkingsgebiedenRepository)
     sqlite_geometry_repository = providers.Singleton(werkingsgebieden_repositories.SqliteGeometryRepository)
     sqlite_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.SqliteAreaGeometryRepository)
-    mssql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlGeometryRepository)
-    mssql_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlAreaGeometryRepository)
+    postgresql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.PostgresqlGeometryRepository)
+    postgresql_area_geometry_repository = providers.Singleton(
+        werkingsgebieden_repositories.PostgresqlAreaGeometryRepository
+    )
     area_repository = providers.Singleton(werkingsgebieden_repositories.AreaRepository)
     hoofdlijn_repository = providers.Singleton(hoofdlijn_repository.HoofdlijnRepository)
 
     input_geo_onderverdeling_repository_base = providers.Singleton(
         werkingsgebieden_repositories.InputGeoOnderverdelingRepository
     )
-    mssql_input_geo_onderverdeling_repository = providers.Singleton(
-        werkingsgebieden_repositories.MssqlInputGeoOnderverdelingRepository
-    )
     sqlite_input_geo_onderverdeling_repository = providers.Singleton(
+        werkingsgebieden_repositories.SqliteInputGeoOnderverdelingRepository
+    )
+    postgresql_input_geo_onderverdeling_repository = providers.Singleton(
         werkingsgebieden_repositories.SqliteInputGeoOnderverdelingRepository
     )
 
@@ -90,17 +92,17 @@ class ApiContainer(containers.DeclarativeContainer):
     geometry_repository = providers.Selector(
         config.DB_TYPE,
         sqlite=sqlite_geometry_repository,
-        mssql=mssql_geometry_repository,
+        postgresql=postgresql_geometry_repository,
     )
     area_geometry_repository = providers.Selector(
         config.DB_TYPE,
         sqlite=sqlite_area_geometry_repository,
-        mssql=mssql_area_geometry_repository,
+        postgresql=postgresql_area_geometry_repository,
     )
     input_geo_onderverdeling_repository = providers.Selector(
         config.DB_TYPE,
         sqlite=sqlite_input_geo_onderverdeling_repository,
-        mssql=mssql_input_geo_onderverdeling_repository,
+        postgresql=postgresql_input_geo_onderverdeling_repository,
     )
 
     gebiedsaanwijzing_service = providers.Singleton(GebiedsaanwijzingService)

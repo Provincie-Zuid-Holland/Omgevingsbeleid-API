@@ -9,9 +9,9 @@ from app.core.tables.others import StorageFileTable
 def get_files_download_endpoint(
     storage_file: Annotated[StorageFileTable, Depends(depends_storage_file)],
 ) -> Response:
-    filename = storage_file.Filename
-    content = storage_file.Binary
-    content_type = storage_file.Content_Type
+    filename = storage_file.filename
+    content = storage_file.binary
+    content_type = storage_file.content_type
 
     return Response(
         content=content,

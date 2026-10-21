@@ -11,46 +11,48 @@ from tests.fixtures.internal.spec.objects import (
     MaatregelSpec,
 )
 from tests.fixtures.internal.spec.objects.gebiedsaanwijzing_spec import GebiedsaanwijzingSpec
+from tests.fixtures.internal.spec.objects.verplicht_programma_spec import VerplichtProgrammaSpec
 from tests.fixtures.internal.spec.user_spec import UserSpec
 
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_Date=datetime(2025, 1, 1, tzinfo=UTC),
-        Modified_Date=datetime(2025, 1, 1, tzinfo=UTC),
-        Start_Validity=datetime(2025, 1, 1, tzinfo=UTC),
-        Created_By_UUID=col.ref(UserSpec, "ambtenaar"),
-        Modified_By_UUID=col.ref(UserSpec, "ambtenaar"),
+        created_date=datetime(2025, 1, 1, tzinfo=UTC),
+        modified_date=datetime(2025, 1, 1, tzinfo=UTC),
+        start_validity=datetime(2025, 1, 1, tzinfo=UTC),
+        created_by_id=col.ref(UserSpec, "ambtenaar"),
+        modified_by_id=col.ref(UserSpec, "ambtenaar"),
+        owner_1_id=col.ref(UserSpec, "ambtenaar"),
     ):
         # Gebiedengroep Nature
         col.adds(
             [
                 GebiedengroepSpec(
                     key="nature_v1",
-                    Object_ID=1,
-                    Title="Nature",
-                    Description="Description of Natuur",
-                    Gebieden=["gebied-1", "gebied-2"],
-                    Source_Title="Nature",
-                    Source_UUID=col.ref(InputGeoWerkingsgebiedenSpec, "nature_v1"),
+                    object_id=1,
+                    title="Nature",
+                    description="Description of Natuur",
+                    gebieden=["gebied-1", "gebied-2"],
+                    source_title="Nature",
+                    source_uuid=col.ref(InputGeoWerkingsgebiedenSpec, "nature_v1"),
                 ),
                 GebiedSpec(
                     key="nature_west_v1",
-                    Object_ID=1,
-                    Title="Nature West",
-                    Area_UUID=col.ref(AreaSpec, "nature_west_v1"),
+                    object_id=1,
+                    title="Nature West",
+                    area_id=col.ref(AreaSpec, "nature_west_v1"),
                 ),
                 GebiedSpec(
                     key="nature_east_v1",
-                    Object_ID=2,
-                    Title="Nature East",
-                    Area_UUID=col.ref(AreaSpec, "nature_east_v1"),
+                    object_id=2,
+                    title="Nature East",
+                    area_id=col.ref(AreaSpec, "nature_east_v1"),
                 ),
                 GebiedSpec(
                     key="nature_south_v1",
-                    Object_ID=3,
-                    Title="Nature South",
-                    Area_UUID=col.ref(AreaSpec, "nature_south_v1"),
+                    object_id=3,
+                    title="Nature South",
+                    area_id=col.ref(AreaSpec, "nature_south_v1"),
                 ),
             ]
         )
@@ -59,25 +61,25 @@ def load(col: Collector) -> None:
         col.adds(
             [
                 GebiedsaanwijzingSpec(
-                    Object_ID=1,
-                    Title="Gebiedsaanwijzing 1",
-                    Ref_Type="bodem",
-                    Ref_Group="bodembeheergebied",
-                    Target_Codes=["gebiedengroep-1"],
+                    object_id=1,
+                    title="Gebiedsaanwijzing 1",
+                    ref_type="bodem",
+                    ref_group="bodembeheergebied",
+                    target_codes=["gebiedengroep-1"],
                 ),
                 GebiedsaanwijzingSpec(
-                    Object_ID=2,
-                    Title="Gebiedsaanwijzing 2",
-                    Ref_Type="bouw",
-                    Ref_Group="bouwvlak",
-                    Target_Codes=["gebied-1"],
+                    object_id=2,
+                    title="Gebiedsaanwijzing 2",
+                    ref_type="bouw",
+                    ref_group="bouwvlak",
+                    target_codes=["gebied-1"],
                 ),
                 GebiedsaanwijzingSpec(
-                    Object_ID=3,
-                    Title="Gebiedsaanwijzing 3",
-                    Ref_Type="bouw",
-                    Ref_Group="rooilijn",
-                    Target_Codes=["gebied-2"],
+                    object_id=3,
+                    title="Gebiedsaanwijzing 3",
+                    ref_type="bouw",
+                    ref_group="rooilijn",
+                    target_codes=["gebied-2"],
                 ),
             ]
         )
@@ -86,21 +88,21 @@ def load(col: Collector) -> None:
         col.adds(
             [
                 BeleidsdoelSpec(
-                    Object_ID=1,
-                    Title="Beleidsdoel 1 from januari",
-                    Description="Description of beleidsdoel 1",
-                    Owner_1_UUID=col.ref(UserSpec, "owner_1"),
-                    Owner_3_UUID=col.ref(UserSpec, "owner_3"),
+                    object_id=1,
+                    title="Beleidsdoel 1 from januari",
+                    description="Description of beleidsdoel 1",
+                    owner_1_id=col.ref(UserSpec, "owner_1"),
+                    owner_3_id=col.ref(UserSpec, "owner_3"),
                 ),
                 BeleidsdoelSpec(
-                    Object_ID=2,
-                    Title="Beleidsdoel 2 from januari",
-                    Description="Description of beleidsdoel 2",
+                    object_id=2,
+                    title="Beleidsdoel 2 from januari",
+                    description="Description of beleidsdoel 2",
                 ),
                 BeleidsdoelSpec(
-                    Object_ID=3,
-                    Title="Beleidsdoel 3 from januari",
-                    Description="Description of beleidsdoel 3",
+                    object_id=3,
+                    title="Beleidsdoel 3 from januari",
+                    description="Description of beleidsdoel 3",
                 ),
             ]
         )
@@ -110,34 +112,34 @@ def load(col: Collector) -> None:
             [
                 # Attached to beleidsdoel-1
                 BeleidskeuzeSpec(
-                    Object_ID=1,
-                    Title="Beleidskeuze 1 from januari",
-                    Description="Description of beleidskeuze 1",
-                    Explanation="Explanation of beleidskeuze 1",
-                    Hierarchy_Code="beleidsdoel-1",
-                    Portfolio_Holder_1_UUID=col.ref(UserSpec, "owner_1"),
+                    object_id=1,
+                    title="Beleidskeuze 1 from januari",
+                    description="Description of beleidskeuze 1",
+                    explanation="Explanation of beleidskeuze 1",
+                    hierarchy_code="beleidsdoel-1",
+                    portfolio_holder_1_id=col.ref(UserSpec, "owner_1"),
                 ),
                 BeleidskeuzeSpec(
-                    Object_ID=2,
-                    Title="Beleidskeuze 2 from januari",
-                    Description="Description of beleidskeuze 2",
-                    Explanation="Explanation of beleidskeuze 2",
-                    Hierarchy_Code="beleidsdoel-1",
+                    object_id=2,
+                    title="Beleidskeuze 2 from januari",
+                    description="Description of beleidskeuze 2",
+                    explanation="Explanation of beleidskeuze 2",
+                    hierarchy_code="beleidsdoel-1",
                 ),
                 # Attached to beleidsdoel-2
                 BeleidskeuzeSpec(
-                    Object_ID=3,
-                    Title="Beleidskeuze 3 from januari",
-                    Description="Description of beleidskeuze 3",
-                    Explanation="Explanation of beleidskeuze 3",
-                    Hierarchy_Code="beleidsdoel-2",
+                    object_id=3,
+                    title="Beleidskeuze 3 from januari",
+                    description="Description of beleidskeuze 3",
+                    explanation="Explanation of beleidskeuze 3",
+                    hierarchy_code="beleidsdoel-2",
                 ),
                 BeleidskeuzeSpec(
-                    Object_ID=4,
-                    Title="Beleidskeuze 4 from januari",
-                    Description="Description of beleidskeuze 4",
-                    Explanation="Explanation of beleidskeuze 4",
-                    Hierarchy_Code="beleidsdoel-2",
+                    object_id=4,
+                    title="Beleidskeuze 4 from januari",
+                    description="Description of beleidskeuze 4",
+                    explanation="Explanation of beleidskeuze 4",
+                    hierarchy_code="beleidsdoel-2",
                 ),
             ]
         )
@@ -147,54 +149,65 @@ def load(col: Collector) -> None:
             [
                 # Attached to beleidskeuze-1
                 MaatregelSpec(
-                    Object_ID=1,
-                    Title="Maatregel 1 from januari",
-                    Description="Description of maatregel 1",
-                    Effect="Effect of maatregel 1",
-                    Hierarchy_Code="beleidskeuze-1",
-                    Client_1_UUID=col.ref(UserSpec, "owner_1"),
+                    object_id=1,
+                    title="Maatregel 1 from januari",
+                    description="Description of maatregel 1",
+                    effect="Effect of maatregel 1",
+                    hierarchy_code="beleidskeuze-1",
+                    client_1_id=col.ref(UserSpec, "owner_1"),
                 ),
                 # Attached to beleidskeuze-2
                 MaatregelSpec(
-                    Object_ID=2,
-                    Title="Maatregel 2 from januari",
-                    Description="Description of maatregel 2",
-                    Effect="Effect of maatregel 2",
-                    Hierarchy_Code="beleidskeuze-2",
+                    object_id=2,
+                    title="Maatregel 2 from januari",
+                    description="Description of maatregel 2",
+                    effect="Effect of maatregel 2",
+                    hierarchy_code="beleidskeuze-2",
                 ),
                 MaatregelSpec(
-                    Object_ID=3,
-                    Title="Maatregel 3 from januari",
-                    Description="Description of maatregel 3",
-                    Effect="Effect of maatregel 3",
-                    Hierarchy_Code="beleidskeuze-2",
+                    object_id=3,
+                    title="Maatregel 3 from januari",
+                    description="Description of maatregel 3",
+                    effect="Effect of maatregel 3",
+                    hierarchy_code="beleidskeuze-2",
                 ),
                 # Attached to beleidskeuze-3
                 MaatregelSpec(
-                    Object_ID=4,
-                    Title="Maatregel 4 from januari",
-                    Description="Description of maatregel 4",
-                    Effect="Effect of maatregel 4",
-                    Hierarchy_Code="beleidskeuze-3",
+                    object_id=4,
+                    title="Maatregel 4 from januari",
+                    description="Description of maatregel 4",
+                    effect="Effect of maatregel 4",
+                    hierarchy_code="beleidskeuze-3",
                 ),
                 MaatregelSpec(
-                    Object_ID=5,
-                    Title="Maatregel 5 from januari",
-                    Description="Description of maatregel 5",
-                    Effect="Effect of maatregel 5",
-                    Hierarchy_Code="beleidskeuze-3",
+                    object_id=5,
+                    title="Maatregel 5 from januari",
+                    description="Description of maatregel 5",
+                    effect="Effect of maatregel 5",
+                    hierarchy_code="beleidskeuze-3",
                 ),
                 MaatregelSpec(
                     key="maatregel_6_initial",
-                    Object_ID=6,
-                    Title="Maatregel 6 from januari",
-                    Description="""
+                    object_id=6,
+                    title="Maatregel 6 from januari",
+                    description="""
 <p>Description of maatregel 6</p>
 <p>
     Here is <a data-hint-type="gebiedsaanwijzing" data-code="gebiedsaanwijzing-1" href="#">Nature</a>
 </p>""",
-                    Effect="Effect of maatregel 6",
-                    Hierarchy_Code="beleidskeuze-3",
+                    effect="Effect of maatregel 6",
+                    hierarchy_code="beleidskeuze-3",
+                ),
+            ]
+        )
+
+        # Verplicht programma
+        col.adds(
+            [
+                VerplichtProgrammaSpec(
+                    object_id=1,
+                    title="Verplicht programma 1 from januari",
+                    description="Description of verplicht programma 1",
                 ),
             ]
         )

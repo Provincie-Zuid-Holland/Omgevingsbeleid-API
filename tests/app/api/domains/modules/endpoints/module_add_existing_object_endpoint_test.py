@@ -19,19 +19,19 @@ def _object_uuid(ctx: Context, spec_type, key: str) -> uuid.UUID:
 
 def _payload(object_uuid: uuid.UUID, action: str = "Edit", explanation: str = "", conclusion: str = "") -> dict:
     return {
-        "Object_UUID": str(object_uuid),
-        "Action": action,
-        "Explanation": explanation,
-        "Conclusion": conclusion,
+        "object_uuid": str(object_uuid),
+        "action": action,
+        "explanation": explanation,
+        "conclusion": conclusion,
     }
 
 
 def _context(session: Session, module_id: int, object_id: int) -> ModuleObjectContextTable:
     module_context: ModuleObjectContextTable | None = session.scalars(
         select(ModuleObjectContextTable)
-        .where(ModuleObjectContextTable.Module_ID == module_id)
-        .where(ModuleObjectContextTable.Object_Type == "beleidsdoel")
-        .where(ModuleObjectContextTable.Object_ID == object_id)
+        .where(ModuleObjectContextTable.module_id == module_id)
+        .where(ModuleObjectContextTable.object_type == "beleidsdoel")
+        .where(ModuleObjectContextTable.object_id == object_id)
     ).first()
     assert module_context
     return module_context
@@ -41,8 +41,8 @@ def _drafts(session: Session, module_id: int, object_id: int) -> list[ModuleObje
     return list(
         session.scalars(
             select(ModuleObjectsTable)
-            .where(ModuleObjectsTable.Module_ID == module_id)
-            .where(ModuleObjectsTable.Object_ID == object_id)
+            .where(ModuleObjectsTable.module_id == module_id)
+            .where(ModuleObjectsTable.object_id == object_id)
         )
     )
 
@@ -69,20 +69,20 @@ def test_adds_existing_object_creates_context_and_draft(
     assert response.json()["message"] == "OK"
 
     context = _context(ctx.session, 2, object_id)
-    assert context.Hidden is False
-    assert context.Action == action
-    assert context.Original_Adjust_On == object_uuid
-    assert context.Explanation == "Why"
-    assert context.Conclusion == "Outcome"
-    assert context.Created_By_UUID == admin_uuid
+    assert context.hidden is False
+    assert context.action == action
+    assert context.original_adjust_on == object_uuid
+    assert context.explanation == "Why"
+    assert context.conclusion == "Outcome"
+    assert context.created_by_id == admin_uuid
 
     drafts = _drafts(ctx.session, 2, object_id)
     assert len(drafts) == 1
     draft = drafts[0]
-    assert draft.Module_ID == 2
-    assert draft.Adjust_On == object_uuid
-    assert draft.UUID != object_uuid
-    assert draft.Modified_By_UUID == admin_uuid
+    assert draft.module_id == 2
+    assert draft.adjust_on == object_uuid
+    assert draft.id != object_uuid
+    assert draft.modified_by_id == admin_uuid
 
 
 def test_readding_hidden_object_unhides_and_updates_context(admin: TestClient, ctx: Context):
@@ -90,8 +90,8 @@ def test_readding_hidden_object_unhides_and_updates_context(admin: TestClient, c
     # then re-add it as Terminate. The existing context must be un-hidden and rewritten in place.
     context = _context(ctx.session, 1, 1)
     assert context
-    assert context.Action == "Edit"
-    context.Hidden = True
+    assert context.action == "Edit"
+    context.hidden = True
     ctx.session.flush()
 
     object_uuid: uuid.UUID = _object_uuid(ctx, BeleidsdoelSpec, "beleidsdoel_1_latest_valid")
@@ -102,9 +102,9 @@ def test_readding_hidden_object_unhides_and_updates_context(admin: TestClient, c
     ctx.session.expire_all()
     refreshed = _context(ctx.session, 1, 1)
     assert refreshed
-    assert refreshed.Hidden is False
-    assert refreshed.Action == "Terminate"
-    assert refreshed.Original_Adjust_On == object_uuid
+    assert refreshed.hidden is False
+    assert refreshed.action == "Terminate"
+    assert refreshed.original_adjust_on == object_uuid
 
 
 def test_unknown_object_uuid_returns_400(admin: TestClient):
@@ -124,7 +124,7 @@ def test_object_type_not_allowed_returns_400(admin: TestClient, ctx: Context):
     response = admin.post("/modules/2/add-existing-object", json=_payload(object_uuid))
 
     assert response.status_code == 400
-    assert response.json()["detail"].startswith("Invalid Object_Type")
+    assert response.json()["detail"].startswith("Invalid object_type")
 
 
 def test_object_already_in_module_returns_400(admin: TestClient, ctx: Context):
@@ -140,7 +140,7 @@ def test_object_already_in_module_returns_400(admin: TestClient, ctx: Context):
 def test_locked_module_returns_400(admin: TestClient, ctx: Context):
     module = ctx.session.get(ModuleTable, 2)
     assert module
-    module.Temporary_Locked = True
+    module.temporary_locked = True
     ctx.session.flush()
 
     object_uuid: uuid.UUID = _object_uuid(ctx, BeleidsdoelSpec, "beleidsdoel_2_latest_valid")

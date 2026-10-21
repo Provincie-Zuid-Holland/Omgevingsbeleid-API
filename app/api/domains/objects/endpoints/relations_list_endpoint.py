@@ -16,20 +16,20 @@ def _format_rows(object_code: str, table_rows: Sequence[RelationsTable]) -> list
 
     for row in table_rows:
         # Need to determine which the relation is based on my_code
-        title: str = row.FromObjectStatics.Cached_Title
-        relation_code: str = row.From_Code
+        title: str = row.from_object_statics.cached_title
+        relation_code: str = row.from_code
         if relation_code == object_code:
-            relation_code = row.To_Code
-            title = row.ToObjectStatics.Cached_Title
+            relation_code = row.to_code
+            title = row.to_object_statics.cached_title
 
         # Decode the code into object_type and ID, as that is easier to use for the client
         relation_object_type, relation_id = relation_code.split("-", 1)
 
         response_model = ReadRelation(
-            Object_ID=relation_id,
-            Object_Type=relation_object_type,
-            Description=row.Description,
-            Title=title,
+            object_id=relation_id,
+            object_type=relation_object_type,
+            description=row.description,
+            title=title,
         )
         result.append(response_model)
 
@@ -51,13 +51,13 @@ def get_relations_list_endpoint(
         select(RelationsTable)
         .filter(
             or_(
-                RelationsTable.From_Code == object_code,
-                RelationsTable.To_Code == object_code,
+                RelationsTable.from_code == object_code,
+                RelationsTable.to_code == object_code,
             )
         )
         .options(
-            selectinload(RelationsTable.FromObjectStatics),
-            selectinload(RelationsTable.ToObjectStatics),
+            selectinload(RelationsTable.from_object_statics),
+            selectinload(RelationsTable.to_object_statics),
         )
     )
     table_rows: Sequence[RelationsTable] = session.scalars(stmt).all()

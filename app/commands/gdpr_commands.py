@@ -64,7 +64,7 @@ class ObjectLookups:
     def get_log(self, subject_uuid: uuid.UUID) -> str | None:
         objects: list[ObjectTableType] = self._objects_lookup.get(subject_uuid, [])
         module_objects: list[ObjectTableType] = self._module_objects_lookup.get(subject_uuid, [])
-        parts = [f"valid object {o.Code}" for o in objects] + [
-            f"module object {mo.Code} from module {mo.Module_ID}" for mo in module_objects
+        parts = [f"valid object {o.code}" for o in objects] + [
+            f"module object {mo.code} from module {mo.module_id}" for mo in module_objects
         ]
         return (" used in " + ", ".join(parts)) if parts else None

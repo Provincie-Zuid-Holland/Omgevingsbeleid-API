@@ -35,10 +35,10 @@ class JoinDocumentsService:
         if not self._config.document_codes:
             return {}
 
-        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(self._config.document_codes))
+        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.code.in_(self._config.document_codes))
         rows = self._session.execute(stmt).scalars().all()
 
-        return {r.Code: ObjectStatics.model_validate(r) for r in rows}
+        return {r.code: ObjectStatics.model_validate(r) for r in rows}
 
 
 class JoinDocumentsServiceFactory:

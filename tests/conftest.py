@@ -193,6 +193,12 @@ def ambtenaar(_test_env: Context, security: Security) -> Generator[TestClient]:
 
 
 @pytest.fixture()
+def manager_of_module_4(_test_env: Context, security: Security) -> Generator[TestClient]:
+    ambtenaar_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "manager_of_module_4"))
+    yield from _client_logged_in_as(security, ambtenaar_uuid)
+
+
+@pytest.fixture()
 def owner_1(_test_env: Context, security: Security) -> Generator[TestClient]:
     owner_uuid: uuid.UUID = _test_env.fixtures.primary_key_uuid(Ref(UserSpec, "owner_1"))
     yield from _client_logged_in_as(security, owner_uuid)

@@ -30,14 +30,14 @@ def get_list_acts_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     act_repository: Annotated[PublicationActRepository, Depends(Provide[ApiContainer.publication.act_repository])],
     is_active: bool | None = None,
-    environment_uuid: uuid.UUID | None = None,
+    environment_id: uuid.UUID | None = None,
     document_type: DocumentType | None = None,
     procedure_type: ProcedureType | None = None,
 ) -> PagedResponse[PublicationActShort]:
     paginated_result = act_repository.get_with_filters(
         session=session,
         is_active=is_active,
-        environment_uuid=environment_uuid,
+        environment_id=environment_id,
         document_type=document_type,
         procedure_type=procedure_type,
         offset=pagination.offset,

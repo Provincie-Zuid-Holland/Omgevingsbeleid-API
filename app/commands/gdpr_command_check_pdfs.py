@@ -57,7 +57,7 @@ def _handle_storage_files(
     stmt: Select = select(table_type)
     storage_files: Sequence[StorageFileTableType] = repository.iter_all(session, stmt)
     for storage_file in storage_files:
-        meta_report_list: list[PdfMetaReport] = pdf_meta_service.report_banned_meta(storage_file.Binary)
+        meta_report_list: list[PdfMetaReport] = pdf_meta_service.report_banned_meta(storage_file.binary)
         if len(meta_report_list) <= 0:
             continue
         report[storage_file] = [
@@ -67,7 +67,7 @@ def _handle_storage_files(
     if not report:
         return
 
-    storage_file_uuids: list[uuid.UUID] = [storage_file.UUID for storage_file in report]
+    storage_file_uuids: list[uuid.UUID] = [storage_file.id for storage_file in report]
     object_lookups: ObjectLookups = ObjectLookups(
         session,
         object_repository,
@@ -80,9 +80,9 @@ def _handle_storage_files(
 
     for storage_file, meta_issues in report.items():
         log_list: list[str] = []
-        object_log: str | None = object_lookups.get_log(storage_file.UUID) or ""
+        object_log: str | None = object_lookups.get_log(storage_file.id) or ""
         log_list.append(
-            f"{label} {storage_file.UUID} with name {storage_file.Filename}{object_log} has the following report:"
+            f"{label} {storage_file.id} with name {storage_file.filename}{object_log} has the following report:"
         )
         log_list.extend(meta_issues)
         log_message("\n".join(log_list))

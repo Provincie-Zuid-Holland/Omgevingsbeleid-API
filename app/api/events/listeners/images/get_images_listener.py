@@ -39,15 +39,15 @@ class ImageInserter:
                     continue
 
                 try:
-                    image_uuid = UUID(content)
+                    image_id = UUID(content)
                 except ValueError:
                     continue
 
-                asset: AssetsTable | None = self._asset_repository.get_by_uuid(self._session, image_uuid)
+                asset: AssetsTable | None = self._asset_repository.get_by_id(self._session, image_id)
                 if not asset:
                     continue
 
-                setattr(row, field_name, asset.Content)
+                setattr(row, field_name, asset.content)
 
         return self._rows
 

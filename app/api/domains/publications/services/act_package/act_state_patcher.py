@@ -74,15 +74,15 @@ class ActStatePatcher:
         if act_text is None:
             raise RuntimeError("Regeling vrijetekst bestaat niet")
 
-        used_asset_uuids: set[str] = self._dso_builder.get_asset_uuids_wordt()
-        assets: dict[str, models.Asset] = {uuidx: models.Asset(UUID=uuidx) for uuidx in used_asset_uuids}
+        used_asset_ids: set[str] = self._dso_builder.get_asset_uuids_wordt()
+        assets: dict[str, models.Asset] = {idx: models.Asset(id=idx) for idx in used_asset_ids}
 
         action = AddPublicationAction(
             Act_Frbr=act_frbr,
             Bill_Frbr=bill_frbr,
             Consolidation_Purpose=purpose,
-            Document_Type=self._api_input_data.Publication_Version.Publication.Document_Type,
-            Procedure_Type=self._api_input_data.Publication_Version.Publication.Procedure_Type,
+            Document_Type=self._api_input_data.Publication_Version.Publication.document_type,
+            Procedure_Type=self._api_input_data.Publication_Version.Publication.procedure_type,
             Gios=gios,
             Gebiedengroepen=gebiedengroepen,
             Gebiedsaanwijzingen=gebiedsaanwijzingen,

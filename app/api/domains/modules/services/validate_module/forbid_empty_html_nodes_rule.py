@@ -35,12 +35,12 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
                         ValidateModuleError(
                             rule="forbid_empty_html_nodes_rule",
                             object=ValidateModuleObject(
-                                code=object_table.Code,
-                                object_id=object_table.Object_ID,
-                                object_type=object_table.Object_Type,
-                                title=object_table.Title,
+                                code=object_table.code,
+                                object_id=object_table.object_id,
+                                object_type=object_table.object_type,
+                                title=object_table.title,
                             ),
-                            messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
+                            messages=[f"Empty html node found in '{field_name}' for object {object_table.code}"],
                         )
                     )
 

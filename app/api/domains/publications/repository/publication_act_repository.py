@@ -10,15 +10,15 @@ from app.core.tables.publications import PublicationActTable
 
 
 class PublicationActRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationActTable | None:
-        stmt = select(PublicationActTable).where(PublicationActTable.UUID == uuidx)
+    def get_by_id(self, session: Session, idx: uuid.UUID) -> PublicationActTable | None:
+        stmt = select(PublicationActTable).where(PublicationActTable.uuid == idx)
         return self.fetch_first(session, stmt)
 
     def get_with_filters(
         self,
         session: Session,
         is_active: bool | None = None,
-        environment_uuid: uuid.UUID | None = None,
+        environment_id: uuid.UUID | None = None,
         document_type: DocumentType | None = None,
         procedure_type: ProcedureType | None = None,
         offset: int = 0,
@@ -26,13 +26,13 @@ class PublicationActRepository(BaseRepository):
     ) -> PaginatedQueryResult:
         filters = []
         if is_active is not None:
-            filters.append(and_(PublicationActTable.Is_Active == is_active))
-        if environment_uuid is not None:
-            filters.append(and_(PublicationActTable.Environment_UUID == environment_uuid))
+            filters.append(and_(PublicationActTable.is_active == is_active))
+        if environment_id is not None:
+            filters.append(and_(PublicationActTable.environment_id == environment_id))
         if document_type is not None:
-            filters.append(and_(PublicationActTable.Document_Type == document_type.value))
+            filters.append(and_(PublicationActTable.document_type == document_type.value))
         if procedure_type is not None:
-            filters.append(and_(PublicationActTable.Procedure_Type == procedure_type.value))
+            filters.append(and_(PublicationActTable.procedure_type == procedure_type.value))
 
         stmt = select(PublicationActTable).filter(*filters)
 
@@ -41,6 +41,6 @@ class PublicationActRepository(BaseRepository):
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationActTable.Modified_Date, SortOrder.DESC),
+            sort=(PublicationActTable.modified_date, SortOrder.DESC),
         )
         return paged_result

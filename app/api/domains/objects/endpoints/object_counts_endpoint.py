@@ -18,6 +18,6 @@ def view_object_counts_endpoint(
     session: Annotated[Session, Depends(depends_db_session)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
 ) -> ObjectCountResponse:
-    rows: list[ObjectCount] = object_repository.get_valid_counts(session, user.UUID)
+    rows: list[ObjectCount] = object_repository.get_valid_counts(session, user.id)
     response = ObjectCountResponse(rows)
     return response

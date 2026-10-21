@@ -37,7 +37,7 @@ def get_object_related_files_list_endpoint(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object niet gevonden")
 
     related_files: list[ObjectRelatedFileTable] = object_related_file_repository.get_by_object_code(
-        session, object_static.Code
+        session, object_static.code
     )
 
     return [ObjectRelatedFileResponse.model_validate(rf) for rf in related_files]

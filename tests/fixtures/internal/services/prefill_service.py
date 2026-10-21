@@ -2,8 +2,13 @@ from collections import defaultdict
 
 import tests.fixtures.internal.spec.modules as module_types
 import tests.fixtures.internal.spec.objects as objects_types
+import tests.fixtures.internal.spec.publications as publications_types
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
 from tests.fixtures.internal.services.collector import Record
+from tests.fixtures.internal.spec.acknowledged_relation_spec import (
+    AcknowledgedRelationPrefillHandler,
+    AcknowledgedRelationSpec,
+)
 from tests.fixtures.internal.spec.area_spec import AreaPrefillHandler, AreaSpec
 from tests.fixtures.internal.spec.asset_spec import AssetPrefillHandler, AssetSpec
 from tests.fixtures.internal.spec.hoofdlijn_spec import HoofdlijnPrefillHandler, HoofdlijnSpec
@@ -41,6 +46,8 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             objects_types.GebiedengroepSpec: objects_types.GebiedengroepPrefillHandler(),
             objects_types.GebiedsaanwijzingSpec: objects_types.GebiedsaanwijzingPrefillHandler(),
             objects_types.MaatregelSpec: objects_types.MaatregelPrefillHandler(),
+            AcknowledgedRelationSpec: AcknowledgedRelationPrefillHandler(),
+            objects_types.VerplichtProgrammaSpec: objects_types.VerplichtProgrammaPrefillHandler(),
             # Module
             module_types.ModuleSpec: module_types.ModulePrefillHandler(),
             module_types.ModuleStatusHistorySpec: module_types.ModuleStatusHistoryPrefillHandler(),
@@ -51,6 +58,29 @@ class PrefillService[S: Spec, H: BasePrefillHandler]:
             module_types.ModuleGebiedengroepSpec: module_types.ModuleGebiedengroepPrefillHandler(),
             module_types.ModuleGebiedsaanwijzingSpec: module_types.ModuleGebiedsaanwijzingPrefillHandler(),
             module_types.ModuleMaatregelSpec: module_types.ModuleMaatregelPrefillHandler(),
+            module_types.ModuleVerplichtProgrammaSpec: module_types.ModuleVerplichtProgrammaPersistHandler(),
+            # Publications
+            publications_types.PublicationStorageFileSpec: publications_types.PublicationStorageFilePrefillHandler(),
+            publications_types.PublicationTemplateSpec: publications_types.PublicationTemplatePrefillHandler(),
+            publications_types.PublicationEnvironmentSpec: publications_types.PublicationEnvironmentPrefillHandler(),
+            publications_types.PublicationEnvironmentStateSpec: publications_types.PublicationEnvironmentStatePrefillHandler(),
+            publications_types.PublicationAreaOfJurisdictionSpec: publications_types.PublicationAreaOfJurisdictionPrefillHandler(),
+            publications_types.PublicationPurposeSpec: publications_types.PublicationPurposePrefillHandler(),
+            publications_types.PublicationActSpec: publications_types.PublicationActPrefillHandler(),
+            publications_types.PublicationActVersionSpec: publications_types.PublicationActVersionPrefillHandler(),
+            publications_types.PublicationSpec: publications_types.PublicationPrefillHandler(),
+            publications_types.PublicationVersionSpec: publications_types.PublicationVersionPrefillHandler(),
+            publications_types.PublicationVersionAttachmentSpec: publications_types.PublicationVersionAttachmentPrefillHandler(),
+            publications_types.PublicationBillSpec: publications_types.PublicationBillPrefillHandler(),
+            publications_types.PublicationBillVersionSpec: publications_types.PublicationBillVersionPrefillHandler(),
+            publications_types.PublicationDocSpec: publications_types.PublicationDocPrefillHandler(),
+            publications_types.PublicationDocVersionSpec: publications_types.PublicationDocVersionPrefillHandler(),
+            publications_types.PublicationAnnouncementSpec: publications_types.PublicationAnnouncementPrefillHandler(),
+            publications_types.PublicationPackageZipSpec: publications_types.PublicationPackageZipPrefillHandler(),
+            publications_types.PublicationActPackageSpec: publications_types.PublicationActPackagePrefillHandler(),
+            publications_types.PublicationActPackageReportSpec: publications_types.PublicationActPackageReportPrefillHandler(),
+            publications_types.PublicationAnnouncementPackageSpec: publications_types.PublicationAnnouncementPackagePrefillHandler(),
+            publications_types.PublicationAnnouncementPackageReportSpec: publications_types.PublicationAnnouncementPackageReportPrefillHandler(),
         }
 
     def prefill(self, input_records: list[Record]) -> list[Record]:

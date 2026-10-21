@@ -78,7 +78,7 @@ class PdfExportService:
     def _request_generate(self, api_settings: KoopSettings, zip_data: ZipData) -> str:
         multipart_data = MultipartEncoder(
             fields={
-                "aanlevering-zip": (zip_data.Filename, zip_data.Binary, "application/zip"),
+                "aanlevering-zip": (zip_data.filename, zip_data.binary, "application/zip"),
                 "voor-ondertekenen": "true",
                 "auto-clean-up": "true",
             }
@@ -173,6 +173,6 @@ class PdfExportService:
     def _get_api_settings(self, environment_code: str) -> KoopSettings:
         api_settings: KoopSettings | None = self._koop_settings.get(environment_code)
         if api_settings is None:
-            raise RuntimeError("Missing runtime environment settings for this Publication Environment Code")
+            raise RuntimeError("Missing runtime environment settings for this Publication Environment code")
 
         return api_settings

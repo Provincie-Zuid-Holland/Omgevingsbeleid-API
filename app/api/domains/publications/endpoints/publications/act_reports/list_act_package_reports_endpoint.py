@@ -31,12 +31,12 @@ def get_list_act_package_reports_endpoint(
             )
         ),
     ],
-    act_package_uuid: uuid.UUID | None = None,
+    act_package_id: uuid.UUID | None = None,
     report_status: ReportStatusType | None = None,
 ) -> PagedResponse[PublicationActPackageReportShort]:
     paginated_result = report_repository.get_with_filters(
         session=session,
-        act_package_uuid=act_package_uuid,
+        act_package_id=act_package_id,
         report_status=report_status,
         offset=pagination.offset,
         limit=pagination.limit,

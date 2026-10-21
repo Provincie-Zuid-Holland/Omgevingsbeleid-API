@@ -38,10 +38,10 @@ class ThemasCheckRule(ValidatePublicationRule):
                         ValidatePublicationError(
                             rule="themas_check_rule",
                             object=ValidatePublicationObject(
-                                code=object_to_validate.get("Code"),
-                                object_id=object_to_validate.get("Object_ID"),
-                                object_type=object_to_validate.get("Object_Type"),
-                                title=object_to_validate.get("Title"),
+                                code=object_to_validate.get("code"),
+                                object_id=object_to_validate.get("object_id"),
+                                object_type=object_to_validate.get("object_type"),
+                                title=object_to_validate.get("title"),
                             ),
                             messages=[f"Thema '{thema}' can't be found in waardelijst"],
                         )
@@ -51,10 +51,10 @@ class ThemasCheckRule(ValidatePublicationRule):
                         ValidatePublicationError(
                             rule="themas_check_rule",
                             object=ValidatePublicationObject(
-                                code=object_to_validate.get("Code"),
-                                object_id=object_to_validate.get("Object_ID"),
-                                object_type=object_to_validate.get("Object_Type"),
-                                title=object_to_validate.get("Title"),
+                                code=object_to_validate.get("code"),
+                                object_id=object_to_validate.get("object_id"),
+                                object_type=object_to_validate.get("object_type"),
+                                title=object_to_validate.get("title"),
                             ),
                             messages=[f"Thema '{thema}' is deprecated"],
                         )

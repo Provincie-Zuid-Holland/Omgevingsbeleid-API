@@ -22,6 +22,6 @@ def get_module_validate_endpoint(
 ) -> ValidateModuleResult:
     result: ValidateModuleResult = validate_module_runner.run(
         session,
-        module.Module_ID,
+        module.module_id,
     )
     return result

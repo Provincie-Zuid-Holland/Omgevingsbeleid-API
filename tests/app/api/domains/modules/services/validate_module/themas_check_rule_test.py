@@ -15,7 +15,7 @@ from app.core.tables.modules import ModuleObjectsTable
 
 def test_validate():
     config: Mock | MainConfig = Mock(MainConfig)
-    rule_config: ThemasCheckRuleConfig = ThemasCheckRuleConfig(field="Themas")
+    rule_config: ThemasCheckRuleConfig = ThemasCheckRuleConfig(field="themas")
     config.get_as_model.return_value = rule_config
 
     def _get_thema(label: str, deprecated: bool) -> Thema:
@@ -42,52 +42,52 @@ def test_validate():
         module_id=1,
         module_objects=[
             ModuleObjectsTable(
-                Object_Type="ambitie",  # No themas
-                Object_ID="1",
-                Code="ambitie-1",
-                Title="A1 title",
+                object_type="ambitie",  # No themas
+                object_id="1",
+                code="ambitie-1",
+                title="A1 title",
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="2",
-                Code="ambitie-2",
-                Title="A2 title",
-                Themas=["thema-1"],
+                object_type="ambitie",
+                object_id="2",
+                code="ambitie-2",
+                title="A2 title",
+                themas=["thema-1"],
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="3",
-                Code="ambitie-3",
-                Title="A3 title",
-                Themas=["thema-2"],  # deprecated
+                object_type="ambitie",
+                object_id="3",
+                code="ambitie-3",
+                title="A3 title",
+                themas=["thema-2"],  # deprecated
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="4",
-                Code="ambitie-4",
-                Title="A4 title",
-                Themas=["thema-unknown"],  # non-existing
+                object_type="ambitie",
+                object_id="4",
+                code="ambitie-4",
+                title="A4 title",
+                themas=["thema-unknown"],  # non-existing
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="5",
-                Code="ambitie-5",
-                Title="A5 title",
-                Themas=["thema-1", "thema-2"],  # one valid, one deprecated
+                object_type="ambitie",
+                object_id="5",
+                code="ambitie-5",
+                title="A5 title",
+                themas=["thema-1", "thema-2"],  # one valid, one deprecated
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="6",
-                Code="ambitie-6",
-                Title="A6 title",
-                Themas=["thema-1", "thema-unknown"],  # one valid, one non-existing
+                object_type="ambitie",
+                object_id="6",
+                code="ambitie-6",
+                title="A6 title",
+                themas=["thema-1", "thema-unknown"],  # one valid, one non-existing
             ),
             ModuleObjectsTable(
-                Object_Type="ambitie",
-                Object_ID="7",
-                Code="ambitie-7",
-                Title="A7 title",
-                Themas=["thema-1", "thema-3"],  # multiple valid
+                object_type="ambitie",
+                object_id="7",
+                code="ambitie-7",
+                title="A7 title",
+                themas=["thema-1", "thema-3"],  # multiple valid
             ),
         ],
     )

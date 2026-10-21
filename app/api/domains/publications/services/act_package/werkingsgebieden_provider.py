@@ -23,10 +23,10 @@ class PublicationWerkingsgebiedenProvider:
         used_objects: list[dict],
         all_data: bool = False,
     ) -> list[dict]:
-        werkingsgebieden_objects: list[dict] = [o for o in all_objects if o["Object_Type"] == "werkingsgebied"]
+        werkingsgebieden_objects: list[dict] = [o for o in all_objects if o["object_type"] == "werkingsgebied"]
         werkingsgebied_codes: set[str] = self._calculate_werkingsgebied_codes(used_objects)
         used_werkingsgebieden_objects: list[dict] = [
-            w for w in werkingsgebieden_objects if w["Code"] in werkingsgebied_codes or all_data
+            w for w in werkingsgebieden_objects if w["code"] in werkingsgebied_codes or all_data
         ]
 
         werkingsgebieden: list[dict] = self._get_werkingsgebieden_with_areas(
@@ -45,12 +45,12 @@ class PublicationWerkingsgebiedenProvider:
         result: list[dict] = []
 
         for werkingsgebied in werkingsgebieden_objects:
-            code = werkingsgebied["Code"]
-            area_uuid = werkingsgebied["Area_UUID"]
-            if area_uuid is None:
+            code = werkingsgebied["code"]
+            area_id = werkingsgebied["area_id"]
+            if area_id is None:
                 raise RuntimeError(f"Missing area for werkingsgebied with code: {code}")
 
-            area: AreasTable | None = self._area_repository.get_with_gml(session, area_uuid)
+            area: AreasTable | None = self._area_repository.get_with_gml(session, area_id)
             if area is None:
                 raise RuntimeError(f"Area UUID does not exist for code: {code}")
 
@@ -69,7 +69,7 @@ class PublicationWerkingsgebiedenProvider:
         # Therefor their Work_Date is the acts Work_Date
         # And their identifier is made unique with acts data
         work_date: str = act_frbr.Work_Date
-        work_identifier = f"{act_frbr.Act_ID}-{act_frbr.Expression_Version}-{werkingsgebied['Object_ID']}"
+        work_identifier = f"{act_frbr.Act_ID}-{act_frbr.Expression_Version}-{werkingsgebied['object_id']}"
 
         # Some of these expression values are set as if this is the first version
         # But should be overwritten by the state system if they are already published under this UUID/Hash
@@ -83,28 +83,28 @@ class PublicationWerkingsgebiedenProvider:
         )
 
         gml_hash = hashlib.sha512()
-        gml_hash.update(area.Gml.encode())
+        gml_hash.update(area.gml.encode())
 
         result = {
-            "UUID": werkingsgebied["UUID"],
+            "UUID": werkingsgebied["id"],
             "Identifier": str(uuid.uuid4()),
             "Hash": gml_hash.hexdigest(),
-            "Object_ID": werkingsgebied["Object_ID"],
-            "Code": werkingsgebied["Code"],
+            "Object_ID": werkingsgebied["object_id"],
+            "code": werkingsgebied["code"],
             "New": True,
             "Frbr": frbr,
-            "Title": area.Source_Title,
+            "Title": area.source_title,
             "Geboorteregeling": act_frbr.get_work(),
             "Achtergrond_Verwijzing": "TOP10NL",
-            "Achtergrond_Actualiteit": str(werkingsgebied["Modified_Date"])[:10],
+            "Achtergrond_Actualiteit": str(werkingsgebied["modified_date"])[:10],
             "Locaties": [
                 {
-                    "UUID": str(werkingsgebied["UUID"]),
+                    "UUID": str(werkingsgebied["id"]),
                     "Identifier": str(uuid.uuid4()),
                     "Gml_ID": str(uuid.uuid4()),
                     "Group_ID": str(uuid.uuid4()),
-                    "Title": area.Source_Title,
-                    "Gml": area.Gml,
+                    "Title": area.source_title,
+                    "Gml": area.gml,
                 }
             ],
         }
@@ -112,7 +112,7 @@ class PublicationWerkingsgebiedenProvider:
 
     def _calculate_werkingsgebied_codes(self, used_objects: list[dict]) -> set[str]:
         werkingsgebied_codes: set[str] = {
-            o.get("Werkingsgebied_Code") for o in used_objects if o.get("Werkingsgebied_Code", None) is not None
+            o.get("werkingsgebied_code") for o in used_objects if o.get("werkingsgebied_code", None) is not None
         }  # type: ignore
 
         gebiedsaanwijzingen_codes: set[str] = self._resolve_gebiedsaanwijzingen(used_objects)

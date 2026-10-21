@@ -61,11 +61,11 @@ class ActPackageBuilderFactory:
         package_type: PackageType,
         overwrite_mutation_strategy: MutationStrategy | None = None,
     ) -> ActPackageBuilder:
-        publication: PublicationTable = publication_version.Publication
-        act: PublicationActTable = publication.Act
+        publication: PublicationTable = publication_version.publication
+        act: PublicationActTable = publication.act
 
         act_frbr: ActFrbr = self._act_frbr_provider.generate_frbr(session, act)
-        bill_frbr: BillFrbr = self._bill_frbr_provider.generate_frbr(session, publication.Environment, act_frbr)
+        bill_frbr: BillFrbr = self._bill_frbr_provider.generate_frbr(session, publication.environment, act_frbr)
         purpose: Purpose = self._purpose_provider.generate_purpose(
             publication_version,
             act_frbr,
@@ -79,7 +79,7 @@ class ActPackageBuilderFactory:
         )
 
         mutation_strategy: MutationStrategy = overwrite_mutation_strategy or MutationStrategy(
-            publication_version.Mutation_Strategy
+            publication_version.mutation_strategy
         )
 
         api_input_data = ApiActInputData(
@@ -100,7 +100,7 @@ class ActPackageBuilderFactory:
             api_input_data = data_patcher.apply(session, api_input_data)
 
         validation_request = ValidatePublicationRequest(
-            document_type=publication_version.Publication.Document_Type,
+            document_type=publication_version.publication.document_type,
             input_data=api_input_data,
         )
         validation_result = self._validate_publication_service.validate(session, validation_request)
