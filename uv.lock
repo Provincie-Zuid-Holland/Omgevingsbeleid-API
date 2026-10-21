@@ -1242,6 +1242,7 @@ wheels = [
 name = "omgevingsbeleid"
 source = { editable = "." }
 dependencies = [
+    { name = "alembic" },
     { name = "azure-monitor-opentelemetry" },
     { name = "bcrypt" },
     { name = "beautifulsoup4" },
@@ -1261,7 +1262,6 @@ dependencies = [
     { name = "pillow" },
     { name = "psycopg", extra = ["binary", "pool"] },
     { name = "pydantic" },
-    { name = "pydantic-core" },
     { name = "pydantic-settings" },
     { name = "pyjwt" },
     { name = "python-multipart" },
@@ -1278,14 +1278,12 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "alembic" },
     { name = "coverage" },
     { name = "coverage-badge" },
     { name = "debugpy" },
     { name = "devtools" },
     { name = "faker" },
     { name = "freezegun" },
-    { name = "httpx2" },
     { name = "ipython" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -1299,6 +1297,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "alembic", specifier = ">=1.20.0" },
     { name = "azure-monitor-opentelemetry", specifier = ">=1.8.10" },
     { name = "bcrypt", specifier = "==4.0.1" },
     { name = "beautifulsoup4", specifier = ">=4.15.0" },
@@ -1318,7 +1317,6 @@ requires-dist = [
     { name = "pillow", specifier = ">=12.3.0" },
     { name = "psycopg", extras = ["binary", "pool"], specifier = ">=3.3.6" },
     { name = "pydantic", specifier = ">=2.13.5" },
-    { name = "pydantic-core", specifier = ">=2.46.5" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
     { name = "pyjwt", specifier = ">=2.15.1" },
     { name = "python-multipart", specifier = ">=0.0.32" },
@@ -1335,14 +1333,12 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "alembic", specifier = ">=1.20.0" },
     { name = "coverage", specifier = ">=7.16.2" },
     { name = "coverage-badge", specifier = ">=1.1.2" },
     { name = "debugpy", specifier = ">=1.8.22" },
     { name = "devtools", specifier = ">=0.12.2" },
     { name = "faker", specifier = ">=40.41.0" },
     { name = "freezegun", specifier = ">=1.5.5" },
-    { name = "httpx2", specifier = ">=2.13.1" },
     { name = "ipython", specifier = ">=9.17.1" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest-cov", specifier = ">=7.1.0" },

@@ -3,6 +3,7 @@ name = "omgevingsbeleid"
 dynamic = ["version"]
 requires-python = ">=3.13"
 dependencies = [
+    "alembic>=1.20.0",
     "azure-monitor-opentelemetry>=1.8.10",
     "bcrypt==4.0.1",
     "beautifulsoup4>=4.15.0",
@@ -22,7 +23,6 @@ dependencies = [
     "pillow>=12.3.0",
     "psycopg[binary,pool]>=3.3.6",
     "pydantic>=2.13.5",
-    "pydantic-core>=2.46.5",
     "pydantic-settings>=2.15.0",
     "pyjwt>=2.15.1",
     "python-multipart>=0.0.32",
@@ -81,14 +81,12 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "alembic>=1.20.0",
     "coverage>=7.16.2",
     "coverage-badge>=1.1.2",
     "debugpy>=1.8.22",
     "devtools>=0.12.2",
     "faker>=40.41.0",
     "freezegun>=1.5.5",
-    "httpx2>=2.13.1",
     "ipython>=9.17.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
