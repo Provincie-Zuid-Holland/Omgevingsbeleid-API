@@ -1,12 +1,12 @@
-from fastapi.testclient import TestClient
+import httpx2
 
 from tests.assert_helpers import get_uuids_from_spec
 from tests.conftest import Context
 from tests.fixtures.internal.spec.hoofdlijn_spec import HoofdlijnSpec
 
 
-def test_search_hoofdlijn_newest_first(viewer: TestClient, ctx: Context):
-    response = viewer.post("/hoofdlijnen/search?query=Provinciaal")
+async def test_search_hoofdlijn_newest_first(viewer: httpx2.AsyncClient, ctx: Context):
+    response = await viewer.post("/hoofdlijnen/search?query=Provinciaal")
 
     assert response.status_code == 200
     assert [r["id"] for r in response.json().get("results")] == get_uuids_from_spec(
@@ -14,16 +14,16 @@ def test_search_hoofdlijn_newest_first(viewer: TestClient, ctx: Context):
     )
 
 
-def test_search_hoofdlijn_sort_by_name(viewer: TestClient, ctx: Context):
-    response = viewer.post("/hoofdlijnen/search?query=aal&sort_column=name&sort_order=ASC")
+async def test_search_hoofdlijn_sort_by_name(viewer: httpx2.AsyncClient, ctx: Context):
+    response = await viewer.post("/hoofdlijnen/search?query=aal&sort_column=name&sort_order=ASC")
     assert response.status_code == 200
     assert [r["id"] for r in response.json().get("results")] == get_uuids_from_spec(
         ctx, HoofdlijnSpec, ["hoofdlijn-1", "hoofdlijn-3", "hoofdlijn-2"]
     )
 
 
-def test_search_hoofdlijn_sort_by_kind(viewer: TestClient, ctx: Context):
-    response = viewer.post("/hoofdlijnen/search?query=aal&sort_column=kind&sort_order=ASC")
+async def test_search_hoofdlijn_sort_by_kind(viewer: httpx2.AsyncClient, ctx: Context):
+    response = await viewer.post("/hoofdlijnen/search?query=aal&sort_column=kind&sort_order=ASC")
     assert response.status_code == 200
     assert [r["id"] for r in response.json().get("results")] == get_uuids_from_spec(
         ctx, HoofdlijnSpec, ["hoofdlijn-3", "hoofdlijn-2", "hoofdlijn-1"]

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
@@ -21,17 +21,17 @@ class InsertHtmlImagesConfig(BaseModel):
 class HtmlImagesInserter:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         asset_repository: AssetRepository,
         rows: list[BaseModel],
         config: InsertHtmlImagesConfig,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: InsertHtmlImagesConfig = config
         self._rows: list[BaseModel] = rows
         self._asset_repository: AssetRepository = asset_repository
 
-    def process(self) -> list[BaseModel]:
+    async def process(self) -> list[BaseModel]:
         for index, row in enumerate(self._rows):
             for field_name in self._config.fields:
                 if not hasattr(row, field_name):
@@ -49,7 +49,7 @@ class HtmlImagesInserter:
                     except ValueError:
                         continue
 
-                    asset: AssetsTable | None = self._asset_repository.get_by_id(self._session, asset_id)
+                    asset: AssetsTable | None = await self._asset_repository.get_by_id(self._session, asset_id)
                     if not asset:
                         continue
 
@@ -73,7 +73,7 @@ class HtmlImagesInserterFactory:
 
     def create(
         self,
-        session: Session,
+        session: AsyncSession,
         rows: list[BaseModel],
         config: InsertHtmlImagesConfig,
     ) -> HtmlImagesInserter:
@@ -89,13 +89,13 @@ class InsertHtmlImagesListenerBase[EventT: ApiEvent](ApiListener[EventT]):
     def __init__(self, service_factory: HtmlImagesInserterFactory):
         self._service_factory: HtmlImagesInserterFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventT) -> EventT | None:
+    async def handle_event(self, session: AsyncSession, event: EventT) -> EventT | None:
         config: InsertHtmlImagesConfig | None = self._collect_config(event.context.response_model)
         if not config or not config.fields:
             return event
 
         inserter: HtmlImagesInserter = self._service_factory.create(session, event.payload.rows, config)
-        result_rows = inserter.process()
+        result_rows = await inserter.process()
 
         event.payload.rows = result_rows
         return event

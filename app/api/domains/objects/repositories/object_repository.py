@@ -3,7 +3,8 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session, aliased, joinedload, selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, joinedload, selectinload
 from sqlalchemy.sql import and_, func, or_
 
 from app.api.base_repository import BaseRepository
@@ -14,7 +15,7 @@ from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
 
 
 class ObjectRepository(BaseRepository):
-    def get_valid_counts(self, session: Session, user_uuid: UUID) -> list[ObjectCount]:
+    async def get_valid_counts(self, session: AsyncSession, user_uuid: UUID) -> list[ObjectCount]:
         row_number = (
             func.row_number()
             .over(
@@ -56,19 +57,28 @@ class ObjectRepository(BaseRepository):
 
         final_query = select(main_query.c.object_type, func.count()).group_by(main_query.c.object_type)
 
-        rows = session.execute(final_query).fetchall()
+        rows = (await session.execute(final_query)).fetchall()
         result = [ObjectCount(object_type=r[0], count=r[1]) for r in rows]
         return result
 
-    def get_by_id(self, session: Session, idx: UUID) -> ObjectsTable | None:
+    async def get_by_id(self, session: AsyncSession, idx: UUID) -> ObjectsTable | None:
         stmt = select(ObjectsTable).filter(ObjectsTable.id == idx)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_object_type_and_id(self, session: Session, object_type: str, idx: UUID) -> ObjectsTable | None:
+    async def get_by_object_type_and_id(
+        self, session: AsyncSession, object_type: str, idx: UUID
+    ) -> ObjectsTable | None:
+        prepared_query: PreparedQuery = self.prepare_by_object_type_and_id(object_type, idx)
+        return await self.fetch_first(session, prepared_query.query)
+
+    def prepare_by_object_type_and_id(self, object_type: str, idx: UUID) -> PreparedQuery:
         stmt = select(ObjectsTable).filter(ObjectsTable.id == idx).filter(ObjectsTable.object_type == object_type)
-        return self.fetch_first(session, stmt)
+        return PreparedQuery(
+            query=stmt,
+            aliased_ref=ObjectsTable,
+        )
 
-    def get_next_valid_object(self, session: Session, object_uuid: UUID) -> ObjectsTable | None:
+    async def get_next_valid_object(self, session: AsyncSession, object_uuid: UUID) -> ObjectsTable | None:
         reference_obj = (select(ObjectsTable).filter(ObjectsTable.id == object_uuid)).subquery()
 
         stmt = (
@@ -87,9 +97,11 @@ class ObjectRepository(BaseRepository):
             )
         )
 
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_latest_valid_by_id(self, session: Session, object_type: str, object_id: int) -> ObjectsTable | None:
+    async def get_latest_valid_by_id(
+        self, session: AsyncSession, object_type: str, object_id: int
+    ) -> ObjectsTable | None:
         row_number = (
             func.row_number()
             .over(
@@ -121,21 +133,28 @@ class ObjectRepository(BaseRepository):
             )
             .order_by(desc(subq.c.modified_date))
         )
-        result = self.fetch_first(session, stmt)
+        result = await self.fetch_first(session, stmt)
         return result
 
-    def get_latest_by_id(self, session: Session, object_type: str, object_id: int) -> ObjectsTable | None:
+    async def get_latest_by_id(self, session: AsyncSession, object_type: str, object_id: int) -> ObjectsTable | None:
+        prepared_query: PreparedQuery = self.prepare_latest_by_id(object_type, object_id)
+        return await self.fetch_first(session, prepared_query.query.options(selectinload(ObjectsTable.object_statics)))
+
+    def prepare_latest_by_id(self, object_type: str, object_id: int) -> PreparedQuery:
         stmt = (
             select(ObjectsTable)
             .filter(ObjectsTable.object_type == object_type)
             .filter(ObjectsTable.object_id == object_id)
             .order_by(desc(ObjectsTable.modified_date))
         )
-        return self.fetch_first(session, stmt)
+        return PreparedQuery(
+            query=stmt,
+            aliased_ref=ObjectsTable,
+        )
 
-    def get_latest_filtered(
+    async def get_latest_filtered(
         self,
-        session: Session,
+        session: AsyncSession,
         pagination: SortedPagination,
         owner_id: UUID | None = None,
         object_types: Sequence[str] = (),
@@ -175,9 +194,13 @@ class ObjectRepository(BaseRepository):
 
         subq = subq.subquery()
         aliased_objects = aliased(ObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._row_number == 1)
+        stmt = (
+            select(aliased_objects)
+            .options(selectinload(aliased_objects.object_statics))
+            .filter(subq.c._row_number == 1)
+        )
 
-        return self.fetch_paginated(
+        return await self.fetch_paginated(
             session=session,
             statement=stmt,
             limit=pagination.limit,

@@ -24,7 +24,7 @@ class PublicationStorageFileTable(Base):
     filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     content_type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
-    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
+    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False), raiseload=True)
 
     created_date: Mapped[datetime]
     created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
@@ -88,6 +88,7 @@ class PublicationEnvironmentTable(Base, UserMetaData):
         "PublicationEnvironmentStateTable",
         foreign_keys=[active_state_id],
         post_update=True,
+        lazy="raise_on_sql",
     )
 
     created_date: Mapped[datetime]
@@ -112,6 +113,7 @@ class PublicationEnvironmentStateTable(Base):
     environment: Mapped["PublicationEnvironmentTable"] = relationship(
         "PublicationEnvironmentTable",
         foreign_keys=[environment_id],
+        lazy="raise_on_sql",
     )
 
 
@@ -158,11 +160,6 @@ class PublicationActTable(Base, UserMetaData):
     # to consolidate GIO's with.
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    # This UUID would not really be needed
-    # But we keep it as it is less confusing that everything is linked by UUID
-    # @todo; we should remove this
-    uuid: Mapped[UUID] = mapped_column(unique=True)
-
     environment_id: Mapped[UUID] = mapped_column(ForeignKey("publication_environments.id"))
 
     document_type: Mapped[str] = mapped_column(Unicode(50), nullable=False)
@@ -188,10 +185,11 @@ class PublicationActTable(Base, UserMetaData):
     created_date: Mapped[datetime]
     modified_date: Mapped[datetime]
 
-    environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
+    environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable", lazy="raise_on_sql")
     withdrawal_purpose: Mapped[PublicationPurposeTable | None] = relationship(
         "PublicationPurposeTable",
         primaryjoin="PublicationActTable.withdrawal_purpose_id == PublicationPurposeTable.id",
+        lazy="raise_on_sql",
     )
 
     __table_args__ = (UniqueConstraint("environment_id", "work_other", name="uix_pub_act_env_other"),)
@@ -211,11 +209,12 @@ class PublicationActVersionTable(Base):
     created_date: Mapped[datetime]
     created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
-    act: Mapped[PublicationActTable] = relationship()
+    act: Mapped[PublicationActTable] = relationship(lazy="raise_on_sql")
 
     consolidation_purpose: Mapped[PublicationPurposeTable] = relationship(
         "PublicationPurposeTable",
         primaryjoin="PublicationActVersionTable.consolidation_purpose_id == PublicationPurposeTable.id",
+        lazy="raise_on_sql",
     )
 
     __table_args__ = (UniqueConstraint("act_id", "expression_version", name="uix_act_version"),)
@@ -239,10 +238,10 @@ class PublicationTable(Base, UserMetaData):
     created_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     modified_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
-    module: Mapped[ModuleTable] = relationship("ModuleTable")
-    template: Mapped["PublicationTemplateTable"] = relationship("PublicationTemplateTable")
-    environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable")
-    act: Mapped[PublicationActTable] = relationship()
+    module: Mapped[ModuleTable] = relationship("ModuleTable", lazy="raise_on_sql")
+    template: Mapped["PublicationTemplateTable"] = relationship("PublicationTemplateTable", lazy="raise_on_sql")
+    environment: Mapped[PublicationEnvironmentTable] = relationship("PublicationEnvironmentTable", lazy="raise_on_sql")
+    act: Mapped[PublicationActTable] = relationship(lazy="raise_on_sql")
 
 
 class PublicationVersionTable(Base, UserMetaData):
@@ -274,14 +273,16 @@ class PublicationVersionTable(Base, UserMetaData):
     status: Mapped[str] = mapped_column(Unicode(64), nullable=False)
     mutation_strategy: Mapped[str] = mapped_column(Unicode(64), nullable=False, server_default="renvooi")
 
-    publication: Mapped[PublicationTable] = relationship("PublicationTable")
-    module_status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable")
+    publication: Mapped[PublicationTable] = relationship("PublicationTable", lazy="raise_on_sql")
+    module_status: Mapped[ModuleStatusHistoryTable] = relationship("ModuleStatusHistoryTable", lazy="raise_on_sql")
     attachments: Mapped[list["PublicationVersionAttachmentTable"]] = relationship(
-        back_populates="publication_version", order_by="asc(PublicationVersionAttachmentTable.id)"
+        back_populates="publication_version", order_by="asc(PublicationVersionAttachmentTable.id)", lazy="raise_on_sql"
     )
 
     act_packages: Mapped[list["PublicationActPackageTable"]] = relationship(
-        back_populates="publication_version", order_by="asc(PublicationActPackageTable.created_date)"
+        back_populates="publication_version",
+        order_by="asc(PublicationActPackageTable.created_date)",
+        lazy="raise_on_sql",
     )
 
 
@@ -299,8 +300,8 @@ class PublicationVersionAttachmentTable(Base, UserMetaData):
     created_date: Mapped[datetime]
     modified_date: Mapped[datetime]
 
-    publication_version: Mapped["PublicationVersionTable"] = relationship()
-    file: Mapped[PublicationStorageFileTable] = relationship()
+    publication_version: Mapped["PublicationVersionTable"] = relationship(lazy="raise_on_sql")
+    file: Mapped[PublicationStorageFileTable] = relationship(lazy="raise_on_sql")
 
     __table_args__ = (UniqueConstraint("publication_version_id", "file_id", name="uix_publication_version_file"),)
 
@@ -337,7 +338,7 @@ class PublicationBillVersionTable(Base):
     created_date: Mapped[datetime]
     created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
-    bill: Mapped[PublicationBillTable] = relationship()
+    bill: Mapped[PublicationBillTable] = relationship(lazy="raise_on_sql")
 
     __table_args__ = (UniqueConstraint("bill_id", "expression_version", name="uix_bill_version"),)
 
@@ -348,7 +349,7 @@ class PublicationPackageZipTable(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True)
 
     filename: Mapped[str] = mapped_column(Unicode, nullable=False)
-    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
+    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False), raiseload=True)
     checksum: Mapped[str] = mapped_column(String(64), nullable=False)
 
     latest_download_date: Mapped[datetime | None]
@@ -384,16 +385,19 @@ class PublicationActPackageTable(Base, UserMetaData):
     created_date: Mapped[datetime]
     modified_date: Mapped[datetime]
 
-    publication_version: Mapped["PublicationVersionTable"] = relationship()
-    bill_version: Mapped["PublicationBillVersionTable"] = relationship()
-    act_version: Mapped["PublicationActVersionTable"] = relationship()
-    zip: Mapped[PublicationPackageZipTable] = relationship()
+    publication_version: Mapped["PublicationVersionTable"] = relationship(lazy="raise_on_sql")
+    bill_version: Mapped["PublicationBillVersionTable"] = relationship(lazy="raise_on_sql")
+    act_version: Mapped["PublicationActVersionTable"] = relationship(lazy="raise_on_sql")
+    zip: Mapped[PublicationPackageZipTable] = relationship(lazy="raise_on_sql")
     created_environment_state: Mapped["PublicationEnvironmentStateTable"] = relationship(
         "PublicationEnvironmentStateTable",
         primaryjoin="PublicationActPackageTable.created_environment_state_id == PublicationEnvironmentStateTable.id",
+        lazy="raise_on_sql",
     )
-    module: Mapped[ModuleTable | None] = relationship("ModuleTable")
-    module_status: Mapped[ModuleStatusHistoryTable | None] = relationship("ModuleStatusHistoryTable")
+    module: Mapped[ModuleTable | None] = relationship("ModuleTable", lazy="raise_on_sql")
+    module_status: Mapped[ModuleStatusHistoryTable | None] = relationship(
+        "ModuleStatusHistoryTable", lazy="raise_on_sql"
+    )
 
 
 class PublicationActPackageReportTable(Base):
@@ -448,7 +452,7 @@ class PublicationDocVersionTable(Base):
     created_date: Mapped[datetime]
     created_by_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
 
-    doc: Mapped[PublicationDocTable] = relationship()
+    doc: Mapped[PublicationDocTable] = relationship(lazy="raise_on_sql")
 
     __table_args__ = (UniqueConstraint("doc_id", "expression_version", name="uix_doc_version"),)
 
@@ -472,8 +476,8 @@ class PublicationAnnouncementTable(Base, UserMetaData):
     created_date: Mapped[datetime]
     modified_date: Mapped[datetime]
 
-    act_package: Mapped[PublicationActPackageTable] = relationship("PublicationActPackageTable")
-    publication: Mapped[PublicationTable] = relationship("PublicationTable")
+    act_package: Mapped[PublicationActPackageTable] = relationship("PublicationActPackageTable", lazy="raise_on_sql")
+    publication: Mapped[PublicationTable] = relationship("PublicationTable", lazy="raise_on_sql")
 
 
 class PublicationAnnouncementPackageTable(Base, UserMetaData):
@@ -499,11 +503,12 @@ class PublicationAnnouncementPackageTable(Base, UserMetaData):
     created_date: Mapped[datetime]
     modified_date: Mapped[datetime]
 
-    announcement: Mapped["PublicationAnnouncementTable"] = relationship()
-    zip: Mapped["PublicationPackageZipTable"] = relationship()
+    announcement: Mapped["PublicationAnnouncementTable"] = relationship(lazy="raise_on_sql")
+    zip: Mapped["PublicationPackageZipTable"] = relationship(lazy="raise_on_sql")
     created_environment_state: Mapped["PublicationEnvironmentStateTable"] = relationship(
         "PublicationEnvironmentStateTable",
         primaryjoin="PublicationAnnouncementPackageTable.created_environment_state_id == PublicationEnvironmentStateTable.id",
+        lazy="raise_on_sql",
     )
 
 

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -22,10 +22,10 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_files_list_endpoint(
+async def get_files_list_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     storage_file_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
     only_mine: bool = False,
     filter_filename: str | None = None,
@@ -41,7 +41,7 @@ def get_files_list_endpoint(
     if only_mine:
         filter_on_me = user.id
 
-    paginated_result: PaginatedQueryResult = storage_file_repository.get_with_filters(
+    paginated_result: PaginatedQueryResult = await storage_file_repository.get_with_filters(
         session=session,
         pagination=pagination,
         filter_filename=filter_filename,

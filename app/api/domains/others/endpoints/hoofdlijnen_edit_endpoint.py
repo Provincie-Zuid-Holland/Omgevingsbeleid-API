@@ -5,7 +5,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -26,11 +26,11 @@ class EditHoofdlijn(BaseModel):
 
 
 @inject
-def post_hoofdlijnen_edit_endpoint(
+async def post_hoofdlijnen_edit_endpoint(
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
     hoofdlijn: Annotated[HoofdlijnTable, Depends(depends_hoofdlijn)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: EditHoofdlijn,
 ) -> ResponseOK:
     permission_service.guard_valid_user(Permissions.hoofdlijnen_can_edit_hoofdlijn, logged_in_user)
@@ -62,7 +62,7 @@ def post_hoofdlijnen_edit_endpoint(
 
     session.add(change_log)
     session.add(hoofdlijn)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

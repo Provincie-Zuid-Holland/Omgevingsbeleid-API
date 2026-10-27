@@ -2,11 +2,12 @@ import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
+import anyio
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ValidationError
 from pydantic_core import ErrorDetails
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -56,14 +57,14 @@ class PublicationPackageCreatedResponse(BaseModel):
 class EndpointHandler:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         validator: PublicationVersionValidator,
         package_builder_factory: ActPackageBuilderFactory,
         user: UsersTable,
         object_in: PublicationPackageCreate,
         publication_version: PublicationVersionTable,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._validator: PublicationVersionValidator = validator
         self._package_builder_factory: ActPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
@@ -74,19 +75,20 @@ class EndpointHandler:
         self._act: PublicationActTable = publication_version.publication.act
         self._timepoint: datetime = datetime.now(UTC)
 
-    def handle(self) -> PublicationPackageCreatedResponse:
+    async def handle(self) -> PublicationPackageCreatedResponse:
         self._guard_validate_package_type()
         self._guard_locked()
         self._guard_valid_publication_version()
 
         try:
-            package_builder: ActPackageBuilder = self._package_builder_factory.create_builder(
+            package_builder: ActPackageBuilder = await self._package_builder_factory.create_builder(
                 self._session,
                 self._publication_version,
                 self._object_in.package_type,
             )
-            package_builder.build_publication_files()
-            zip_data: ZipData = package_builder.zip_files()
+            # Building the DSO package is CPU heavy, so it runs in a worker thread
+            await anyio.to_thread.run_sync(package_builder.build_publication_files)
+            zip_data: ZipData = await anyio.to_thread.run_sync(package_builder.zip_files)
 
             report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
             if self._environment.has_state:
@@ -103,7 +105,7 @@ class EndpointHandler:
                 created_by_id=self._user.id,
             )
             self._session.add(package_zip)
-            self._session.flush()
+            await self._session.flush()
 
             package = PublicationActPackageTable(
                 id=uuid.uuid4(),
@@ -120,10 +122,10 @@ class EndpointHandler:
                 modified_by_id=self._user.id,
             )
             self._session.add(package)
-            self._session.flush()
+            await self._session.flush()
 
-            self._handle_new_state(package_builder, package)
-            self._handle_bill_act_purpose(package_builder, package)
+            await self._handle_new_state(package_builder, package)
+            await self._handle_bill_act_purpose(package_builder, package)
 
             if self._publication_version.status != PublicationVersionStatus.NOT_APPLICABLE:
                 match self._object_in.package_type:
@@ -132,9 +134,9 @@ class EndpointHandler:
                     case PackageType.PUBLICATION:
                         self._publication_version.status = PublicationVersionStatus.PUBLICATION
                 self._session.add(self._publication_version)
-                self._session.flush()
+                await self._session.flush()
 
-            self._session.commit()
+            await self._session.commit()
 
             response = PublicationPackageCreatedResponse(
                 package_id=package.id,
@@ -183,7 +185,7 @@ class EndpointHandler:
         if len(errors) != 0:
             raise HTTPException(status.HTTP_409_CONFLICT, errors)
 
-    def _handle_new_state(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
+    async def _handle_new_state(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
         if not self._environment.has_state:
             return
         if self._object_in.package_type != PackageType.PUBLICATION:
@@ -193,18 +195,18 @@ class EndpointHandler:
         new_state.created_date = self._timepoint
         new_state.created_by_id = self._user.id
         self._session.add(new_state)
-        self._session.flush()
+        await self._session.flush()
 
         package.used_environment_state_id = self._environment.active_state_id
         package.created_environment_state_id = new_state.id
         self._session.add(package)
-        self._session.flush()
+        await self._session.flush()
 
         environment: PublicationEnvironmentTable = self._environment
         environment.is_locked = True
         self._session.add(environment)
 
-    def _handle_bill_act_purpose(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
+    async def _handle_bill_act_purpose(self, package_builder: ActPackageBuilder, package: PublicationActPackageTable):
         if not self._environment.has_state:
             return
         if self._object_in.package_type != PackageType.PUBLICATION:
@@ -223,7 +225,7 @@ class EndpointHandler:
             created_by_id=self._user.id,
         )
         self._session.add(purpose_table)
-        self._session.flush()
+        await self._session.flush()
 
         bill_frbr: BillFrbr = package_builder.get_bill_frbr()
         bill = PublicationBillTable(
@@ -240,7 +242,7 @@ class EndpointHandler:
             modified_by_id=self._user.id,
         )
         self._session.add(bill)
-        self._session.flush()
+        await self._session.flush()
 
         bill_version = PublicationBillVersionTable(
             id=uuid.uuid4(),
@@ -256,7 +258,7 @@ class EndpointHandler:
         act_frbr: ActFrbr = package_builder.get_act_frbr()
         act_version = PublicationActVersionTable(
             id=uuid.uuid4(),
-            act_id=self._act.uuid,
+            act_id=self._act.id,
             consolidation_purpose_id=purpose_table.id,
             expression_language=act_frbr.Expression_Language,
             expression_date=act_frbr.Expression_Date,
@@ -265,16 +267,16 @@ class EndpointHandler:
             created_by_id=self._user.id,
         )
         self._session.add(act_version)
-        self._session.flush()
+        await self._session.flush()
 
         package.bill_version_id = bill_version.id
         package.act_version_id = act_version.id
         self._session.add(package)
-        self._session.flush()
+        await self._session.flush()
 
 
 @inject
-def post_create_act_package_endpoint(
+async def post_create_act_package_endpoint(
     publication_version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     publication_version_validator: Annotated[
         PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])
@@ -290,7 +292,7 @@ def post_create_act_package_endpoint(
     package_builder_factory: Annotated[
         ActPackageBuilderFactory, Depends(Provide[ApiContainer.publication.act_package_builder_factory])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: PublicationPackageCreate,
 ) -> PublicationPackageCreatedResponse:
     handler: EndpointHandler = EndpointHandler(
@@ -301,4 +303,4 @@ def post_create_act_package_endpoint(
         object_in,
         publication_version,
     )
-    return handler.handle()
+    return await handler.handle()

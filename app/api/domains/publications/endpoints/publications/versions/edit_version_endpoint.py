@@ -5,7 +5,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from pydantic_core import ErrorDetails
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -36,7 +36,7 @@ class PublicationVersionEditResponse(BaseModel):
 
 
 @inject
-def post_edit_version_endpoint(
+async def post_edit_version_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -47,7 +47,7 @@ def post_edit_version_endpoint(
     ],
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: PublicationVersionEdit,
 ) -> PublicationVersionEditResponse:
     _guard_locked(version)
@@ -65,8 +65,8 @@ def post_edit_version_endpoint(
     version.modified_date = datetime.now(UTC)
 
     session.add(version)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     errors: list[ErrorDetails] = validator.get_errors(version)
     is_valid: bool = len(errors) == 0

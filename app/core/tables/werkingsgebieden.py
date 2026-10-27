@@ -26,6 +26,7 @@ class InputGeoWerkingsgebiedenTable(Base):
         secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
         back_populates="werkingsgebieden",
         viewonly=True,
+        lazy="raise_on_sql",
     )
 
     def __repr__(self) -> str:
@@ -41,14 +42,15 @@ class InputGeoOnderverdelingenTable(Base):
     created_date: Mapped[datetime]
 
     symbol: Mapped[str | None]
-    geometry: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
+    geometry: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True), raiseload=True)
     geometry_hash: Mapped[str] = mapped_column(Unicode(64))
-    gml: Mapped[str] = deferred(mapped_column(Unicode))
+    gml: Mapped[str] = deferred(mapped_column(Unicode), raiseload=True)
 
     werkingsgebieden: Mapped[list[InputGeoWerkingsgebiedenTable]] = relationship(
         secondary=Input_GEO_Werkingsgebieden_Onderverdelingen_Assoc,
         back_populates="onderverdelingen",
         viewonly=True,
+        lazy="raise_on_sql",
     )
 
     def __repr__(self) -> str:
@@ -77,9 +79,9 @@ class SourceWerkingsgebiedenTable(Base):
     modified_date: Mapped[datetime]
 
     title: Mapped[str]
-    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
+    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True), raiseload=True)
     geometry_hash: Mapped[str] = mapped_column(Unicode(64), nullable=True)
-    gml: Mapped[str] = deferred(mapped_column(Unicode))
+    gml: Mapped[str] = deferred(mapped_column(Unicode), raiseload=True)
     symbol: Mapped[str] = mapped_column(Unicode(265))
 
     def __repr__(self) -> str:
@@ -94,7 +96,7 @@ class OnderverdelingTable(Base):
     ref_id: Mapped[int]
 
     title: Mapped[str] = mapped_column(name="Onderverdeling")
-    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
+    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True), raiseload=True)
     symbol: Mapped[str]
     werkingsgebied: Mapped[str] = mapped_column(Unicode(265))
     werkingsgebied_id: Mapped[uuid.UUID]

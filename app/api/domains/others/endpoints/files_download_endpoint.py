@@ -2,12 +2,12 @@ from typing import Annotated
 
 from fastapi import Depends, Response
 
-from app.api.domains.others.dependencies import depends_storage_file
+from app.api.domains.others.dependencies import depends_storage_file_with_binary
 from app.core.tables.others import StorageFileTable
 
 
-def get_files_download_endpoint(
-    storage_file: Annotated[StorageFileTable, Depends(depends_storage_file)],
+async def get_files_download_endpoint(
+    storage_file: Annotated[StorageFileTable, Depends(depends_storage_file_with_binary)],
 ) -> Response:
     filename = storage_file.filename
     content = storage_file.binary

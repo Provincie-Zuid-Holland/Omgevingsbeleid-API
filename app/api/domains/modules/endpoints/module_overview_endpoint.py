@@ -16,7 +16,7 @@ class ModuleOverviewResponse(BaseModel):
     status_history: list[ModuleStatus]
 
 
-def view_module_overview_endpoint(
+async def view_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
 ) -> ModuleOverviewResponse:

@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module import (
     CheckEmptyAreaDesignationTextConfig,
@@ -12,7 +12,7 @@ from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
 
 
-def test_validate():
+async def test_validate():
     config: Mock | MainConfig = Mock(MainConfig)
     rule_config: CheckEmptyAreaDesignationTextConfig = CheckEmptyAreaDesignationTextConfig(
         fields=["description"],
@@ -38,7 +38,7 @@ def test_validate():
             ),
         ],
     )
-    db: Mock | Session = Mock(Session)
-    errors: list[ValidateModuleError] = rule.validate(db=db, request=request)
+    db: Mock | AsyncSession = Mock(AsyncSession)
+    errors: list[ValidateModuleError] = await rule.validate(db=db, request=request)
     assert len(errors) == 1
     assert [error.object.code for error in errors] == ["beleidsdoel-2"]

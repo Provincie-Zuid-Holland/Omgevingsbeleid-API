@@ -5,7 +5,8 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Body, Depends, HTTPException, status
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ValidationError
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -18,6 +19,7 @@ from app.api.endpoint import BaseEndpointContext
 from app.api.events.event_manager import ApiEventManager
 from app.api.events.module_object_patched_event import ModuleObjectPatchedEvent
 from app.api.permissions import Permissions
+from app.api.services.async_model_validators_service import AsyncModelValidatorsService
 from app.api.services.permission_service import PermissionService
 from app.core.tables.modules import ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
@@ -32,12 +34,12 @@ class ModulePatchObjectContext(BaseEndpointContext):
 
 
 @inject
-def post_module_patch_object_endpoint(
+async def post_module_patch_object_endpoint(
     lineage_id: int,
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     context: Annotated[ModulePatchObjectContext, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_static_repository: Annotated[
         ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
@@ -46,9 +48,12 @@ def post_module_patch_object_endpoint(
     ],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
+    async_model_validators_service: Annotated[
+        AsyncModelValidatorsService, Depends(Provide[ApiContainer.async_model_validators_service])
+    ],
     object_in_raw: Annotated[dict, Body()],
 ) -> BaseModel:
-    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = await object_static_repository.get_by_object_type_and_id(
         session,
         context.object_type,
         lineage_id,
@@ -64,15 +69,20 @@ def post_module_patch_object_endpoint(
     guard_module_not_locked(module)
 
     # Validated by hand so that we can give context
+    validation_context: dict = {"module_id": module.module_id}
     try:
         object_in: BaseModel = context.request_config_model.pydantic_model.model_validate(
             object_in_raw,
-            context={
-                "module_id": module.module_id,
-            },
+            context=validation_context,
         )
     except ValidationError as e:
         raise RequestValidationError(e.errors()) from e
+
+    async_errors = await async_model_validators_service.run(
+        session, context.request_config_model.pydantic_model, object_in, validation_context
+    )
+    if async_errors:
+        raise RequestValidationError(async_errors)
 
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
@@ -80,7 +90,7 @@ def post_module_patch_object_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
     try:
-        old_record, new_record = module_object_repository.patch_latest_module_object(
+        old_record, new_record = await module_object_repository.patch_latest_module_object(
             session,
             module.module_id,
             context.object_type,
@@ -92,7 +102,7 @@ def post_module_patch_object_endpoint(
     except ValueError as e:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module object niet gevonden") from e
 
-    event: ModuleObjectPatchedEvent = event_manager.dispatch(
+    event: ModuleObjectPatchedEvent = await event_manager.dispatch(
         session,
         ModuleObjectPatchedEvent.create(
             user,
@@ -107,14 +117,16 @@ def post_module_patch_object_endpoint(
 
     # cache statics title if needed
     if "title" in changes:
-        valid_version = session.query(ObjectsTable).filter(ObjectsTable.code == new_record.code).first()
+        valid_version = (
+            await session.scalars(select(ObjectsTable).filter(ObjectsTable.code == new_record.code))
+        ).first()
         if valid_version is None:
             object_static.cached_title = changes["title"]
             session.add(object_static)
 
     session.add(new_record)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     response: BaseModel = context.response_config_model.pydantic_model.model_validate(new_record)
     return response

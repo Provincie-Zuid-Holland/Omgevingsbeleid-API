@@ -43,7 +43,7 @@ class PublicationActPackageDetailResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-def get_detail_act_package_endpoint(
+async def get_detail_act_package_endpoint(
     act_package: Annotated[PublicationActPackageTable, Depends(depends_publication_act_package)],
     user: Annotated[
         UsersTable,

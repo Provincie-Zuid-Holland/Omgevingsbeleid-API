@@ -1,16 +1,16 @@
 import uuid
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.publications import PublicationActTable, PublicationActVersionTable
 
 
 class PublicationActVersionRepository(BaseRepository):
-    def get_by_work_expression(
+    async def get_by_work_expression(
         self,
-        session: Session,
+        session: AsyncSession,
         environment_id: uuid.UUID,
         document_type: str,
         procedure_type: str,
@@ -37,5 +37,4 @@ class PublicationActVersionRepository(BaseRepository):
             .filter(PublicationActVersionTable.expression_version == expression_version)
         )
 
-        result: PublicationActVersionTable | None = self.fetch_first(session, stmt)
-        return result
+        return await self.fetch_first(session, stmt)

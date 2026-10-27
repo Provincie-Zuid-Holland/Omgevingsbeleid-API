@@ -5,7 +5,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -32,7 +32,7 @@ class PublicationVersionCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_version_endpoint(
+async def post_create_version_endpoint(
     publication: Annotated[PublicationTable, Depends(depends_publication)],
     module_status_repository: Annotated[
         ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])
@@ -48,12 +48,12 @@ def post_create_version_endpoint(
     defaults_provider: Annotated[
         PublicationVersionDefaultsProvider, Depends(Provide[ApiContainer.publication.version_defaults_provider])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: PublicationVersionCreate,
 ) -> PublicationVersionCreatedResponse:
     _guard_locked(publication)
 
-    module_status: ModuleStatusHistoryTable = _get_module_status(
+    module_status: ModuleStatusHistoryTable = await _get_module_status(
         session,
         module_status_repository,
         publication.module_id,
@@ -89,8 +89,8 @@ def post_create_version_endpoint(
     )
 
     session.add(version)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return PublicationVersionCreatedResponse(
         id=version.id,
@@ -104,10 +104,10 @@ def _guard_locked(publication: PublicationTable):
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
 
 
-def _get_module_status(
-    session: Session, module_status_repository: ModuleStatusRepository, module_id: int, status_id: int
+async def _get_module_status(
+    session: AsyncSession, module_status_repository: ModuleStatusRepository, module_id: int, status_id: int
 ) -> ModuleStatusHistoryTable:
-    module_status: ModuleStatusHistoryTable | None = module_status_repository.get_by_id(
+    module_status: ModuleStatusHistoryTable | None = await module_status_repository.get_by_id(
         session,
         module_id,
         status_id,

@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -17,9 +17,9 @@ class ListWerkingsgebiedenEndpointContext(BaseEndpointContext):
 
 
 @inject
-def get_list_werkingsgebieden_endpoint(
+async def get_list_werkingsgebieden_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[WerkingsgebiedenRepository, Depends(Provide[ApiContainer.werkingsgebieden_repository])],
     context: Annotated[ListWerkingsgebiedenEndpointContext, Depends()],
     title: str | None = None,
@@ -28,9 +28,9 @@ def get_list_werkingsgebieden_endpoint(
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
     if title is None:
-        paged_results = repository.get_unique_paginated(session, pagination)
+        paged_results = await repository.get_unique_paginated(session, pagination)
     else:
-        paged_results = repository.get_by_title_paginated(session, pagination, title)
+        paged_results = await repository.get_by_title_paginated(session, pagination, title)
 
     werkingsgebieden: list[Werkingsgebied] = [Werkingsgebied.model_validate(w) for w in paged_results.items]
 

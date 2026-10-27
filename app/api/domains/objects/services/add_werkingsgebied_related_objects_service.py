@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import and_, or_
 
 from app.api.domains.modules.types import ModuleObjectActionFull
@@ -24,16 +24,16 @@ class AddWerkingsgebiedRelatedObjectsConfig(BaseModel):
 class AddWerkingsgebiedRelatedObjectsService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         config: AddWerkingsgebiedRelatedObjectsConfig,
         rows: list[BaseModel],
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: AddWerkingsgebiedRelatedObjectsConfig = config
         self._rows: list[BaseModel] = rows
 
-    def add_related_objects(self) -> list[BaseModel]:
-        related_objects_map: dict[str, WerkingsgebiedRelatedObjects] = self._fetch()
+    async def add_related_objects(self) -> list[BaseModel]:
+        related_objects_map: dict[str, WerkingsgebiedRelatedObjects] = await self._fetch()
 
         for row in self._rows:
             werkingsgebied_code: str = row.code
@@ -42,9 +42,9 @@ class AddWerkingsgebiedRelatedObjectsService:
 
         return self._rows
 
-    def _fetch(self) -> dict[str, WerkingsgebiedRelatedObjects]:
-        valid_objects: dict[str, list[WerkingsgebiedRelatedObjectShort]] = self._fetch_valid_objects()
-        module_objects: dict[str, list[WerkingsgebiedRelatedModuleObjectShort]] = self._fetch_module_objects()
+    async def _fetch(self) -> dict[str, WerkingsgebiedRelatedObjects]:
+        valid_objects: dict[str, list[WerkingsgebiedRelatedObjectShort]] = await self._fetch_valid_objects()
+        module_objects: dict[str, list[WerkingsgebiedRelatedModuleObjectShort]] = await self._fetch_module_objects()
 
         result: dict[str, WerkingsgebiedRelatedObjects] = {}
         found_werkingsgebieden_codes: set[str] = set(list(valid_objects.keys()) + list(module_objects.keys()))
@@ -61,7 +61,7 @@ class AddWerkingsgebiedRelatedObjectsService:
 
         return result
 
-    def _fetch_valid_objects(self) -> dict[str, list[WerkingsgebiedRelatedObjectShort]]:
+    async def _fetch_valid_objects(self) -> dict[str, list[WerkingsgebiedRelatedObjectShort]]:
         row_number = (
             func.row_number()
             .over(
@@ -100,7 +100,7 @@ class AddWerkingsgebiedRelatedObjectsService:
             )
         )
 
-        db_result = self._session.execute(stmt).mappings().all()
+        db_result = (await self._session.execute(stmt)).mappings().all()
         valid_objects_map: dict[str, list[WerkingsgebiedRelatedObjectShort]] = defaultdict(list)
         for db_row in db_result:
             valid_object: WerkingsgebiedRelatedObjectShort = WerkingsgebiedRelatedObjectShort.model_validate(db_row)
@@ -108,7 +108,7 @@ class AddWerkingsgebiedRelatedObjectsService:
 
         return valid_objects_map
 
-    def _fetch_module_objects(self) -> dict[str, list[WerkingsgebiedRelatedModuleObjectShort]]:
+    async def _fetch_module_objects(self) -> dict[str, list[WerkingsgebiedRelatedModuleObjectShort]]:
         subq = (
             select(
                 ModuleObjectsTable.id.label("id"),
@@ -158,7 +158,7 @@ class AddWerkingsgebiedRelatedObjectsService:
             .order_by(desc(subq.c.modified_date))
         )
 
-        db_result = self._session.execute(stmt).mappings().all()
+        db_result = (await self._session.execute(stmt)).mappings().all()
         module_objects_map: dict[str, list[WerkingsgebiedRelatedModuleObjectShort]] = defaultdict(list)
         for db_row in db_result:
             module_object: WerkingsgebiedRelatedModuleObjectShort = (
@@ -172,7 +172,7 @@ class AddWerkingsgebiedRelatedObjectsService:
 class AddWerkingsgebiedRelatedObjectsServiceFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: AddWerkingsgebiedRelatedObjectsConfig,
         rows: list[BaseModel],
     ) -> AddWerkingsgebiedRelatedObjectsService:

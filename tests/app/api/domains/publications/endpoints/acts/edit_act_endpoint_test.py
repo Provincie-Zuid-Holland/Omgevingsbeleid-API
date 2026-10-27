@@ -1,8 +1,5 @@
-import uuid
-
-from fastapi.testclient import TestClient
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+import httpx2
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.tables.publications import PublicationActTable
 from tests.conftest import Context
@@ -12,29 +9,29 @@ from tests.fixtures.internal.spec.publications import (
 from tests.fixtures.internal.types import Ref
 
 
-def _act(session: Session, act_uuid: uuid.UUID) -> PublicationActTable | None:
-    return session.scalar(select(PublicationActTable).where(PublicationActTable.uuid == act_uuid))
+async def _act(session: AsyncSession, act_id: int) -> PublicationActTable | None:
+    return await session.get(PublicationActTable, act_id)
 
 
-def test_edits_the_publication_act(admin: TestClient, ctx: Context):
+async def test_edits_the_publication_act(admin: httpx2.AsyncClient, ctx: Context):
     act_visie = ctx.f.find(Ref(PublicationActSpec, "publication_act_visie"))
     title: str = "Edited title"
     subjects: list[str] = ["bodem", "water"]
-    response = admin.post(
-        f"/publication-acts/{act_visie.spec.uuid}", json={"title": title, "meta_data": {"subjects": subjects}}
+    response = await admin.post(
+        f"/publication-acts/{act_visie.spec.id}", json={"title": title, "meta_data": {"subjects": subjects}}
     )
 
     assert response.status_code == 200, response.text
 
-    act_edited = _act(ctx.session, act_visie.spec.uuid)
+    act_edited = await _act(ctx.session, act_visie.spec.id)
     assert act_edited
     assert act_edited.title == title
     assert act_edited.meta_data["subjects"] == subjects
 
 
-def test_edits_the_publication_act_no_updates(admin: TestClient, ctx: Context):
+async def test_edits_the_publication_act_no_updates(admin: httpx2.AsyncClient, ctx: Context):
     act_visie = ctx.f.find(Ref(PublicationActSpec, "publication_act_visie"))
-    response = admin.post(f"/publication-acts/{act_visie.spec.uuid}", json={})
+    response = await admin.post(f"/publication-acts/{act_visie.spec.id}", json={})
 
     assert response.status_code == 400, response.text
     assert response.json()["detail"] == "Nothing to update"

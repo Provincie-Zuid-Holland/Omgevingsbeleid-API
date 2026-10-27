@@ -9,6 +9,7 @@ from app.build.events.event_manager import BuildEventManager
 from app.build.objects.fields import FIELD_TYPES
 from app.build.objects.types import Field, IntermediateModel, IntermediateObject
 from app.build.services.validator_provider import ValidatorProvider
+from app.build.services.validators.types import ASYNC_VALIDATORS_ATTRIBUTE, AsyncValidator
 from app.core.services.models_provider import ModelsProvider
 from app.core.types import DynamicObjectModel, Model
 
@@ -71,11 +72,11 @@ class ObjectModelsBuilder:
         if intermediate_model.static_only and intermediate_model.fields:
             raise RuntimeError(f"Can not configure lineage fields for static only model '{intermediate_model.name}")
 
-        pydantic_fields, pydantic_validators = self._get_pydantic_fields(
+        pydantic_fields, pydantic_validators, async_validators = self._get_pydantic_fields(
             intermediate_model.fields,
             f"{intermediate_model.name}-dynamic",
         )
-        static_pydantic_fields, static_pydantic_validators = self._get_pydantic_fields(
+        static_pydantic_fields, static_pydantic_validators, static_async_validators = self._get_pydantic_fields(
             intermediate_model.static_fields,
             f"{intermediate_model.name}-static",
         )
@@ -104,6 +105,7 @@ class ObjectModelsBuilder:
                 __validators__=static_pydantic_validators,
                 **static_pydantic_fields,
             )
+            setattr(pydantic_static_model, ASYNC_VALIDATORS_ATTRIBUTE, static_async_validators)
             # Attach the Statics Model to the main model
             # @note: the name is hardcoded to 'ObjectStatics'
             #           because that is the same name in the sqlalchemy ObjectsTable
@@ -124,6 +126,7 @@ class ObjectModelsBuilder:
                 __validators__={**pydantic_validators, **intermediate_model.model_validators},
                 **pydantic_fields,
             )
+            setattr(pydantic_model, ASYNC_VALIDATORS_ATTRIBUTE, async_validators)
 
         return DynamicObjectModel(
             id=intermediate_model.id,
@@ -133,9 +136,12 @@ class ObjectModelsBuilder:
             columns=intermediate_model.columns,
         )
 
-    def _get_pydantic_fields(self, fields: list[Field], validator_prefix: str) -> tuple[OrderedDict, dict]:
+    def _get_pydantic_fields(
+        self, fields: list[Field], validator_prefix: str
+    ) -> tuple[OrderedDict, dict, list[tuple[str, AsyncValidator]]]:
         pydantic_fields = OrderedDict()
         pydantic_validators = {}
+        async_validators: list[tuple[str, AsyncValidator]] = []
 
         for field in fields:
             field_type = field.type
@@ -153,6 +159,9 @@ class ObjectModelsBuilder:
                 validator_id: str = validator_config.get("id", "")
                 validator_data: dict = validator_config.get("data", {})
                 unique_counter, validator_func = self._validator_provider.get(validator_id, validator_data)
+                if isinstance(validator_func, AsyncValidator):
+                    async_validators.append((field.name, validator_func))
+                    continue
 
                 pydantic_validator_unique_name: str = f"{validator_prefix}-{unique_counter}"
                 pydantic_validator_func = pydantic.field_validator(field.name, mode=validator_func.mode)(
@@ -170,4 +179,4 @@ class ObjectModelsBuilder:
                 ),
             )
 
-        return pydantic_fields, pydantic_validators
+        return pydantic_fields, pydantic_validators, async_validators

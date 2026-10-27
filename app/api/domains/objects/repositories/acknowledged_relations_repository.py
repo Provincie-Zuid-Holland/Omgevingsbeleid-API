@@ -1,25 +1,33 @@
 from sqlalchemy import and_, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.tables.acknowledged_relations import AcknowledgedRelationsTable
 
 
 class AcknowledgedRelationsRepository:
-    def get_by_codes(self, session: Session, code_a: str, code_b: str) -> AcknowledgedRelationsTable | None:
+    async def get_by_codes(self, session: AsyncSession, code_a: str, code_b: str) -> AcknowledgedRelationsTable | None:
         from_code, to_code = sorted([code_a, code_b])
-        stmt = select(AcknowledgedRelationsTable).filter(
-            and_(
-                AcknowledgedRelationsTable.from_code == from_code,
-                AcknowledgedRelationsTable.to_code == to_code,
-                AcknowledgedRelationsTable.deleted_at.is_(None),
-                AcknowledgedRelationsTable.denied.is_(None),
+        stmt = (
+            select(AcknowledgedRelationsTable)
+            .options(
+                selectinload(AcknowledgedRelationsTable.from_object_statics),
+                selectinload(AcknowledgedRelationsTable.to_object_statics),
+            )
+            .filter(
+                and_(
+                    AcknowledgedRelationsTable.from_code == from_code,
+                    AcknowledgedRelationsTable.to_code == to_code,
+                    AcknowledgedRelationsTable.deleted_at.is_(None),
+                    AcknowledgedRelationsTable.denied.is_(None),
+                )
             )
         )
-        return session.scalars(stmt).first()
+        return (await session.scalars(stmt)).first()
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         code: str,
         requested_by_me: bool,
         acknowledged: bool | None,
@@ -56,6 +64,13 @@ class AcknowledgedRelationsRepository:
                 )
             )
 
-        stmt = select(AcknowledgedRelationsTable).filter(*filters)
-        rows: list[AcknowledgedRelationsTable] = list(session.scalars(stmt).all())
+        stmt = (
+            select(AcknowledgedRelationsTable)
+            .options(
+                selectinload(AcknowledgedRelationsTable.from_object_statics),
+                selectinload(AcknowledgedRelationsTable.to_object_statics),
+            )
+            .filter(*filters)
+        )
+        rows: list[AcknowledgedRelationsTable] = list((await session.scalars(stmt)).all())
         return rows

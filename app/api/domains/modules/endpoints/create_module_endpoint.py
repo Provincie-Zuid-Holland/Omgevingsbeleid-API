@@ -5,7 +5,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -39,9 +39,9 @@ class ModuleCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_module_endpoint(
+async def post_create_module_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     object_in: ModuleCreate,
 ) -> ModuleCreatedResponse:
@@ -74,8 +74,8 @@ def post_create_module_endpoint(
     session.add(module)
     session.add(status)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ModuleCreatedResponse(
         module_id=module.module_id,

@@ -1,7 +1,8 @@
 from datetime import UTC, datetime
 
 from sqlalchemy import case, desc, select
-from sqlalchemy.orm import Session, aliased, selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, selectinload
 from sqlalchemy.sql import func, literal, or_, union_all
 
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
@@ -11,7 +12,7 @@ from app.core.tables.objects import ObjectsTable
 class AdvancedObjectsResolver:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         columns: set[str],
         valid_timepoint: datetime | None,
         module_timepoint: datetime | None = None,
@@ -19,7 +20,7 @@ class AdvancedObjectsResolver:
         filter_codes: set[str] | None = None,
         filter_module_id: int | None = None,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._columns: set[str] = columns.union(
             {
                 # Used by the queries
@@ -39,7 +40,7 @@ class AdvancedObjectsResolver:
         self._filter_codes: set[str] | None = filter_codes
         self._filter_module_id: int | None = filter_module_id
 
-    def fetch_objects(self):
+    async def fetch_objects(self):
         object_query = self._get_object_query()
 
         # We only query the modules table if we have a Module ID
@@ -75,7 +76,7 @@ class AdvancedObjectsResolver:
             .filter(row_number_query.c._terminated == 0)
         )
 
-        result = self._session.execute(final_query)
+        result = await self._session.execute(final_query)
         return result
 
     def _get_object_query(self):
@@ -164,7 +165,7 @@ class AdvancedObjectsResolver:
 class AdvancedObjectsResolverFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         columns: set[str],
         valid_timepoint: datetime | None,
         module_timepoint: datetime | None = None,

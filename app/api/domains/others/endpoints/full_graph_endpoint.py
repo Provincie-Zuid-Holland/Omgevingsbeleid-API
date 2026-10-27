@@ -4,7 +4,8 @@ from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import desc, func, or_, select
-from sqlalchemy.orm import Session, aliased, load_only
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, load_only
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.others.types import GraphEdge, GraphEdgeType, GraphResponse, GraphVertice
@@ -14,29 +15,29 @@ from app.core.tables.others import RelationsTable
 
 
 class EndpointHandler:
-    def __init__(self, session: Session):
-        self._session: Session = session
+    def __init__(self, session: AsyncSession):
+        self._session: AsyncSession = session
 
-    def handle(self) -> GraphResponse:
+    async def handle(self) -> GraphResponse:
         vertices: list[GraphVertice] = []
         edges: list[GraphEdge] = []
-        vertices, edges = self._resolve_valid_object_data()
-        edges = edges + self._get_other_edges()
+        vertices, edges = await self._resolve_valid_object_data()
+        edges = edges + await self._get_other_edges()
 
         return GraphResponse(
             vertices=vertices,
             edges=edges,
         )
 
-    def _get_other_edges(self) -> list[GraphEdge]:
-        relations: list[GraphEdge] = self._get_all_relations()
-        acknowledged_relations: list[GraphEdge] = self._get_valid_acknowledged_relations()
+    async def _get_other_edges(self) -> list[GraphEdge]:
+        relations: list[GraphEdge] = await self._get_all_relations()
+        acknowledged_relations: list[GraphEdge] = await self._get_valid_acknowledged_relations()
 
         return relations + acknowledged_relations
 
-    def _get_all_relations(self) -> list[GraphEdge]:
+    async def _get_all_relations(self) -> list[GraphEdge]:
         stmt = select(RelationsTable)
-        rows: Sequence[RelationsTable] = self._session.execute(stmt).scalars().all()
+        rows: Sequence[RelationsTable] = (await self._session.execute(stmt)).scalars().all()
         edges: list[GraphEdge] = [
             GraphEdge(
                 type=GraphEdgeType.relation,
@@ -47,7 +48,7 @@ class EndpointHandler:
         ]
         return edges
 
-    def _get_valid_acknowledged_relations(self) -> list[GraphEdge]:
+    async def _get_valid_acknowledged_relations(self) -> list[GraphEdge]:
         stmt = (
             select(AcknowledgedRelationsTable)
             .filter(AcknowledgedRelationsTable.from_acknowledged.is_not(None))
@@ -59,7 +60,7 @@ class EndpointHandler:
                 )
             )
         )
-        rows: Sequence[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
+        rows: Sequence[AcknowledgedRelationsTable] = (await self._session.execute(stmt)).scalars().all()
         edges: list[GraphEdge] = [
             GraphEdge(
                 type=GraphEdgeType.acknowledged_relation,
@@ -70,7 +71,7 @@ class EndpointHandler:
         ]
         return edges
 
-    def _resolve_valid_object_data(self) -> tuple[list[GraphVertice], list[GraphEdge]]:
+    async def _resolve_valid_object_data(self) -> tuple[list[GraphVertice], list[GraphEdge]]:
         subq = (
             select(
                 ObjectsTable,
@@ -109,7 +110,7 @@ class EndpointHandler:
             )
         )
 
-        rows: list[ObjectsTable] = list(self._session.execute(stmt).scalars().all())
+        rows: list[ObjectsTable] = list((await self._session.execute(stmt)).scalars().all())
         vertices: list[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
 
         # Use the same rows to build hierarchy_code edges
@@ -128,8 +129,8 @@ class EndpointHandler:
         return vertices, hierarchy_code_edges
 
 
-def get_full_graph_endpoint(
-    session: Annotated[Session, Depends(depends_db_session)],
+async def get_full_graph_endpoint(
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ) -> GraphResponse:
     handler = EndpointHandler(session)
-    return handler.handle()
+    return await handler.handle()

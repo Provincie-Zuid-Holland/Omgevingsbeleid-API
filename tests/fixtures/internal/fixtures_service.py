@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests.fixtures.data import (
     d001_users,
@@ -41,7 +41,7 @@ from tests.fixtures.internal.types import DATETIME_T0, FixtureData
 
 
 class FixturesService:
-    def load(self, session: Session):
+    async def load(self, session: AsyncSession):
         sources: list[Callable[[Collector], None]] = [
             d001_users.load,
             d002_assets.load,
@@ -91,6 +91,6 @@ class FixturesService:
         result = linker.link(result)
 
         persister: PersistService = PersistService()
-        fixture_data: FixtureData = persister.persist(result, session)
+        fixture_data: FixtureData = await persister.persist(result, session)
 
         return fixture_data

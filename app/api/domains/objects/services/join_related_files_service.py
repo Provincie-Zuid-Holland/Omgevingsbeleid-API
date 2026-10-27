@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.others.types import ObjectRelatedFileResponse
 from app.core.tables.others import ObjectRelatedFileTable
@@ -16,16 +16,16 @@ class JoinRelatedFilesConfig(BaseModel):
 class JoinRelatedFilesService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinRelatedFilesConfig,
         rows: list[BaseModel],
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: JoinRelatedFilesConfig = config
         self._rows: list[BaseModel] = rows
 
-    def join_related_files(self) -> list[BaseModel]:
-        files_map: dict[str, list[ObjectRelatedFileResponse]] = self._fetch()
+    async def join_related_files(self) -> list[BaseModel]:
+        files_map: dict[str, list[ObjectRelatedFileResponse]] = await self._fetch()
 
         for row in self._rows:
             code: str = row.code
@@ -33,14 +33,14 @@ class JoinRelatedFilesService:
 
         return self._rows
 
-    def _fetch(self) -> dict[str, list[ObjectRelatedFileResponse]]:
+    async def _fetch(self) -> dict[str, list[ObjectRelatedFileResponse]]:
         stmt = (
             select(ObjectRelatedFileTable)
             .filter(ObjectRelatedFileTable.code.in_(self._config.object_codes))
             .order_by(ObjectRelatedFileTable.created_date.desc())
         )
 
-        db_rows = self._session.execute(stmt).scalars().all()
+        db_rows = (await self._session.execute(stmt)).scalars().all()
 
         files_map: dict[str, list[ObjectRelatedFileResponse]] = defaultdict(list)
         for db_row in db_rows:
@@ -53,7 +53,7 @@ class JoinRelatedFilesService:
 class JoinRelatedFilesServiceFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinRelatedFilesConfig,
         rows: list[BaseModel],
     ) -> JoinRelatedFilesService:

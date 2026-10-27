@@ -3,7 +3,8 @@ from datetime import datetime
 from typing import Final
 
 from sqlalchemy import case, desc, select
-from sqlalchemy.orm import Session, aliased, selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, selectinload
 from sqlalchemy.sql import func, literal, or_, union_all
 
 from app.api.base_repository import BaseRepository
@@ -22,9 +23,9 @@ PUBLICATION_BASE_FIELDS: Final[set[str]] = {
 
 
 class PublicationObjectRepository(BaseRepository):
-    def fetch_objects(
+    async def fetch_objects(
         self,
-        session: Session,
+        session: AsyncSession,
         module_id: int,
         timepoint: datetime,
         object_types: Sequence[str] = (),
@@ -33,7 +34,7 @@ class PublicationObjectRepository(BaseRepository):
         fields: set[str] = PUBLICATION_BASE_FIELDS.union(set(requested_fields))
 
         query = self._get_full_query(module_id, timepoint, object_types, fields)
-        result = session.execute(query)
+        result = await session.execute(query)
         rows = [row._asdict() for row in result]
         return rows
 

@@ -7,7 +7,7 @@ import validators
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -33,11 +33,11 @@ class EditUserEndpointContext(BaseEndpointContext):
 
 
 @inject
-def post_edit_user_endpoint(
+async def post_edit_user_endpoint(
     user_uuid: uuid.UUID,
     object_in: EditUser,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     context: Annotated[EditUserEndpointContext, Depends()],
@@ -48,12 +48,12 @@ def post_edit_user_endpoint(
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
-    user: UsersTable | None = repository.get_by_uuid(session, user_uuid)
+    user: UsersTable | None = await repository.get_by_uuid(session, user_uuid)
     if not user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "User does not exist")
 
     if object_in.email:
-        same_email_user: UsersTable | None = repository.get_by_email(session, object_in.email)
+        same_email_user: UsersTable | None = await repository.get_by_email(session, object_in.email)
         if same_email_user and same_email_user.id != user.id:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already in use")
 
@@ -86,7 +86,7 @@ def post_edit_user_endpoint(
 
     session.add(change_log)
     session.add(user)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

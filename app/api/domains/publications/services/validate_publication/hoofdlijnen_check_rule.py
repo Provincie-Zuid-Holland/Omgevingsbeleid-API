@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.others.repositories.hoofdlijn_repository import HoofdlijnRepository
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
@@ -33,7 +33,7 @@ class HoofdlijnenCheckRule(ValidatePublicationRule):
         )
         self._hoofdlijn_repository: HoofdlijnRepository = hoofdlijn_repository
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         object_data: list[HoofdlijnenCheckRuleData] = []
         hoofdlijnen_set: set[UUID] = set()
 
@@ -55,7 +55,7 @@ class HoofdlijnenCheckRule(ValidatePublicationRule):
         if not hoofdlijnen_set:
             return errors
 
-        found_hoofdlijnen_ids: set[UUID] = self._hoofdlijn_repository.get_by_ids(db, hoofdlijnen_set)
+        found_hoofdlijnen_ids: set[UUID] = await self._hoofdlijn_repository.get_by_ids(db, hoofdlijnen_set)
         missing_ids = hoofdlijnen_set - found_hoofdlijnen_ids
         if not missing_ids:
             return errors

@@ -1,9 +1,10 @@
 import uuid
 from dataclasses import dataclass
 
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.api.domains.modules.types import ModuleObjectActionFull
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
@@ -29,13 +30,13 @@ def _payload(
     return payload
 
 
-def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
+async def test_adds_new_module_object(beheerder: httpx2.AsyncClient, ctx: Context):
     beheerder_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
     ambtenaar_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "ambtenaar"))
 
     module_id: int = 2
     payload = _payload(owner_id=beheerder_id, owner_id_2=ambtenaar_id)
-    response = beheerder.post(
+    response = await beheerder.post(
         f"/modules/{module_id}/add-new-object",
         json=payload,
     )
@@ -47,7 +48,7 @@ def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
     assert body["code"] == code
 
     stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.code == code)
-    object_statics: ObjectStaticsTable | None = ctx.session.scalars(stmt).first()
+    object_statics: ObjectStaticsTable | None = (await ctx.session.scalars(stmt)).first()
     assert object_statics
     assert object_statics.object_type == payload["object_type"]
     assert object_statics.object_id == body["object_id"]
@@ -58,10 +59,14 @@ def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
 
     stmt = (
         select(ModuleObjectContextTable)
+        .options(
+            selectinload(ModuleObjectContextTable.created_by),
+            selectinload(ModuleObjectContextTable.modified_by),
+        )
         .filter(ModuleObjectContextTable.module_id == module_id)
         .filter(ModuleObjectContextTable.code == code)
     )
-    module_object_context: ModuleObjectContextTable | None = ctx.session.scalars(stmt).first()
+    module_object_context: ModuleObjectContextTable | None = (await ctx.session.scalars(stmt)).first()
     assert module_object_context
     assert module_object_context.original_adjust_on is None
     assert module_object_context.hidden == False
@@ -76,17 +81,17 @@ def test_adds_new_module_object(beheerder: TestClient, ctx: Context):
         .filter(ModuleObjectsTable.module_id == module_id)
         .filter(ModuleObjectsTable.code == code)
     )
-    module_object: ModuleObjectsTable | None = ctx.session.scalars(stmt).first()
+    module_object: ModuleObjectsTable | None = (await ctx.session.scalars(stmt)).first()
     assert module_object
     assert module_object.object_type == payload["object_type"]
     assert module_object.object_id == body["object_id"]
     assert module_object.title == payload["title"]
 
 
-def test_adds_new_module_object_duplicate_owner(beheerder: TestClient, ctx: Context):
+async def test_adds_new_module_object_duplicate_owner(beheerder: httpx2.AsyncClient, ctx: Context):
     beheerder_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
     payload = _payload(owner_id=beheerder_id, owner_id_2=beheerder_id)
-    response = beheerder.post(
+    response = await beheerder.post(
         "/modules/2/add-new-object",
         json=payload,
     )
@@ -117,10 +122,12 @@ class ModuleNewObjectGuardCase:
         ),
     ],
 )
-def test_adds_new_module_object_guards(beheerder: TestClient, ctx: Context, case: ModuleNewObjectGuardCase):
+async def test_adds_new_module_object_guards(
+    beheerder: httpx2.AsyncClient, ctx: Context, case: ModuleNewObjectGuardCase
+):
     beheerder_id: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "beheerder"))
     payload = _payload(owner_id=beheerder_id, object_type=case.object_type)
-    response = beheerder.post(
+    response = await beheerder.post(
         f"/modules/{case.module_id}/add-new-object",
         json=payload,
     )

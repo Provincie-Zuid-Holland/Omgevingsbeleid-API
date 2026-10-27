@@ -1,7 +1,7 @@
 import uuid
 
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+import httpx2
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.tables.publications import PublicationTemplateTable
 
@@ -27,9 +27,9 @@ def _payload(**overrides) -> dict:
     return payload
 
 
-def test_creates_a_template_and_it_is_persisted_in_db(admin: TestClient, session: Session):
+async def test_creates_a_template_and_it_is_persisted_in_db(admin: httpx2.AsyncClient, session: AsyncSession):
     payload: dict[str, str] = _payload()
-    response = admin.post(
+    response = await admin.post(
         "/publication-templates",
         json=payload,
     )
@@ -39,7 +39,7 @@ def test_creates_a_template_and_it_is_persisted_in_db(admin: TestClient, session
     created_uuid = uuid.UUID(body["id"])
 
     # The publication template is persisted
-    row: PublicationTemplateTable | None = session.get(PublicationTemplateTable, created_uuid)
+    row: PublicationTemplateTable | None = await session.get(PublicationTemplateTable, created_uuid)
     assert row is not None
     assert row.title == payload.get("title")
     assert row.description == payload.get("description")

@@ -2,7 +2,7 @@ import hashlib
 from datetime import UTC, datetime
 
 import dso.models as dso_models
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.act_package.publication_gebieden_provider import (
     GebiedenData,
@@ -30,20 +30,20 @@ from app.core.tables.others import AreasTable
 
 
 class PublicationGiosProvider:
-    def __init__(self, session: Session, area_repository: AreaRepository, act_frbr: ActFrbr):
-        self._session: Session = session
+    def __init__(self, session: AsyncSession, area_repository: AreaRepository, act_frbr: ActFrbr):
+        self._session: AsyncSession = session
         self._area_repository: AreaRepository = area_repository
         self._act_frbr: ActFrbr = act_frbr
         self._result: PublicationGeoData = PublicationGeoData()
         self._gio_seq: int = 0
 
-    def resolve_geo(
+    async def resolve_geo(
         self,
         gebieden_data: GebiedenData,
         gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData],
     ) -> PublicationGeoData:
-        self._resolve_gebiedengroepen(gebieden_data)
-        self._resolve_gebiedsaanwijzingen(gebieden_data, gebiedsaanwijzingen)
+        await self._resolve_gebiedengroepen(gebieden_data)
+        await self._resolve_gebiedsaanwijzingen(gebieden_data, gebiedsaanwijzingen)
 
         return self._result
 
@@ -51,9 +51,9 @@ class PublicationGiosProvider:
     # Gebiedengroepen
     #
 
-    def _resolve_gebiedengroepen(self, gebieden_data: GebiedenData):
+    async def _resolve_gebiedengroepen(self, gebieden_data: GebiedenData):
         for input_groep in gebieden_data.used_gebiedengroepen:
-            gio_key: str = self._resolve_gebiedengroep_gio(gebieden_data, input_groep)
+            gio_key: str = await self._resolve_gebiedengroep_gio(gebieden_data, input_groep)
 
             groep: PublicationGebiedengroep = PublicationGebiedengroep(
                 uuid=str(input_groep.uuid),
@@ -65,11 +65,11 @@ class PublicationGiosProvider:
             # Save to accumulator
             self._result.gebiedengroepen[groep.code] = groep
 
-    def _resolve_gebiedengroep_gio(self, gebieden_data: GebiedenData, input_groep: InputGebiedengroep) -> str:
+    async def _resolve_gebiedengroep_gio(self, gebieden_data: GebiedenData, input_groep: InputGebiedengroep) -> str:
         locations: list[PublicationGioLocatie] = []
         for gebied_code in input_groep.gebied_codes:
             input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_groep.code)
-            location: PublicationGioLocatie = self._as_location(input_gebied)
+            location: PublicationGioLocatie = await self._as_location(input_gebied)
             locations.append(location)
 
         gio: PublicationGio = PublicationGio(
@@ -109,11 +109,11 @@ class PublicationGiosProvider:
     # Gebiedsaanwijzingen
     #
 
-    def _resolve_gebiedsaanwijzingen(
+    async def _resolve_gebiedsaanwijzingen(
         self, gebieden_data: GebiedenData, gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData]
     ):
         for input_aanwijzing in gebiedsaanwijzingen.values():
-            gio_key: str = self._resolve_gebiedsaanwijzing_gio(gebieden_data, input_aanwijzing)
+            gio_key: str = await self._resolve_gebiedsaanwijzing_gio(gebieden_data, input_aanwijzing)
 
             aanwijzing: PublicationGebiedsaanwijzing = PublicationGebiedsaanwijzing(
                 uuid=str(input_aanwijzing.uuid),
@@ -128,13 +128,13 @@ class PublicationGiosProvider:
             # Save to accumulator
             self._result.gebiedsaanwijzingen[aanwijzing.code] = aanwijzing
 
-    def _resolve_gebiedsaanwijzing_gio(
+    async def _resolve_gebiedsaanwijzing_gio(
         self, gebieden_data: GebiedenData, input_aanwijzing: GebiedsaanwijzingData
     ) -> str:
         locations: list[PublicationGioLocatie] = []
         for gebied_code in input_aanwijzing.resolved_gebied_codes:
             input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_aanwijzing.code)
-            location: PublicationGioLocatie = self._as_location(input_gebied)
+            location: PublicationGioLocatie = await self._as_location(input_gebied)
             locations.append(location)
 
         gio: PublicationGio = PublicationGio(
@@ -186,8 +186,8 @@ class PublicationGiosProvider:
             )
         return gebied
 
-    def _fetch_area(self, input_gebied: InputGebied) -> AreasTable:
-        area: AreasTable | None = self._area_repository.get_with_gml(self._session, input_gebied.area_id)
+    async def _fetch_area(self, input_gebied: InputGebied) -> AreasTable:
+        area: AreasTable | None = await self._area_repository.get_with_gml(self._session, input_gebied.area_id)
         if area is None:
             raise validation_exception(
                 [
@@ -200,8 +200,8 @@ class PublicationGiosProvider:
             )
         return area
 
-    def _as_location(self, input_gebied: InputGebied) -> PublicationGioLocatie:
-        area: AreasTable = self._fetch_area(input_gebied)
+    async def _as_location(self, input_gebied: InputGebied) -> PublicationGioLocatie:
+        area: AreasTable = await self._fetch_area(input_gebied)
         gml_hash = hashlib.sha512()
         gml_hash.update(area.gml.encode())
 
@@ -233,9 +233,9 @@ class PublicationGiosProviderFactory:
     def __init__(self, area_repository: AreaRepository):
         self._area_repository: AreaRepository = area_repository
 
-    def process(
+    async def process(
         self,
-        session: Session,
+        session: AsyncSession,
         act_frbr: ActFrbr,
         gebieden_data: GebiedenData,
         gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData],
@@ -245,4 +245,4 @@ class PublicationGiosProviderFactory:
             self._area_repository,
             act_frbr,
         )
-        return service.resolve_geo(gebieden_data, gebiedsaanwijzingen)
+        return await service.resolve_geo(gebieden_data, gebiedsaanwijzingen)

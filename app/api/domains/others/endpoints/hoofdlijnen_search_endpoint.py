@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -26,9 +26,9 @@ class SearchHoofdlijnenEndpointContext(BaseEndpointContext):
 
 
 @inject
-def post_hoofdlijnen_search_endpoint(
+async def post_hoofdlijnen_search_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[HoofdlijnRepository, Depends(Provide[ApiContainer.hoofdlijn_repository])],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     context: Annotated[SearchHoofdlijnenEndpointContext, Depends()],
@@ -37,7 +37,7 @@ def post_hoofdlijnen_search_endpoint(
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    paginated_result: PaginatedQueryResult = repository.search_by_name(
+    paginated_result: PaginatedQueryResult = await repository.search_by_name(
         session=session,
         pagination=pagination,
         query=query,

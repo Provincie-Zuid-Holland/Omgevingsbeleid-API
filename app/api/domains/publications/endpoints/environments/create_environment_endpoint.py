@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.services.state.state import InitialState
@@ -31,7 +31,7 @@ class EnvironmentCreatedResponse(BaseModel):
     id: uuid.UUID
 
 
-def post_create_environment_endpoint(
+async def post_create_environment_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -40,7 +40,7 @@ def post_create_environment_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: EnvironmentCreate,
 ) -> EnvironmentCreatedResponse:
     timepoint: datetime = datetime.now(UTC)
@@ -66,7 +66,7 @@ def post_create_environment_endpoint(
         modified_by_id=user.id,
     )
     session.add(environment)
-    session.flush()
+    await session.flush()
 
     if environment.has_state:
         initial_state = PublicationEnvironmentStateTable(
@@ -80,13 +80,13 @@ def post_create_environment_endpoint(
             created_by_id=user.id,
         )
         session.add(initial_state)
-        session.flush()
+        await session.flush()
 
         environment.active_state_id = initial_state.id
         session.add(environment)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return EnvironmentCreatedResponse(
         id=environment.id,

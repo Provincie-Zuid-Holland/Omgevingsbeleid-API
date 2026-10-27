@@ -4,6 +4,7 @@ import string
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import anyio
 import jwt
 from fastapi import HTTPException, status
 from jwt import PyJWTError
@@ -21,6 +22,9 @@ class Security:
 
     _BCRYPT_MAX_BYTES = 72
 
+    # Password hashing is CPU-heavy. So cap how many hashes run at once
+    _MAX_CONCURRENT_HASHES = 8
+
     def __init__(
         self,
         secret_key: str,
@@ -34,6 +38,7 @@ class Security:
                 BcryptHasher(),
             )
         )
+        self._hash_limiter = anyio.CapacityLimiter(self._MAX_CONCURRENT_HASHES)
 
     def decode_token(self, token: str) -> TokenPayload:
         try:
@@ -56,7 +61,26 @@ class Security:
 
         return encoded_jwt
 
-    def verify_password(
+    async def verify_password(
+        self,
+        plain_password: str | None,
+        hashed_password: str | None,
+    ) -> bool:
+        return await anyio.to_thread.run_sync(
+            self.verify_password_sync,
+            plain_password,
+            hashed_password,
+            limiter=self._hash_limiter,
+        )
+
+    async def get_password_hash(self, password: str) -> str:
+        return await anyio.to_thread.run_sync(
+            self.get_password_hash_sync,
+            password,
+            limiter=self._hash_limiter,
+        )
+
+    def verify_password_sync(
         self,
         plain_password: str | None,
         hashed_password: str | None,
@@ -77,6 +101,9 @@ class Security:
         except (UnknownHashError, ValueError):
             return False
 
+    def get_password_hash_sync(self, password: str) -> str:
+        return self._pwd_hash.hash(password)
+
     def validate_password(self, password: str) -> str:
         """Trim and validate password against complexity requirements.
 
@@ -92,20 +119,17 @@ class Security:
 
         return password
 
-    def get_password_hash(self, password: str) -> str:
-        return self._pwd_hash.hash(password)
-
-    def get_random_password(self, length: int = 32):
+    def get_random_password(self, length: int = 32) -> str:
         alphabet = string.ascii_letters + string.digits
         password = "".join(secrets.choice(alphabet) for _ in range(length))
         return password
 
-    def _prepare_for_hash(self, password: str, hashed_password: str) -> str:
-        """Truncate the password to 72 bytes when checking it against a bcrypt hash."""
+    def _prepare_for_hash(self, password: str, hashed_password: str) -> str | bytes:
+        # Truncate the password to 72 bytes when checking it against a bcrypt hash for legacy reasons
         if not hashed_password.startswith("$2"):
             return password
 
         encoded = password.encode("utf-8")
         if len(encoded) <= self._BCRYPT_MAX_BYTES:
             return password
-        return encoded[: self._BCRYPT_MAX_BYTES].decode("utf-8", errors="ignore")
+        return encoded[: self._BCRYPT_MAX_BYTES]

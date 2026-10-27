@@ -5,7 +5,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -45,7 +45,7 @@ class ModuleAddExistingObjectEndpointContext(BaseEndpointContext):
 class ModuleAddExistingObjectService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         object_provider: ObjectProvider,
         object_context_repository: ModuleObjectContextRepository,
         module: ModuleTable,
@@ -53,7 +53,7 @@ class ModuleAddExistingObjectService:
         object_in: ModuleAddExistingObject,
         context: ModuleAddExistingObjectEndpointContext,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._object_provider: ObjectProvider = object_provider
         self._object_context_repository: ModuleObjectContextRepository = object_context_repository
         self._module: ModuleTable = module
@@ -62,8 +62,8 @@ class ModuleAddExistingObjectService:
         self._context: ModuleAddExistingObjectEndpointContext = context
         self._timepoint: datetime = datetime.now(UTC)
 
-    def process(self):
-        object_data: dict | None = self._object_provider.get_by_id(self._session, self._object_in.object_uuid)
+    async def process(self):
+        object_data: dict | None = await self._object_provider.get_by_id(self._session, self._object_in.object_uuid)
         if object_data is None:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unknown object for uuid")
 
@@ -76,33 +76,28 @@ class ModuleAddExistingObjectService:
                 f"Invalid object_type, accepted object_type are: {self._context.allowed_object_types}",
             )
 
-        maybe_object_context: ModuleObjectContextTable | None = self._object_context_repository.get_by_ids(
+        maybe_object_context: ModuleObjectContextTable | None = await self._object_context_repository.get_by_ids(
             self._session,
             self._module.module_id,
             object_type,
             object_id,
         )
 
-        try:
-            if maybe_object_context is None:
-                # If we never see this object code before then we can just create the context
-                self._create_object_context(object_data)
-            elif maybe_object_context.hidden:
-                # If the context is hidden, then we knew this object, but is has been removed
-                # We can just un-Hidden the context and set some additional properties
-                self._update_object_context(maybe_object_context, object_data)
-            else:
-                # If the context is not hidden, then we are already tracking this object code
-                # therefor we can not add it again
-                raise HTTPException(status.HTTP_400_BAD_REQUEST, "Object already exists in module")
+        if maybe_object_context is None:
+            # If we never see this object code before then we can just create the context
+            self._create_object_context(object_data)
+        elif maybe_object_context.hidden:
+            # If the context is hidden, then we knew this object, but is has been removed
+            # We can just un-Hidden the context and set some additional properties
+            self._update_object_context(maybe_object_context, object_data)
+        else:
+            # If the context is not hidden, then we are already tracking this object code
+            # therefor we can not add it again
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Object already exists in module")
 
-            self._create_object(object_data)
+        self._create_object(object_data)
 
-            self._session.flush()
-            self._session.commit()
-        except Exception:
-            self._session.rollback()
-            raise
+        await self._session.commit()
 
     def _create_object_context(self, object_data: dict):
         object_context: ModuleObjectContextTable = ModuleObjectContextTable(
@@ -147,10 +142,10 @@ class ModuleAddExistingObjectService:
 
 
 @inject
-def post_module_add_existing_object_endpoint(
+async def post_module_add_existing_object_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     object_provider: Annotated[ObjectProvider, Depends(Provide[ApiContainer.object_provider])],
     object_context_repository: Annotated[
@@ -175,6 +170,6 @@ def post_module_add_existing_object_endpoint(
         object_in,
         context,
     )
-    service.process()
+    await service.process()
 
     return ResponseOK(message="OK")

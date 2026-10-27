@@ -47,7 +47,7 @@ class PublicationAnnouncementPackageDetailResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-def get_detail_announcement_package_endpoint(
+async def get_detail_announcement_package_endpoint(
     announcement_package: Annotated[
         PublicationAnnouncementPackageTable, Depends(depends_publication_announcement_package)
     ],

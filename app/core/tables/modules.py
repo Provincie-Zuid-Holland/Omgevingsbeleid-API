@@ -68,16 +68,20 @@ class ModuleTable(Base, TimeStamped, UserMetaData):
         return (cls.activated == True) & (cls.closed == False)  # type: ignore
 
     status_history: Mapped[list["ModuleStatusHistoryTable"]] = relationship(
-        back_populates="module", order_by="asc(ModuleStatusHistoryTable.id)"
+        back_populates="module", order_by="asc(ModuleStatusHistoryTable.id)", lazy="raise_on_sql"
     )
 
-    created_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.created_by_id == UsersTable.id")
-    modified_by: Mapped[list["UsersTable"]] = relationship(primaryjoin="ModuleTable.modified_by_id == UsersTable.id")
+    created_by: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.created_by_id == UsersTable.id", lazy="raise_on_sql"
+    )
+    modified_by: Mapped[list["UsersTable"]] = relationship(
+        primaryjoin="ModuleTable.modified_by_id == UsersTable.id", lazy="raise_on_sql"
+    )
     module_manager_1: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.module_manager_1_id == UsersTable.id"
+        primaryjoin="ModuleTable.module_manager_1_id == UsersTable.id", lazy="raise_on_sql"
     )
     module_manager_2: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleTable.module_manager_2_id == UsersTable.id"
+        primaryjoin="ModuleTable.module_manager_2_id == UsersTable.id", lazy="raise_on_sql"
     )
 
     def __repr__(self) -> str:
@@ -95,7 +99,7 @@ class ModuleStatusHistoryTable(Base):
 
     status: Mapped[str]
 
-    module: Mapped[ModuleTable] = relationship(back_populates="status_history")
+    module: Mapped[ModuleTable] = relationship(back_populates="status_history", lazy="raise_on_sql")
 
     def __repr__(self) -> str:
         return f"ModuleStatusHistory(id={self.id!r}, module_id={self.module_id!r}, status={self.status!r})"
@@ -109,10 +113,11 @@ class ModuleObjectsTable(Base):
     code: Mapped[str] = mapped_column(Unicode(35), ForeignKey("object_statics.code"))
     deleted: Mapped[bool] = mapped_column(default=False)
 
-    module_object_context: Mapped["ModuleObjectContextTable"] = relationship()
+    module_object_context: Mapped["ModuleObjectContextTable"] = relationship(lazy="raise_on_sql")
     object_statics: Mapped[ObjectStaticsTable] = relationship(
         primaryjoin="ModuleObjectsTable.code == ObjectStaticsTable.code",
         viewonly=True,
+        lazy="raise_on_sql",
     )
 
     __table_args__ = (
@@ -143,10 +148,10 @@ class ModuleObjectContextTable(Base, TimeStamped, UserMetaData, SerializerMixin)
     conclusion: Mapped[str]
 
     created_by: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleObjectContextTable.created_by_id == UsersTable.id"
+        primaryjoin="ModuleObjectContextTable.created_by_id == UsersTable.id", lazy="raise_on_sql"
     )
     modified_by: Mapped[list["UsersTable"]] = relationship(
-        primaryjoin="ModuleObjectContextTable.modified_by_id == UsersTable.id"
+        primaryjoin="ModuleObjectContextTable.modified_by_id == UsersTable.id", lazy="raise_on_sql"
     )
 
     def __repr__(self) -> str:

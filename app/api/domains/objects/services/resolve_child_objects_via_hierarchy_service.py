@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import desc, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.tables.objects import ObjectsTable
 from app.core.types import Model
@@ -29,15 +29,15 @@ class HierachyReference(BaseModel):
 class ResolveChildObjectsViaHierarchyService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         config: ResolveChildObjectsViaHierarchyConfig,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: ResolveChildObjectsViaHierarchyConfig = config
 
-    def resolve_child_objects(self, rows: list[BaseModel]) -> list[BaseModel]:
+    async def resolve_child_objects(self, rows: list[BaseModel]) -> list[BaseModel]:
         target_codes: set[str] = {row.code for row in rows}
-        child_rows = self._fetch_children(target_codes)
+        child_rows = await self._fetch_children(target_codes)
 
         map_for_target: dict[str, list[HierachyReference]] = defaultdict(list)
         for child_row in child_rows:
@@ -49,7 +49,7 @@ class ResolveChildObjectsViaHierarchyService:
 
         return rows
 
-    def _fetch_children(self, hierarchy_targets: set[str]) -> list[HierachyReference]:
+    async def _fetch_children(self, hierarchy_targets: set[str]) -> list[HierachyReference]:
         if len(hierarchy_targets) == 0:
             return []
 
@@ -85,7 +85,7 @@ class ResolveChildObjectsViaHierarchyService:
             )
         )
 
-        child_rows = self._session.execute(stmt).all()
+        child_rows = (await self._session.execute(stmt)).all()
 
         result: list[HierachyReference] = [HierachyReference.model_validate(child) for child in child_rows]
 
@@ -95,7 +95,7 @@ class ResolveChildObjectsViaHierarchyService:
 class ResolveChildObjectsViaHierarchyServiceFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: ResolveChildObjectsViaHierarchyConfig,
     ):
         return ResolveChildObjectsViaHierarchyService(

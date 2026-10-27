@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import (
@@ -15,7 +15,7 @@ from app.core.tables.publications import PublicationVersionAttachmentTable, Publ
 from app.core.tables.users import UsersTable
 
 
-def post_delete_attachment_endpoint(
+async def post_delete_attachment_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     attachment: Annotated[PublicationVersionAttachmentTable, Depends(depends_publication_version_attachment)],
     user: Annotated[
@@ -26,15 +26,15 @@ def post_delete_attachment_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ) -> ResponseOK:
     _guard(version, attachment)
 
     # @todo: This should become a soft delete but I could not upgrade the database at this point
-    session.delete(attachment.file)
-    session.delete(attachment)
-    session.flush()
-    session.commit()
+    await session.delete(attachment.file)
+    await session.delete(attachment)
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")
 

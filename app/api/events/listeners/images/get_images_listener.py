@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
@@ -18,17 +18,17 @@ class GetImagesConfig(BaseModel):
 class ImageInserter:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         asset_repository: AssetRepository,
         event: RetrievedModuleObjectsEvent | RetrievedObjectsEvent,
         config: GetImagesConfig,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._asset_repository: AssetRepository = asset_repository
         self._config: GetImagesConfig = config
         self._rows: list[BaseModel] = event.payload.rows
 
-    def process(self) -> list[BaseModel]:
+    async def process(self) -> list[BaseModel]:
         for index, row in enumerate(self._rows):
             for field_name in self._config.fields:
                 if not hasattr(row, field_name):
@@ -43,7 +43,7 @@ class ImageInserter:
                 except ValueError:
                     continue
 
-                asset: AssetsTable | None = self._asset_repository.get_by_id(self._session, image_id)
+                asset: AssetsTable | None = await self._asset_repository.get_by_id(self._session, image_id)
                 if not asset:
                     continue
 
@@ -58,7 +58,7 @@ class ImageInserterFactory:
 
     def create(
         self,
-        session: Session,
+        session: AsyncSession,
         event: RetrievedModuleObjectsEvent | RetrievedObjectsEvent,
         config: GetImagesConfig,
     ) -> ImageInserter:
@@ -74,7 +74,9 @@ class GetImagesForModuleListener(ApiListener[RetrievedModuleObjectsEvent]):
     def __init__(self, service_factory: ImageInserterFactory):
         self._service_factory: ImageInserterFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedModuleObjectsEvent) -> RetrievedModuleObjectsEvent | None:
+    async def handle_event(
+        self, session: AsyncSession, event: RetrievedModuleObjectsEvent
+    ) -> RetrievedModuleObjectsEvent | None:
         config: GetImagesConfig | None = self._collect_config(event.context.response_model)
         if not config:
             return event
@@ -82,7 +84,7 @@ class GetImagesForModuleListener(ApiListener[RetrievedModuleObjectsEvent]):
             return event
 
         inserter: ImageInserter = self._service_factory.create(session, event, config)
-        result_rows = inserter.process()
+        result_rows = await inserter.process()
 
         event.payload.rows = result_rows
         return event
@@ -110,7 +112,7 @@ class GetImagesForObjectListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: ImageInserterFactory):
         self._service_factory: ImageInserterFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+    async def handle_event(self, session: AsyncSession, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         config: GetImagesConfig | None = self._collect_config(event.context.response_model)
         if not config:
             return event
@@ -118,7 +120,7 @@ class GetImagesForObjectListener(ApiListener[RetrievedObjectsEvent]):
             return event
 
         inserter: ImageInserter = self._service_factory.create(session, event, config)
-        result_rows = inserter.process()
+        result_rows = await inserter.process()
 
         event.payload.rows = result_rows
         return event

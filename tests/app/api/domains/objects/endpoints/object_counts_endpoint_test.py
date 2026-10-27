@@ -1,10 +1,10 @@
-from fastapi.testclient import TestClient
+import httpx2
 
 from tests.conftest import Context
 
 
-def test_returns_object_valid_count_for_logged_in_ambtenaar(ambtenaar: TestClient, ctx: Context):
-    response = ambtenaar.get("/objects/valid/count")
+async def test_returns_object_valid_count_for_logged_in_ambtenaar(ambtenaar: httpx2.AsyncClient, ctx: Context):
+    response = await ambtenaar.get("/objects/valid/count")
     assert response.status_code == 200, response.text
     body = response.json()
     assert body == [
@@ -18,8 +18,8 @@ def test_returns_object_valid_count_for_logged_in_ambtenaar(ambtenaar: TestClien
     ]
 
 
-def test_returns_object_valid_count_for_logged_in_admin(admin: TestClient, ctx: Context):
-    response = admin.get("/objects/valid/count")
+async def test_returns_object_valid_count_for_logged_in_admin(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.get("/objects/valid/count")
     assert response.status_code == 200, response.text
     body = response.json()
     assert body == []

@@ -67,6 +67,10 @@ class Settings(BaseSettings):
         "provincie Zuid-holland",
         description="Area identifier for OW (Omgevingswet) publications",
     )
+    PUBLICATION_PDF_EXPORT_TIMEOUT_SECONDS: float = Field(
+        300,
+        description="Timeout in seconds for each request to the KOOP PDF preview service (upload, status, download)",
+    )
 
     # @note: These will be overwritten and based on earlier input
     # These are for the Dependency Injector library
@@ -77,12 +81,10 @@ class Settings(BaseSettings):
     def set_values_for_containers(self) -> Self:
         # "sqlite+pysqlite:///..." → "sqlite"
         # "sqlite:///:memory:" → "sqlite"
+        # "postgresql+psycopg://..." → "postgresql", the keys of the Selector providers in ApiContainer
         db_type: str = self.SQLALCHEMY_DATABASE_URI.split("://", 1)[0].split("+")[0]
-        db_type_map: dict[str, str] = {"postgresql": "postgres"}
-        if db_type in db_type_map:
-            db_type = db_type_map[db_type]
 
-        valid_db_types: set[str] = {"sqlite", "postgres"}
+        valid_db_types: set[str] = {"sqlite", "postgresql"}
         if db_type not in valid_db_types:
             raise RuntimeError(
                 f"DB_TYPE `{db_type}` is not supported. Supported databases are {', '.join(valid_db_types)}"

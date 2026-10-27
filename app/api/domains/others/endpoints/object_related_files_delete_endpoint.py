@@ -3,7 +3,7 @@ from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -17,17 +17,19 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def delete_object_related_files_delete_endpoint(
+async def delete_object_related_files_delete_endpoint(
     lineage_id: int,
     related_file_uuid: UUID,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     object_related_file_repository: Annotated[
         ObjectRelatedFileRepository, Depends(Provide[ApiContainer.object_related_file_repository])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ResponseOK:
-    maybe_file: ObjectRelatedFileTable | None = object_related_file_repository.get_by_id(session, related_file_uuid)
+    maybe_file: ObjectRelatedFileTable | None = await object_related_file_repository.get_by_id(
+        session, related_file_uuid
+    )
     if not maybe_file:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Bestand niet gevonden")
 
@@ -41,8 +43,8 @@ def delete_object_related_files_delete_endpoint(
         ],
     )
 
-    session.delete(maybe_file)
-    session.flush()
-    session.commit()
+    await session.delete(maybe_file)
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

@@ -2,11 +2,12 @@ import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
+import anyio
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -29,7 +30,7 @@ class UploadAttachmentResponse(BaseModel):
 
 
 @inject
-def post_upload_attachment_endpoint(
+async def post_upload_attachment_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     user: Annotated[
         UsersTable,
@@ -43,25 +44,23 @@ def post_upload_attachment_endpoint(
         PublicationStorageFileRepository, Depends(Provide[ApiContainer.publication.storage_file_repository])
     ],
     pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     title: Annotated[str, Form()],
     uploaded_file: Annotated[UploadFile, File()],
     ignore_report: Annotated[bool, Form()],
 ) -> UploadAttachmentResponse:
     _guard_upload(version, uploaded_file)
 
-    file_data: FileData = FileData(
-        file_in=uploaded_file,
-    )
+    file_data: FileData = FileData(file_in=uploaded_file, binary=await uploaded_file.read())
 
     if not ignore_report:
-        pdf_meta_report = pdf_meta_service.report_banned_meta(file_data.get_binary())
+        pdf_meta_report = await anyio.to_thread.run_sync(pdf_meta_service.report_banned_meta, file_data.get_binary())
         if len(pdf_meta_report) > 0:
             raise HTTPException(434, detail=jsonable_encoder(pdf_meta_report))
 
     timepoint: datetime = datetime.now(UTC)
 
-    file_table: PublicationStorageFileTable = _store_file(
+    file_table: PublicationStorageFileTable = await _store_file(
         session,
         storage_file_repository,
         timepoint,
@@ -69,7 +68,7 @@ def post_upload_attachment_endpoint(
         file_data,
     )
     session.add(file_table)
-    session.flush()
+    await session.flush()
 
     attachment = PublicationVersionAttachmentTable(
         publication_version_id=version.id,
@@ -82,8 +81,8 @@ def post_upload_attachment_endpoint(
         modified_by_id=user.id,
     )
     session.add(attachment)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     response: UploadAttachmentResponse = UploadAttachmentResponse(id=attachment.id)
     return response
@@ -100,14 +99,14 @@ def _guard_upload(version: PublicationVersionTable, uploaded_file: UploadFile):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unsupported file type, expected a PDF.")
 
 
-def _store_file(
-    session: Session,
+async def _store_file(
+    session: AsyncSession,
     repository: PublicationStorageFileRepository,
     timepoint: datetime,
     user_uuid: uuid.UUID,
     file_data: FileData,
 ) -> PublicationStorageFileTable:
-    existing_file_table: PublicationStorageFileTable | None = repository.get_by_checksum(
+    existing_file_table: PublicationStorageFileTable | None = await repository.get_by_checksum(
         session,
         file_data.get_checksum(),
     )

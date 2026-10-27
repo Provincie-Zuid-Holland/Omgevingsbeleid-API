@@ -33,7 +33,7 @@ class ModuleObjectContext(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-def get_module_get_object_context_endpoint(
+async def get_module_get_object_context_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],
 ) -> ModuleObjectContext:

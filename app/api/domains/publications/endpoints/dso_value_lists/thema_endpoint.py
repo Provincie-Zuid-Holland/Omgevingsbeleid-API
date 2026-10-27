@@ -15,7 +15,7 @@ class ListThemaResponse(BaseModel):
 
 
 @inject
-def get_thema_endpoint(
+async def get_thema_endpoint(
     dso_thema_factory: Annotated[ThemaFactory, Depends(Provide[ApiContainer.dso_thema_factory])],
 ) -> ListThemaResponse:
     themas: list[Thema] = list(dso_thema_factory.get_all().values())

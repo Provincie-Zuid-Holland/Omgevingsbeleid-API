@@ -4,7 +4,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy import Select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -34,12 +34,12 @@ class ObjectListValidLineageTreeEndpointContext(BaseEndpointContext):
 
 
 @inject
-def list_valid_lineage_tree_endpoint(
+async def list_valid_lineage_tree_endpoint(
     lineage_id: int,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[ObjectListValidLineageTreeEndpointContext, Depends()],
 ) -> PagedResponse[BaseModel]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
@@ -49,7 +49,7 @@ def list_valid_lineage_tree_endpoint(
         context.object_type,
         lineage_id,
     )
-    prepare_query_event: BeforeSelectExecutionEvent = event_manager.dispatch(
+    prepare_query_event: BeforeSelectExecutionEvent = await event_manager.dispatch(
         session,
         BeforeSelectExecutionEvent.create(
             query=prepared_query.query,
@@ -58,7 +58,7 @@ def list_valid_lineage_tree_endpoint(
         ),
     )
     stmt: Select = prepare_query_event.payload.query
-    paginated_result: PaginatedQueryResult = query_paginated(
+    paginated_result: PaginatedQueryResult = await query_paginated(
         query=stmt,
         session=session,
         limit=pagination.limit,
@@ -69,7 +69,7 @@ def list_valid_lineage_tree_endpoint(
     rows: list[BaseModel] = [
         context.response_config_model.pydantic_model.model_validate(r) for r in paginated_result.items
     ]
-    retrieved_objects_event: RetrievedObjectsEvent = event_manager.dispatch(
+    retrieved_objects_event: RetrievedObjectsEvent = await event_manager.dispatch(
         session,
         RetrievedObjectsEvent.create(
             rows=rows,

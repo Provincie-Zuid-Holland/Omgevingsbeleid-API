@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.repository.publication_object_repository import (
     PUBLICATION_BASE_FIELDS,
@@ -17,15 +17,15 @@ class PublicationObjectProvider:
         self._publication_object_repository: PublicationObjectRepository = publication_object_repository
         self._object_field_mapping_provider: ObjectFieldMappingProvider = object_field_mapping_provider
 
-    def get_objects(
+    async def get_objects(
         self,
-        session: Session,
+        session: AsyncSession,
         publication_version: PublicationVersionTable,
     ) -> list[dict]:
         template: PublicationTemplateTable = publication_version.publication.template
         object_field_map: dict[str, list[str]] = template.object_field_map or {}
         requested_fields: set[str] = {field for field_list in object_field_map.values() for field in field_list}
-        objects: list[dict] = self._publication_object_repository.fetch_objects(
+        objects: list[dict] = await self._publication_object_repository.fetch_objects(
             session,
             publication_version.publication.module_id,
             publication_version.module_status.created_date,

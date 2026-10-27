@@ -4,7 +4,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -37,10 +37,10 @@ class ObjectListAllLatestEndpointContext(BaseEndpointContext):
 
 
 @inject
-def do_list_all_latest_endpoint(
+async def do_list_all_latest_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[ObjectListAllLatestEndpointContext, Depends()],
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
@@ -58,7 +58,7 @@ def do_list_all_latest_endpoint(
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    paginated_result: PaginatedQueryResult = object_repository.get_latest_filtered(
+    paginated_result: PaginatedQueryResult = await object_repository.get_latest_filtered(
         session=session, pagination=pagination, owner_id=owner_id, object_types=object_types
     )
     objects: list[ObjectListAllLatestResponse[BaseModel]] = []

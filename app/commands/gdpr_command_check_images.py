@@ -3,7 +3,7 @@ import binascii
 import io
 import re
 import uuid
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from typing import Annotated, Any
 
 import click
@@ -11,12 +11,14 @@ from dependency_injector.wiring import Provide, inject
 from PIL import ExifTags, Image, UnidentifiedImageError
 from PIL.Image import Exif
 from sqlalchemy import BinaryExpression, Column, Select, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.domains.modules import ModuleObjectRepository
 from app.api.domains.objects.repositories import AssetRepository, ObjectRepository
+from app.commands.async_runner import run_with_session
 from app.commands.gdpr_commands import FilterStrategy, KeyStrategy, ObjectLookups, ObjectTableType, Report
-from app.core.db.session import SessionFactoryType, session_scope_with_context
+from app.core.db.session import AsyncSessionFactoryType
 from app.core.logging import log_message
 from app.core.tables.others import AssetsTable
 
@@ -74,60 +76,69 @@ def _asset_filter(asset_uuids: set[uuid.UUID]) -> FilterStrategy:
 @click.command()
 @inject
 def check_images(
-    db_session_factory: Annotated[SessionFactoryType, Provide[ApiContainer.db_session_factory]],
+    db_session_factory: Annotated[AsyncSessionFactoryType, Provide[ApiContainer.db_session_factory]],
     object_repository: Annotated[ObjectRepository, Provide[ApiContainer.object_repository]],
     module_object_repository: Annotated[ModuleObjectRepository, Provide[ApiContainer.module_object_repository]],
     asset_repository: Annotated[AssetRepository, Provide[ApiContainer.asset_repository]],
 ) -> None:
+    run_with_session(
+        db_session_factory,
+        lambda session: _check_images(session, object_repository, module_object_repository, asset_repository),
+    )
+
+
+async def _check_images(
+    session: AsyncSession,
+    object_repository: ObjectRepository,
+    module_object_repository: ModuleObjectRepository,
+    asset_repository: AssetRepository,
+) -> None:
     report: Report = {}
-    with session_scope_with_context(db_session_factory) as session:
-        stmt: Select = select(AssetsTable)
-        assets: Sequence[AssetsTable] = asset_repository.iter_all(session, stmt)
-        for asset in assets:
-            match: re.Match[str] | None = re.match(r"data:image/(.*?);base64,(.*)", asset.content)
-            if not match:
-                report[asset] = ["No image data"]
-                continue
+    stmt: Select = select(AssetsTable)
+    async for asset in asset_repository.iter_all(session, stmt):
+        match: re.Match[str] | None = re.match(r"data:image/(.*?);base64,(.*)", asset.content)
+        if not match:
+            report[asset] = ["No image data"]
+            continue
 
-            mime_type, base64_data = match.groups()
-            if mime_type not in ["png", "jpg", "jpeg"]:
-                report[asset] = [f"Unknown type {mime_type}"]
-                continue
+        mime_type, base64_data = match.groups()
+        if mime_type not in ["png", "jpg", "jpeg"]:
+            report[asset] = [f"Unknown type {mime_type}"]
+            continue
 
-            try:
-                picture_data = base64.b64decode(base64_data)
-            except binascii.Error as e:
-                report[asset] = [f"Invalid base64: {e}"]
-                continue
+        try:
+            picture_data = base64.b64decode(base64_data)
+        except binascii.Error as e:
+            report[asset] = [f"Invalid base64: {e}"]
+            continue
 
-            try:
-                with Image.open(io.BytesIO(picture_data)) as image:
-                    exif_data: Exif = image.getexif()
-                    if not exif_data:
-                        continue
-                    exif_keys: dict[str, str] = {
-                        ExifTags.TAGS.get(tag_id, tag_id): _format_exif_value(value)
-                        for tag_id, value in exif_data.items()
-                    }
-                    report[asset] = [f"Has exif data: {exif_keys}"]
-            except UnidentifiedImageError as e:
-                report[asset] = [f"File can't be opened: {e}"]
+        try:
+            with Image.open(io.BytesIO(picture_data)) as image:
+                exif_data: Exif = image.getexif()
+                if not exif_data:
+                    continue
+                exif_keys: dict[str, str] = {
+                    ExifTags.TAGS.get(tag_id, tag_id): _format_exif_value(value) for tag_id, value in exif_data.items()
+                }
+                report[asset] = [f"Has exif data: {exif_keys}"]
+        except UnidentifiedImageError as e:
+            report[asset] = [f"File can't be opened: {e}"]
 
-        if not report:
-            return
+    if not report:
+        return
 
-        asset_ids: set[uuid.UUID] = {asset.id for asset in report}
-        object_lookups: ObjectLookups = ObjectLookups(
-            session,
-            object_repository,
-            module_object_repository,
-        )
-        object_lookups.create_all(
-            _asset_filter(asset_ids),
-            _asset_key(),
-        )
+    asset_ids: set[uuid.UUID] = {asset.id for asset in report}
+    object_lookups: ObjectLookups = ObjectLookups(
+        session,
+        object_repository,
+        module_object_repository,
+    )
+    await object_lookups.create_all(
+        _asset_filter(asset_ids),
+        _asset_key(),
+    )
 
-        for asset, issues in report.items():
-            message: str = "\n".join(issues)
-            object_log: str | None = object_lookups.get_log(asset.id) or ""
-            log_message(message=f"Asset {asset.id}{object_log} has the following message: {message}")
+    for asset, issues in report.items():
+        message: str = "\n".join(issues)
+        object_log: str | None = object_lookups.get_log(asset.id) or ""
+        log_message(message=f"Asset {asset.id}{object_log} has the following message: {message}")

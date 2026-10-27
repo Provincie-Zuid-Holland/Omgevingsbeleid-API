@@ -1,5 +1,5 @@
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 from tests.conftest import Context
@@ -31,8 +31,8 @@ from tests.fixtures.internal.types import Ref
         ),
     ],
 )
-def test_returns_full_version_history_of_a_lineage(
-    client: TestClient,
+async def test_returns_full_version_history_of_a_lineage(
+    client: httpx2.AsyncClient,
     ctx: Context,
     prefix: str,
     object_type: str,
@@ -42,7 +42,7 @@ def test_returns_full_version_history_of_a_lineage(
 ):
     latest: BaseObjectSpec = ctx.f.find(latest_ref).spec
 
-    body = client.get(f"{prefix}/valid/{lineage_id}").json()
+    body = (await client.get(f"{prefix}/valid/{lineage_id}")).json()
 
     assert body["total"] == expected_total
     assert len(body["results"]) == expected_total
@@ -50,21 +50,23 @@ def test_returns_full_version_history_of_a_lineage(
     assert str(latest.id) in {r["id"] for r in body["results"]}
 
 
-def test_tree_includes_future_version_that_valid_list_excludes(client: TestClient, ctx: Context):
+async def test_tree_includes_future_version_that_valid_list_excludes(client: httpx2.AsyncClient, ctx: Context):
     future: BeleidsdoelSpec = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_3_future")).spec
 
-    tree = {r["id"] for r in client.get("/beleidsdoelen/valid/3").json()["results"]}
-    valid = {r["id"] for r in client.get("/beleidsdoelen/valid").json()["results"]}
+    tree = {r["id"] for r in (await client.get("/beleidsdoelen/valid/3")).json()["results"]}
+    valid = {r["id"] for r in (await client.get("/beleidsdoelen/valid")).json()["results"]}
 
     assert str(future.id) in tree
     assert str(future.id) not in valid
 
 
-def test_tree_includes_past_end_validity_version_that_valid_list_excludes(client: TestClient, ctx: Context):
+async def test_tree_includes_past_end_validity_version_that_valid_list_excludes(
+    client: httpx2.AsyncClient, ctx: Context
+):
     expired: MaatregelSpec = ctx.f.find(Ref(MaatregelSpec, "maatregel_6_past_end_validity")).spec
 
-    tree = {r["id"] for r in client.get("/maatregelen/valid/6").json()["results"]}
-    valid_codes = {r["code"] for r in client.get("/maatregelen/valid").json()["results"]}
+    tree = {r["id"] for r in (await client.get("/maatregelen/valid/6")).json()["results"]}
+    valid_codes = {r["code"] for r in (await client.get("/maatregelen/valid")).json()["results"]}
 
     assert str(expired.id) in tree
     assert expired.code not in valid_codes
@@ -77,15 +79,15 @@ def test_tree_includes_past_end_validity_version_that_valid_list_excludes(client
         pytest.param("/beleidsdoelen/valid/6", id="lineage-id-of-another-type"),
     ],
 )
-def test_lineage_without_versions_returns_empty(client: TestClient, url: str):
-    body = client.get(url).json()
+async def test_lineage_without_versions_returns_empty(client: httpx2.AsyncClient, url: str):
+    body = (await client.get(url)).json()
 
     assert body["total"] == 0
     assert body["results"] == []
 
 
-def test_default_sort_is_modified_date_descending(client: TestClient):
-    mods = [r["modified_date"] for r in client.get("/beleidsdoelen/valid/1").json()["results"]]
+async def test_default_sort_is_modified_date_descending(client: httpx2.AsyncClient):
+    mods = [r["modified_date"] for r in (await client.get("/beleidsdoelen/valid/1")).json()["results"]]
 
     assert mods == sorted(mods, reverse=True)
 
@@ -97,26 +99,26 @@ def test_default_sort_is_modified_date_descending(client: TestClient):
         pytest.param("DESC", True, id="desc"),
     ],
 )
-def test_sort_by_modified_date(client: TestClient, sort_order: str, reverse: bool):
+async def test_sort_by_modified_date(client: httpx2.AsyncClient, sort_order: str, reverse: bool):
     url = f"/beleidsdoelen/valid/1?sort_column=modified_date&sort_order={sort_order}"
-    mods = [r["modified_date"] for r in client.get(url).json()["results"]]
+    mods = [r["modified_date"] for r in (await client.get(url)).json()["results"]]
 
     assert mods == sorted(mods, reverse=reverse)
 
 
-def test_pagination_caps_page_size_without_changing_total(client: TestClient):
-    total = client.get("/beleidsdoelen/valid/3").json()["total"]
+async def test_pagination_caps_page_size_without_changing_total(client: httpx2.AsyncClient):
+    total = (await client.get("/beleidsdoelen/valid/3")).json()["total"]
 
-    page = client.get("/beleidsdoelen/valid/3?limit=2&offset=0").json()
+    page = (await client.get("/beleidsdoelen/valid/3?limit=2&offset=0")).json()
 
     assert page["total"] == total
     assert page["limit"] == 2
     assert len(page["results"]) == 2
 
 
-def test_result_matches_the_response_model_shape(client: TestClient, ctx: Context):
+async def test_result_matches_the_response_model_shape(client: httpx2.AsyncClient, ctx: Context):
     model: type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_basic")
 
-    row: dict = client.get("/beleidsdoelen/valid/1").json()["results"][0]
+    row: dict = (await client.get("/beleidsdoelen/valid/1")).json()["results"][0]
 
     assert set(row.keys()) == set(model.model_fields)

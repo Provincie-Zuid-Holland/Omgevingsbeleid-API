@@ -5,7 +5,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -25,7 +25,7 @@ class AnnouncementCreatedResponse(BaseModel):
 
 
 @inject
-def post_create_announcement_endpoint(
+async def post_create_announcement_endpoint(
     act_package: Annotated[PublicationActPackageTable, Depends(depends_publication_act_package)],
     user: Annotated[
         UsersTable,
@@ -39,7 +39,7 @@ def post_create_announcement_endpoint(
         PublicationAnnouncementDefaultsProvider,
         Depends(Provide[ApiContainer.publication.announcement_defaults_provider]),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ) -> AnnouncementCreatedResponse:
     _guard_can_create_announcement(act_package)
 
@@ -65,8 +65,8 @@ def post_create_announcement_endpoint(
     )
 
     session.add(announcement)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return AnnouncementCreatedResponse(
         id=announcement.id,

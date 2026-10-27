@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.domains.objects.types import ObjectStatics
@@ -17,18 +17,18 @@ class JoinGebiedenGroepenService:
     def __init__(
         self,
         object_repository: ObjectRepository,
-        session: Session,
+        session: AsyncSession,
         config: JoinGebiedenGroepenConfig,
     ):
         self._object_repository: ObjectRepository = object_repository
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: JoinGebiedenGroepenConfig = config
 
-    def join_gebiedengroepen(self, rows: list[BaseModel]) -> list[BaseModel]:
+    async def join_gebiedengroepen(self, rows: list[BaseModel]) -> list[BaseModel]:
         if len(self._config.gebiedengroepen_codes) == 0:
             return rows
 
-        gebiedengroepen: dict[str, BaseModel] = self._fetch_gebiedengroepen()
+        gebiedengroepen: dict[str, BaseModel] = await self._fetch_gebiedengroepen()
 
         for row in rows:
             requested_code: str | None = getattr(row, self._config.from_field)
@@ -43,9 +43,9 @@ class JoinGebiedenGroepenService:
 
         return rows
 
-    def _fetch_gebiedengroepen(self) -> dict[str, BaseModel]:
+    async def _fetch_gebiedengroepen(self) -> dict[str, BaseModel]:
         stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.code.in_(self._config.gebiedengroepen_codes))
-        rows = self._session.execute(stmt).scalars().all()
+        rows = (await self._session.execute(stmt)).scalars().all()
 
         return {r.code: ObjectStatics.model_validate(r) for r in rows}
 
@@ -56,7 +56,7 @@ class JoinGebiedenGroepenServiceFactory:
 
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinGebiedenGroepenConfig,
     ) -> JoinGebiedenGroepenService:
         return JoinGebiedenGroepenService(

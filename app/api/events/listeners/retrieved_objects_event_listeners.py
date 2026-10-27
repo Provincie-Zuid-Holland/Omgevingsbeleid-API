@@ -1,7 +1,7 @@
 import uuid
 
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.add_public_revisions_service import (
     AddPublicRevisionsConfig,
@@ -76,14 +76,14 @@ class AddRelationsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, relations_factory: AddRelationsServiceFactory):
         self._relations_factory: AddRelationsServiceFactory = relations_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+    async def handle_event(self, session: AsyncSession, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         add_service: AddRelationsService = self._relations_factory.create_service(
             session,
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: list[BaseModel] = add_service.add_relations()
+        result_rows: list[BaseModel] = await add_service.add_relations()
         event.payload.rows = result_rows
 
         return event
@@ -93,14 +93,14 @@ class JoinWerkingsgebiedenToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: JoinWerkingsgebiedenServiceFactory):
         self._service_factory: JoinWerkingsgebiedenServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+    async def handle_event(self, session: AsyncSession, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         join_service: JoinWerkingsgebiedenService = self._service_factory.create_service(
             session,
             event.payload.rows,
             event.context.response_model,
         )
 
-        result_rows: list[BaseModel] = join_service.join_werkingsgebieden()
+        result_rows: list[BaseModel] = await join_service.join_werkingsgebieden()
         event.payload.rows = result_rows
 
         return event
@@ -110,7 +110,7 @@ class AddPublicRevisionsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddPublicRevisionsServiceFactory):
         self._service_factory: AddPublicRevisionsServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+    async def handle_event(self, session: AsyncSession, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         config: AddPublicRevisionsConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -121,7 +121,7 @@ class AddPublicRevisionsToObjectsListener(ApiListener[RetrievedObjectsEvent]):
             event.payload.rows,
         )
 
-        result_rows: list[BaseModel] = service.add_revisions()
+        result_rows: list[BaseModel] = await service.add_revisions()
         event.payload.rows = result_rows
 
         return event
@@ -148,7 +148,7 @@ class AddNextObjectVersionToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: AddNextObjectVersionServiceFactory):
         self._service_factory: AddNextObjectVersionServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+    async def handle_event(self, session: AsyncSession, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         config: AddNextObjectVersionConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -159,7 +159,7 @@ class AddNextObjectVersionToObjectsListener(ApiListener[RetrievedObjectsEvent]):
             event.payload.rows,
         )
 
-        result_rows: list[BaseModel] = service.add_next_versions()
+        result_rows: list[BaseModel] = await service.add_next_versions()
         event.payload.rows = result_rows
 
         return event
@@ -185,7 +185,7 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObje
     def __init__(self, service_factory: AddWerkingsgebiedRelatedObjectsServiceFactory):
         self._service_factory: AddWerkingsgebiedRelatedObjectsServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+    async def handle_event(self, session: AsyncSession, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         config: AddWerkingsgebiedRelatedObjectsConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -196,7 +196,7 @@ class AddWerkingsgebiedRelatedObjectsToObjectsListener(ApiListener[RetrievedObje
             event.payload.rows,
         )
 
-        result_rows: list[BaseModel] = service.add_related_objects()
+        result_rows: list[BaseModel] = await service.add_related_objects()
         event.payload.rows = result_rows
 
         return event
@@ -222,7 +222,7 @@ class GetColumnImagesListenerBase[EventRMO: RetrievedObjectsEvent | RetrievedMod
     def __init__(self, service_factory: ColumnImageInserterFactory):
         self._service_factory: ColumnImageInserterFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+    async def handle_event(self, session: AsyncSession, event: EventRMO) -> EventRMO | None:
         config: GetImagesConfig | None = self._collect_config(event.context.response_model)
         if not config:
             return event
@@ -234,7 +234,7 @@ class GetColumnImagesListenerBase[EventRMO: RetrievedObjectsEvent | RetrievedMod
             event.payload.rows,
             config,
         )
-        result_rows = inserter.process()
+        result_rows = await inserter.process()
 
         event.payload.rows = result_rows
         return event
@@ -268,7 +268,7 @@ class JoinDocumentsListenerBase[EventRMO: RetrievedObjectsEvent | RetrievedModul
     def __init__(self, service_factory: JoinDocumentsServiceFactory):
         self._service_factory: JoinDocumentsServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+    async def handle_event(self, session: AsyncSession, event: EventRMO) -> EventRMO | None:
         config: JoinDocumentsConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -278,7 +278,7 @@ class JoinDocumentsListenerBase[EventRMO: RetrievedObjectsEvent | RetrievedModul
             config,
         )
 
-        result_rows: list[BaseModel] = service.join_documents(event.payload.rows)
+        result_rows: list[BaseModel] = await service.join_documents(event.payload.rows)
         event.payload.rows = result_rows
 
         return event
@@ -313,7 +313,7 @@ class ResolveChildObjectsViaHierarchyListenerBase[EventRMO: RetrievedObjectsEven
     def __init__(self, service_factory: ResolveChildObjectsViaHierarchyServiceFactory):
         self._service_factory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+    async def handle_event(self, session: AsyncSession, event: EventRMO) -> EventRMO | None:
         config: ResolveChildObjectsViaHierarchyConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -323,7 +323,7 @@ class ResolveChildObjectsViaHierarchyListenerBase[EventRMO: RetrievedObjectsEven
             config,
         )
 
-        result_rows: list[BaseModel] = service.resolve_child_objects(event.payload.rows)
+        result_rows: list[BaseModel] = await service.resolve_child_objects(event.payload.rows)
         event.payload.rows = result_rows
 
         return event
@@ -353,7 +353,7 @@ class JoinGebiedenGroepBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedM
     def __init__(self, service_factory: JoinGebiedenGroepenServiceFactory):
         self._service_factory: JoinGebiedenGroepenServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+    async def handle_event(self, session: AsyncSession, event: EventRMO) -> EventRMO | None:
         config: JoinGebiedenGroepenConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -364,7 +364,7 @@ class JoinGebiedenGroepBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedM
             session,
             config,
         )
-        result_rows = service.join_gebiedengroepen(event.payload.rows)
+        result_rows = await service.join_gebiedengroepen(event.payload.rows)
 
         event.payload.rows = result_rows
         return event
@@ -399,7 +399,7 @@ class JoinObjectsBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedModuleO
     def __init__(self, service_factory: JoinObjectsServiceFactory):
         self._service_factory: JoinObjectsServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+    async def handle_event(self, session: AsyncSession, event: EventRMO) -> EventRMO | None:
         config: JoinObjectsConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -410,7 +410,7 @@ class JoinObjectsBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedModuleO
             session,
             config,
         )
-        result_rows = service.join_objects(event.payload.rows)
+        result_rows = await service.join_objects(event.payload.rows)
 
         event.payload.rows = result_rows
         return event
@@ -452,13 +452,13 @@ class JoinGebiedsaanwijzingenBaseListener[EventRMO: RetrievedObjectsEvent | Retr
         self._service_factory: JoinGebiedsaanwijzingenServiceFactory = service_factory
         self._models_provider: ModelsProvider = models_provider
 
-    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+    async def handle_event(self, session: AsyncSession, event: EventRMO) -> EventRMO | None:
         config: JoinGebiedsaanwijzingenConfig | None = self._collect_config(event)
         if not config:
             return event
 
         service: JoinGebiedsaanwijzingenService = self._service_factory.create_service(session, config)
-        result_rows: list[BaseModel] = service.join_gebiedsaanwijzingen(event.payload.rows)
+        result_rows: list[BaseModel] = await service.join_gebiedsaanwijzingen(event.payload.rows)
         event.payload.rows = result_rows
         return event
 
@@ -502,7 +502,7 @@ class JoinRelatedFilesToObjectsListener(ApiListener[RetrievedObjectsEvent]):
     def __init__(self, service_factory: JoinRelatedFilesServiceFactory):
         self._service_factory: JoinRelatedFilesServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
+    async def handle_event(self, session: AsyncSession, event: RetrievedObjectsEvent) -> RetrievedObjectsEvent | None:
         config: JoinRelatedFilesConfig | None = self._collect_config(event)
         if not config:
             return event
@@ -513,7 +513,7 @@ class JoinRelatedFilesToObjectsListener(ApiListener[RetrievedObjectsEvent]):
             event.payload.rows,
         )
 
-        result_rows: list[BaseModel] = service.join_related_files()
+        result_rows: list[BaseModel] = await service.join_related_files()
         event.payload.rows = result_rows
 
         return event
@@ -539,13 +539,13 @@ class JoinHoofdlijnenBaseListener[EventRMO: RetrievedObjectsEvent | RetrievedMod
     def __init__(self, service_factory: JoinHoofdlijnenServiceFactory):
         self._service_factory: JoinHoofdlijnenServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: EventRMO) -> EventRMO | None:
+    async def handle_event(self, session: AsyncSession, event: EventRMO) -> EventRMO | None:
         config: JoinHoofdlijnenConfig | None = self._collect_config(event)
         if not config:
             return event
 
         service: JoinHoofdlijnenService = self._service_factory.create_service(session, config)
-        result_rows: list[BaseModel] = service.join_hoofdlijnen(event.payload.rows)
+        result_rows: list[BaseModel] = await service.join_hoofdlijnen(event.payload.rows)
         event.payload.rows = result_rows
         return event
 

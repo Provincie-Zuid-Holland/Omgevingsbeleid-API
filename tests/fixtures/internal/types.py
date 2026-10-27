@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from pydantic import BaseModel, Field, PrivateAttr
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db.base import Base
 from app.core.services import ModelsProvider
@@ -121,12 +121,12 @@ class FixtureData(BaseModel):
 
 @dataclass
 class Context:
-    session: Session
+    session: AsyncSession
     fixtures: FixtureData
     models_provider: ModelsProvider
 
     @property
-    def s(self) -> Session:
+    def s(self) -> AsyncSession:
         return self.session
 
     @property

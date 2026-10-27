@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module import (
     NewestInputGeoOnderverdelingUsedRule,
@@ -15,7 +15,7 @@ from app.core.tables.others import AreasTable
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
-def test_validate():
+async def test_validate():
     config: Mock | MainConfig = Mock(MainConfig)
     rule_config: NewestInputGeoOnderverdelingUsedRuleConfig = NewestInputGeoOnderverdelingUsedRuleConfig(
         object_type="gebied",
@@ -23,13 +23,13 @@ def test_validate():
     )
     config.get_as_model.return_value = rule_config
     repository: Mock | InputGeoOnderverdelingRepository = Mock(InputGeoOnderverdelingRepository)
-    db: Mock | Session = Mock(Session)
+    db: Mock | AsyncSession = Mock(AsyncSession)
 
     onderverdeling_area_1: InputGeoOnderverdelingenTable | None = InputGeoOnderverdelingenTable(geometry_hash="abc123")
     onderverdeling_area_2: InputGeoOnderverdelingenTable | None = InputGeoOnderverdelingenTable(geometry_hash="qwe000")
     onderverdeling_area_3: InputGeoOnderverdelingenTable | None = None
 
-    def fake_get_latest_by_title(_: Mock | Session, title: str):
+    def fake_get_latest_by_title(_: Mock | AsyncSession, title: str):
         return {
             "A1 title": onderverdeling_area_1,
             "A2 title": onderverdeling_area_2,
@@ -86,6 +86,6 @@ def test_validate():
             ),
         ],
     )
-    errors: list[ValidateModuleError] = rule.validate(db=db, request=request)
+    errors: list[ValidateModuleError] = await rule.validate(db=db, request=request)
     assert len(errors) == 3
     assert [error.object.code for error in errors] == ["gebied-1", "gebied-3", "gebied-4"]

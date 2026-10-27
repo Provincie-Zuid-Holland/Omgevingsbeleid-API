@@ -1,5 +1,5 @@
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 
 
@@ -26,8 +26,8 @@ def _pdf(include_author: bool = False) -> tuple[str, bytes, str]:
     )
 
 
-def test_uploads_a_file_and_it_appears_first_in_the_list(admin: TestClient):
-    response = admin.post(
+async def test_uploads_a_file_and_it_appears_first_in_the_list(admin: httpx2.AsyncClient):
+    response = await admin.post(
         "/beleidsdoel/1/object-related-files",
         data={"title": "New upload", "ignore_report": "true"},
         files={"uploaded_file": _pdf()},
@@ -38,12 +38,12 @@ def test_uploads_a_file_and_it_appears_first_in_the_list(admin: TestClient):
     assert body["title"] == "New upload"
     assert body["code"] == "beleidsdoel-1"
 
-    listed = admin.get("/beleidsdoel/1/object-related-files").json()
+    listed = (await admin.get("/beleidsdoel/1/object-related-files")).json()
     assert listed[0]["id"] == body["id"]
 
 
-def test_unknown_lineage_returns_404(admin: TestClient):
-    response = admin.post(
+async def test_unknown_lineage_returns_404(admin: httpx2.AsyncClient):
+    response = await admin.post(
         "/beleidsdoel/999999/object-related-files",
         data={"title": "New upload", "ignore_report": "true"},
         files={"uploaded_file": _pdf()},
@@ -53,8 +53,8 @@ def test_unknown_lineage_returns_404(admin: TestClient):
     assert response.json()["detail"] == "Object niet gevonden"
 
 
-def test_rejects_non_pdf_content_type(admin: TestClient):
-    response = admin.post(
+async def test_rejects_non_pdf_content_type(admin: httpx2.AsyncClient):
+    response = await admin.post(
         "/beleidsdoel/1/object-related-files",
         data={"title": "New upload", "ignore_report": "true"},
         files={"uploaded_file": ("upload.txt", b"not a pdf", "text/plain")},
@@ -73,12 +73,12 @@ def test_rejects_non_pdf_content_type(admin: TestClient):
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],
 )
-def test_upload_permission_matrix(
+async def test_upload_permission_matrix(
     request: FixtureRequest, client_fixture: str, expected_status: int, expected_detail: str
 ):
-    test_client: TestClient = request.getfixturevalue(client_fixture)
+    test_client: httpx2.AsyncClient = request.getfixturevalue(client_fixture)
 
-    response = test_client.post(
+    response = await test_client.post(
         "/beleidsdoel/1/object-related-files",
         data={"title": "New upload", "ignore_report": "true"},
         files={"uploaded_file": _pdf()},
@@ -89,8 +89,8 @@ def test_upload_permission_matrix(
         assert response.json()["detail"] == expected_detail
 
 
-def test_uploads_a_file_and_request_pdf_report_returns_error(admin: TestClient):
-    response = admin.post(
+async def test_uploads_a_file_and_request_pdf_report_returns_error(admin: httpx2.AsyncClient):
+    response = await admin.post(
         "/beleidsdoel/1/object-related-files",
         data={"title": "New upload", "ignore_report": "false"},
         files={"uploaded_file": _pdf(include_author=True)},
@@ -103,8 +103,8 @@ def test_uploads_a_file_and_request_pdf_report_returns_error(admin: TestClient):
     assert body["detail"][0]["value"] == "Jane Doe"
 
 
-def test_uploads_a_file_and_request_pdf_report(admin: TestClient):
-    response = admin.post(
+async def test_uploads_a_file_and_request_pdf_report(admin: httpx2.AsyncClient):
+    response = await admin.post(
         "/beleidsdoel/1/object-related-files",
         data={"title": "New upload", "ignore_report": "false"},
         files={"uploaded_file": _pdf(include_author=False)},
@@ -115,5 +115,5 @@ def test_uploads_a_file_and_request_pdf_report(admin: TestClient):
     assert body["title"] == "New upload"
     assert body["code"] == "beleidsdoel-1"
 
-    listed = admin.get("/beleidsdoel/1/object-related-files").json()
+    listed = (await admin.get("/beleidsdoel/1/object-related-files")).json()
     assert listed[0]["id"] == body["id"]

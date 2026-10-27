@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_act_active
@@ -13,7 +13,7 @@ from app.core.tables.publications import PublicationActTable
 from app.core.tables.users import UsersTable
 
 
-def post_close_act_endpoint(
+async def post_close_act_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -23,14 +23,14 @@ def post_close_act_endpoint(
         ),
     ],
     act: Annotated[PublicationActTable, Depends(depends_publication_act_active)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ) -> ResponseOK:
     act.modified_by_id = user.id
     act.modified_date = datetime.now(UTC)
     act.is_active = False
 
     session.add(act)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

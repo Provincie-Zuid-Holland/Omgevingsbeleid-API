@@ -149,12 +149,12 @@ class AcknowledgedRelationsTable(Base, TimeStamped, UserMetaData):
     from_object_statics = relationship(
         "ObjectStaticsTable",
         primaryjoin="AcknowledgedRelationsTable.from_code == ObjectStaticsTable.code",
-        lazy="select",
+        lazy="raise_on_sql",
     )
     to_object_statics = relationship(
         "ObjectStaticsTable",
         primaryjoin="AcknowledgedRelationsTable.to_code == ObjectStaticsTable.code",
-        lazy="select",
+        lazy="raise_on_sql",
     )
 
     def __repr__(self) -> str:

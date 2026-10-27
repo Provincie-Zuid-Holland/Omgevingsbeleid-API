@@ -1,5 +1,6 @@
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session, aliased, undefer
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, undefer
 from sqlalchemy.sql import func
 
 from app.api.base_repository import BaseRepository
@@ -8,11 +9,11 @@ from app.core.tables.werkingsgebieden import SourceWerkingsgebiedenTable
 
 
 class WerkingsgebiedenRepository(BaseRepository):
-    def get_by_title_paginated(
-        self, session: Session, pagination: SortedPagination, title: str
+    async def get_by_title_paginated(
+        self, session: AsyncSession, pagination: SortedPagination, title: str
     ) -> PaginatedQueryResult:
         stmt = select(SourceWerkingsgebiedenTable).filter(SourceWerkingsgebiedenTable.title == title)
-        return self.fetch_paginated(
+        return await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=pagination.offset,
@@ -20,19 +21,19 @@ class WerkingsgebiedenRepository(BaseRepository):
             sort=(getattr(SourceWerkingsgebiedenTable, pagination.sort.column), pagination.sort.order),
         )
 
-    def get_latest_by_title(self, session: Session, title: str) -> SourceWerkingsgebiedenTable:
+    async def get_latest_by_title(self, session: AsyncSession, title: str) -> SourceWerkingsgebiedenTable:
         stmt = (
             select(SourceWerkingsgebiedenTable)
             .filter(SourceWerkingsgebiedenTable.title == title)
             .options(undefer(SourceWerkingsgebiedenTable.shape))
             .order_by(desc(SourceWerkingsgebiedenTable.created_date))
         )
-        return self.fetch_first(
+        return await self.fetch_first(
             session=session,
             statement=stmt,
         )
 
-    def get_unique_paginated(self, session: Session, pagination: SortedPagination) -> PaginatedQueryResult:
+    async def get_unique_paginated(self, session: AsyncSession, pagination: SortedPagination) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
             .over(
@@ -58,7 +59,7 @@ class WerkingsgebiedenRepository(BaseRepository):
         stmt = select(aliased_objects).filter(subq.c._row_number == 1)
         sort_column = getattr(subq.c, pagination.sort.column)
 
-        return self.fetch_paginated(
+        return await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=pagination.offset,

@@ -2,8 +2,8 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
-from sqlalchemy import and_, func
-from sqlalchemy.orm import Session
+from sqlalchemy import and_, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.users.dependencies import depends_current_user
@@ -23,11 +23,11 @@ class AcknowledgedRelationRequestEndpointContext(BaseEndpointContext):
     allowed_object_types: list[str]
 
 
-def post_acknowledged_relation_request_endpoint(
+async def post_acknowledged_relation_request_endpoint(
     lineage_id: int,
     object_in: RequestAcknowledgedRelation,
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[AcknowledgedRelationRequestEndpointContext, Depends()],
 ) -> ResponseOK:
     if object_in.object_type not in context.allowed_object_types:
@@ -57,17 +57,17 @@ def post_acknowledged_relation_request_endpoint(
     ack_table.with_sides(my_side, their_side)
 
     existing_request: AcknowledgedRelationsTable | None = (
-        session.query(AcknowledgedRelationsTable)
-        .filter(
-            and_(
-                AcknowledgedRelationsTable.from_code == ack_table.from_code,
-                AcknowledgedRelationsTable.to_code == ack_table.to_code,
-                AcknowledgedRelationsTable.denied.is_(None),
-                AcknowledgedRelationsTable.deleted_at.is_(None),
+        await session.scalars(
+            select(AcknowledgedRelationsTable).filter(
+                and_(
+                    AcknowledgedRelationsTable.from_code == ack_table.from_code,
+                    AcknowledgedRelationsTable.to_code == ack_table.to_code,
+                    AcknowledgedRelationsTable.denied.is_(None),
+                    AcknowledgedRelationsTable.deleted_at.is_(None),
+                )
             )
         )
-        .first()
-    )
+    ).first()
 
     if existing_request:
         if existing_request.is_acknowledged or existing_request.requested_by_code == my_side.code:
@@ -82,27 +82,25 @@ def post_acknowledged_relation_request_endpoint(
         existing_request.modified_by_id = user.id
 
         session.add(existing_request)
-        session.flush()
-        session.commit()
+        await session.flush()
+        await session.commit()
         return ResponseOK(message="Updated existing request")
 
     # Query for max version so we can increment by 1
-    max_version = (
-        session.query(func.max(AcknowledgedRelationsTable.version))
-        .filter(
+    max_version = await session.scalar(
+        select(func.max(AcknowledgedRelationsTable.version)).filter(
             and_(
                 AcknowledgedRelationsTable.from_code == ack_table.from_code,
                 AcknowledgedRelationsTable.to_code == ack_table.to_code,
             )
         )
-        .scalar()
     )
 
     if max_version is not None:
         ack_table.version = max_version + 1
 
     session.add(ack_table)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

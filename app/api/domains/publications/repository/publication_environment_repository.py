@@ -1,21 +1,25 @@
 import uuid
 
 from sqlalchemy import and_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.api.utils.pagination import PaginatedQueryResult, SortOrder
-from app.core.tables.publications import PublicationEnvironmentTable
+from app.core.tables.publications import PublicationEnvironmentStateTable, PublicationEnvironmentTable
 
 
 class PublicationEnvironmentRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: uuid.UUID) -> PublicationEnvironmentTable | None:
+    async def get_by_id(self, session: AsyncSession, idx: uuid.UUID) -> PublicationEnvironmentTable | None:
         stmt = select(PublicationEnvironmentTable).where(PublicationEnvironmentTable.id == idx)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_state_by_id(self, session: AsyncSession, idx: uuid.UUID) -> PublicationEnvironmentStateTable | None:
+        stmt = select(PublicationEnvironmentStateTable).where(PublicationEnvironmentStateTable.id == idx)
+        return await self.fetch_first(session, stmt)
+
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         is_active: bool | None,
         offset: int = 0,
         limit: int = 20,
@@ -26,7 +30,7 @@ class PublicationEnvironmentRepository(BaseRepository):
 
         stmt = select(PublicationEnvironmentTable).filter(*filters)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=offset,

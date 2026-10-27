@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module import (
     AreaDesignationRefCheckRule,
@@ -15,7 +15,7 @@ from app.core.tables.modules import ModuleObjectsTable
 from tests.dso_tests.factories.gebiedsaanwijzing import make_gebiedsaanwijzing
 
 
-def test_validate():
+async def test_validate():
     config: Mock | MainConfig = Mock(MainConfig)
     rule_config: AreaDesignationRefCheckRuleConfig = AreaDesignationRefCheckRuleConfig(
         object_type="gebiedsaanwijzing",
@@ -103,8 +103,8 @@ def test_validate():
             ),
         ],
     )
-    db: Mock | Session = Mock(Session)
-    errors: list[ValidateModuleError] = rule.validate(db=db, request=request)
+    db: Mock | AsyncSession = Mock(AsyncSession)
+    errors: list[ValidateModuleError] = await rule.validate(db=db, request=request)
     assert len(errors) == 4
     assert [error.object.code for error in errors] == [
         "gebiedsaanwijzing-2",

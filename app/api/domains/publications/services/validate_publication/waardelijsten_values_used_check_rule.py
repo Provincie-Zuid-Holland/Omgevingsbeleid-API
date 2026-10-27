@@ -1,5 +1,5 @@
 from dso.services.koop.waardelijsten.gen import OnderwerpType, RechtsgebiedType
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -10,11 +10,11 @@ from app.api.domains.publications.services.validate_publication.validate_publica
 
 
 class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
         koop_subjects: list[str] = [subject for subject in OnderwerpType.__members__]
-        for subject in request.input_data.Publication_Version.bill_metadata["Subjects"]:
+        for subject in request.input_data.Publication_Version.bill_metadata["subjects"]:
             if subject not in koop_subjects:
                 errors.append(
                     ValidatePublicationError(
@@ -27,7 +27,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
                 )
 
         koop_jurisdictions: list[str] = [subject for subject in RechtsgebiedType.__members__]
-        for jurisdiction in request.input_data.Publication_Version.bill_metadata["Jurisdictions"]:
+        for jurisdiction in request.input_data.Publication_Version.bill_metadata["jurisdictions"]:
             if jurisdiction not in koop_jurisdictions:
                 errors.append(
                     ValidatePublicationError(

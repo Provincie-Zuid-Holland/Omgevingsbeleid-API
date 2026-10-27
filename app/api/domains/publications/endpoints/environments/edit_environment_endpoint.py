@@ -3,7 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_environment
@@ -30,7 +30,7 @@ class EnvironmentEdit(BaseModel):
     can_publicate: bool | None = None
 
 
-def post_edit_environment_endpoint(
+async def post_edit_environment_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -40,7 +40,7 @@ def post_edit_environment_endpoint(
         ),
     ],
     environment: Annotated[PublicationEnvironmentTable, Depends(depends_publication_environment)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: EnvironmentEdit,
 ) -> ResponseOK:
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
@@ -54,7 +54,7 @@ def post_edit_environment_endpoint(
     environment.modified_date = datetime.now(UTC)
 
     session.add(environment)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

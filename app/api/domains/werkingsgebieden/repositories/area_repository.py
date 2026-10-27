@@ -1,22 +1,25 @@
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session, undefer
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import undefer
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.others import AreasTable
 
 
 class AreaRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: UUID) -> AreasTable | None:
+    async def get_by_id(self, session: AsyncSession, idx: UUID) -> AreasTable | None:
         stmt = select(AreasTable).filter(AreasTable.id == idx)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_source_uuid(self, session: Session, werkingsgebied_id: UUID) -> AreasTable | None:
+    async def get_by_source_uuid(self, session: AsyncSession, werkingsgebied_id: UUID) -> AreasTable | None:
         stmt = select(AreasTable).filter(AreasTable.source_uuid == werkingsgebied_id)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_source_hash_and_title(self, session: Session, source_hash: str, source_title: str) -> AreasTable | None:
+    async def get_by_source_hash_and_title(
+        self, session: AsyncSession, source_hash: str, source_title: str
+    ) -> AreasTable | None:
         if not source_hash:
             return None
 
@@ -27,9 +30,9 @@ class AreaRepository(BaseRepository):
             .filter(AreasTable.source_geometry_hash == source_hash)
             .filter(AreasTable.source_title == source_title)
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_source_hash(self, session: Session, source_hash: str) -> AreasTable | None:
+    async def get_by_source_hash(self, session: AsyncSession, source_hash: str) -> AreasTable | None:
         if not source_hash:
             return None
 
@@ -39,15 +42,15 @@ class AreaRepository(BaseRepository):
             .filter(AreasTable.source_geometry_index == lookup)
             .filter(AreasTable.source_geometry_hash == source_hash)
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_with_gml(self, session: Session, idx: UUID) -> AreasTable | None:
+    async def get_with_gml(self, session: AsyncSession, idx: UUID) -> AreasTable | None:
         stmt = select(AreasTable).options(undefer(AreasTable.gml)).filter(AreasTable.id == idx)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_many_with_gml(self, session: Session, ids: list[UUID]) -> list[AreasTable]:
+    async def get_many_with_gml(self, session: AsyncSession, ids: list[UUID]) -> list[AreasTable]:
         if len(ids) == 0:
             return []
 
         stmt = select(AreasTable).options(undefer("Gml")).filter(AreasTable.id.in_(ids))
-        return self.fetch_all(session, stmt)
+        return await self.fetch_all(session, stmt)

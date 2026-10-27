@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_version
@@ -13,7 +13,7 @@ from app.core.tables.publications import PublicationVersionTable
 from app.core.tables.users import UsersTable
 
 
-def post_delete_version_endpoint(
+async def post_delete_version_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -23,7 +23,7 @@ def post_delete_version_endpoint(
         ),
     ],
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ) -> ResponseOK:
     if not version.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
@@ -38,7 +38,7 @@ def post_delete_version_endpoint(
     version.modified_date = timepoint
 
     session.add(version)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication import (
     AreaDesignationRefCheckRule,
@@ -19,7 +19,7 @@ from tests.app.api.domains.publications.services.validate_publication.type_facto
 from tests.dso_tests.factories.gebiedsaanwijzing import make_gebiedsaanwijzing as make_dso_gebiedsaanwijzing
 
 
-def test_validate():
+async def test_validate():
     gebiedsaanwijzing_1 = make_dso_gebiedsaanwijzing(deprecated=False)
     gebiedsaanwijzing_2 = make_dso_gebiedsaanwijzing(deprecated=True)
 
@@ -84,8 +84,8 @@ def test_validate():
         ),
         document_type=DocumentType.VISION,
     )
-    db: Mock | Session = Mock(Session)
-    errors: list[ValidatePublicationError] = rule.validate(db=db, request=request)
+    db: Mock | AsyncSession = Mock(AsyncSession)
+    errors: list[ValidatePublicationError] = await rule.validate(db=db, request=request)
     assert len(errors) == 4
     assert [error.object.code for error in errors] == [
         "gebiedsaanwijzing-2",

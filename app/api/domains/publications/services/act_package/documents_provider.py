@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
 import dso.models as dso_models
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.others.repositories.storage_file_repository import StorageFileRepository
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
@@ -17,15 +17,15 @@ class PublicationDocumentsProvider:
     def __init__(self, file_repostiory: StorageFileRepository):
         self._file_repostiory: StorageFileRepository = file_repostiory
 
-    def get_documents(
+    async def get_documents(
         self,
-        session: Session,
+        session: AsyncSession,
         act_frbr: ActFrbr,
         all_objects: list[dict],
         used_objects: list[dict],
     ) -> list[dict]:
         used_documents_objects: list[dict] = self._calculate_used_documents(all_objects, used_objects)
-        result: list[dict] = self._resolve_files(
+        result: list[dict] = await self._resolve_files(
             session,
             act_frbr,
             used_documents_objects,
@@ -46,9 +46,9 @@ class PublicationDocumentsProvider:
 
         return result
 
-    def _resolve_files(
+    async def _resolve_files(
         self,
-        session: Session,
+        session: AsyncSession,
         act_frbr: ActFrbr,
         documents_objects: list[dict],
     ) -> list[dict]:
@@ -68,7 +68,7 @@ class PublicationDocumentsProvider:
                     ]
                 )
 
-            storage_file: StorageFileTable | None = self._file_repostiory.get_by_id(session, file_id)
+            storage_file: StorageFileTable | None = await self._file_repostiory.get_with_binary(session, file_id)
             if storage_file is None:
                 raise validation_exception(
                     [
@@ -92,7 +92,7 @@ class PublicationDocumentsProvider:
         storage_file: StorageFileTable,
     ) -> dict:
         work_date: str = act_frbr.Work_Date
-        work_identifier = f"file-{act_frbr.Act_ID}-{act_frbr.Expression_Version}-{document['Object_ID']}"
+        work_identifier = f"file-{act_frbr.Act_ID}-{act_frbr.Expression_Version}-{document['object_id']}"
 
         # Some of these expression values are set as if this is the first version
         # But should be overwritten by the state system if they are already published under this UUID/Hash
@@ -106,25 +106,25 @@ class PublicationDocumentsProvider:
         )
 
         result = {
-            "UUID": document["UUID"],
+            "id": document["id"],
             "code": document["code"],
-            "Frbr": frbr,
-            "New": True,
-            "Filename": document["Filename"],
-            "Title": document["Title"],
-            "Geboorteregeling": act_frbr.get_work(),
-            "Content_Type": storage_file.content_type,
-            "Binary": storage_file.binary,
+            "frbr": frbr,
+            "new": True,
+            "filename": document["filename"],
+            "title": document["title"],
+            "geboorteregeling": act_frbr.get_work(),
+            "content_type": storage_file.content_type,
+            "binary": storage_file.binary,
             # Used internally
-            "Object_ID": document["Object_ID"],
-            "Hash": storage_file.checksum,
+            "object_id": document["object_id"],
+            "hash": storage_file.checksum,
         }
 
         return result
 
     def _calculate_used_documents(self, all_objects: list[dict], used_objects: list[dict]) -> list[dict]:
         used_document_codes: set[str] = {
-            d for o in used_objects if isinstance(o.get("Documents"), list) for d in o.get("Documents", [])
+            d for o in used_objects if isinstance(o.get("documents"), list) for d in o.get("documents", [])
         }
 
         used_documents_objects: list[dict] = [

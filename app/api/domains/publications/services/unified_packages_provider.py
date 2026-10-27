@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy import literal, select, union_all
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.types.enums import DocumentType, PackageType, PublicationType, ReportStatusType
 from app.api.utils.pagination import PaginatedQueryResult, SortedPagination, query_paginated_no_scalars
@@ -61,9 +61,9 @@ class UnifiedPackagesProvider:
             .join(PublicationTable.environment)
         )
 
-    def get_unified_packages(
+    async def get_unified_packages(
         self,
-        session: Session,
+        session: AsyncSession,
         pagination: SortedPagination,
         environment_id: UUID | None = None,
         module_id: int | None = None,
@@ -93,7 +93,7 @@ class UnifiedPackagesProvider:
         if document_type:
             stmt = stmt.filter(combined.c.document_type == document_type.value)
 
-        return query_paginated_no_scalars(
+        return await query_paginated_no_scalars(
             query=stmt,
             session=session,
             limit=pagination.limit,

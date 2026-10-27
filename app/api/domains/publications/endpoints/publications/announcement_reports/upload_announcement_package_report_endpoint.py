@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, HTTPException, UploadFile, status
 from lxml import etree
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -52,9 +52,9 @@ class FileParser:
             "stop": "http://www.overheid.nl/2017/stop",
         }
 
-    def parse(self, file: UploadFile) -> PublicationAnnouncementPackageReportTable:
-        content: bytes = file.file.read()
-        file.file.close()
+    async def parse(self, file: UploadFile) -> PublicationAnnouncementPackageReportTable:
+        content: bytes = await file.read()
+        await file.close()
 
         report: PublicationAnnouncementPackageReportTable = self._parse_report_xml(content, file.filename or "")
         if report.sub_delivery_id != self._announcement_package.delivery_id:
@@ -112,13 +112,13 @@ class FileParser:
 class EndpointHandler:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         report_repository: PublicationAnnouncementReportRepository,
         user: UsersTable,
         uploaded_files: list[UploadFile],
         announcement_package: PublicationAnnouncementPackageTable,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._report_repository: PublicationAnnouncementReportRepository = report_repository
         self._user: UsersTable = user
         self._uploaded_files: list[UploadFile] = uploaded_files
@@ -131,7 +131,7 @@ class EndpointHandler:
             timepoint=self._timepoint,
         )
 
-    def handle(self) -> UploadPackageReportResponse:
+    async def handle(self) -> UploadPackageReportResponse:
         self._guard_can_upload_files()
 
         if not self._uploaded_files:
@@ -143,7 +143,7 @@ class EndpointHandler:
             Is_Conclusive=False,
         )
         for file in self._uploaded_files:
-            existing_data: PaginatedQueryResult = self._report_repository.get_with_filters(
+            existing_data: PaginatedQueryResult = await self._report_repository.get_with_filters(
                 self._session,
                 announcement_package_id=self._announcement_package.id,
                 filename=file.filename,
@@ -153,7 +153,7 @@ class EndpointHandler:
                 duplicate_count += 1
                 continue
 
-            report: PublicationAnnouncementPackageReportTable = self._file_parser.parse(file)
+            report: PublicationAnnouncementPackageReportTable = await self._file_parser.parse(file)
             self._session.add(report)
             running_status = self._update_running_status(running_status, report)
 
@@ -163,8 +163,8 @@ class EndpointHandler:
         self._announcement_package.modified_date = self._timepoint
 
         self._session.add(self._announcement_package)
-        self._session.flush()
-        self._session.commit()
+        await self._session.flush()
+        await self._session.commit()
 
         response: UploadPackageReportResponse = UploadPackageReportResponse(
             status=ReportStatusType(self._announcement_package.report_status),
@@ -263,7 +263,7 @@ class EndpointHandler:
 
 
 @inject
-def post_upload_announcement_package_report_endpoint(
+async def post_upload_announcement_package_report_endpoint(
     announcement_package: Annotated[
         PublicationAnnouncementPackageTable, Depends(depends_publication_announcement_package)
     ],
@@ -281,7 +281,7 @@ def post_upload_announcement_package_report_endpoint(
             Provide[ApiContainer.publication.announcement_report_repository],
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     uploaded_files: Annotated[list[UploadFile], File(...)],
 ) -> UploadPackageReportResponse:
     handler = EndpointHandler(
@@ -291,4 +291,4 @@ def post_upload_announcement_package_report_endpoint(
         uploaded_files=uploaded_files,
         announcement_package=announcement_package,
     )
-    return handler.handle()
+    return await handler.handle()

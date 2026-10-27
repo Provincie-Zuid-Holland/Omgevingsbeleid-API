@@ -1,6 +1,6 @@
 from dso import Thema, ThemaFactory
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -23,7 +23,7 @@ class ThemasCheckRule(ValidateModuleRule):
         )
         self._dso_thema_factory: ThemaFactory = dso_thema_factory
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
         dso_themas: dict[str, Thema] = self._dso_thema_factory.get_all()
 

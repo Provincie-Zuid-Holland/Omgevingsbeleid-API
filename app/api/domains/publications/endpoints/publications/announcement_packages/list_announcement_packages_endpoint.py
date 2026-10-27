@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -24,9 +24,9 @@ class ListAnnouncementPackagesEndpointContext(BaseEndpointContext):
 
 
 @inject
-def get_list_announcement_packages_endpoint(
+async def get_list_announcement_packages_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     package_repository: Annotated[
         PublicationAnnouncementPackageRepository,
         Depends(Provide[ApiContainer.publication.announcement_package_repository]),
@@ -46,7 +46,7 @@ def get_list_announcement_packages_endpoint(
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    paginated_result = package_repository.get_with_filters(
+    paginated_result = await package_repository.get_with_filters(
         session=session,
         announcement_id=announcement_id,
         package_type=package_type,

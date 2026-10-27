@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.repositories.module_object_context_repository import ModuleObjectContextRepository
 from app.api.domains.modules.types import ModuleObjectActionFull
@@ -41,12 +41,12 @@ class ManageObjectContextService:
     def __init__(self, module_object_context_repository: ModuleObjectContextRepository):
         self._context_repository: ModuleObjectContextRepository = module_object_context_repository
 
-    def ensure_exists(
+    async def ensure_exists(
         self,
-        session: Session,
+        session: AsyncSession,
         request: ExistRequest,
     ) -> Result:
-        existing_object_context: ModuleObjectContextTable | None = self._context_repository.get_by_ids(
+        existing_object_context: ModuleObjectContextTable | None = await self._context_repository.get_by_ids(
             session,
             request.module_id,
             request.object_type,

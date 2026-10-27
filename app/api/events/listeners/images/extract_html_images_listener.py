@@ -9,7 +9,7 @@ from uuid import uuid4
 from bs4 import BeautifulSoup
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.listeners.images.types import ImageMeta
@@ -28,18 +28,18 @@ class HtmlImagesExtractor:
     def __init__(
         self,
         asset_repository: AssetRepository,
-        session: Session,
+        session: AsyncSession,
         event: ModuleObjectPatchedEvent,
         config: ExtractHtmlImagesConfig,
         interested_fields: set[str],
     ):
         self._asset_repository: AssetRepository = asset_repository
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: ExtractHtmlImagesConfig = config
         self._interested_fields: set[str] = interested_fields
         self._module_object: ModuleObjectsTable = event.payload.new_record
 
-    def process(self) -> ModuleObjectsTable:
+    async def process(self) -> ModuleObjectsTable:
         for field_name in self._interested_fields:
             content: str = getattr(self._module_object, field_name)
             try:
@@ -48,16 +48,16 @@ class HtmlImagesExtractor:
                 return self._module_object
 
             for img in soup.find_all("img", src=re.compile("^data:image/")):
-                self._handle_image(img)
+                await self._handle_image(img)
             setattr(self._module_object, field_name, str(soup))
 
         return self._module_object
 
-    def _handle_image(self, img):
-        image_table: AssetsTable = self._get_or_create_asset(img)
+    async def _handle_image(self, img):
+        image_table: AssetsTable = await self._get_or_create_asset(img)
         img["src"] = f"[ASSET:{image_table.id}]"
 
-    def _get_or_create_asset(self, img) -> AssetsTable:
+    async def _get_or_create_asset(self, img) -> AssetsTable:
         # Extract the image data and file extension
         image_data = img["src"]
 
@@ -73,7 +73,7 @@ class HtmlImagesExtractor:
         # First check if the image already exists
         # if so; then we do not need to parse the image to gain the meta
         image_hash: str = sha256(image_data.encode("utf-8")).hexdigest()
-        image_table: AssetsTable | None = self._asset_repository.get_by_hash_and_content(
+        image_table: AssetsTable | None = await self._asset_repository.get_by_hash_and_content(
             self._session, image_hash, image_data
         )
         if image_table is not None:
@@ -118,7 +118,7 @@ class HtmlImagesExtractorFactory:
 
     def create(
         self,
-        session: Session,
+        session: AsyncSession,
         event: ModuleObjectPatchedEvent,
         config: ExtractHtmlImagesConfig,
         interested_fields: set[str],
@@ -136,7 +136,9 @@ class ExtractHtmlImagesListener(ApiListener[ModuleObjectPatchedEvent]):
     def __init__(self, extractor_factory: HtmlImagesExtractorFactory):
         self._extractor_factory: HtmlImagesExtractorFactory = extractor_factory
 
-    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> ModuleObjectPatchedEvent | None:
+    async def handle_event(
+        self, session: AsyncSession, event: ModuleObjectPatchedEvent
+    ) -> ModuleObjectPatchedEvent | None:
         config: ExtractHtmlImagesConfig | None = self._collect_config(event.context.request_model)
         if not config:
             return event
@@ -147,7 +149,7 @@ class ExtractHtmlImagesListener(ApiListener[ModuleObjectPatchedEvent]):
             return event
 
         extractor: HtmlImagesExtractor = self._extractor_factory.create(session, event, config, interested_fields)
-        result_object = extractor.process()
+        result_object = await extractor.process()
 
         event.payload.new_record = result_object
         return event
