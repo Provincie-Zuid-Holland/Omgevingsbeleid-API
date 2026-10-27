@@ -16,7 +16,7 @@ class StateV8Upgrader(StateUpgrader):
     Renamed from the old field style to the new, ex: Object_Type to object_type etc
     This version was made so we can remove the old style everywhere.
 
-    Models that were already snake_case in v7 (Gio, Gebiedengroep, Gebiedsaanwijzing, OwState, ...)
+    Models that were already snake_case in v7 (Gebiedsaanwijzing, GioLocatie, OwState, ...)
     are copied over as they are.
     """
 
@@ -79,22 +79,30 @@ class StateV8Upgrader(StateUpgrader):
             procedure_type=old_act.Procedure_Type,
             gios={key: self._mutate_gio(gio) for key, gio in old_act.Gios.items()},
             gebiedengroepen={
-                key: models_v8.Gebiedengroep.model_validate(gebiedengroep.model_dump())
-                for key, gebiedengroep in old_act.Gebiedengroepen.items()
+                key: self._mutate_gebiedengroep(gebiedengroep) for key, gebiedengroep in old_act.Gebiedengroepen.items()
             },
             gebiedsaanwijzingen={
                 key: models_v8.Gebiedsaanwijzing.model_validate(gebiedsaanwijzing.model_dump())
                 for key, gebiedsaanwijzing in old_act.Gebiedsaanwijzingen.items()
             },
             documents={key: self._mutate_document(document) for key, document in old_act.Documents.items()},
-            assets={key: models_v8.Asset(uuid=asset.UUID) for key, asset in old_act.Assets.items()},
+            assets={key: models_v8.Asset(id=asset.UUID) for key, asset in old_act.Assets.items()},
             wid_data=models_v8.WidData(
                 known_wid_map=old_act.Wid_Data.Known_Wid_Map,
                 known_wids=old_act.Wid_Data.Known_Wids,
             ),
             ow_state=models_v8.OwState.model_validate(old_act.Ow_State.model_dump()),
             act_text=old_act.Act_Text,
-            publication_version_uuid=old_act.Publication_Version_UUID,
+            publication_version_id=old_act.Publication_Version_UUID,
+        )
+
+    def _mutate_gebiedengroep(self, old_gebiedengroep: models_v7.Gebiedengroep) -> models_v8.Gebiedengroep:
+        return models_v8.Gebiedengroep(
+            id=old_gebiedengroep.uuid,
+            code=old_gebiedengroep.code,
+            title=old_gebiedengroep.title,
+            source_gebieden_codes=old_gebiedengroep.source_gebieden_codes,
+            gio_key=old_gebiedengroep.gio_key,
         )
 
     def _mutate_gio(self, old_gio: models_v7.Gio) -> models_v8.Gio:
@@ -111,7 +119,7 @@ class StateV8Upgrader(StateUpgrader):
 
     def _mutate_document(self, old_document: models_v7.Document) -> models_v8.Document:
         return models_v8.Document(
-            uuid=old_document.UUID,
+            id=old_document.UUID,
             code=old_document.Code,
             frbr=self._mutate_frbr(old_document.Frbr),
             filename=old_document.Filename,

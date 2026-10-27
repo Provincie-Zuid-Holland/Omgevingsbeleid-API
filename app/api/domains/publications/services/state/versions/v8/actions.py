@@ -1,10 +1,8 @@
-import uuid
 from abc import ABCMeta
 from datetime import date
 
 from pydantic import BaseModel
 
-from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.api.domains.publications.types.enums import PurposeType
 
 from .models import Asset, Document, Frbr, Gebiedengroep, Gebiedsaanwijzing, Gio, OwState, Purpose, WidData
@@ -36,7 +34,7 @@ class AddPublicationAction(Action):
     wid_data: WidData
     ow_state: OwState
     act_text: str
-    publication_version_uuid: str
+    publication_version_id: str
 
 
 class AddPurposeAction(Action):
@@ -51,20 +49,3 @@ class AddPurposeAction(Action):
             return ""
 
         return self.effective_date.strftime("%Y-%m-%d")
-
-
-# @todo: Check if these are needed
-# @todo: I think this should be part of the AddPublicationAction
-class AddAreaOfJurisdictionAction(Action):
-    uuid: uuid.UUID
-    administrative_borders_id: str
-    act_frbr: ActFrbr
-
-
-class ConsolidateWerkingsgebiedAction(Action):
-    uuid: uuid.UUID
-    object_id: int
-    work: str
-    expression_version: str
-    act_frbr: ActFrbr
-    consolidation_purpose: Purpose

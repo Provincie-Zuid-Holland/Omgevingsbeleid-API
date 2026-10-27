@@ -68,7 +68,7 @@ class Gio(BaseModel):
 
 
 class Gebiedengroep(BaseModel):
-    uuid: str
+    id: str
     code: str
     title: str
     source_gebieden_codes: CustomSetStr
@@ -87,7 +87,7 @@ class Gebiedsaanwijzing(BaseModel):
 
 
 class Document(BaseModel):
-    uuid: str
+    id: str
     code: str
     frbr: Frbr
     filename: str
@@ -99,7 +99,7 @@ class Document(BaseModel):
 
 
 class Asset(BaseModel):
-    uuid: str
+    id: str
 
 
 class WidData(BaseModel):
@@ -320,7 +320,6 @@ class ActiveAct(BaseModel):
     consolidation_purpose: Purpose
     document_type: str
     procedure_type: str
-    # @todo; data from state upgrade is not correct
     gios: dict[str, Gio] = Field(default_factory=dict)
     gebiedengroepen: dict[str, Gebiedengroep] = Field(default_factory=dict)
     gebiedsaanwijzingen: dict[str, Gebiedsaanwijzing] = Field(default_factory=dict)
@@ -329,7 +328,7 @@ class ActiveAct(BaseModel):
     wid_data: WidData
     ow_state: OwState
     act_text: str
-    publication_version_uuid: str
+    publication_version_id: str
     model_config = ConfigDict(from_attributes=True)
 
 

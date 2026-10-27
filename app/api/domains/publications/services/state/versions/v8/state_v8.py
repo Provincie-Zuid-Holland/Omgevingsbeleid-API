@@ -67,7 +67,7 @@ class StateV8(State):
             wid_data=action.wid_data,
             ow_state=action.ow_state,
             act_text=action.act_text,
-            publication_version_uuid=action.publication_version_uuid,
+            publication_version_id=action.publication_version_id,
         )
         key: str = f"{action.document_type}-{action.procedure_type}"
         self.acts[key] = active_act
