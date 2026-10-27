@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import and_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.publications.types.enums import ReportStatusType
@@ -10,15 +10,17 @@ from app.core.tables.publications import PublicationAnnouncementPackageReportTab
 
 
 class PublicationAnnouncementReportRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: uuid.UUID) -> PublicationAnnouncementPackageReportTable | None:
+    async def get_by_id(
+        self, session: AsyncSession, idx: uuid.UUID
+    ) -> PublicationAnnouncementPackageReportTable | None:
         stmt = select(PublicationAnnouncementPackageReportTable).where(
             PublicationAnnouncementPackageReportTable.id == idx
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         announcement_package_id: uuid.UUID | None = None,
         filename: str | None = None,
         report_status: ReportStatusType | None = None,
@@ -37,7 +39,7 @@ class PublicationAnnouncementReportRepository(BaseRepository):
 
         stmt = select(PublicationAnnouncementPackageReportTable).filter(*filters)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=offset,

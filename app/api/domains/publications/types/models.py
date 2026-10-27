@@ -67,7 +67,7 @@ class PublicationAOJ(BaseModel):
 
 
 class PublicationAct(BaseModel):
-    uuid: UUID
+    id: int
     title: str
     is_active: bool
     environment: PublicationEnvironment
@@ -86,7 +86,7 @@ class PublicationAct(BaseModel):
 
 
 class PublicationActShort(BaseModel):
-    uuid: UUID
+    id: int
     title: str
     is_active: bool
     environment_id: UUID
@@ -112,7 +112,7 @@ class Publication(BaseModel):
     procedure_type: str
     template_id: UUID | None = None
     environment_id: UUID | None = None
-    act_id: UUID | None = None
+    act_id: int | None = None
 
     created_date: datetime
     modified_date: datetime
@@ -128,7 +128,7 @@ class PublicationShort(BaseModel):
     procedure_type: str
     template_id: UUID | None = None
     environment_id: UUID | None = None
-    act_id: UUID | None = None
+    act_id: int | None = None
 
     created_date: datetime
     modified_date: datetime

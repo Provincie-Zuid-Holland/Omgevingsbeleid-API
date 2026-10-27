@@ -6,7 +6,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, Query, status
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -57,12 +57,12 @@ class OwnerType(str, Enum):
 
 
 @inject
-def get_list_module_objects_endpoint(
+async def get_list_module_objects_endpoint(
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
     _: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     context: Annotated[ListModuleObjectsEndpointContext, Depends()],
     module_objects_to_models_parser: Annotated[
@@ -94,7 +94,7 @@ def get_list_module_objects_endpoint(
                 "owner_id is required when owner_type is 'Mine' or 'Others'",
             )
 
-    paginated_result: PaginatedQueryResult = module_object_repository.get_all_latest(
+    paginated_result: PaginatedQueryResult = await module_object_repository.get_all_latest(
         session=session,
         pagination=pagination,
         only_active_modules=only_active_modules,

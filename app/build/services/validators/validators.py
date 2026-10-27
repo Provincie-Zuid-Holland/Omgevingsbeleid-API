@@ -1,5 +1,4 @@
 import io
-import logging
 import re
 from base64 import b64decode
 
@@ -8,13 +7,12 @@ from dso.models import DocumentType
 from dso.services.ow.gebiedsaanwijzingen.gebiedsaanwijzing import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
 from PIL import Image
 from pydantic import ValidationInfo
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
-from app.core.db.session import SessionFactoryType, session_scope_with_context
-from app.core.logging import log_message
 
-from .types import PydanticValidator, Validator
+from .types import AsyncValidator, PydanticValidator, Validator
 
 
 class NoneToDefaultValueValidator(Validator):
@@ -246,15 +244,14 @@ class NotEqualRootValidator(Validator):
 
 
 class ObjectCodeExistsValidator(Validator):
-    def __init__(self, session_factory: SessionFactoryType, object_static_repository: ObjectStaticRepository):
-        self._session_factory: SessionFactoryType = session_factory
+    def __init__(self, object_static_repository: ObjectStaticRepository):
         self._object_static_repository: ObjectStaticRepository = object_static_repository
 
     def get_id(self) -> str:
         return "object_code_exists"
 
-    def get_validator_func(self, config: dict) -> PydanticValidator:
-        def pydantic_validator_object_code_exists(cls, value, info: ValidationInfo):
+    def get_validator_func(self, config: dict) -> AsyncValidator:
+        async def async_validator_object_code_exists(session: AsyncSession, value, context: dict):
             if value is None:
                 return None
 
@@ -263,23 +260,21 @@ class ObjectCodeExistsValidator(Validator):
 
             try:
                 object_type, object_id = value.split("-", 1)
+                int(object_id)
             except ValueError:
                 raise ValueError("Value is not a valid Object_Code")
 
-            with session_scope_with_context(self._session_factory) as session:
-                object_static = self._object_static_repository.get_by_object_type_and_id(
-                    session,
-                    object_type,
-                    int(object_id),
-                )
-                if not object_static:
-                    raise ValueError("Object does not exist")
-
+            object_static = await self._object_static_repository.get_by_object_type_and_id(
+                session,
+                object_type,
+                int(object_id),
+            )
+            if not object_static:
+                raise ValueError("Object does not exist")
             return value
 
-        return PydanticValidator(
-            mode="after",
-            func=pydantic_validator_object_code_exists,
+        return AsyncValidator(
+            func=async_validator_object_code_exists,
         )
 
 
@@ -314,15 +309,14 @@ class ObjectCodeAllowedTypeValidator(Validator):
 
 
 class ObjectCodesExistsValidator(Validator):
-    def __init__(self, session_factory: SessionFactoryType, object_static_repository: ObjectStaticRepository):
-        self._session_factory: SessionFactoryType = session_factory
+    def __init__(self, object_static_repository: ObjectStaticRepository):
         self._object_static_repository: ObjectStaticRepository = object_static_repository
 
     def get_id(self) -> str:
         return "object_codes_exists"
 
-    def get_validator_func(self, config: dict) -> PydanticValidator:
-        def pydantic_validator_object_codes_exists(cls, value, info: ValidationInfo):
+    def get_validator_func(self, config: dict) -> AsyncValidator:
+        async def async_validator_object_codes_exists(session: AsyncSession, value, context: dict):
             if value is None:
                 return None
 
@@ -330,74 +324,51 @@ class ObjectCodesExistsValidator(Validator):
                 raise ValueError("Value must be a list of strings")
 
             for object_code in value:
-                try:
-                    object_type, object_id = object_code.split("-", 1)
-                except ValueError:
+                if "-" not in object_code:
                     raise ValueError("Value is not a valid Object_Code")
 
-                with session_scope_with_context(self._session_factory) as session:
-                    object_static = self._object_static_repository.get_by_object_type_and_id(
-                        session,
-                        object_type,
-                        object_id,
-                    )
-                    if not object_static:
-                        raise ValueError("Object does not exist")
-
+            all_ok, _ = await self._object_static_repository.does_codes_exists(session, set(value))
+            if not all_ok:
+                raise ValueError("Object does not exist")
             return value
 
-        return PydanticValidator(
-            mode="after",
-            func=pydantic_validator_object_codes_exists,
+        return AsyncValidator(
+            func=async_validator_object_codes_exists,
         )
 
 
 class ObjectCodesValidForModuleValidator(Validator):
-    def __init__(self, session_factory: SessionFactoryType, module_object_repository: ModuleObjectRepository):
-        self._session_factory: SessionFactoryType = session_factory
+    def __init__(self, module_object_repository: ModuleObjectRepository):
         self._module_object_repository: ModuleObjectRepository = module_object_repository
 
     def get_id(self) -> str:
         return "object_codes_valid_for_module"
 
-    def get_validator_func(self, config: dict) -> PydanticValidator:
-        def pydantic_validator_object_codes_valid_for_module(cls, value, info: ValidationInfo):
+    def get_validator_func(self, config: dict) -> AsyncValidator:
+        async def async_validator_object_codes_valid_for_module(session: AsyncSession, value, context: dict):
             if value is None:
                 return None
 
             if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
                 raise ValueError("Value must be a list of strings")
 
-            if not isinstance(info.context, dict):
-                log_message(
-                    "object_codes_valid_for_module needs validation context for its tasks", severity=logging.WARNING
-                )
-                return value
+            if "module_id" not in context:
+                raise ValueError("object_codes_valid_for_module needs `module_id` in the validation context")
 
-            if "module_id" not in info.context:
-                log_message(
-                    "object_codes_valid_for_module needs `module_id` in validation context for its tasks",
-                    severity=logging.WARNING,
-                )
-                return value
-
-            module_id: int = int(info.context["module_id"])
+            module_id: int = int(context["module_id"])
             object_codes: set[str] = set(value)
-            with session_scope_with_context(self._session_factory) as session:
-                accessible_object_codes: set[str] = self._module_object_repository.confirm_accessible_object_codes(
-                    session,
-                    module_id,
-                    object_codes,
-                )
-                invalid_object_codes: set[str] = object_codes - accessible_object_codes
-                if invalid_object_codes:
-                    raise ValueError(f"Invalid object codes: {', '.join(invalid_object_codes)}")
-
+            accessible_object_codes: set[str] = await self._module_object_repository.confirm_accessible_object_codes(
+                session,
+                module_id,
+                object_codes,
+            )
+            invalid_object_codes: set[str] = object_codes - accessible_object_codes
+            if invalid_object_codes:
+                raise ValueError(f"Invalid object codes: {', '.join(invalid_object_codes)}")
             return value
 
-        return PydanticValidator(
-            mode="after",
-            func=pydantic_validator_object_codes_valid_for_module,
+        return AsyncValidator(
+            func=async_validator_object_codes_valid_for_module,
         )
 
 
@@ -435,7 +406,6 @@ class ObjectCodesAllowedTypeValidator(Validator):
 class GebiedsaanwijzingValidator(Validator):
     def __init__(
         self,
-        session_factory: SessionFactoryType,
         object_static_repository: ObjectStaticRepository,
         dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory,
     ):
@@ -445,17 +415,16 @@ class GebiedsaanwijzingValidator(Validator):
         if gebiedsaanwijzingen is None:
             raise RuntimeError("Gebiedsaanwijzingen not found for specified DocumentType in GebiedsaanwijzingValidator")
 
-        self._session_factory: SessionFactoryType = session_factory
         self._object_static_repository: ObjectStaticRepository = object_static_repository
         self._gebiedsaanwijzingen: Gebiedsaanwijzingen = gebiedsaanwijzingen
 
     def get_id(self) -> str:
         return "gebiedsaanwijzing_in_text"
 
-    def get_validator_func(self, config: dict) -> PydanticValidator:
+    def get_validator_func(self, config: dict) -> AsyncValidator:
         allowed_code_types: list[str] = config.get("allowed_code_types", [])
 
-        def pydantic_validator_gebiedsaanwijzing_in_text(cls, value, info: ValidationInfo):
+        async def async_validator_gebiedsaanwijzing_in_text(session: AsyncSession, value, context: dict):
             if value is None:
                 return None
 
@@ -493,16 +462,13 @@ class GebiedsaanwijzingValidator(Validator):
                 if code_parts[0] not in allowed_code_types:
                     raise ValueError(f"Invalid object type for data-code `{used_code}`")
 
-            with session_scope_with_context(self._session_factory) as session:
-                all_ok, missing_codes = self._object_static_repository.does_codes_exists(session, used_codes)
-                if not all_ok:
-                    raise ValueError(f"Given data-code do not exists `{', '.join(missing_codes)}`")
-
+            all_ok, missing_codes = await self._object_static_repository.does_codes_exists(session, used_codes)
+            if not all_ok:
+                raise ValueError(f"Given data-code do not exists `{', '.join(missing_codes)}`")
             return value
 
-        return PydanticValidator(
-            mode="after",
-            func=pydantic_validator_gebiedsaanwijzing_in_text,
+        return AsyncValidator(
+            func=async_validator_gebiedsaanwijzing_in_text,
         )
 
 

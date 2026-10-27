@@ -1,13 +1,14 @@
 from unittest.mock import Mock
 
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module import (
     RequiredObjectFieldsRule,
     ValidateModuleError,
     ValidateModuleRequest,
 )
+from app.api.services.async_model_validators_service import AsyncModelValidatorsService
 from app.core.tables.modules import ModuleObjectsTable
 
 
@@ -17,7 +18,7 @@ class Ambitie(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-def test_validate():
+async def test_validate():
     object_map: dict[str, type[BaseModel]] = {
         "ambitie": Ambitie,
     }
@@ -44,8 +45,8 @@ def test_validate():
             ),
         ],
     )
-    rule = RequiredObjectFieldsRule(object_map)
-    db: Mock | Session = Mock(Session)
-    errors: list[ValidateModuleError] = rule.validate(db=db, request=request)
+    rule = RequiredObjectFieldsRule(object_map, AsyncModelValidatorsService())
+    db: Mock | AsyncSession = Mock(AsyncSession)
+    errors: list[ValidateModuleError] = await rule.validate(db=db, request=request)
     assert len(errors) == 1
     assert [error.object.code for error in errors] == ["ambitie-1"]

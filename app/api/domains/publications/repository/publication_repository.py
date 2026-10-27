@@ -1,7 +1,8 @@
 from uuid import UUID
 
 from sqlalchemy import and_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.publications.types.enums import DocumentType
@@ -10,13 +11,21 @@ from app.core.tables.publications import PublicationTable
 
 
 class PublicationRepository(BaseRepository):
-    def get_by_id(self, session: Session, uuid: UUID) -> PublicationTable | None:
-        stmt = select(PublicationTable).where(PublicationTable.id == uuid)
-        return self.fetch_first(session, stmt)
+    async def get_by_id(self, session: AsyncSession, uuid: UUID) -> PublicationTable | None:
+        stmt = (
+            select(PublicationTable)
+            .options(
+                selectinload(PublicationTable.module),
+                selectinload(PublicationTable.act),
+                selectinload(PublicationTable.environment),
+            )
+            .where(PublicationTable.id == uuid)
+        )
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         document_type: DocumentType | None = None,
         module_id: int | None = None,
         offset: int = 0,
@@ -30,7 +39,7 @@ class PublicationRepository(BaseRepository):
 
         stmt = select(PublicationTable).filter(*filters)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=offset,

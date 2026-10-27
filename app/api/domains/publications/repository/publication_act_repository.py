@@ -1,7 +1,8 @@
 import uuid
 
 from sqlalchemy import and_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.publications.types.enums import DocumentType, ProcedureType
@@ -10,13 +11,17 @@ from app.core.tables.publications import PublicationActTable
 
 
 class PublicationActRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: uuid.UUID) -> PublicationActTable | None:
-        stmt = select(PublicationActTable).where(PublicationActTable.uuid == idx)
-        return self.fetch_first(session, stmt)
+    async def get_by_id(self, session: AsyncSession, idx: int) -> PublicationActTable | None:
+        stmt = (
+            select(PublicationActTable)
+            .options(joinedload(PublicationActTable.environment))
+            .where(PublicationActTable.id == idx)
+        )
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         is_active: bool | None = None,
         environment_id: uuid.UUID | None = None,
         document_type: DocumentType | None = None,
@@ -36,7 +41,7 @@ class PublicationActRepository(BaseRepository):
 
         stmt = select(PublicationActTable).filter(*filters)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=offset,

@@ -148,7 +148,7 @@ class PublicationGebiedsaanwijzingProcessor:
                     ]
                 )
 
-            source_target_codes: set[str] = set(aanwijzing_obj["Target_Codes"])
+            source_target_codes: set[str] = set(aanwijzing_obj["target_codes"])
             gebied_codes: set[str] = self._resolve_gebied_codes(aanwijzing_code, source_target_codes)
 
             # We transform it to a plain dict, because the state system can then freely use it

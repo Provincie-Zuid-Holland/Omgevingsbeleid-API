@@ -2,7 +2,7 @@ from typing import Any
 
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -25,7 +25,7 @@ class BillCompactForbiddenTagsRule(ValidatePublicationRule):
             BillCompactForbiddenTagsRuleConfig,
         )
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
         bill_compact: dict[str, Any] = request.input_data.Publication_Version.bill_compact or {}

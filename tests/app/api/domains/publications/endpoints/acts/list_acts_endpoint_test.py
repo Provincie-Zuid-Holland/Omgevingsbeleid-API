@@ -1,5 +1,5 @@
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 
 from tests.conftest import Context
 from tests.fixtures.internal.spec.publications import (
@@ -12,10 +12,10 @@ def _get_ref(ctx: Context, spec: type[Spec], key: str) -> str:
     return str(ctx.f.primary_key_uuid(Ref(spec, key)))
 
 
-def test_lists_the_publication_acts(admin: TestClient, ctx: Context):
+async def test_lists_the_publication_acts(admin: httpx2.AsyncClient, ctx: Context):
     env_prod = _get_ref(ctx, PublicationEnvironmentSpec, "publication_environment_prod")
     env_pre = _get_ref(ctx, PublicationEnvironmentSpec, "publication_environment_pre")
-    response = admin.get("/publication-acts")
+    response = await admin.get("/publication-acts")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -35,13 +35,13 @@ def test_lists_the_publication_acts(admin: TestClient, ctx: Context):
         pytest.param("document_type=programma", ["programma-1"], id="document-type-programma"),
     ],
 )
-def test_filters(
-    admin: TestClient,
+async def test_filters(
+    admin: httpx2.AsyncClient,
     ctx: Context,
     query: str,
     expected_work_other_keys: list[str],
 ):
-    response = admin.get(f"/publication-acts?{query}")
+    response = await admin.get(f"/publication-acts?{query}")
     body = response.json()
 
     assert response.status_code == 200, response.text
@@ -49,9 +49,9 @@ def test_filters(
     assert response.json()["total"] == len(expected_work_other_keys)
 
 
-def test_environment_filter(admin: TestClient, ctx: Context):
+async def test_environment_filter(admin: httpx2.AsyncClient, ctx: Context):
     env_prod = _get_ref(ctx, PublicationEnvironmentSpec, "publication_environment_prod")
-    response = admin.get(f"/publication-acts?environment_id={env_prod}")
+    response = await admin.get(f"/publication-acts?environment_id={env_prod}")
 
     assert response.status_code == 200, response.text
     body = response.json()

@@ -3,7 +3,8 @@ from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy import or_, select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.objects.types import ReadRelation
@@ -40,9 +41,9 @@ class RelationsListEndpointContext(BaseEndpointContext):
     object_type: str
 
 
-def get_relations_list_endpoint(
+async def get_relations_list_endpoint(
     lineage_id: int,
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[RelationsListEndpointContext, Depends()],
 ) -> list[ReadRelation]:
     object_code: str = f"{context.object_type}-{lineage_id}"
@@ -60,7 +61,7 @@ def get_relations_list_endpoint(
             selectinload(RelationsTable.to_object_statics),
         )
     )
-    table_rows: Sequence[RelationsTable] = session.scalars(stmt).all()
+    table_rows: Sequence[RelationsTable] = (await session.scalars(stmt)).all()
 
     response: list[ReadRelation] = _format_rows(object_code, table_rows)
     return response

@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import tests.fixtures.internal.spec.modules as module_types
 import tests.fixtures.internal.spec.objects as objects_types
@@ -96,7 +96,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             publications_types.PublicationAnnouncementPackageReportSpec: publications_types.PublicationAnnouncementPackageReportPersistHandler(),
         }
 
-    def persist(self, records: list[Record[S]], session: Session) -> FixtureData:
+    async def persist(self, records: list[Record[S]], session: AsyncSession) -> FixtureData:
         context: PersistContext = PersistContext()
         table_rows: list[Base] = []
         result_records: list[PersistRecord] = []
@@ -121,7 +121,7 @@ class PersistService[S: Spec, H: BasePersistHandler]:
             )
 
         session.add_all(table_rows)
-        session.flush()
+        await session.flush()
 
         return FixtureData(
             records=result_records,

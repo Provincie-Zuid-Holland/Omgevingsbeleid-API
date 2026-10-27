@@ -1,7 +1,9 @@
 from uuid import UUID
 
 from sqlalchemy import and_, desc, func, or_, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, selectinload
+from sqlalchemy.sql.base import ExecutableOption
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.modules.types import PublicModuleStatusCode
@@ -12,9 +14,18 @@ from app.core.tables.objects import ObjectStaticsTable
 
 
 class ModuleRepository(BaseRepository):
-    def get_by_id(self, session: Session, id: int) -> ModuleTable | None:
-        stmt = select(ModuleTable).where(ModuleTable.module_id == id)
-        return self.fetch_first(session, stmt)
+    def _load_options(self) -> list[ExecutableOption]:
+        return [
+            selectinload(ModuleTable.status_history),
+            selectinload(ModuleTable.created_by),
+            selectinload(ModuleTable.modified_by),
+            selectinload(ModuleTable.module_manager_1),
+            selectinload(ModuleTable.module_manager_2),
+        ]
+
+    async def get_by_id(self, session: AsyncSession, id: int) -> ModuleTable | None:
+        stmt = select(ModuleTable).options(*self._load_options()).where(ModuleTable.module_id == id)
+        return await self.fetch_first(session, stmt)
 
     def get_filtered_query(
         self,
@@ -55,6 +66,7 @@ class ModuleRepository(BaseRepository):
 
         stmt = (
             select(ModuleTable)
+            .options(*self._load_options())
             .distinct()
             .select_from(ModuleTable)
             .outerjoin(ModuleObjectsTable)
@@ -69,9 +81,9 @@ class ModuleRepository(BaseRepository):
 
         return stmt
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         pagination: SortedPagination,
         filter_activated: bool | None = None,
         filter_closed: bool | None = None,
@@ -88,7 +100,7 @@ class ModuleRepository(BaseRepository):
             mine,
             object_code,
         )
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session,
             statement=stmt,
             offset=pagination.offset,
@@ -97,7 +109,7 @@ class ModuleRepository(BaseRepository):
         )
         return paged_result
 
-    def get_public_modules(self, session: Session, pagination: SimplePagination):
+    async def get_public_modules(self, session: AsyncSession, pagination: SimplePagination):
         subq = select(
             ModuleStatusHistoryTable,
             func.row_number()
@@ -112,6 +124,7 @@ class ModuleRepository(BaseRepository):
         aliased_objects = aliased(ModuleStatusHistoryTable, subq)
         stmt = (
             select(aliased_objects, ModuleTable)
+            .options(*self._load_options())
             .join(ModuleTable)
             .filter(subq.c._row_number == 1)
             .filter(ModuleTable.closed == False)
@@ -119,7 +132,7 @@ class ModuleRepository(BaseRepository):
             .order_by(desc(ModuleTable.module_id))
         )
 
-        paged_result = self.fetch_paginated_no_scalars(
+        paged_result = await self.fetch_paginated_no_scalars(
             session=session,
             statement=stmt,
             offset=pagination.offset,

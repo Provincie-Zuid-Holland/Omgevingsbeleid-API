@@ -1,6 +1,6 @@
 from dso import Thema, ThemaFactory
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -23,7 +23,7 @@ class ThemasCheckRule(ValidatePublicationRule):
         )
         self._dso_thema_factory: ThemaFactory = dso_thema_factory
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
         dso_themas: dict[str, Thema] = self._dso_thema_factory.get_all()
 

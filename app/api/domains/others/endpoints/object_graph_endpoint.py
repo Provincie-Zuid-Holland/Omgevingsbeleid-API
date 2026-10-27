@@ -4,7 +4,8 @@ from typing import Annotated
 from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy import and_, desc, func, or_, select
-from sqlalchemy.orm import Session, aliased, load_only
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, load_only
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.others.dependencies import depends_object_by_uuid
@@ -31,24 +32,24 @@ class ObjectGraphEndpointContext(BaseEndpointContext):
 class EndpointHandler:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         iterations_config: GraphIterationsConfig,
         object_table: ObjectsTable,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._iterations_config: GraphIterationsConfig = iterations_config
         self._object = object_table
 
-    def handle(self) -> GraphResponse:
-        edges: list[GraphEdge] = self._get_edges()
-        vertices: list[GraphVertice] = self._get_vertices_for_edges(edges)
+    async def handle(self) -> GraphResponse:
+        edges: list[GraphEdge] = await self._get_edges()
+        vertices: list[GraphVertice] = await self._get_vertices_for_edges(edges)
 
         return GraphResponse(
             vertices=vertices,
             edges=edges,
         )
 
-    def _get_vertices_for_edges(self, edges: list[GraphEdge]) -> list[GraphVertice]:
+    async def _get_vertices_for_edges(self, edges: list[GraphEdge]) -> list[GraphVertice]:
         codes: set[str] = set()
         for edge in edges:
             codes.add(edge.vertice_a_code)
@@ -95,17 +96,17 @@ class EndpointHandler:
             )
         )
 
-        rows: list[ObjectsTable] = self._session.execute(stmt).scalars().all()
+        rows: list[ObjectsTable] = (await self._session.execute(stmt)).scalars().all()
         vertices: list[GraphVertice] = [GraphVertice.model_validate(r) for r in rows]
         return vertices
 
-    def _get_edges(self) -> list[GraphEdge]:
-        relations: set[GraphEdge] = self._get_relations()
-        acknowledged_relations: set[GraphEdge] = self._get_valid_acknowledged_relations()
+    async def _get_edges(self) -> list[GraphEdge]:
+        relations: set[GraphEdge] = await self._get_relations()
+        acknowledged_relations: set[GraphEdge] = await self._get_valid_acknowledged_relations()
 
         return list(set.union(relations, acknowledged_relations))
 
-    def _get_relations(self) -> set[GraphEdge]:
+    async def _get_relations(self) -> set[GraphEdge]:
         search_codes: set[str] = {
             self._object.code,
         }
@@ -143,7 +144,7 @@ class EndpointHandler:
                 .filter(RelationsTable.from_code.not_in(ignore_codes))
                 .filter(RelationsTable.to_code.not_in(ignore_codes))
             )
-            rows: list[RelationsTable] = self._session.execute(stmt).scalars().all()
+            rows: list[RelationsTable] = (await self._session.execute(stmt)).scalars().all()
 
             # Update the search and ignore codes for the next iteration
             ignore_codes = set.union(ignore_codes, search_codes)
@@ -168,7 +169,7 @@ class EndpointHandler:
 
         return edges
 
-    def _get_valid_acknowledged_relations(self) -> set[GraphEdge]:
+    async def _get_valid_acknowledged_relations(self) -> set[GraphEdge]:
         search_codes: set[str] = {
             self._object.code,
         }
@@ -215,7 +216,7 @@ class EndpointHandler:
                 )
             )
 
-            rows: list[AcknowledgedRelationsTable] = self._session.execute(stmt).scalars().all()
+            rows: list[AcknowledgedRelationsTable] = (await self._session.execute(stmt)).scalars().all()
 
             # Update the search and ignore codes for the next iteration
             ignore_codes = set.union(ignore_codes, search_codes)
@@ -241,10 +242,10 @@ class EndpointHandler:
         return edges
 
 
-def get_object_graph_endpoint(
-    session: Annotated[Session, Depends(depends_db_session)],
+async def get_object_graph_endpoint(
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_table: Annotated[ObjectsTable, Depends(depends_object_by_uuid)],
     context: Annotated[ObjectGraphEndpointContext, Depends()],
 ) -> GraphResponse:
     handler = EndpointHandler(session, context.graph_iterations, object_table)
-    return handler.handle()
+    return await handler.handle()

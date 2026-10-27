@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -14,13 +14,13 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_module_validate_endpoint(
+async def get_module_validate_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_module)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     validate_module_runner: Annotated[ValidateModuleRunner, Depends(Provide[ApiContainer.validate_module_runner])],
 ) -> ValidateModuleResult:
-    result: ValidateModuleResult = validate_module_runner.run(
+    result: ValidateModuleResult = await validate_module_runner.run(
         session,
         module.module_id,
     )

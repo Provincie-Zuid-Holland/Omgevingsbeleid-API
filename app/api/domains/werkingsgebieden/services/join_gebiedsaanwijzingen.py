@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.advanced_objects_resolver import (
     AdvancedObjectsResolver,
@@ -34,17 +34,17 @@ class JoinGebiedsaanwijzingenService:
         self,
         gebiedsaanwijzingen_service: GebiedsaanwijzingService,
         object_resolver_factory: AdvancedObjectsResolverFactory,
-        session: Session,
+        session: AsyncSession,
         config: JoinGebiedsaanwijzingenConfig,
     ):
         self._gebiedsaanwijzingen_service: GebiedsaanwijzingService = gebiedsaanwijzingen_service
         self._object_resolver_factory: AdvancedObjectsResolverFactory = object_resolver_factory
-        self._session: Session = session
+        self._session: AsyncSession = session
 
         self._config: JoinGebiedsaanwijzingenConfig = config
         self._valid_timepoint: datetime = datetime.now(UTC)
 
-    def join_gebiedsaanwijzingen(self, rows: list[BaseModel]) -> list[BaseModel]:
+    async def join_gebiedsaanwijzingen(self, rows: list[BaseModel]) -> list[BaseModel]:
         if not rows:
             return rows
         if len(rows) != 1:
@@ -64,21 +64,21 @@ class JoinGebiedsaanwijzingenService:
         if len(collected_aanwijzing_codes) == 0:
             return rows
 
-        gebieden = self._resolve_codes(collected_aanwijzing_codes)
+        gebieden = await self._resolve_codes(collected_aanwijzing_codes)
         setattr(row, self._config.to_field, gebieden)
         rows[0] = row
 
         return rows
 
-    def _resolve_codes(self, aanwijzing_codes: set[str]) -> list[BaseModel]:
+    async def _resolve_codes(self, aanwijzing_codes: set[str]) -> list[BaseModel]:
         # If we do not have a user then we should limit how far in the module you can search for data
         # based on the latest public version of the module
-        module_timepoint, module_id = self._resolve_module_timepoint()
+        module_timepoint, module_id = await self._resolve_module_timepoint()
 
         gebied_codes: set[str] = set()
         gebiedengroep_codes: set[str] = set()
 
-        gebiedsaanwijzingen = self._get_latests(module_timepoint, module_id, aanwijzing_codes)
+        gebiedsaanwijzingen = await self._get_latests(module_timepoint, module_id, aanwijzing_codes)
         for gebiedsaanwijzing in gebiedsaanwijzingen:
             refs: list[str] = gebiedsaanwijzing.target_codes
             for ref in refs:
@@ -90,7 +90,7 @@ class JoinGebiedsaanwijzingenService:
                         gebied_codes.add(ref)
 
         if gebiedengroep_codes:
-            gebiedengroepen = self._get_latests(module_timepoint, module_id, gebiedengroep_codes)
+            gebiedengroepen = await self._get_latests(module_timepoint, module_id, gebiedengroep_codes)
             for gebiedengroep in gebiedengroepen:
                 refs: list[str] = gebiedengroep.gebieden
                 gebied_codes.update(refs)
@@ -98,11 +98,11 @@ class JoinGebiedsaanwijzingenService:
         if not gebied_codes:
             return []
 
-        gebieden = self._get_latests(module_timepoint, module_id, gebied_codes)
+        gebieden = await self._get_latests(module_timepoint, module_id, gebied_codes)
         gebieden_parsed = [self._config.to_model.model_validate(gebied) for gebied in gebieden]
         return gebieden_parsed
 
-    def _get_latests(self, module_timepoint: datetime, module_id: int | None, codes: set[str]) -> Iterator[Base]:
+    async def _get_latests(self, module_timepoint: datetime, module_id: int | None, codes: set[str]) -> Iterator[Base]:
         resolver: AdvancedObjectsResolver = self._object_resolver_factory.create_service(
             self._session,
             self._config.columns,
@@ -111,10 +111,10 @@ class JoinGebiedsaanwijzingenService:
             filter_codes=codes,
             filter_module_id=module_id,
         )
-        results = resolver.fetch_objects()
+        results = await resolver.fetch_objects()
         return results
 
-    def _resolve_module_timepoint(self) -> tuple[datetime, int | None]:
+    async def _resolve_module_timepoint(self) -> tuple[datetime, int | None]:
         if not self._config.include_modules:
             return DATETIME_MIN, None
 
@@ -135,7 +135,7 @@ class JoinGebiedsaanwijzingenService:
             .order_by(ModuleStatusHistoryTable.created_date.desc())
             .limit(1)
         )
-        row = self._session.execute(stmt).scalar_one_or_none()
+        row = (await self._session.execute(stmt)).scalar_one_or_none()
 
         # If we do not have a row, then we are not allowed to search for objects in this module
         if not row:
@@ -155,7 +155,7 @@ class JoinGebiedsaanwijzingenServiceFactory:
 
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinGebiedsaanwijzingenConfig,
     ) -> JoinGebiedsaanwijzingenService:
         return JoinGebiedsaanwijzingenService(

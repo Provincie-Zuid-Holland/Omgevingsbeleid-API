@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.api.utils.pagination import PaginatedQueryResult, SortOrder
@@ -10,19 +10,19 @@ from app.core.tables.publications import PublicationAreaOfJurisdictionTable
 
 
 class PublicationAOJRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: uuid.UUID) -> PublicationAreaOfJurisdictionTable | None:
+    async def get_by_id(self, session: AsyncSession, idx: uuid.UUID) -> PublicationAreaOfJurisdictionTable | None:
         stmt = select(PublicationAreaOfJurisdictionTable).where(PublicationAreaOfJurisdictionTable.id == idx)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
         stmt = select(PublicationAreaOfJurisdictionTable)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=offset,
@@ -31,8 +31,8 @@ class PublicationAOJRepository(BaseRepository):
         )
         return paged_result
 
-    def get_latest(
-        self, session: Session, before_datetime: datetime | None = None
+    async def get_latest(
+        self, session: AsyncSession, before_datetime: datetime | None = None
     ) -> PublicationAreaOfJurisdictionTable | None:
         stmt = (
             select(PublicationAreaOfJurisdictionTable)
@@ -41,4 +41,4 @@ class PublicationAOJRepository(BaseRepository):
         )
         if before_datetime:
             stmt = stmt.where(PublicationAreaOfJurisdictionTable.created_date <= before_datetime)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)

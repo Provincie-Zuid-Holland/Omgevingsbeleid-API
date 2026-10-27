@@ -1,10 +1,10 @@
 from collections.abc import Sequence
 from datetime import datetime
 from typing import ClassVar, Literal
-from uuid import UUID, uuid4
 
 from pydantic import Field
 
+from app.api.domains.publications.types.models import ActMetadata
 from app.core.db import Base
 from app.core.tables.publications import PublicationActTable
 from tests.fixtures.internal.services.base_handler import BasePrefillHandler, PrefillContext
@@ -27,7 +27,6 @@ class PublicationActSpec(Spec):
     }
 
     id: int | None = None
-    uuid: UUID | None = None
     created_date: datetime | None = None
     created_by_id: Link | None = None
     modified_date: datetime | None = None
@@ -39,7 +38,7 @@ class PublicationActSpec(Spec):
     title: str
     is_active: bool = True
 
-    meta_data: dict = Field(default_factory=dict)
+    meta_data: dict = Field(default_factory=lambda: ActMetadata().model_dump())
     meta_data_is_locked: bool = False
 
     work_province_id: str = "pv00"
@@ -60,8 +59,6 @@ class PublicationActPrefillHandler(BasePrefillHandler[PublicationActSpec]):
 
         if record.spec.id is None:
             record.spec.id = context.spec_count
-        if record.spec.uuid is None:
-            record.spec.uuid = uuid4()
 
         return record
 
@@ -72,7 +69,6 @@ class PublicationActPersistHandler(BasePersistHandler[PublicationActSpec]):
         return [
             PublicationActTable(
                 id=spec.id,
-                uuid=spec.uuid,
                 created_date=spec.created_date,
                 modified_date=spec.modified_date,
                 created_by_id=spec.created_by_id,

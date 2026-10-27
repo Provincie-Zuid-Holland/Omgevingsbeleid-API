@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.types import PublicModuleObjectRevision
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
@@ -17,16 +17,16 @@ class AddPublicRevisionsConfig(BaseModel):
 class AddPublicRevisionsService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         config: AddPublicRevisionsConfig,
         rows: list[BaseModel],
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: AddPublicRevisionsConfig = config
         self._rows: list[BaseModel] = rows
 
-    def add_revisions(self) -> list[BaseModel]:
-        public_revisions_map: dict[str, list[PublicModuleObjectRevision]] = self._fetch()
+    async def add_revisions(self) -> list[BaseModel]:
+        public_revisions_map: dict[str, list[PublicModuleObjectRevision]] = await self._fetch()
 
         for row in self._rows:
             code: str = row.code
@@ -35,7 +35,7 @@ class AddPublicRevisionsService:
 
         return self._rows
 
-    def _fetch(self) -> dict[str, list[PublicModuleObjectRevision]]:
+    async def _fetch(self) -> dict[str, list[PublicModuleObjectRevision]]:
         # group public statuses per module
         latest_status_subq = (
             select(
@@ -97,7 +97,7 @@ class AddPublicRevisionsService:
         )
 
         public_revisions_map: dict[str, list[PublicModuleObjectRevision]] = defaultdict(list)
-        db_result = self._session.execute(stmt).all()
+        db_result = (await self._session.execute(stmt)).all()
         for db_row in db_result:
             public_revision: PublicModuleObjectRevision = PublicModuleObjectRevision.model_validate(db_row)
             public_revisions_map[public_revision.module_object_code].append(public_revision)
@@ -108,7 +108,7 @@ class AddPublicRevisionsService:
 class AddPublicRevisionsServiceFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: AddPublicRevisionsConfig,
         rows: list[BaseModel],
     ) -> AddPublicRevisionsService:

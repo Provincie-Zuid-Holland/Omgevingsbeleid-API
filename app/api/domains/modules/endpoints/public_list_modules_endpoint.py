@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
@@ -12,12 +12,12 @@ from app.api.utils.pagination import PagedResponse, SimplePagination
 
 
 @inject
-def get_public_list_modules_endpoint(
+async def get_public_list_modules_endpoint(
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
 ) -> PagedResponse[PublicModuleShort]:
-    paginated_result = module_repository.get_public_modules(session, pagination)
+    paginated_result = await module_repository.get_public_modules(session, pagination)
 
     modules: list[PublicModuleShort] = [
         PublicModuleShort(

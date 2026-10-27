@@ -7,7 +7,8 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import select
-from sqlalchemy.orm import Session, aliased, joinedload, load_only
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, joinedload, load_only
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -52,9 +53,9 @@ class PublicModuleOverview(BaseModel):
 
 
 @inject
-def get_public_module_overview_endpoint(
+async def get_public_module_overview_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
@@ -76,6 +77,7 @@ def get_public_module_overview_endpoint(
                 aliased_subq.object_type,
                 aliased_subq.object_id,
                 aliased_subq.code,
+                aliased_subq.description,
                 aliased_subq.id,
                 aliased_subq.modified_date,
                 aliased_subq.title,
@@ -86,10 +88,10 @@ def get_public_module_overview_endpoint(
         )
     )
 
-    rows: Sequence[ModuleObjectsTable] = session.execute(stmt).scalars().all()
+    rows: Sequence[ModuleObjectsTable] = (await session.execute(stmt)).scalars().all()
     snapshot_objects: list[PublicModuleObjectShort] = [PublicModuleObjectShort.model_validate(r) for r in rows]
 
-    event: RetrievedObjectsEvent = event_manager.dispatch(
+    event: RetrievedObjectsEvent = await event_manager.dispatch(
         session,
         RetrievedObjectsEvent.create(
             snapshot_objects,

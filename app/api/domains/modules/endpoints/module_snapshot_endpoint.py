@@ -3,7 +3,7 @@ from typing import Annotated, Any
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -20,16 +20,16 @@ class ModuleSnapshot(BaseModel):
 
 
 @inject
-def get_module_snapshot_endpoint(
+async def get_module_snapshot_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_module)],
     status: Annotated[ModuleStatusHistoryTable, Depends(depends_module_status_by_id)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
 ) -> ModuleSnapshot:
-    module_objects: list[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
+    module_objects: list[ModuleObjectsTable] = await module_object_repository.get_objects_in_time(
         session,
         module.module_id,
         status.created_date,

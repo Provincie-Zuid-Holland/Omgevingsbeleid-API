@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
 from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
 from app.core.tables.others import AreasTable
@@ -28,7 +28,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
     def _calculate_hex(self, column: str) -> str:
         pass
 
-    def get_shape_hash(self, session: Session, idx: uuid.UUID) -> str | None:
+    async def get_shape_hash(self, session: AsyncSession, idx: uuid.UUID) -> str | None:
         # TODO to SQLAlchemy
         params = {
             "id": self._format_uuid(idx),
@@ -42,14 +42,14 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
                 id = :id
             """
 
-        row = session.execute(text(sql), params).fetchone()
+        row = (await session.execute(text(sql), params)).fetchone()
         if row is None:
             return None
         return row[0]
 
-    def create_area(
+    async def create_area(
         self,
-        session: Session,
+        session: AsyncSession,
         idx: uuid.UUID,
         created_date: datetime,
         created_by_id: uuid.UUID,
@@ -69,7 +69,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             source_geometry_hash=onderverdeling.geometry_hash,
         )
         session.add(area)
-        session.flush()
+        await session.flush()
 
         put_geometry_params = {
             "input_id": self._format_uuid(onderverdeling.id),
@@ -92,15 +92,15 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             WHERE
                 id = :area_id
         """
-        session.execute(text(put_geometry_stmt), put_geometry_params)
+        await session.execute(text(put_geometry_stmt), put_geometry_params)
 
-    def get_area(self, session: Session, idx: uuid.UUID) -> dict:
-        row = self.get_area_optional(session, idx)
+    async def get_area(self, session: AsyncSession, idx: uuid.UUID) -> dict:
+        row = await self.get_area_optional(session, idx)
         if row is None:
             raise RuntimeError(f"Area with id {idx} does not exist")
         return row
 
-    def get_area_optional(self, session: Session, idx: uuid.UUID) -> dict | None:
+    async def get_area_optional(self, session: AsyncSession, idx: uuid.UUID) -> dict | None:
         # TODO to SQLAlchemy
         params = {
             "id": self._format_uuid(idx),
@@ -115,7 +115,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             WHERE
                 id = :id
             """
-        row = session.execute(text(sql), params).fetchone()
+        row = (await session.execute(text(sql), params)).fetchone()
         if row is None:
             return None
 
@@ -123,7 +123,7 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         return row_dict
 
     # TODO: WIP - not used yet. combine query for multiple areas for performance
-    def get_areas(self, session: Session, ids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
+    async def get_areas(self, session: AsyncSession, ids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
         placeholders = ", ".join(f":uuid{i}" for i in range(len(ids)))
         params = {f"id{i}": idx for i, idx in enumerate(ids)}
         # TODO to SQLAlchemy
@@ -137,5 +137,5 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
             WHERE
                 id IN ({placeholders})
             """
-        rows = session.execute(text(sql), params).fetchall()
+        rows = (await session.execute(text(sql), params)).fetchall()
         return {row.UUID: row._asdict() for row in rows}

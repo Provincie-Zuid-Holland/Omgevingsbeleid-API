@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -23,7 +23,7 @@ class AOJCreatedResponse(BaseModel):
     id: uuid.UUID
 
 
-def post_create_aoj_endpoint(
+async def post_create_aoj_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -32,7 +32,7 @@ def post_create_aoj_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: AOJCreate,
 ) -> AOJCreatedResponse:
     area_of_jurisdiction = PublicationAreaOfJurisdictionTable(
@@ -45,8 +45,8 @@ def post_create_aoj_endpoint(
     )
 
     session.add(area_of_jurisdiction)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return AOJCreatedResponse(
         id=area_of_jurisdiction.id,

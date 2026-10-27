@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_act_package
@@ -27,7 +27,7 @@ class AbortResponse(BaseModel):
     new_state_id: uuid.UUID
 
 
-def post_abort_act_package_endpoint(
+async def post_abort_act_package_endpoint(
     act_package: Annotated[PublicationActPackageTable, Depends(depends_publication_act_package)],
     user: Annotated[
         UsersTable,
@@ -37,7 +37,7 @@ def post_abort_act_package_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     confirm: bool = False,
 ) -> AbortResponse:
     if not confirm:
@@ -84,8 +84,8 @@ def post_abort_act_package_endpoint(
     environment.modified_by_id = user.id
     session.add(environment)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return AbortResponse(
         new_state_id=act_package.used_environment_state_id,

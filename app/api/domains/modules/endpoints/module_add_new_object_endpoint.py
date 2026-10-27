@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from sqlalchemy import String, func, insert, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -62,32 +62,27 @@ class ModuleAddNewObjectEndpointContext(BaseEndpointContext):
 class ModuleAddNewObjectService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         module: ModuleTable,
         user: UsersTable,
         object_in: ModuleAddNewObject,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._module: ModuleTable = module
         self._user: UsersTable = user
         self._object_in: ModuleAddNewObject = object_in
         self._timepoint: datetime = datetime.now(UTC)
 
-    def process(self) -> NewObjectStaticResponse:
-        try:
-            object_static: ObjectStaticsTable = self._create_new_object_static()
-            self._create_object_context(object_static)
-            self._create_object(object_static)
+    async def process(self) -> NewObjectStaticResponse:
+        object_static: ObjectStaticsTable = await self._create_new_object_static()
+        self._create_object_context(object_static)
+        self._create_object(object_static)
 
-            self._session.flush()
-            self._session.commit()
+        await self._session.commit()
 
-            return NewObjectStaticResponse.model_validate(object_static)
-        except Exception:
-            self._session.rollback()
-            raise
+        return NewObjectStaticResponse.model_validate(object_static)
 
-    def _create_new_object_static(self) -> ObjectStaticsTable:
+    async def _create_new_object_static(self) -> ObjectStaticsTable:
         generate_id_subq = (
             select(func.coalesce(func.max(ObjectStaticsTable.object_id), 0) + 1)
             .select_from(ObjectStaticsTable)
@@ -111,7 +106,7 @@ class ModuleAddNewObjectService:
             .returning(ObjectStaticsTable)
         )
 
-        response: ObjectStaticsTable | None = self._session.execute(stmt).scalars().first()
+        response: ObjectStaticsTable | None = (await self._session.execute(stmt)).scalars().first()
         if response is None:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create new object static")
 
@@ -151,10 +146,10 @@ class ModuleAddNewObjectService:
 
 
 @inject
-def post_module_add_new_object_endpoint(
+async def post_module_add_new_object_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     context: Annotated[ModuleAddNewObjectEndpointContext, Depends()],
     object_in: ModuleAddNewObject,
@@ -178,6 +173,6 @@ def post_module_add_new_object_endpoint(
         user,
         object_in,
     )
-    response: NewObjectStaticResponse = service.process()
+    response: NewObjectStaticResponse = await service.process()
 
     return response

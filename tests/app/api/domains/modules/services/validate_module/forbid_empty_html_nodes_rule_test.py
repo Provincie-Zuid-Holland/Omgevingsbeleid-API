@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module import (
     ForbidEmptyHtmlNodesRule,
@@ -12,7 +12,7 @@ from app.core.services import MainConfig
 from app.core.tables.modules import ModuleObjectsTable
 
 
-def test_validate():
+async def test_validate():
     config: Mock | MainConfig = Mock(MainConfig)
     rule_config: ForbidEmptyHtmlNodesRuleConfig = ForbidEmptyHtmlNodesRuleConfig(
         fields=["description"], html_void_elements=["img"], allowed_empty_when_sole_child={"td": ["p"]}
@@ -67,7 +67,7 @@ def test_validate():
             ),
         ],
     )
-    db: Mock | Session = Mock(Session)
-    errors: list[ValidateModuleError] = rule.validate(db=db, request=request)
+    db: Mock | AsyncSession = Mock(AsyncSession)
+    errors: list[ValidateModuleError] = await rule.validate(db=db, request=request)
     assert len(errors) == 4
     assert [error.object.code for error in errors] == ["ambitie-1", "ambitie-4", "ambitie-5", "ambitie-6"]

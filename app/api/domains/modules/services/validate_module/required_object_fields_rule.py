@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ValidationError
-from sqlalchemy.orm import Session
+from pydantic_core import ErrorDetails
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -7,13 +8,17 @@ from app.api.domains.modules.services.validate_module.validate_module_service im
     ValidateModuleRequest,
     ValidateModuleRule,
 )
+from app.api.services.async_model_validators_service import AsyncModelValidatorsService
 
 
 class RequiredObjectFieldsRule(ValidateModuleRule):
-    def __init__(self, object_map: dict[str, type[BaseModel]]):
+    def __init__(
+        self, object_map: dict[str, type[BaseModel]], async_model_validators_service: AsyncModelValidatorsService
+    ):
         self._object_map: dict[str, type[BaseModel]] = object_map
+        self._async_model_validators_service: AsyncModelValidatorsService = async_model_validators_service
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
 
         for module_object_table in request.module_objects:
@@ -21,9 +26,14 @@ class RequiredObjectFieldsRule(ValidateModuleRule):
             if not model:
                 continue
 
+            field_errors: list[ErrorDetails] = []
             try:
-                _ = model.model_validate(module_object_table)
+                validated: BaseModel = model.model_validate(module_object_table)
+                field_errors = await self._async_model_validators_service.run(db, model, validated, {})
             except ValidationError as e:
+                field_errors = e.errors()
+
+            if field_errors:
                 errors.append(
                     ValidateModuleError(
                         rule="required_object_fields_rule",
@@ -33,7 +43,7 @@ class RequiredObjectFieldsRule(ValidateModuleRule):
                             object_type=module_object_table.object_type,
                             title=module_object_table.title or "",
                         ),
-                        messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
+                        messages=[f"{error['msg']} for {error['loc']}" for error in field_errors],
                     )
                 )
         return errors

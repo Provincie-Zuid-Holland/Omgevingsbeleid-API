@@ -2,9 +2,12 @@ from datetime import datetime
 
 import dso.models as dso_models
 from bs4 import BeautifulSoup
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.repository.publication_aoj_repository import PublicationAOJRepository
+from app.api.domains.publications.repository.publication_version_attachment_repository import (
+    PublicationVersionAttachmentRepository,
+)
 from app.api.domains.publications.services.act_package.documents_provider import PublicationDocumentsProvider
 from app.api.domains.publications.services.act_package.publication_gebieden_provider import (
     GebiedenData,
@@ -26,7 +29,11 @@ from app.api.domains.publications.services.validate_publication.validate_publica
     validation_exception,
 )
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr, PublicationData
-from app.core.tables.publications import PublicationAreaOfJurisdictionTable, PublicationVersionTable
+from app.core.tables.publications import (
+    PublicationAreaOfJurisdictionTable,
+    PublicationVersionAttachmentTable,
+    PublicationVersionTable,
+)
 
 
 class ActPublicationDataProvider:
@@ -39,6 +46,7 @@ class ActPublicationDataProvider:
         publication_gios_provider: PublicationGiosProviderFactory,
         publication_documents_provider: PublicationDocumentsProvider,
         publication_aoj_repository: PublicationAOJRepository,
+        version_attachment_repository: PublicationVersionAttachmentRepository,
         template_parser: TemplateParser,
     ):
         self._publication_object_provider: PublicationObjectProvider = publication_object_provider
@@ -51,16 +59,17 @@ class ActPublicationDataProvider:
         self._publication_gios_provider: PublicationGiosProviderFactory = publication_gios_provider
         self._publication_documents_provider: PublicationDocumentsProvider = publication_documents_provider
         self._publication_aoj_repository: PublicationAOJRepository = publication_aoj_repository
+        self._version_attachment_repository: PublicationVersionAttachmentRepository = version_attachment_repository
         self._template_parser: TemplateParser = template_parser
 
-    def fetch_data(
+    async def fetch_data(
         self,
-        session: Session,
+        session: AsyncSession,
         publication_version: PublicationVersionTable,
         bill_frbr: BillFrbr,
         act_frbr: ActFrbr,
     ) -> PublicationData:
-        objects: list[dict] = self._publication_object_provider.get_objects(session, publication_version)
+        objects: list[dict] = await self._publication_object_provider.get_objects(session, publication_version)
         parsed_template = self._template_parser.get_parsed_template(
             publication_version.publication.template.text_template,
             objects,
@@ -68,7 +77,7 @@ class ActPublicationDataProvider:
         all_object_codes = {o["code"] for o in objects}
         used_object_codes: set[str] = self._get_used_object_codes(parsed_template)
         used_objects: list[dict] = self._get_used_objects(objects, used_object_codes)
-        assets: list[dict] = self._publication_asset_provider.get_assets(session, used_objects)
+        assets: list[dict] = await self._publication_asset_provider.get_assets(session, used_objects)
 
         gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData] = (
             self._publication_gebiedsaanwijzingen_provider.get_gebiedsaanwijzingen(
@@ -80,21 +89,21 @@ class ActPublicationDataProvider:
             objects,
             used_objects,
         )
-        geo_data: PublicationGeoData = self._publication_gios_provider.process(
+        geo_data: PublicationGeoData = await self._publication_gios_provider.process(
             session,
             act_frbr,
             gebieden_data,
             gebiedsaanwijzingen,
         )
 
-        documents: list[dict] = self._publication_documents_provider.get_documents(
+        documents: list[dict] = await self._publication_documents_provider.get_documents(
             session,
             act_frbr,
             objects,
             used_objects,
         )
-        area_of_jurisdiction: dict = self._get_aoj(session, publication_version.created_date)
-        bill_attachments: list[dict] = self._get_bill_attachments(publication_version, bill_frbr)
+        area_of_jurisdiction: dict = await self._get_aoj(session, publication_version.created_date)
+        bill_attachments: list[dict] = await self._get_bill_attachments(session, publication_version, bill_frbr)
 
         result: PublicationData = PublicationData(
             all_object_codes=all_object_codes,
@@ -123,8 +132,8 @@ class ActPublicationDataProvider:
         results: list[dict] = [o for o in objects if o["code"] in used_object_codes]
         return results
 
-    def _get_aoj(self, session: Session, before_datetime: datetime | None = None) -> dict:
-        aoj: PublicationAreaOfJurisdictionTable | None = self._publication_aoj_repository.get_latest(
+    async def _get_aoj(self, session: AsyncSession, before_datetime: datetime | None = None) -> dict:
+        aoj: PublicationAreaOfJurisdictionTable | None = await self._publication_aoj_repository.get_latest(
             session,
             before_datetime,
         )
@@ -148,10 +157,15 @@ class ActPublicationDataProvider:
         }
         return result
 
-    def _get_bill_attachments(self, publication_version: PublicationVersionTable, bill_frbr: BillFrbr) -> list[dict]:
+    async def _get_bill_attachments(
+        self, session: AsyncSession, publication_version: PublicationVersionTable, bill_frbr: BillFrbr
+    ) -> list[dict]:
         result: list[dict] = []
 
-        for attachment in publication_version.attachments:
+        attachments: list[
+            PublicationVersionAttachmentTable
+        ] = await self._version_attachment_repository.get_by_version_id_with_binary(session, publication_version.id)
+        for attachment in attachments:
             work_other = f"pdf-{bill_frbr.Work_Other}-{attachment.id}"
 
             frbr = dso_models.PubdataFRBR(

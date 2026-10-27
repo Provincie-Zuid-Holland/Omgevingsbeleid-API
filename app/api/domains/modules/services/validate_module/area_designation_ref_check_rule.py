@@ -2,7 +2,7 @@ from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
 from dso.models import DocumentType
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -28,7 +28,7 @@ class AreaDesignationRefCheckRule(ValidateModuleRule):
         )
         self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
         gebiedsaanwijzingen: Gebiedsaanwijzingen | None = self._dso_gebiedsaanwijzingen_factory.get_for_document(
             DocumentType.OMGEVINGSVISIE

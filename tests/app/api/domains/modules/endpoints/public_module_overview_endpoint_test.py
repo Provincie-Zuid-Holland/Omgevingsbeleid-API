@@ -1,5 +1,5 @@
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 
 from app.api.domains.modules.types import ModuleStatusCode
 from tests.conftest import Context
@@ -7,7 +7,7 @@ from tests.fixtures.internal.spec.modules.module_beleidsdoel_spec import ModuleB
 from tests.fixtures.internal.types import Ref
 
 
-def test_returns_the_objects_as_they_were_at_the_public_status(client: TestClient, ctx: Context):
+async def test_returns_the_objects_as_they_were_at_the_public_status(client: httpx2.AsyncClient, ctx: Context):
     # The third entry of beleidsdoel-1 and beleidsdoel-2 were added after the Ter Inzage status
     beleidsdoel_1: ModuleBeleidsdoelSpec = ctx.f.find(
         Ref(ModuleBeleidsdoelSpec, "mod_1_beleidsdoel_1_second_entry")
@@ -16,7 +16,7 @@ def test_returns_the_objects_as_they_were_at_the_public_status(client: TestClien
         Ref(ModuleBeleidsdoelSpec, "mod_1_beleidsdoel_4_first_entry")
     ).spec
 
-    response = client.get("/revisions/1")
+    response = await client.get("/revisions/1")
 
     assert response.status_code == 200, response.text
 
@@ -46,8 +46,8 @@ def test_returns_the_objects_as_they_were_at_the_public_status(client: TestClien
         pytest.param(2, id="status-niet-actief"),
     ],
 )
-def test_non_public_status_returns_400(client: TestClient, module_id: int):
-    response = client.get(f"/revisions/{module_id}")
+async def test_non_public_status_returns_400(client: httpx2.AsyncClient, module_id: int):
+    response = await client.get(f"/revisions/{module_id}")
 
     assert response.status_code == 400, response.text
     assert response.json()["detail"] == "Invalid status for module"
@@ -60,8 +60,8 @@ def test_non_public_status_returns_400(client: TestClient, module_id: int):
         pytest.param(999999, "Module niet gevonden", id="unknown-module"),
     ],
 )
-def test_unavailable_module_returns_404(client: TestClient, module_id: int, expected_detail: str):
-    response = client.get(f"/revisions/{module_id}")
+async def test_unavailable_module_returns_404(client: httpx2.AsyncClient, module_id: int, expected_detail: str):
+    response = await client.get(f"/revisions/{module_id}")
 
     assert response.status_code == 404, response.text
     assert response.json()["detail"] == expected_detail

@@ -1,10 +1,10 @@
-from fastapi.testclient import TestClient
+import httpx2
 
 from tests.conftest import Context
 
 
-def test_lists_all_versions_of_the_lineage_latest_first(admin: TestClient, ctx: Context):
-    response = admin.get("/modules/1/object/beleidsdoel/1")
+async def test_lists_all_versions_of_the_lineage_latest_first(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.get("/modules/1/object/beleidsdoel/1")
 
     assert response.status_code == 200, response.text
     body = response.json()

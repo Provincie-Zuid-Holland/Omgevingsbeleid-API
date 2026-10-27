@@ -1,7 +1,7 @@
 from uuid import UUID
 
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from pydantic import BaseModel
 from pytest import FixtureRequest
 
@@ -19,10 +19,10 @@ from tests.fixtures.internal.types import Ref
         pytest.param("/maatregelen", Ref(MaatregelSpec, "maatregel_6_past_end_validity"), id="past-end-validity"),
     ],
 )
-def test_returns_the_requested_version_by_uuid(client: TestClient, ctx: Context, prefix: str, ref: Ref):
+async def test_returns_the_requested_version_by_uuid(client: httpx2.AsyncClient, ctx: Context, prefix: str, ref: Ref):
     expected: BaseObjectSpec = ctx.f.find(ref).spec
 
-    response = client.get(f"{prefix}/version/{expected.id}")
+    response = await client.get(f"{prefix}/version/{expected.id}")
     assert response.status_code == 200, response.text
 
     body = response.json()
@@ -30,28 +30,28 @@ def test_returns_the_requested_version_by_uuid(client: TestClient, ctx: Context,
     assert body["code"] == expected.code
 
 
-def test_version_is_scoped_to_object_type(client: TestClient, ctx: Context):
+async def test_version_is_scoped_to_object_type(client: httpx2.AsyncClient, ctx: Context):
     # A maatregel UUID must not resolve under the beleidsdoel routes.
     maatregel: MaatregelSpec = ctx.f.find(Ref(MaatregelSpec, "maatregel_6_past_end_validity")).spec
 
-    response = client.get(f"/beleidsdoelen/version/{maatregel.id}")
+    response = await client.get(f"/beleidsdoelen/version/{maatregel.id}")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "object_uuid does not exist"
 
 
-def test_unknown_uuid_returns_404(client: TestClient):
-    response = client.get("/beleidsdoelen/version/00000000-0000-0000-0000-00000000dead")
+async def test_unknown_uuid_returns_404(client: httpx2.AsyncClient):
+    response = await client.get("/beleidsdoelen/version/00000000-0000-0000-0000-00000000dead")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "object_uuid does not exist"
 
 
-def test_response_matches_the_full_model_shape(client: TestClient, ctx: Context):
+async def test_response_matches_the_full_model_shape(client: httpx2.AsyncClient, ctx: Context):
     expected: BeleidsdoelSpec = ctx.f.find(Ref(BeleidsdoelSpec, "beleidsdoel_1_latest_valid")).spec
     model: type[BaseModel] = ctx.m.get_pydantic_model("beleidsdoel_full")
 
-    body: dict = client.get(f"/beleidsdoelen/version/{expected.id}").json()
+    body: dict = (await client.get(f"/beleidsdoelen/version/{expected.id}")).json()
 
     assert set(body.keys()) == set(model.model_fields)
 
@@ -68,15 +68,15 @@ def test_response_matches_the_full_model_shape(client: TestClient, ctx: Context)
         ),
     ],
 )
-def test_gebiedsaanwijzingen_from_text(
+async def test_gebiedsaanwijzingen_from_text(
     request: FixtureRequest, ctx: Context, url_prefix: str, object_ref: Ref, user: str, expected_gebied_refs: list[Ref]
 ):
-    client: TestClient = request.getfixturevalue(user)
+    client: httpx2.AsyncClient = request.getfixturevalue(user)
     source_object: MaatregelSpec = ctx.f.find(object_ref).spec
     expected_gebied_uuids: set[str] = {str(ctx.f.primary_key_uuid(gebied_key)) for gebied_key in expected_gebied_refs}
 
     url = f"{url_prefix}/{source_object.id}"
-    response = client.get(url)
+    response = await client.get(url)
     assert response.status_code == 200
 
     body: dict = response.json()

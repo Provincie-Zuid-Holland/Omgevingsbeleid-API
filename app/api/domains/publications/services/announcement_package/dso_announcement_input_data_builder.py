@@ -118,12 +118,12 @@ class DsoAnnouncementInputDataBuilder:
 
         field_map: list[dict] = [
             {
-                "field": "Begin_Inspection_Period_Date",
+                "field": "begin_inspection_period_date",
                 "target": ProcedureStappenOntwerp.begin_inzagetermijn,
                 "required": True,
             },
             {
-                "field": "End_Inspection_Period_Date",
+                "field": "end_inspection_period_date",
                 "target": ProcedureStappenOntwerp.einde_inzagetermijn,
                 "required": True,
             },

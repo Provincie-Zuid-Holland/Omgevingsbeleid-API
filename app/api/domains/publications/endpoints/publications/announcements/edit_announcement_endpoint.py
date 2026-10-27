@@ -3,7 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_announcement
@@ -23,7 +23,7 @@ class PublicationAnnouncementEdit(BaseModel):
     content: AnnouncementContent | None = None
 
 
-def post_edit_announcement_endpoint(
+async def post_edit_announcement_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -33,7 +33,7 @@ def post_edit_announcement_endpoint(
         ),
     ],
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: PublicationAnnouncementEdit,
 ) -> ResponseOK:
     _guard_locked(announcement)
@@ -51,8 +51,8 @@ def post_edit_announcement_endpoint(
     announcement.modified_date = datetime.now(UTC)
 
     session.add(announcement)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")
 

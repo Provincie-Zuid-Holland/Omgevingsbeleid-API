@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -32,12 +32,12 @@ module_order_config = OrderConfig(
 
 
 @inject
-def get_list_modules_endpoint(
+async def get_list_modules_endpoint(
     filter_object_code: Annotated[FilterObjectCode | None, Depends(depends_filter_object_code)],
     module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_module_sorted_pagination)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     only_mine: Annotated[bool, Query] = False,
     filter_activated: bool | None = None,
     filter_closed: bool | None = None,
@@ -51,7 +51,7 @@ def get_list_modules_endpoint(
     if only_mine:
         filter_on_me = user.id
 
-    paginated_result: PaginatedQueryResult = module_repository.get_with_filters(
+    paginated_result: PaginatedQueryResult = await module_repository.get_with_filters(
         session=session,
         pagination=pagination,
         filter_activated=filter_activated,

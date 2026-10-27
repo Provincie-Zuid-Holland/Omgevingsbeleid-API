@@ -1,7 +1,7 @@
 import uuid
 
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 
 from app.api.domains.others.types import StorageFileBasic
 from tests.conftest import Context
@@ -11,13 +11,13 @@ from tests.fixtures.internal.types import Ref
 
 @pytest.mark.parametrize("client_fixture", ["admin", "ambtenaar"])
 @pytest.mark.parametrize("file_key", ["file_1", "file_2", "file_3"])
-def test_returns_the_requested_storage_file(
+async def test_returns_the_requested_storage_file(
     request: pytest.FixtureRequest, ctx: Context, client_fixture: str, file_key: str
 ):
-    client: TestClient = request.getfixturevalue(client_fixture)
+    client: httpx2.AsyncClient = request.getfixturevalue(client_fixture)
     expected: StorageFileSpec = ctx.f.find(Ref(StorageFileSpec, file_key)).spec
 
-    response = client.get(f"/storage-files/{expected.id}")
+    response = await client.get(f"/storage-files/{expected.id}")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -29,25 +29,25 @@ def test_returns_the_requested_storage_file(
     assert body["created_by_id"] == str(expected.created_by_id)
 
 
-def test_response_matches_the_storage_file_model_shape(admin: TestClient, ctx: Context):
+async def test_response_matches_the_storage_file_model_shape(admin: httpx2.AsyncClient, ctx: Context):
     document_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(StorageFileSpec, "file_1"))
 
-    body: dict = admin.get(f"/storage-files/{document_uuid}").json()
+    body: dict = (await admin.get(f"/storage-files/{document_uuid}")).json()
 
     assert set(body.keys()) == set(StorageFileBasic.model_fields)
 
 
-def test_unknown_uuid_returns_404(admin: TestClient):
-    response = admin.get("/storage-files/00000000-0000-0000-0000-00000000dead")
+async def test_unknown_uuid_returns_404(admin: httpx2.AsyncClient):
+    response = await admin.get("/storage-files/00000000-0000-0000-0000-00000000dead")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Storage file niet gevonden"
 
 
-def test_unauthenticated_returns_401(client: TestClient, ctx: Context):
+async def test_unauthenticated_returns_401(client: httpx2.AsyncClient, ctx: Context):
     document_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(StorageFileSpec, "file_1"))
 
-    response = client.get(f"/storage-files/{document_uuid}")
+    response = await client.get(f"/storage-files/{document_uuid}")
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Not authenticated"

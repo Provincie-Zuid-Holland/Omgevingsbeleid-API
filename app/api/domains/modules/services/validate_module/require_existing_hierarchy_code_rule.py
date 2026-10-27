@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -26,8 +26,8 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
         )
         self._repository: PublicationObjectRepository = repository
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
-        objects: list[dict] = self._repository.fetch_objects(
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        objects: list[dict] = await self._repository.fetch_objects(
             db,
             request.module_id,
             datetime.now(UTC),

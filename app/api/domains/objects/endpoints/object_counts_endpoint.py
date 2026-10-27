@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -13,11 +13,11 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def view_object_counts_endpoint(
+async def view_object_counts_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
 ) -> ObjectCountResponse:
-    rows: list[ObjectCount] = object_repository.get_valid_counts(session, user.id)
+    rows: list[ObjectCount] = await object_repository.get_valid_counts(session, user.id)
     response = ObjectCountResponse(rows)
     return response

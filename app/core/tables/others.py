@@ -16,8 +16,8 @@ class AreasTable(Base):
     created_date: Mapped[datetime]
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
-    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True))
-    gml: Mapped[str] = deferred(mapped_column(String))
+    shape: Mapped[bytes | None] = deferred(mapped_column(LargeBinary(), nullable=True), raiseload=True)
+    gml: Mapped[str] = deferred(mapped_column(String), raiseload=True)
 
     source_uuid: Mapped[uuid.UUID] = mapped_column(unique=True)
     source_id: Mapped[int | None]
@@ -44,11 +44,13 @@ class RelationsTable(Base, SerializerMixin):
     from_object_statics: Mapped[ObjectStaticsTable] = relationship(
         ObjectStaticsTable,
         foreign_keys=[from_code],
+        lazy="raise_on_sql",
     )
 
     to_object_statics: Mapped[ObjectStaticsTable] = relationship(
         ObjectStaticsTable,
         foreign_keys=[to_code],
+        lazy="raise_on_sql",
     )
 
     def __repr__(self) -> str:
@@ -125,7 +127,7 @@ class StorageFileTable(Base):
     filename: Mapped[str] = mapped_column(Unicode(255), nullable=False)
     content_type: Mapped[str] = mapped_column(Unicode(64), nullable=False)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
-    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False))
+    binary: Mapped[bytes] = deferred(mapped_column(LargeBinary(), nullable=False), raiseload=True)
 
     created_date: Mapped[datetime]
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
@@ -147,8 +149,8 @@ class ObjectRelatedFileTable(Base):
     created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
     # Relationships
-    object_statics: Mapped["ObjectStaticsTable"] = relationship()
-    file: Mapped["StorageFileTable"] = relationship()
+    object_statics: Mapped["ObjectStaticsTable"] = relationship(lazy="raise_on_sql")
+    file: Mapped["StorageFileTable"] = relationship(lazy="raise_on_sql")
 
     def __repr__(self) -> str:
         return f"ObjectRelatedFileTable(id={self.id!r}, code={self.code!r})"

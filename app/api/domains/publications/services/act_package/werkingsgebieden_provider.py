@@ -4,7 +4,7 @@ import uuid
 from datetime import UTC, datetime
 
 import dso.models as dso_models
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
@@ -15,9 +15,9 @@ class PublicationWerkingsgebiedenProvider:
     def __init__(self, area_repository: AreaRepository):
         self._area_repository: AreaRepository = area_repository
 
-    def get_werkingsgebieden(
+    async def get_werkingsgebieden(
         self,
-        session: Session,
+        session: AsyncSession,
         act_frbr: ActFrbr,
         all_objects: list[dict],
         used_objects: list[dict],
@@ -29,16 +29,16 @@ class PublicationWerkingsgebiedenProvider:
             w for w in werkingsgebieden_objects if w["code"] in werkingsgebied_codes or all_data
         ]
 
-        werkingsgebieden: list[dict] = self._get_werkingsgebieden_with_areas(
+        werkingsgebieden: list[dict] = await self._get_werkingsgebieden_with_areas(
             session,
             act_frbr,
             used_werkingsgebieden_objects,
         )
         return werkingsgebieden
 
-    def _get_werkingsgebieden_with_areas(
+    async def _get_werkingsgebieden_with_areas(
         self,
-        session: Session,
+        session: AsyncSession,
         act_frbr: ActFrbr,
         werkingsgebieden_objects: list[dict],
     ) -> list[dict]:
@@ -50,7 +50,7 @@ class PublicationWerkingsgebiedenProvider:
             if area_id is None:
                 raise RuntimeError(f"Missing area for werkingsgebied with code: {code}")
 
-            area: AreasTable | None = self._area_repository.get_with_gml(session, area_id)
+            area: AreasTable | None = await self._area_repository.get_with_gml(session, area_id)
             if area is None:
                 raise RuntimeError(f"Area UUID does not exist for code: {code}")
 

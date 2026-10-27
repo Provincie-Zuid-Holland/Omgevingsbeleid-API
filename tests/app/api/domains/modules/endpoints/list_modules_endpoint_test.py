@@ -1,5 +1,5 @@
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 
 from tests.conftest import Context
@@ -7,18 +7,18 @@ from tests.fixtures.internal.spec.modules.module_spec import ModuleSpec
 from tests.fixtures.internal.types import Ref
 
 
-def test_lists_all_modules_last_created_first(admin: TestClient):
-    response = admin.get("/modules")
+async def test_lists_all_modules_last_created_first(admin: httpx2.AsyncClient):
+    response = await admin.get("/modules")
 
     assert response.status_code == 200, response.text
     body = response.json()
     assert [m["module_id"] for m in body["results"]] == [8, 7, 6, 5, 4, 3, 2, 1]
 
 
-def test_returns_the_module_fields(admin: TestClient, ctx: Context):
+async def test_returns_the_module_fields(admin: httpx2.AsyncClient, ctx: Context):
     expected_module: ModuleSpec = ctx.f.find(Ref(ModuleSpec, "module_1")).spec
 
-    response = admin.get("/modules", params={"filter_title": expected_module.title})
+    response = await admin.get("/modules", params={"filter_title": expected_module.title})
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -49,8 +49,8 @@ def test_returns_the_module_fields(admin: TestClient, ctx: Context):
         pytest.param({"filter_activated": "true", "filter_closed": "false"}, [8, 7, 6, 5, 4, 1], id="combined"),
     ],
 )
-def test_filters_modules(admin: TestClient, params: dict[str, str], expected_module_ids: list[int]):
-    response = admin.get("/modules", params=params)
+async def test_filters_modules(admin: httpx2.AsyncClient, params: dict[str, str], expected_module_ids: list[int]):
+    response = await admin.get("/modules", params=params)
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -65,10 +65,10 @@ def test_filters_modules(admin: TestClient, params: dict[str, str], expected_mod
         pytest.param("manager_of_module_4", [4], id="module-manager"),
     ],
 )
-def test_filters_on_only_mine(request: FixtureRequest, client_fixture: str, expected_module_ids: list[int]):
-    test_client: TestClient = request.getfixturevalue(client_fixture)
+async def test_filters_on_only_mine(request: FixtureRequest, client_fixture: str, expected_module_ids: list[int]):
+    test_client: httpx2.AsyncClient = request.getfixturevalue(client_fixture)
 
-    response = test_client.get("/modules", params={"only_mine": "true"})
+    response = await test_client.get("/modules", params={"only_mine": "true"})
 
     assert response.status_code == 200, response.text
     assert [m["module_id"] for m in response.json()["results"]] == expected_module_ids
@@ -82,8 +82,10 @@ def test_filters_on_only_mine(request: FixtureRequest, client_fixture: str, expe
         pytest.param("beleidsdoel", 999999, [], id="unknown-lineage"),
     ],
 )
-def test_filters_on_object_code(admin: TestClient, object_type: str, lineage_id: int, expected_module_ids: list[int]):
-    response = admin.get("/modules", params={"object_type": object_type, "lineage_id": lineage_id})
+async def test_filters_on_object_code(
+    admin: httpx2.AsyncClient, object_type: str, lineage_id: int, expected_module_ids: list[int]
+):
+    response = await admin.get("/modules", params={"object_type": object_type, "lineage_id": lineage_id})
 
     assert response.status_code == 200, response.text
     assert [m["module_id"] for m in response.json()["results"]] == expected_module_ids

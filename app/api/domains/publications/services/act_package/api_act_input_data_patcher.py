@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.state.patch_act_mutation import PatchActMutation
 from app.api.domains.publications.services.state.patch_act_mutation_factory import PatchActMutationFactory
@@ -13,7 +13,7 @@ class ApiActInputDataPatcher:
         self._mutation_factory: PatchActMutationFactory = mutation_factory
         self._state: ActiveState = state
 
-    def apply(self, session: Session, data: ApiActInputData) -> ApiActInputData:
+    async def apply(self, session: AsyncSession, data: ApiActInputData) -> ApiActInputData:
         # @note:
         # For now we can only mutate on a Final ("Definitief")
         # So for example:
@@ -37,13 +37,15 @@ class ApiActInputDataPatcher:
             return data
 
         if active_act.Act_Frbr.Work_Other == data.Act_Frbr.Work_Other:
-            return self._handle_mutation(session, data, active_act)
+            return await self._handle_mutation(session, data, active_act)
 
         return self._handle_new_work(data, active_act)
 
-    def _handle_mutation(self, session: Session, data: ApiActInputData, active_act: ActiveAct) -> ApiActInputData:
+    async def _handle_mutation(
+        self, session: AsyncSession, data: ApiActInputData, active_act: ActiveAct
+    ) -> ApiActInputData:
         mutation_patcher: PatchActMutation = self._mutation_factory.create(active_act)
-        data = mutation_patcher.patch(session, data)
+        data = await mutation_patcher.patch(session, data)
         return data
 
     def _handle_new_work(self, data: ApiActInputData, active_act: ActiveAct) -> ApiActInputData:

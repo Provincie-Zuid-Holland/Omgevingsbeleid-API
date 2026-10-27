@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ValidationError
-from sqlalchemy.orm import Session
+from pydantic_core import ErrorDetails
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -7,13 +8,19 @@ from app.api.domains.publications.services.validate_publication.validate_publica
     ValidatePublicationRequest,
     ValidatePublicationRule,
 )
+from app.api.services.async_model_validators_service import AsyncModelValidatorsService
 
 
 class RequiredObjectFieldsRule(ValidatePublicationRule):
-    def __init__(self, document_type_map: dict[str, dict[str, type[BaseModel]]]):
+    def __init__(
+        self,
+        document_type_map: dict[str, dict[str, type[BaseModel]]],
+        async_model_validators_service: AsyncModelValidatorsService,
+    ):
         self._document_type_map: dict[str, dict[str, type[BaseModel]]] = document_type_map
+        self._async_model_validators_service: AsyncModelValidatorsService = async_model_validators_service
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
         object_map = self._document_type_map.get(request.document_type)
@@ -23,9 +30,14 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
             if not model:
                 continue
 
+            field_errors: list[ErrorDetails] = []
             try:
-                _ = model.model_validate(object_to_validate)
+                validated: BaseModel = model.model_validate(object_to_validate)
+                field_errors = await self._async_model_validators_service.run(db, model, validated, {})
             except ValidationError as e:
+                field_errors = e.errors()
+
+            if field_errors:
                 errors.append(
                     ValidatePublicationError(
                         rule="required_object_fields_rule",
@@ -35,7 +47,7 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
                             object_type=object_to_validate.get("object_type"),
                             title=object_to_validate.get("title"),
                         ),
-                        messages=[f"{error['msg']} for {error['loc']}" for error in e.errors()],
+                        messages=[f"{error['msg']} for {error['loc']}" for error in field_errors],
                     )
                 )
         return errors

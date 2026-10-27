@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -18,10 +18,10 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def post_close_module_endpoint(
+async def post_close_module_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
@@ -45,7 +45,7 @@ def post_close_module_endpoint(
     )
     session.add(status)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

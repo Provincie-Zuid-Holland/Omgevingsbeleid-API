@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import String, func, insert, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -24,8 +24,8 @@ class AtemporalCreateObjectEndpointContext(BaseEndpointContext):
     response_type: type[BaseModel]
 
 
-def _create_new_static_object(
-    session: Session,
+async def _create_new_static_object(
+    session: AsyncSession,
     static_fields: dict[str, Any],
     object_type: str,
     title: str,
@@ -50,18 +50,18 @@ def _create_new_static_object(
         .returning(ObjectStaticsTable)
     )
 
-    result: ObjectStaticsTable | None = session.execute(stmt).scalars().first()
+    result: ObjectStaticsTable | None = (await session.execute(stmt)).scalars().first()
     if result is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create static object")
     return result
 
 
 @inject
-def atemporal_create_object_endpoint(
+async def atemporal_create_object_endpoint(
     object_in: BaseModel,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[AtemporalCreateObjectEndpointContext, Depends()],
 ) -> BaseModel:
     permission_service.guard_valid_user(Permissions.atemporal_can_create_object, user)
@@ -73,34 +73,29 @@ def atemporal_create_object_endpoint(
         static_fields = object_in_data["object_statics"]
         del object_in_data["object_statics"]
 
-    try:
-        object_static: ObjectStaticsTable = _create_new_static_object(
-            session,
-            static_fields,
-            context.object_type,
-            object_in_data.get("title", ""),
-        )
+    object_static: ObjectStaticsTable = await _create_new_static_object(
+        session,
+        static_fields,
+        context.object_type,
+        object_in_data.get("title", ""),
+    )
 
-        timepoint: datetime = datetime.now(UTC)
-        new_object: ObjectsTable = ObjectsTable(
-            id=uuid.uuid4(),
-            object_type=object_static.object_type,
-            object_id=object_static.object_id,
-            code=object_static.code,
-            created_date=timepoint,
-            modified_date=timepoint,
-            created_by_id=user.id,
-            modified_by_id=user.id,
-            start_validity=timepoint,
-            # Unpack object_in fields
-            **(object_in_data),
-        )
-        session.add(new_object)
-        session.flush()
-        session.commit()
+    timepoint: datetime = datetime.now(UTC)
+    new_object: ObjectsTable = ObjectsTable(
+        id=uuid.uuid4(),
+        object_type=object_static.object_type,
+        object_id=object_static.object_id,
+        code=object_static.code,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.id,
+        modified_by_id=user.id,
+        start_validity=timepoint,
+        # Unpack object_in fields
+        **(object_in_data),
+    )
+    session.add(new_object)
+    await session.commit()
 
-        response: BaseModel = context.response_type.model_validate(new_object)
-        return response
-    except Exception:
-        session.rollback()
-        raise
+    response: BaseModel = context.response_type.model_validate(new_object)
+    return response

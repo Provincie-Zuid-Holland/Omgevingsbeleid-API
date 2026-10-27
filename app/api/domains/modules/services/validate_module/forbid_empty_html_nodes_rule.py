@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup, PageElement, Tag
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -24,7 +24,7 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
             ForbidEmptyHtmlNodesRuleConfig,
         )
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:

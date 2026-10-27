@@ -1,18 +1,18 @@
-from fastapi.testclient import TestClient
+import httpx2
 
 from tests.conftest import Context
 
 
-def test_validates_the_module(admin: TestClient, ctx: Context):
-    response = admin.get("/modules/1/validate")
+async def test_validates_the_module(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.get("/modules/1/validate")
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["status"] == "OK"
     assert len(body["errors"]) == 0
 
 
-def test_validates_the_module_with_error(admin: TestClient, ctx: Context):
-    response = admin.get("/modules/7/validate")
+async def test_validates_the_module_with_error(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.get("/modules/7/validate")
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["status"] == "Failed"

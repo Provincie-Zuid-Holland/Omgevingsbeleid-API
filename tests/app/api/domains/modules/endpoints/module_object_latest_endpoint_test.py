@@ -1,5 +1,5 @@
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 
 from tests.conftest import Context
 from tests.fixtures.internal.spec.modules import ModuleBeleidsdoelSpec
@@ -28,8 +28,8 @@ from tests.fixtures.internal.types import Ref, Spec
         ),
     ],
 )
-def test(
-    admin: TestClient,
+async def test(
+    admin: httpx2.AsyncClient,
     ctx: Context,
     spec_type: type[Spec],
     spec_key: str,
@@ -39,7 +39,7 @@ def test(
 ):
     expected_object = ctx.f.find(Ref(spec_type, spec_key)).spec
 
-    response = admin.get(f"/modules/{module_id}/object/{object_type}/latest/{object_id}")
+    response = await admin.get(f"/modules/{module_id}/object/{object_type}/latest/{object_id}")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -50,8 +50,8 @@ def test(
     assert body["description"] == expected_object.description
 
 
-def test_unknown_lineage_returns_400(admin: TestClient):
-    response = admin.get("/modules/5/object/beleidsdoel/latest/1")
+async def test_unknown_lineage_returns_400(admin: httpx2.AsyncClient):
+    response = await admin.get("/modules/5/object/beleidsdoel/latest/1")
 
     assert response.status_code == 400, response.text
     assert response.json()["detail"] == "lineage_id does not exist"

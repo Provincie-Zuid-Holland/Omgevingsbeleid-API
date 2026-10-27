@@ -5,7 +5,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy import delete, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.objects.types import WriteRelation
@@ -19,14 +19,14 @@ from app.core.tables.users import UsersTable
 class EndpointHandler:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         user: UsersTable,
         allowed_object_types_relations: list[str],
         object_type: str,
         object_id: int,
         overwrite_list: list[WriteRelation],
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._user: UsersTable = user
         self._object_type: str = object_type
         self._object_id: int = object_id
@@ -34,19 +34,15 @@ class EndpointHandler:
         self._overwrite_list: list[WriteRelation] = overwrite_list
         self._allowed_object_types_relations: list[str] = allowed_object_types_relations
 
-    def handle(self) -> ResponseOK:
+    async def handle(self) -> ResponseOK:
         self._guard_invalid_relations()
-        try:
-            self._log_action()
+        await self._log_action()
 
-            self._remove_current_relations()
-            self._create_relations()
-            self._session.commit()
+        await self._remove_current_relations()
+        self._create_relations()
+        await self._session.commit()
 
-            return ResponseOK(message="OK")
-        except Exception:
-            self._session.rollback()
-            raise
+        return ResponseOK(message="OK")
 
     def _guard_invalid_relations(self):
         for relation in self._overwrite_list:
@@ -55,9 +51,9 @@ class EndpointHandler:
                     status.HTTP_400_BAD_REQUEST, f"Invalid object_type for relation with '{self._object_code}'"
                 )
 
-    def _log_action(self):
+    async def _log_action(self):
         action_data: str = json.dumps([write_relation.model_dump() for write_relation in self._overwrite_list])
-        current_relations: list[dict] = self._fetch_current_relations()
+        current_relations: list[dict] = await self._fetch_current_relations()
         before_data: str = json.dumps(current_relations)
 
         after: list[dict] = [
@@ -82,25 +78,25 @@ class EndpointHandler:
         )
         self._session.add(change_log)
 
-    def _fetch_current_relations(self):
+    async def _fetch_current_relations(self):
         stmt = select(RelationsTable).filter(
             or_(
                 RelationsTable.from_code == self._object_code,
                 RelationsTable.to_code == self._object_code,
             )
         )
-        rows: Sequence[RelationsTable] = self._session.scalars(stmt).all()
+        rows: Sequence[RelationsTable] = (await self._session.scalars(stmt)).all()
         dict_rows: list[dict] = [r.to_dict() for r in rows]
         return dict_rows
 
-    def _remove_current_relations(self):
+    async def _remove_current_relations(self):
         stmt = delete(RelationsTable).filter(
             or_(
                 RelationsTable.from_code == self._object_code,
                 RelationsTable.to_code == self._object_code,
             )
         )
-        self._session.execute(stmt)
+        await self._session.execute(stmt)
 
     def _create_relations(self):
         if not self._overwrite_list:
@@ -120,11 +116,11 @@ class RelationsOverwriteEndpointContext(BaseEndpointContext):
     allowed_object_types_relations: list[str]
 
 
-def post_relations_overwrite_endpoint(
+async def post_relations_overwrite_endpoint(
     lineage_id: int,
     overwrite_list: list[WriteRelation],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[RelationsOverwriteEndpointContext, Depends()],
 ) -> ResponseOK:
     handler: EndpointHandler = EndpointHandler(
@@ -135,4 +131,4 @@ def post_relations_overwrite_endpoint(
         lineage_id,
         overwrite_list,
     )
-    return handler.handle()
+    return await handler.handle()

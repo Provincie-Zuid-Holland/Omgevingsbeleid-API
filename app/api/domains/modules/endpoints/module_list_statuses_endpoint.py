@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -15,13 +15,13 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def view_module_list_statuses_endpoint(
+async def view_module_list_statuses_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     module: Annotated[ModuleTable, Depends(depends_module)],
     status_repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],
 ) -> list[ModuleStatus]:
-    statuses: list[ModuleStatusHistoryTable] = status_repository.get_all_by_module_id(session, module.module_id)
+    statuses: list[ModuleStatusHistoryTable] = await status_repository.get_all_by_module_id(session, module.module_id)
 
     response: list[ModuleStatus] = [ModuleStatus.model_validate(r) for r in statuses]
     return response

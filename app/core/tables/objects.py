@@ -17,7 +17,7 @@ class ObjectsTable(Base, SerializerMixin):
         "ObjectStaticsTable",
         primaryjoin="ObjectsTable.code == ObjectStaticsTable.code",
         back_populates="objects",
-        lazy="select",
+        lazy="raise_on_sql",
     )
 
     def __repr__(self) -> str:
@@ -36,7 +36,7 @@ class ObjectStaticsTable(Base, SerializerMixin):
         "ObjectsTable",
         primaryjoin="ObjectStaticsTable.code == ObjectsTable.code",
         back_populates="object_statics",
-        lazy="select",
+        lazy="raise_on_sql",
     )
 
     def __repr__(self) -> str:

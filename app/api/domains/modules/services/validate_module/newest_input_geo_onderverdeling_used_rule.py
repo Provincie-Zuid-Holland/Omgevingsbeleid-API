@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -27,7 +27,7 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
         )
         self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = repository
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
@@ -52,9 +52,9 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
 
             area_hash: str = area_current.source_geometry_hash or ""
             area_title: str = area_current.source_title
-            onderverdeling: InputGeoOnderverdelingenTable | None = (
-                self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
-            )
+            onderverdeling: (
+                InputGeoOnderverdelingenTable | None
+            ) = await self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
             if onderverdeling is None:
                 errors.append(
                     ValidateModuleError(

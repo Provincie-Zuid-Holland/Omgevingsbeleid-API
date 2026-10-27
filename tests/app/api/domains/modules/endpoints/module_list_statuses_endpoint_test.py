@@ -1,17 +1,17 @@
 import uuid
 
-from fastapi.testclient import TestClient
+import httpx2
 
 from tests.conftest import Context
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
 
-def test_lists_all_statuses_of_the_module(admin: TestClient, ctx: Context):
+async def test_lists_all_statuses_of_the_module(admin: httpx2.AsyncClient, ctx: Context):
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
     module_id = 1
 
-    response = admin.get(f"/modules/{module_id}/status")
+    response = await admin.get(f"/modules/{module_id}/status")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -40,15 +40,15 @@ def test_lists_all_statuses_of_the_module(admin: TestClient, ctx: Context):
     ]
 
 
-def test_lists_the_new_status_after_patching(admin: TestClient):
-    response = admin.get("/modules/7/status")
+async def test_lists_the_new_status_after_patching(admin: httpx2.AsyncClient):
+    response = await admin.get("/modules/7/status")
     body = response.json()
     assert len(body) == 2
 
-    response = admin.patch("/modules/7/status", json={"status": "Ontwerp GS"})
+    response = await admin.patch("/modules/7/status", json={"status": "Ontwerp GS"})
     assert response.status_code == 200, response.text
 
-    response = admin.get("/modules/7/status")
+    response = await admin.get("/modules/7/status")
 
     assert response.status_code == 200, response.text
     body = response.json()

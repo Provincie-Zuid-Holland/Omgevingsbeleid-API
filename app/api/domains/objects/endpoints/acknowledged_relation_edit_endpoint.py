@@ -4,7 +4,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import Field, model_validator
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -34,20 +34,20 @@ class AcknowledgedRelationEditEndpointContext(BaseEndpointContext):
 
 
 @inject
-def post_acknowledged_relation_edit_endpoint(
+async def post_acknowledged_relation_edit_endpoint(
     lineage_id: int,
     object_in: EditAcknowledgedRelation,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     repository: Annotated[
         AcknowledgedRelationsRepository, Depends(Provide[ApiContainer.acknowledged_relations_repository])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[AcknowledgedRelationEditEndpointContext, Depends()],
 ) -> ResponseOK:
     object_code: str = f"{context.object_type}-{lineage_id}"
     timepoint: datetime = datetime.now(UTC)
 
-    relation: AcknowledgedRelationsTable | None = repository.get_by_codes(
+    relation: AcknowledgedRelationsTable | None = await repository.get_by_codes(
         session,
         object_code,
         object_in.code,
@@ -75,7 +75,7 @@ def post_acknowledged_relation_edit_endpoint(
         relation.delete()
 
     session.add(relation)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

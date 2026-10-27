@@ -4,7 +4,7 @@ import uuid
 from collections.abc import Sequence
 
 from bs4 import BeautifulSoup
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.domains.publications.services.assets.asset_remove_transparency import AssetRemoveTransparency
@@ -22,14 +22,15 @@ class PublicationAssetProvider:
         self._asset_repository: AssetRepository = asset_repository
         self._asset_remove_transparency: AssetRemoveTransparency = asset_remove_transparency
 
-    def get_assets(self, session: Session, objects: list[dict]) -> list[dict]:
+    async def get_assets(self, session: AsyncSession, objects: list[dict]) -> list[dict]:
         asset_ids: list[uuid.UUID] = self._calculate_asset_ids(objects)
-        dso_assets: list[dict] = self.get_assets_by_ids(session, asset_ids)
+        assets: Sequence[AssetsTable] = await self._asset_repository.get_by_ids(session, asset_ids)
+        dso_assets: list[dict] = self._as_dso_assets(assets)
 
         return dso_assets
 
-    def get_assets_by_ids(self, session: Session, ids: list[uuid.UUID]) -> list[dict]:
-        assets: Sequence[AssetsTable] = self._asset_repository.get_by_ids(session, ids)
+    async def get_assets_by_ids(self, session: AsyncSession, ids: list[uuid.UUID]) -> list[dict]:
+        assets: Sequence[AssetsTable] = await self._asset_repository.get_by_ids(session, ids)
         dso_assets: list[dict] = self._as_dso_assets(assets)
 
         return dso_assets

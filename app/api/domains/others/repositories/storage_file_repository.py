@@ -3,7 +3,8 @@ from enum import Enum
 from uuid import UUID
 
 from sqlalchemy import and_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import undefer
 
 from app.api.base_repository import BaseRepository
 from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
@@ -17,22 +18,26 @@ class StorageFileSortColumn(str, Enum):
 
 
 class StorageFileRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: UUID) -> StorageFileTable | None:
+    async def get_by_id(self, session: AsyncSession, idx: UUID) -> StorageFileTable | None:
         stmt = select(StorageFileTable).filter(StorageFileTable.id == idx)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_checksum_uuid(self, session: Session, checksum: str) -> StorageFileTable | None:
+    async def get_with_binary(self, session: AsyncSession, idx: UUID) -> StorageFileTable | None:
+        stmt = select(StorageFileTable).options(undefer(StorageFileTable.binary)).filter(StorageFileTable.id == idx)
+        return await self.fetch_first(session, stmt)
+
+    async def get_by_checksum_uuid(self, session: AsyncSession, checksum: str) -> StorageFileTable | None:
         lookup: str = checksum[0:10]
         stmt = (
             select(StorageFileTable)
             .filter(StorageFileTable.lookup == lookup)
             .filter(StorageFileTable.checksum == checksum)
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         pagination: SortedPagination,
         filter_filename: str | None = None,
         mine: UUID | None = None,
@@ -46,7 +51,7 @@ class StorageFileRepository(BaseRepository):
 
         stmt = select(StorageFileTable).filter(*filters)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=pagination.offset,
@@ -55,6 +60,6 @@ class StorageFileRepository(BaseRepository):
         )
         return paged_result
 
-    def get_all(self, session: Session) -> Sequence[StorageFileTable]:
+    async def get_all(self, session: AsyncSession) -> Sequence[StorageFileTable]:
         stmt = select(StorageFileTable)
-        return self.fetch_all(session, stmt)
+        return await self.fetch_all(session, stmt)

@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -27,11 +27,11 @@ class ActCreate(BaseModel):
 
 
 class ActCreatedResponse(BaseModel):
-    uuid: uuid.UUID
+    id: int
 
 
 @inject
-def post_create_act_endpoint(
+async def post_create_act_endpoint(
     environment_repository: Annotated[
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
@@ -44,19 +44,18 @@ def post_create_act_endpoint(
         ),
     ],
     defaults_provider: Annotated[ActDefaultsProvider, Depends(Provide[ApiContainer.publication.act_defaults_provider])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: ActCreate,
 ) -> ActCreatedResponse:
-    environment: PublicationEnvironmentTable = _get_environment(
+    environment: PublicationEnvironmentTable = await _get_environment(
         session, environment_repository, object_in.environment_id
     )
 
     meta_data = defaults_provider.get_metadata(object_in.document_type.value)
-    work_other: str = object_in.work_other or _get_work_other(session, object_in)
+    work_other: str = object_in.work_other or await _get_work_other(session, object_in)
 
     timepoint: datetime = datetime.now(UTC)
     act: PublicationActTable = PublicationActTable(
-        uuid=uuid.uuid4(),
         environment_id=environment.id,
         document_type=object_in.document_type.value,
         title=object_in.title,
@@ -75,20 +74,20 @@ def post_create_act_endpoint(
     )
 
     session.add(act)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ActCreatedResponse(
-        uuid=act.uuid,
+        id=act.id,
     )
 
 
-def _get_environment(
-    session: Session,
+async def _get_environment(
+    session: AsyncSession,
     repository: PublicationEnvironmentRepository,
     environment_id: uuid.UUID,
 ) -> PublicationEnvironmentTable:
-    environment: PublicationEnvironmentTable | None = repository.get_by_id(
+    environment: PublicationEnvironmentTable | None = await repository.get_by_id(
         session,
         environment_id,
     )
@@ -100,8 +99,8 @@ def _get_environment(
     return environment
 
 
-def _get_work_other(
-    session: Session,
+async def _get_work_other(
+    session: AsyncSession,
     object_in: ActCreate,
 ) -> str:
     stmt = (
@@ -116,7 +115,7 @@ def _get_work_other(
             ).self_group()
         )
     )
-    count: int = (session.execute(stmt).scalar() or 0) + 1
+    count: int = ((await session.execute(stmt)).scalar() or 0) + 1
     id_suffix: str = f"{count}"
 
     work_other: str = f"{object_in.document_type.value.lower()}-{id_suffix}"

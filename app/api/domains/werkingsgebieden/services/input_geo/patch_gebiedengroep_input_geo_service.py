@@ -5,7 +5,7 @@ from enum import Enum
 from fastapi import HTTPException, status
 from slugify import slugify
 from sqlalchemy import String, func, insert, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import app.api.domains.modules.services.manage_object_context_service as mocs
 from app.api.domains.modules.repositories.module_object_repository import ModuleObjectRepository
@@ -34,7 +34,7 @@ class PatchGebiedengroepInputGeoService:
         object_context_service: ManageObjectContextService,
         area_repository: AreaRepository,
         area_geometry_repository: AreaGeometryRepository,
-        session: Session,
+        session: AsyncSession,
         user: UsersTable,
         onderverdeling_object_type: str,
         input_geo_werkingsgebied: InputGeoWerkingsgebiedenTable,
@@ -44,28 +44,28 @@ class PatchGebiedengroepInputGeoService:
         self._object_context_service: ManageObjectContextService = object_context_service
         self._area_repository: AreaRepository = area_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._user: UsersTable = user
         self._onderverdeling_object_type: str = onderverdeling_object_type
         self._input_geo_werkingsgebied: InputGeoWerkingsgebiedenTable = input_geo_werkingsgebied
         self._timepoint: datetime = datetime.now(UTC)
 
-    def patch(self, main_obj: ModuleObjectsTable) -> ModuleObjectsTable:
+    async def patch(self, main_obj: ModuleObjectsTable) -> ModuleObjectsTable:
         used_sub_codes: set[str] = set()
         something_changed: bool = False
 
         for onderverdeling in self._input_geo_werkingsgebied.Onderverdelingen:
-            sub_object_static: ObjectStaticsTable = self._ensure_static_object(
+            sub_object_static: ObjectStaticsTable = await self._ensure_static_object(
                 main_obj,
                 onderverdeling,
             )
-            area_id: uuid.UUID = self._ensure_area(onderverdeling)
-            _sub_object_context: ModuleObjectContextTable = self._ensure_object_context(
+            area_id: uuid.UUID = await self._ensure_area(onderverdeling)
+            _sub_object_context: ModuleObjectContextTable = await self._ensure_object_context(
                 sub_object_static,
                 main_obj.module_id,
             )
 
-            object_result_action, _sub_object = self._ensure_object_newest_area(
+            object_result_action, _sub_object = await self._ensure_object_newest_area(
                 sub_object_static,
                 main_obj.module_id,
                 area_id,
@@ -83,7 +83,7 @@ class PatchGebiedengroepInputGeoService:
 
         # Patch the main object and set the "gebieden"
         if something_changed:
-            new_main_obj: ModuleObjectsTable = self._module_object_repository.patch_module_object(
+            new_main_obj: ModuleObjectsTable = await self._module_object_repository.patch_module_object(
                 self._session,
                 main_obj,
                 {
@@ -95,29 +95,29 @@ class PatchGebiedengroepInputGeoService:
                 self._user.id,
             )
             self._session.add(new_main_obj)
-            self._session.flush()
-            self._session.commit()
+            await self._session.flush()
+            await self._session.commit()
 
             return new_main_obj
 
         return main_obj
 
-    def _ensure_static_object(
+    async def _ensure_static_object(
         self,
         main_obj: ModuleObjectsTable,
         onderverdeling: InputGeoOnderverdelingenTable,
     ) -> ObjectStaticsTable:
         source_key: str = slugify(f"igo:{onderverdeling.title}")
-        sub_obj_static: ObjectStaticsTable | None = self._object_static_repository.get_by_source(
+        sub_obj_static: ObjectStaticsTable | None = await self._object_static_repository.get_by_source(
             self._session,
             source_key,
         )
         if sub_obj_static:
             return sub_obj_static
 
-        return self._create_object_static(main_obj, onderverdeling, source_key)
+        return await self._create_object_static(main_obj, onderverdeling, source_key)
 
-    def _create_object_static(
+    async def _create_object_static(
         self,
         main_obj: ModuleObjectsTable,
         onderverdeling: InputGeoOnderverdelingenTable,
@@ -147,19 +147,19 @@ class PatchGebiedengroepInputGeoService:
             .returning(ObjectStaticsTable)
         )
 
-        response: ObjectStaticsTable | None = self._session.execute(stmt).scalars().first()
+        response: ObjectStaticsTable | None = (await self._session.execute(stmt)).scalars().first()
         if response is None:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Failed to create new object static")
 
         return response
 
-    def _ensure_area(self, onderverdeling: InputGeoOnderverdelingenTable) -> uuid.UUID:
+    async def _ensure_area(self, onderverdeling: InputGeoOnderverdelingenTable) -> uuid.UUID:
         if not onderverdeling.geometry_hash:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Onderverdeling does not have an Hash")
 
         # These sources hashes are not unique sadly
         # We try to push for the most correct area by filtering by title first
-        existing_area: AreasTable | None = self._area_repository.get_by_source_hash_and_title(
+        existing_area: AreasTable | None = await self._area_repository.get_by_source_hash_and_title(
             self._session,
             onderverdeling.geometry_hash,
             onderverdeling.title,
@@ -168,7 +168,7 @@ class PatchGebiedengroepInputGeoService:
             return existing_area.id
 
         area_id: uuid.UUID = uuid.uuid4()
-        self._area_geometry_repository.create_area(
+        await self._area_geometry_repository.create_area(
             self._session,
             area_id,
             self._timepoint,
@@ -177,7 +177,9 @@ class PatchGebiedengroepInputGeoService:
         )
         return area_id
 
-    def _ensure_object_context(self, sub_object_static: ObjectStaticsTable, module_id: int) -> ModuleObjectContextTable:
+    async def _ensure_object_context(
+        self, sub_object_static: ObjectStaticsTable, module_id: int
+    ) -> ModuleObjectContextTable:
         request = mocs.ExistRequest(
             module_id=module_id,
             object_type=sub_object_static.object_type,
@@ -188,20 +190,22 @@ class PatchGebiedengroepInputGeoService:
             conclusion="",
             user_uuid=self._user.id,
         )
-        result: mocs.Result = self._object_context_service.ensure_exists(
+        result: mocs.Result = await self._object_context_service.ensure_exists(
             self._session,
             request,
         )
         return result.object_context
 
-    def _ensure_object_newest_area(
+    async def _ensure_object_newest_area(
         self,
         sub_object_static: ObjectStaticsTable,
         module_id: int,
         area_id: uuid.UUID,
         title: str,
     ) -> tuple[ObjectResultType, ModuleObjectsTable]:
-        existing_object: ModuleObjectsTable | None = self._module_object_repository.get_latest_by_module_id_object_code(
+        existing_object: (
+            ModuleObjectsTable | None
+        ) = await self._module_object_repository.get_latest_by_module_id_object_code(
             self._session,
             module_id,
             sub_object_static.code,
@@ -210,7 +214,7 @@ class PatchGebiedengroepInputGeoService:
             return ObjectResultType.CREATED, self._create_sub_object(sub_object_static, module_id, area_id, title)
 
         if existing_object.area_id != area_id or existing_object.deleted:
-            return ObjectResultType.UPDATED, self._modify_sub_object(existing_object, area_id, title)
+            return ObjectResultType.UPDATED, await self._modify_sub_object(existing_object, area_id, title)
 
         return ObjectResultType.IGNORED, existing_object
 
@@ -239,10 +243,10 @@ class PatchGebiedengroepInputGeoService:
         self._session.add(module_object)
         return module_object
 
-    def _modify_sub_object(
+    async def _modify_sub_object(
         self, existing_object: ModuleObjectsTable, area_id: uuid.UUID, title: str
     ) -> ModuleObjectsTable:
-        patched_sub_object: ModuleObjectsTable = self._module_object_repository.patch_module_object(
+        patched_sub_object: ModuleObjectsTable = await self._module_object_repository.patch_module_object(
             self._session,
             existing_object,
             {
@@ -274,7 +278,7 @@ class PatchGebiedengroepInputGeoServiceFactory:
 
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         user: UsersTable,
         onderverdeling_object_type: str,
         input_geo_werkingsgebied: InputGeoWerkingsgebiedenTable,

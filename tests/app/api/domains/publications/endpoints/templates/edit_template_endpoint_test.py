@@ -1,5 +1,5 @@
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+import httpx2
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.tables.publications import PublicationTemplateTable
 from tests.conftest import Context
@@ -28,10 +28,12 @@ def _payload(**overrides) -> dict:
     return payload
 
 
-def test_edit_a_template_and_changes_are_persisted_in_db(beheerder: TestClient, session: Session, ctx: Context):
+async def test_edit_a_template_and_changes_are_persisted_in_db(
+    beheerder: httpx2.AsyncClient, session: AsyncSession, ctx: Context
+):
     original: PublicationTemplateSpec = ctx.f.find(Ref(PublicationTemplateSpec, "publication_template_visie_2")).spec
     payload: dict[str, str] = _payload()
-    response = beheerder.post(
+    response = await beheerder.post(
         f"/publication-templates/{original.id}",
         json=payload,
     )
@@ -39,7 +41,7 @@ def test_edit_a_template_and_changes_are_persisted_in_db(beheerder: TestClient, 
     assert response.status_code == 200, response.text
 
     # The template changes are persisted
-    row: PublicationTemplateTable | None = session.get(PublicationTemplateTable, original.id)
+    row: PublicationTemplateTable | None = await session.get(PublicationTemplateTable, original.id)
     assert row is not None
     assert row.title == payload.get("title")
     assert row.description == payload.get("description")
@@ -51,9 +53,9 @@ def test_edit_a_template_and_changes_are_persisted_in_db(beheerder: TestClient, 
     assert row.object_field_map == payload.get("object_field_map")
 
 
-def test_edit_a_template_no_updates_exception(beheerder: TestClient, ctx: Context):
+async def test_edit_a_template_no_updates_exception(beheerder: httpx2.AsyncClient, ctx: Context):
     original: PublicationTemplateSpec = ctx.f.find(Ref(PublicationTemplateSpec, "publication_template_visie_2")).spec
-    response = beheerder.post(
+    response = await beheerder.post(
         f"/publication-templates/{original.id}",
         json={},
     )
@@ -62,9 +64,9 @@ def test_edit_a_template_no_updates_exception(beheerder: TestClient, ctx: Contex
     assert response.json().get("detail") == "Nothing to update"
 
 
-def test_raises_404_when_template_does_not_exist(beheerder: TestClient, ctx: Context):
+async def test_raises_404_when_template_does_not_exist(beheerder: httpx2.AsyncClient, ctx: Context):
     unknown_uuid = "00000000-0000-0000-0000-000000000000"
 
-    response = beheerder.post(f"/publication-templates/{unknown_uuid}")
+    response = await beheerder.post(f"/publication-templates/{unknown_uuid}")
 
     assert response.status_code == 404, response.text

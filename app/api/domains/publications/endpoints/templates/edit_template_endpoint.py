@@ -3,7 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_template
@@ -27,7 +27,7 @@ class TemplateEdit(BaseModel):
     object_templates: dict[str, str] | None = None
 
 
-def post_edit_template_endpoint(
+async def post_edit_template_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -37,7 +37,7 @@ def post_edit_template_endpoint(
         ),
     ],
     template: Annotated[PublicationTemplateTable, Depends(depends_publication_template)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: TemplateEdit,
 ) -> ResponseOK:
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
@@ -51,7 +51,7 @@ def post_edit_template_endpoint(
     template.modified_date = datetime.now(UTC)
 
     session.add(template)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

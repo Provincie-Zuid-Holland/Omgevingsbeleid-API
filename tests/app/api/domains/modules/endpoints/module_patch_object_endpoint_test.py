@@ -1,12 +1,12 @@
 import uuid
 from typing import Any
 
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from httpx2 import Response
 from pytest import FixtureRequest
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.tables.modules import ModuleObjectsTable, ModuleTable
 from app.core.tables.objects import ObjectStaticsTable
@@ -17,19 +17,19 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
 
-def _fetch_draft(session: Session, draft_uuid: uuid.UUID) -> ModuleObjectsTable:
-    draft: ModuleObjectsTable | None = session.get(ModuleObjectsTable, draft_uuid)
+async def _fetch_draft(session: AsyncSession, draft_uuid: uuid.UUID) -> ModuleObjectsTable:
+    draft: ModuleObjectsTable | None = await session.get(ModuleObjectsTable, draft_uuid)
     assert draft
     return draft
 
 
-def test_patch_adds_a_new_draft_to_the_lineage(admin: TestClient, ctx: Context):
+async def test_patch_adds_a_new_draft_to_the_lineage(admin: httpx2.AsyncClient, ctx: Context):
     previous_draft: ModuleBeleidskeuzeSpec = ctx.f.find(
         Ref(ModuleBeleidskeuzeSpec, "mod_5_beleidskeuze_1_first_entry")
     ).spec
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
 
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Patched via module 5"})
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Patched via module 5"})
 
     assert response.status_code == 200, response.text
     body: dict[str, Any] = response.json()
@@ -37,7 +37,7 @@ def test_patch_adds_a_new_draft_to_the_lineage(admin: TestClient, ctx: Context):
     assert body["object_id"] == 1
     assert body["id"] != str(previous_draft.id)
 
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(body["id"]))
+    new_draft: ModuleObjectsTable = await _fetch_draft(ctx.session, uuid.UUID(body["id"]))
     assert new_draft.module_id == 5
     assert new_draft.code == previous_draft.code
     assert new_draft.adjust_on == previous_draft.id
@@ -46,7 +46,7 @@ def test_patch_adds_a_new_draft_to_the_lineage(admin: TestClient, ctx: Context):
     assert_same_datetime(new_draft.modified_date)
 
     all_drafts: list[ModuleObjectsTable] = list(
-        ctx.session.scalars(
+        await ctx.session.scalars(
             select(ModuleObjectsTable)
             .where(ModuleObjectsTable.module_id == 5)
             .where(ModuleObjectsTable.code == previous_draft.code)
@@ -58,15 +58,15 @@ def test_patch_adds_a_new_draft_to_the_lineage(admin: TestClient, ctx: Context):
     }
 
 
-def test_fields_left_out_are_copied_from_the_previous_draft(admin: TestClient, ctx: Context):
+async def test_fields_left_out_are_copied_from_the_previous_draft(admin: httpx2.AsyncClient, ctx: Context):
     previous_draft: ModuleBeleidskeuzeSpec = ctx.f.find(
         Ref(ModuleBeleidskeuzeSpec, "mod_5_beleidskeuze_1_first_entry")
     ).spec
 
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Only the title changes"})
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Only the title changes"})
 
     assert response.status_code == 200, response.text
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    new_draft: ModuleObjectsTable = await _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
     assert new_draft.description == previous_draft.description
     assert new_draft.explanation == previous_draft.explanation
     assert new_draft.hierarchy_code == previous_draft.hierarchy_code
@@ -75,11 +75,11 @@ def test_fields_left_out_are_copied_from_the_previous_draft(admin: TestClient, c
     assert new_draft.created_by_id == previous_draft.created_by_id
 
 
-def test_patch_accepts_a_list_field(admin: TestClient, ctx: Context):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"themas": ["natuur", "water"]})
+async def test_patch_accepts_a_list_field(admin: httpx2.AsyncClient, ctx: Context):
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/1", json={"themas": ["natuur", "water"]})
 
     assert response.status_code == 200, response.text
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    new_draft: ModuleObjectsTable = await _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
     assert new_draft.themas == ["natuur", "water"]
 
 
@@ -90,8 +90,8 @@ def test_patch_accepts_a_list_field(admin: TestClient, ctx: Context):
         pytest.param("mod_5_beleidskeuze_510_first_entry", 510, True, id="lineage-only-in-module"),
     ],
 )
-def test_title_is_cached_on_the_static_only_without_a_live_version(
-    admin: TestClient,
+async def test_title_is_cached_on_the_static_only_without_a_live_version(
+    admin: httpx2.AsyncClient,
     ctx: Context,
     fixture_key: str,
     lineage_id: int,
@@ -100,23 +100,23 @@ def test_title_is_cached_on_the_static_only_without_a_live_version(
     draft: ModuleBeleidskeuzeSpec = ctx.f.find(Ref(ModuleBeleidskeuzeSpec, fixture_key)).spec
     new_title: str = "Title used for the cache check"
 
-    object_static: ObjectStaticsTable | None = ctx.session.get(ObjectStaticsTable, draft.code)
+    object_static: ObjectStaticsTable | None = await ctx.session.get(ObjectStaticsTable, draft.code)
     assert object_static
     object_static.cached_title = "Title before the patch"
-    ctx.session.flush()
+    await ctx.session.flush()
 
-    response: Response = admin.patch(f"/modules/5/object/beleidskeuze/{lineage_id}", json={"title": new_title})
+    response: Response = await admin.patch(f"/modules/5/object/beleidskeuze/{lineage_id}", json={"title": new_title})
 
     assert response.status_code == 200, response.text
-    ctx.session.expire_all()
+    await ctx.session.refresh(object_static)
     assert object_static.cached_title == (new_title if expect_cached_title else "Title before the patch")
 
 
-def test_hierarchy_code_can_be_changed(admin: TestClient, ctx: Context):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"hierarchy_code": "beleidsdoel-2"})
+async def test_hierarchy_code_can_be_changed(admin: httpx2.AsyncClient, ctx: Context):
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/1", json={"hierarchy_code": "beleidsdoel-2"})
 
     assert response.status_code == 200, response.text
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    new_draft: ModuleObjectsTable = await _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
     assert new_draft.hierarchy_code == "beleidsdoel-2"
 
 
@@ -139,14 +139,14 @@ def test_hierarchy_code_can_be_changed(admin: TestClient, ctx: Context):
         pytest.param(["not-a-real-role"], 422, id="invalid-role"),
     ],
 )
-def test_roles_validation(admin: TestClient, ctx: Context, roles: list[str], expected_status: int):
-    response: Response = admin.patch("/modules/5/object/maatregel/1", json={"roles": roles})
+async def test_roles_validation(admin: httpx2.AsyncClient, ctx: Context, roles: list[str], expected_status: int):
+    response: Response = await admin.patch("/modules/5/object/maatregel/1", json={"roles": roles})
 
     assert response.status_code == expected_status, response.text
     if expected_status >= 300:
         return
 
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    new_draft: ModuleObjectsTable = await _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
     assert new_draft.roles == roles
 
 
@@ -158,10 +158,18 @@ def test_roles_validation(admin: TestClient, ctx: Context, roles: list[str], exp
         pytest.param({"hierarchy_code": "maatregel-1"}, "hierarchy_code", id="code-of-a-disallowed-type"),
         pytest.param({"hierarchy_code": "beleidsdoel-999999"}, "hierarchy_code", id="code-that-does-not-exist"),
         pytest.param({"gebiedengroep_code": "beleidsdoel-1"}, "gebiedengroep_code", id="wrong-type-for-gebiedengroep"),
+        pytest.param(
+            {
+                "description": '<p><a data-hint-type="gebiedsaanwijzing" data-code="gebiedsaanwijzing-999999" '
+                'href="#">Gebied</a></p>'
+            },
+            "description",
+            id="gebiedsaanwijzing-in-text-that-does-not-exist",
+        ),
     ],
 )
-def test_invalid_body_returns_422(admin: TestClient, payload: dict[str, Any], invalid_field: str):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json=payload)
+async def test_invalid_body_returns_422(admin: httpx2.AsyncClient, payload: dict[str, Any], invalid_field: str):
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/1", json=payload)
 
     assert response.status_code == 422, response.text
     assert invalid_field in {error["loc"][-1] for error in response.json()["detail"]}
@@ -177,11 +185,15 @@ def test_invalid_body_returns_422(admin: TestClient, payload: dict[str, Any], in
         pytest.param(["gebied-3"], id="terminate-that-was-removed-from-the-module"),
     ],
 )
-def test_target_codes_accepts_vigerend_and_own_module_codes(admin: TestClient, ctx: Context, target_codes: list[str]):
-    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes})
+async def test_target_codes_accepts_vigerend_and_own_module_codes(
+    admin: httpx2.AsyncClient, ctx: Context, target_codes: list[str]
+):
+    response: Response = await admin.patch(
+        "/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes}
+    )
 
     assert response.status_code == 200, response.text
-    new_draft: ModuleObjectsTable = _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
+    new_draft: ModuleObjectsTable = await _fetch_draft(ctx.session, uuid.UUID(response.json()["id"]))
     assert new_draft.target_codes == target_codes
 
 
@@ -197,10 +209,12 @@ def test_target_codes_accepts_vigerend_and_own_module_codes(admin: TestClient, c
         pytest.param(["gebied-2", "gebied-610"], ["gebied-610"], id="only-the-invalid-code-is-reported"),
     ],
 )
-def test_target_codes_rejects_codes_not_usable_in_the_module(
-    admin: TestClient, target_codes: list[str], invalid_codes: list[str]
+async def test_target_codes_rejects_codes_not_usable_in_the_module(
+    admin: httpx2.AsyncClient, target_codes: list[str], invalid_codes: list[str]
 ):
-    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes})
+    response: Response = await admin.patch(
+        "/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes}
+    )
 
     assert response.status_code == 422, response.text
     errors: list[dict[str, Any]] = [error for error in response.json()["detail"] if error["loc"][-1] == "target_codes"]
@@ -223,14 +237,14 @@ def test_target_codes_rejects_codes_not_usable_in_the_module(
         pytest.param(6, 610, ["gebied-1"], 200, id="module-6-does-not-terminate-it"),
     ],
 )
-def test_target_codes_are_scoped_to_the_patched_module(
-    admin: TestClient,
+async def test_target_codes_are_scoped_to_the_patched_module(
+    admin: httpx2.AsyncClient,
     module_id: int,
     lineage_id: int,
     target_codes: list[str],
     expected_status: int,
 ):
-    response: Response = admin.patch(
+    response: Response = await admin.patch(
         f"/modules/{module_id}/object/gebiedsaanwijzing/{lineage_id}", json={"target_codes": target_codes}
     )
 
@@ -245,8 +259,12 @@ def test_target_codes_are_scoped_to_the_patched_module(
         pytest.param(["beleidskeuze-1"], "Invalid object type", id="object-type-that-is-not-allowed"),
     ],
 )
-def test_target_codes_rejects_invalid_values(admin: TestClient, target_codes: list[str] | None, expected_message: str):
-    response: Response = admin.patch("/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes})
+async def test_target_codes_rejects_invalid_values(
+    admin: httpx2.AsyncClient, target_codes: list[str] | None, expected_message: str
+):
+    response: Response = await admin.patch(
+        "/modules/5/object/gebiedsaanwijzing/510", json={"target_codes": target_codes}
+    )
 
     assert response.status_code == 422, response.text
     errors: list[dict[str, Any]] = [error for error in response.json()["detail"] if error["loc"][-1] == "target_codes"]
@@ -254,34 +272,34 @@ def test_target_codes_rejects_invalid_values(admin: TestClient, target_codes: li
     assert expected_message in errors[0]["msg"]
 
 
-def test_lineage_outside_the_module_returns_404(admin: TestClient):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/3", json={"title": "Not in this module"})
+async def test_lineage_outside_the_module_returns_404(admin: httpx2.AsyncClient):
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/3", json={"title": "Not in this module"})
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Module object niet gevonden"
 
 
-def test_empty_body_returns_400(admin: TestClient):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={})
+async def test_empty_body_returns_400(admin: httpx2.AsyncClient):
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/1", json={})
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Niets om aan te passen"
 
 
-def test_unknown_lineage_returns_404(admin: TestClient):
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/999999", json={"title": "Does not exist"})
+async def test_unknown_lineage_returns_404(admin: httpx2.AsyncClient):
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/999999", json={"title": "Does not exist"})
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Object static niet gevonden"
 
 
-def test_locked_module_returns_400(admin: TestClient, ctx: Context):
-    module: ModuleTable | None = ctx.session.get(ModuleTable, 5)
+async def test_locked_module_returns_400(admin: httpx2.AsyncClient, ctx: Context):
+    module: ModuleTable | None = await ctx.session.get(ModuleTable, 5)
     assert module
     module.temporary_locked = True
-    ctx.session.flush()
+    await ctx.session.flush()
 
-    response: Response = admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Locked out"})
+    response: Response = await admin.patch("/modules/5/object/beleidskeuze/1", json={"title": "Locked out"})
 
     assert response.status_code == 400
     assert response.json()["detail"] == "The module is locked"
@@ -294,8 +312,8 @@ def test_locked_module_returns_400(admin: TestClient, ctx: Context):
         pytest.param(999999, "Module niet gevonden", id="unknown"),
     ],
 )
-def test_inaccessible_module_returns_404(admin: TestClient, module_id: int, detail: str):
-    response: Response = admin.patch(f"/modules/{module_id}/object/beleidskeuze/1", json={"title": "Not allowed"})
+async def test_inaccessible_module_returns_404(admin: httpx2.AsyncClient, module_id: int, detail: str):
+    response: Response = await admin.patch(f"/modules/{module_id}/object/beleidskeuze/1", json={"title": "Not allowed"})
 
     assert response.status_code == 404
     assert response.json()["detail"] == detail
@@ -310,14 +328,16 @@ def test_inaccessible_module_returns_404(admin: TestClient, module_id: int, deta
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],
 )
-def test_permission_matrix(
+async def test_permission_matrix(
     request: FixtureRequest,
     client_fixture: str,
     expected_status: int,
     expected_detail: str | None,
 ):
-    test_client: TestClient = request.getfixturevalue(client_fixture)
-    response: Response = test_client.patch("/modules/5/object/beleidskeuze/1", json={"title": "Patched by a role"})
+    test_client: httpx2.AsyncClient = request.getfixturevalue(client_fixture)
+    response: Response = await test_client.patch(
+        "/modules/5/object/beleidskeuze/1", json={"title": "Patched by a role"}
+    )
 
     assert response.status_code == expected_status, response.text
     if expected_detail is not None:
@@ -331,8 +351,10 @@ def test_permission_matrix(
         pytest.param(1, 401, id="not-owner-of-the-object"),
     ],
 )
-def test_owner_may_patch_without_the_role_permission(owner_1: TestClient, lineage_id: int, expected_status: int):
-    response: Response = owner_1.patch(
+async def test_owner_may_patch_without_the_role_permission(
+    owner_1: httpx2.AsyncClient, lineage_id: int, expected_status: int
+):
+    response: Response = await owner_1.patch(
         f"/modules/5/object/beleidskeuze/{lineage_id}", json={"title": "Patched by the owner"}
     )
 

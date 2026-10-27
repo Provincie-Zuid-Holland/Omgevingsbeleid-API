@@ -56,6 +56,9 @@ model_map: &model_map
 
 api:
   routers:
+    - prefix: /login/access-token
+      endpoints:
+        - resolver: auth_login_access_token
     - prefix: /users
       endpoints:
         - resolver: create_user
@@ -238,23 +241,23 @@ api:
         - resolver: create_publication_act
         - resolver: close_publication_act
           resolver_data:
-            path: /{act_uuid}/close
+            path: /{act_id}/close
         - resolver: edit_publication_act
           resolver_data:
-            path: /{act_uuid}
+            path: /{act_id}
         - resolver: detail_publication_act
           resolver_data:
-            path: /{act_uuid}
+            path: /{act_id}
         - resolver: list_publication_acts
     - prefix: /publication-templates
       endpoints:
         - resolver: create_publication_template
         - resolver: edit_publication_template
           resolver_data:
-            path: /{template_uuid}
+            path: /{template_id}
         - resolver: detail_publication_template
           resolver_data:
-            path: /{template_uuid}
+            path: /{template_id}
         - resolver: list_publication_templates
     # Unified packages (both act and announcement)
     - prefix: /publication-packages

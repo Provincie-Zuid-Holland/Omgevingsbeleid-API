@@ -2,7 +2,7 @@ from uuid import UUID
 
 import dso.models as dso_models
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
 from app.api.domains.publications.services.state.versions.v7 import models
@@ -122,10 +122,10 @@ class PatchActMutation:
         self._active_act: models.ActiveAct = active_act
         self._gio_pool: StateGioPool = StateGioPool(active_act)
 
-    def patch(self, session: Session, data: ApiActInputData) -> ApiActInputData:
+    async def patch(self, session: AsyncSession, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_gios(data)
         data = self._patch_documents(data)
-        data = self._patch_assets(session, data)
+        data = await self._patch_assets(session, data)
         data = self._patch_act_mutation(data)
         data = self._patch_ow_state(data)
         return data
@@ -224,7 +224,7 @@ class PatchActMutation:
     def _gebiedengroep_is_same(self, existing: models.Gebiedengroep, gebiedengroep: dict) -> bool:
         return gebiedengroep["code"] == existing.code
 
-    def _patch_assets(self, session: Session, data: ApiActInputData) -> ApiActInputData:
+    async def _patch_assets(self, session: AsyncSession, data: ApiActInputData) -> ApiActInputData:
         state_assets: dict[str, models.Asset] = self._active_act.Assets
 
         fetched_assets_ids: set[str] = {a["UUID"] for a in data.Publication_Data.assets}
@@ -232,7 +232,7 @@ class PatchActMutation:
             sa.id for _, sa in state_assets.items() if sa.id not in fetched_assets_ids
         }
         additional_asset_ids: list[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_ids_str]
-        additional_assets: list[dict] = self._asset_provider.get_assets_by_ids(session, additional_asset_ids)
+        additional_assets: list[dict] = await self._asset_provider.get_assets_by_ids(session, additional_asset_ids)
 
         data.Publication_Data.assets = data.Publication_Data.assets + additional_assets
 

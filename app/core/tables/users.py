@@ -21,6 +21,7 @@ class UsersTable(Base, SerializerMixin):
     user_roles: Mapped[list["UserRoleTable"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
+        lazy="raise_on_sql",
     )
     roles: AssociationProxy[list[str]] = association_proxy(
         "user_roles", "role", creator=lambda role: UserRoleTable(role=role)
@@ -48,4 +49,4 @@ class UserRoleTable(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), primary_key=True)
     role: Mapped[str] = mapped_column(String(100), primary_key=True)
 
-    user: Mapped["UsersTable"] = relationship(back_populates="user_roles")
+    user: Mapped["UsersTable"] = relationship(back_populates="user_roles", lazy="raise_on_sql")

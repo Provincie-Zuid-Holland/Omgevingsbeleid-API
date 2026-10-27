@@ -1,15 +1,15 @@
-from fastapi.testclient import TestClient
+import httpx2
 
 from tests.conftest import Context
 from tests.fixtures.internal.spec.modules import ModuleSpec
 from tests.fixtures.internal.types import Ref
 
 
-def test_returns_the_module(admin: TestClient, ctx: Context):
+async def test_returns_the_module(admin: httpx2.AsyncClient, ctx: Context):
     module_id = 1
     module = ctx.f.find(Ref(ModuleSpec, f"module_{module_id}")).spec
 
-    response = admin.get(f"/modules/{module_id}")
+    response = await admin.get(f"/modules/{module_id}")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -28,8 +28,8 @@ def test_returns_the_module(admin: TestClient, ctx: Context):
     assert [s["status"] for s in body["status_history"]] == ["Niet-Actief", "Ontwerp GS Concept", "Ter Inzage"]
 
 
-def test_returns_a_closed_module(admin: TestClient):
-    response = admin.get("/modules/3")
+async def test_returns_a_closed_module(admin: httpx2.AsyncClient):
+    response = await admin.get("/modules/3")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -38,8 +38,8 @@ def test_returns_a_closed_module(admin: TestClient):
     assert [s["status"] for s in body["status_history"]] == ["Niet-Actief", "Ontwerp GS Concept", "Gesloten"]
 
 
-def test_returns_a_module_that_is_not_activated(admin: TestClient):
-    response = admin.get("/modules/2")
+async def test_returns_a_module_that_is_not_activated(admin: httpx2.AsyncClient):
+    response = await admin.get("/modules/2")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -47,8 +47,8 @@ def test_returns_a_module_that_is_not_activated(admin: TestClient):
     assert [s["status"] for s in body["status_history"]] == ["Niet-Actief"]
 
 
-def test_unknown_module_returns_404(admin: TestClient):
-    response = admin.get("/modules/999999")
+async def test_unknown_module_returns_404(admin: httpx2.AsyncClient):
+    response = await admin.get("/modules/999999")
 
     assert response.status_code == 404, response.text
     assert response.json()["detail"] == "Module niet gevonden"

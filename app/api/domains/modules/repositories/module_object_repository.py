@@ -6,12 +6,14 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel
 from sqlalchemy import case, desc, func, literal, select
-from sqlalchemy.orm import Session, aliased, load_only
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased, load_only, selectinload
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql import Select, and_, or_
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.modules.types import ModuleObjectActionFull, ModuleStatusCode
+from app.api.types import PreparedQuery
 from app.api.utils.pagination import SortedPagination
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleStatusHistoryTable, ModuleTable
 from app.core.tables.objects import ObjectsTable, ObjectStaticsTable
@@ -30,36 +32,45 @@ class OwnerFilter(BaseModel):
 
 
 class ModuleObjectRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: UUID) -> ModuleObjectsTable | None:
+    async def get_by_id(self, session: AsyncSession, idx: UUID) -> ModuleObjectsTable | None:
         stmt = select(ModuleObjectsTable).filter(ModuleObjectsTable.id == idx)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_object_type_and_id(self, session: Session, object_type: str, idx: UUID) -> ModuleObjectsTable | None:
+    async def get_by_object_type_and_id(
+        self, session: AsyncSession, object_type: str, idx: UUID
+    ) -> ModuleObjectsTable | None:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.id == idx)
             .filter(ModuleObjectsTable.object_type == object_type)
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_module_id_object_type_and_id(
+    async def get_by_module_id_object_type_and_id(
         self,
-        session: Session,
+        session: AsyncSession,
         module_id: int,
         object_type: str,
         idx: UUID,
     ) -> ModuleObjectsTable | None:
+        prepared_query: PreparedQuery = self.prepare_by_module_id_object_type_and_id(module_id, object_type, idx)
+        return await self.fetch_first(session, prepared_query.query)
+
+    def prepare_by_module_id_object_type_and_id(self, module_id: int, object_type: str, idx: UUID) -> PreparedQuery:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.id == idx)
             .filter(ModuleObjectsTable.module_id == module_id)
             .filter(ModuleObjectsTable.object_type == object_type)
         )
-        return self.fetch_first(session, stmt)
+        return PreparedQuery(
+            query=stmt,
+            aliased_ref=ModuleObjectsTable,
+        )
 
-    def get_latest_by_module_id_object_code(
+    async def get_latest_by_module_id_object_code(
         self,
-        session: Session,
+        session: AsyncSession,
         module_id: int,
         object_code: str,
     ) -> ModuleObjectsTable | None:
@@ -69,15 +80,21 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ModuleObjectsTable.code == object_code)
             .order_by(desc(ModuleObjectsTable.modified_date))
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_latest_by_id(
+    async def get_latest_by_id(
         self,
-        session: Session,
+        session: AsyncSession,
         module_id: int,
         object_type: str,
         object_id: int,
     ) -> ModuleObjectsTable | None:
+        prepared_query: PreparedQuery = self.prepare_latest_by_id(module_id, object_type, object_id)
+        return await self.fetch_first(
+            session, prepared_query.query.options(selectinload(ModuleObjectsTable.object_statics))
+        )
+
+    def prepare_latest_by_id(self, module_id: int, object_type: str, object_id: int) -> PreparedQuery:
         stmt = (
             select(ModuleObjectsTable)
             .filter(ModuleObjectsTable.module_id == module_id)
@@ -85,7 +102,10 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ModuleObjectsTable.object_id == object_id)
             .order_by(desc(ModuleObjectsTable.modified_date))
         )
-        return self.fetch_first(session, stmt)
+        return PreparedQuery(
+            query=stmt,
+            aliased_ref=ModuleObjectsTable,
+        )
 
     def _build_snapshot_objects_query(self, module_id: int, before: datetime):
         return (
@@ -105,20 +125,34 @@ class ModuleObjectRepository(BaseRepository):
             .filter(ModuleObjectContextTable.hidden == False)
         )
 
-    def get_objects_in_time(self, session: Session, module_id: int, before: datetime) -> list[ModuleObjectsTable]:
+    async def get_objects_in_time(
+        self, session: AsyncSession, module_id: int, before: datetime
+    ) -> list[ModuleObjectsTable]:
         subq = self._build_snapshot_objects_query(module_id, before).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._row_number == 1).filter(subq.c.deleted == False)
+        stmt = (
+            select(aliased_objects)
+            .options(selectinload(aliased_objects.module_object_context))
+            .filter(subq.c._row_number == 1)
+            .filter(subq.c.deleted == False)
+        )
 
-        objects: list[ModuleObjectsTable] = session.execute(stmt).scalars()
+        objects: list[ModuleObjectsTable] = (await session.execute(stmt)).scalars()
         return objects
 
-    def get_all_objects_in_time(self, session: Session, module_id: int, before: datetime) -> list[ModuleObjectsTable]:
+    async def get_all_objects_in_time(
+        self, session: AsyncSession, module_id: int, before: datetime
+    ) -> list[ModuleObjectsTable]:
         subq = self._build_snapshot_objects_query(module_id, before).subquery()
         aliased_objects = aliased(ModuleObjectsTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._row_number == 1).filter(subq.c.deleted == False)
+        stmt = (
+            select(aliased_objects)
+            .options(selectinload(aliased_objects.module_object_context))
+            .filter(subq.c._row_number == 1)
+            .filter(subq.c.deleted == False)
+        )
 
-        objects: list[ModuleObjectsTable] = session.execute(stmt).all()
+        objects: list[ModuleObjectsTable] = (await session.execute(stmt)).all()
         return objects
 
     def _latest_per_module_query(
@@ -181,14 +215,21 @@ class ModuleObjectRepository(BaseRepository):
         aliased_module = aliased(ModuleTable, subq)
         stmt = (
             select(aliased_objects, aliased_module, subq.c.context_action)
+            .options(
+                selectinload(aliased_module.status_history),
+                selectinload(aliased_module.created_by),
+                selectinload(aliased_module.modified_by),
+                selectinload(aliased_module.module_manager_1),
+                selectinload(aliased_module.module_manager_2),
+            )
             .filter(subq.c._row_number == 1)
             .order_by(desc(subq.c.modified_date))
         )
         return stmt
 
-    def get_latest_per_module(
+    async def get_latest_per_module(
         self,
-        session: Session,
+        session: AsyncSession,
         code: str,
         minimum_status: ModuleStatusCode | None = None,
         is_active: bool = True,
@@ -196,7 +237,7 @@ class ModuleObjectRepository(BaseRepository):
         # Build minimum status list starting at given status, if provided
         status_filter = ModuleStatusCode.after(minimum_status) if minimum_status is not None else None
         query = self._latest_per_module_query(code=code, status_filter=status_filter, is_active=is_active)
-        rows = session.execute(query).all()
+        rows = (await session.execute(query)).all()
         named_results = [
             LatestObjectPerModuleResult(
                 module_object=row[0],
@@ -207,9 +248,9 @@ class ModuleObjectRepository(BaseRepository):
         ]
         return named_results
 
-    def get_all_latest(
+    async def get_all_latest(
         self,
-        session: Session,
+        session: AsyncSession,
         pagination: SortedPagination,
         only_active_modules: bool = True,
         minimum_status: ModuleStatusCode | None = None,
@@ -313,7 +354,7 @@ class ModuleObjectRepository(BaseRepository):
         if title is not None:
             stmt = stmt.filter(subq.c.title.like(title))
 
-        return self.fetch_paginated_no_scalars(
+        return await self.fetch_paginated_no_scalars(
             session=session,
             statement=stmt,
             limit=pagination.limit,
@@ -321,9 +362,9 @@ class ModuleObjectRepository(BaseRepository):
             sort=(getattr(subq.c, pagination.sort.column), pagination.sort.order),
         )
 
-    def patch_latest_module_object(
+    async def patch_latest_module_object(
         self,
-        session: Session,
+        session: AsyncSession,
         module_id: int,
         object_type: str,
         object_id: int,
@@ -331,7 +372,7 @@ class ModuleObjectRepository(BaseRepository):
         timepoint: datetime,
         by_id: UUID,
     ) -> tuple[ModuleObjectsTable, ModuleObjectsTable]:
-        old_record: ModuleObjectsTable | None = self.get_latest_by_id(
+        old_record: ModuleObjectsTable | None = await self.get_latest_by_id(
             session,
             module_id,
             object_type,
@@ -340,7 +381,7 @@ class ModuleObjectRepository(BaseRepository):
         if not old_record:
             raise ValueError("lineage_id does not exist in this module")
 
-        new_record: ModuleObjectsTable = self.patch_module_object(
+        new_record: ModuleObjectsTable = await self.patch_module_object(
             session,
             old_record,
             changes,
@@ -349,9 +390,9 @@ class ModuleObjectRepository(BaseRepository):
         )
         return old_record, new_record
 
-    def patch_module_object(
+    async def patch_module_object(
         self,
-        session: Session,
+        session: AsyncSession,
         record: ModuleObjectsTable,
         changes: dict,
         timepoint: datetime,
@@ -374,7 +415,9 @@ class ModuleObjectRepository(BaseRepository):
 
         return new_record
 
-    def confirm_accessible_object_codes(self, session: Session, module_id: int, object_codes: set[str]) -> set[str]:
+    async def confirm_accessible_object_codes(
+        self, session: AsyncSession, module_id: int, object_codes: set[str]
+    ) -> set[str]:
         if not object_codes:
             return object_codes
 
@@ -446,4 +489,4 @@ class ModuleObjectRepository(BaseRepository):
             .filter(highest_priority_per_code.c.Usable == 1)
         )
 
-        return set(session.execute(stmt).scalars())
+        return set((await session.execute(stmt)).scalars())

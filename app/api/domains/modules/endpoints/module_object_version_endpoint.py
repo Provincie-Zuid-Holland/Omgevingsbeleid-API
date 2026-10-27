@@ -4,7 +4,8 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -13,8 +14,10 @@ from app.api.domains.modules.repositories.module_object_repository import Module
 from app.api.domains.modules.types import ModuleStatusCode
 from app.api.domains.users.dependencies import depends_optional_current_user
 from app.api.endpoint import BaseEndpointContext
+from app.api.events.before_select_execution_event import BeforeSelectExecutionEvent
 from app.api.events.event_manager import ApiEventManager
 from app.api.events.retrieved_module_objects_event import RetrievedModuleObjectsEvent
+from app.api.types import PreparedQuery
 from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable, ModuleTable
 from app.core.tables.users import UsersTable
 from app.core.types import Model
@@ -28,14 +31,14 @@ class ModuleObjectVersionEndpointContext(BaseEndpointContext):
 
 
 @inject
-def view_module_object_version_endpoint(
+async def view_module_object_version_endpoint(
     module: Annotated[ModuleTable, Depends(depends_module)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     user: Annotated[UsersTable | None, Depends(depends_optional_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[ModuleObjectVersionEndpointContext, Depends()],
     object_uuid: uuid.UUID,
 ) -> BaseModel:
@@ -47,11 +50,22 @@ def view_module_object_version_endpoint(
         if module.current_status not in ModuleStatusCode.after(context.minimum_status):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "module objects lacks the minimum status for view.")
 
-    module_object: ModuleObjectsTable | None = module_object_repository.get_by_module_id_object_type_and_id(
-        session,
+    prepared_query: PreparedQuery = module_object_repository.prepare_by_module_id_object_type_and_id(
         module.module_id,
         context.object_type,
         object_uuid,
+    )
+    prepare_query_event: BeforeSelectExecutionEvent = await event_manager.dispatch(
+        session,
+        BeforeSelectExecutionEvent.create(
+            query=prepared_query.query,
+            response_model=context.response_config_model,
+            objects_table_ref=prepared_query.aliased_ref,
+        ),
+    )
+    module_object: ModuleObjectsTable | None = await module_object_repository.fetch_first(
+        session,
+        prepare_query_event.payload.query.options(selectinload(ModuleObjectsTable.module_object_context)),
     )
     if not module_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module Object niet gevonden")
@@ -64,7 +78,7 @@ def view_module_object_version_endpoint(
     rows: list[BaseModel] = [row]
 
     # Ask extensions for more information
-    event: RetrievedModuleObjectsEvent = event_manager.dispatch(
+    event: RetrievedModuleObjectsEvent = await event_manager.dispatch(
         session,
         RetrievedModuleObjectsEvent.create(
             rows,

@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide
 from fastapi import Body, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy import Select, asc, desc, func, literal, or_, select, union_all
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
@@ -79,26 +79,26 @@ class SearchObject[T: BaseModel](BaseModel):
 class EndpointHandler:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         module_objects_to_models_parser: ModuleObjectsToModelsParser,
         user: UsersTable | None,
         context: SearchEndpointContext,
         request_data: RequestData,
         pagination: SimplePagination,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._module_objects_to_models_parser: ModuleObjectsToModelsParser = module_objects_to_models_parser
         self._user: UsersTable | None = user
         self._context: SearchEndpointContext = context
         self._request_data: RequestData = request_data
         self._pagination: SimplePagination = pagination
 
-    def handle(self) -> PagedResponse[SearchObject]:
+    async def handle(self) -> PagedResponse[SearchObject]:
         if self._pagination.limit > 50:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Pagination limit is too high")
         self._request_data.validate_object_types(self._context.allowed_object_types)
 
-        paginated: PaginatedQueryResult = query_paginated_no_scalars(
+        paginated: PaginatedQueryResult = await query_paginated_no_scalars(
             query=self._build_statement(),
             session=self._session,
             limit=self._pagination.limit,
@@ -244,8 +244,8 @@ class EndpointHandler:
         )
 
 
-def get_search_endpoint(
-    session: Annotated[Session, Depends(depends_db_session)],
+async def get_search_endpoint(
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     module_objects_to_models_parser: Annotated[
         ModuleObjectsToModelsParser, Depends(Provide[ApiContainer.module_objects_to_models_parser])
@@ -262,5 +262,5 @@ def get_search_endpoint(
         request_data,
         pagination,
     )
-    results: PagedResponse[SearchObject] = handler.handle()
+    results: PagedResponse[SearchObject] = await handler.handle()
     return results

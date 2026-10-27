@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.others.types import Hoofdlijn
 from app.core.tables.others import HoofdlijnTable
@@ -17,13 +17,13 @@ class JoinHoofdlijnenConfig(BaseModel):
 class JoinHoofdlijnenService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinHoofdlijnenConfig,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: JoinHoofdlijnenConfig = config
 
-    def join_hoofdlijnen(self, rows: list[BaseModel]) -> list[BaseModel]:
+    async def join_hoofdlijnen(self, rows: list[BaseModel]) -> list[BaseModel]:
         if not rows:
             return rows
         result_rows: list[BaseModel] = []
@@ -44,7 +44,7 @@ class JoinHoofdlijnenService:
         if not all_hoofdlijn_codes:
             return rows
 
-        hoofdlijnen: dict[UUID, Hoofdlijn] = self._fetch_hoofdlijnen(all_hoofdlijn_codes)
+        hoofdlijnen: dict[UUID, Hoofdlijn] = await self._fetch_hoofdlijnen(all_hoofdlijn_codes)
 
         for row in rows:
             object_code: str = row.code
@@ -59,17 +59,17 @@ class JoinHoofdlijnenService:
 
         return result_rows
 
-    def _fetch_hoofdlijnen(self, hoofdlijnen_ids: set[str]) -> dict[UUID, Hoofdlijn]:
+    async def _fetch_hoofdlijnen(self, hoofdlijnen_ids: set[str]) -> dict[UUID, Hoofdlijn]:
         hoofdlijnen_ids: set[UUID] = {UUID(idx) for idx in hoofdlijnen_ids}
         stmt = select(HoofdlijnTable).filter(HoofdlijnTable.id.in_(hoofdlijnen_ids))
-        rows: Sequence[HoofdlijnTable] = self._session.execute(stmt).scalars().all()
+        rows: Sequence[HoofdlijnTable] = (await self._session.execute(stmt)).scalars().all()
         return {r.id: Hoofdlijn.model_validate(r) for r in rows}
 
 
 class JoinHoofdlijnenServiceFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinHoofdlijnenConfig,
     ) -> JoinHoofdlijnenService:
         return JoinHoofdlijnenService(

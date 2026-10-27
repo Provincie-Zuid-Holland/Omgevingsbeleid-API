@@ -6,7 +6,8 @@ from typing import Annotated, Any
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -60,15 +61,15 @@ def _get_validities(
     )
 
 
-def _create_objects(
-    session: Session,
+async def _create_objects(
+    session: AsyncSession,
     module_object_repository: ModuleObjectRepository,
     user: UsersTable,
     module: ModuleTable,
     object_in: CompleteModule,
     timepoint: datetime,
 ) -> None:
-    module_objects: list[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
+    module_objects: list[ModuleObjectsTable] = await module_object_repository.get_objects_in_time(
         session,
         module.module_id,
         timepoint,
@@ -99,18 +100,18 @@ def _create_objects(
         new_object.end_validity = validities.end
 
         statics: ObjectStaticsTable = (
-            session.query(ObjectStaticsTable).filter(ObjectStaticsTable.code == new_object.code).one()
-        )
+            await session.scalars(select(ObjectStaticsTable).filter(ObjectStaticsTable.code == new_object.code))
+        ).one()
         statics.cached_title = new_object.title
         session.add(new_object)
         session.add(statics)
 
 
 @inject
-def post_complete_module_endpoint(
+async def post_complete_module_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
@@ -127,28 +128,22 @@ def post_complete_module_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
 
-    try:
-        status = ModuleStatusHistoryTable(
-            module_id=module.module_id,
-            status=ModuleStatusCodeInternal.Module_afgerond,
-            created_date=timepoint,
-            created_by_id=user.id,
-        )
-        session.add(status)
+    module_status = ModuleStatusHistoryTable(
+        module_id=module.module_id,
+        status=ModuleStatusCodeInternal.Module_afgerond,
+        created_date=timepoint,
+        created_by_id=user.id,
+    )
+    session.add(module_status)
 
-        _create_objects(session, module_object_repository, user, module, object_in, timepoint)
+    await _create_objects(session, module_object_repository, user, module, object_in, timepoint)
 
-        module.closed = True
-        module.successful = True
-        module.modified_by_id = user.id
-        module.modified_date = timepoint
-        session.add(module)
+    module.closed = True
+    module.successful = True
+    module.modified_by_id = user.id
+    module.modified_date = timepoint
+    session.add(module)
 
-        session.flush()
-        session.commit()
-
-    except Exception:
-        session.rollback()
-        raise
+    await session.commit()
 
     return ResponseOK(message="OK")

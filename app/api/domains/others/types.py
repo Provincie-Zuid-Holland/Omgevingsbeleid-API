@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Any
 
 from fastapi import UploadFile
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, PrivateAttr, field_validator
 
 
 class StorageFileBasic(BaseModel):
@@ -74,14 +74,15 @@ class ObjectRelatedFileResponse(BaseModel):
 
 class FileData(BaseModel):
     file_in: UploadFile
+    binary: bytes
 
-    def __init__(self, /, **data: Any):
-        super().__init__(**data)
-        self._binary = self.file_in.file.read()
-        self._checksum = hashlib.sha256(self._binary).hexdigest()
+    _checksum: str = PrivateAttr()
+
+    def model_post_init(self, __context: Any, /) -> None:
+        self._checksum = hashlib.sha256(self.binary).hexdigest()
 
     def get_binary(self) -> bytes:
-        return self._binary
+        return self.binary
 
     def get_checksum(self) -> str:
         return self._checksum
@@ -90,13 +91,13 @@ class FileData(BaseModel):
         return self.file_in.content_type
 
     def get_size(self) -> int:
-        return len(self._binary)
+        return len(self.binary)
 
     def get_lookup(self) -> str:
-        return self._checksum[0:10]
+        return self._checksum[:10]
 
     def normalize_filename(self) -> str:
-        normalized_filename = self.file_in.filename.lower()
+        normalized_filename = (self.file_in.filename or "").lower()
 
         normalized_filename = re.sub(r"[^a-z0-9.]", "-", normalized_filename)
         normalized_filename = re.sub(r"-+", "-", normalized_filename)

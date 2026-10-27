@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -21,7 +21,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def post_module_remove_object_endpoint(
+async def post_module_remove_object_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],
@@ -31,7 +31,7 @@ def post_module_remove_object_endpoint(
             depends_object_static_by_object_type_and_id,
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
@@ -53,7 +53,7 @@ def post_module_remove_object_endpoint(
     object_context.modified_date = timepoint
     session.add(object_context)
 
-    _, new_record = module_object_repository.patch_latest_module_object(
+    _, new_record = await module_object_repository.patch_latest_module_object(
         session,
         object_context.module_id,
         object_context.object_type,
@@ -65,7 +65,7 @@ def post_module_remove_object_endpoint(
         user.id,
     )
     session.add(new_record)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

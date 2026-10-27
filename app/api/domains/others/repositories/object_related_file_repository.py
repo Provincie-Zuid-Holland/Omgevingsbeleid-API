@@ -2,7 +2,8 @@ from enum import Enum
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.base_repository import BaseRepository
 from app.api.utils.pagination import PaginatedQueryResult, SortedPagination
@@ -15,21 +16,25 @@ class ObjectRelatedFileSortColumn(str, Enum):
 
 
 class ObjectRelatedFileRepository(BaseRepository):
-    def get_by_id(self, session: Session, idx: UUID) -> ObjectRelatedFileTable | None:
-        stmt = select(ObjectRelatedFileTable).filter(ObjectRelatedFileTable.id == idx)
-        return self.fetch_first(session, stmt)
+    async def get_by_id(self, session: AsyncSession, idx: UUID) -> ObjectRelatedFileTable | None:
+        stmt = (
+            select(ObjectRelatedFileTable)
+            .options(selectinload(ObjectRelatedFileTable.object_statics))
+            .filter(ObjectRelatedFileTable.id == idx)
+        )
+        return await self.fetch_first(session, stmt)
 
-    def get_by_object_code(self, session: Session, object_code: str) -> list[ObjectRelatedFileTable]:
+    async def get_by_object_code(self, session: AsyncSession, object_code: str) -> list[ObjectRelatedFileTable]:
         stmt = (
             select(ObjectRelatedFileTable)
             .filter(ObjectRelatedFileTable.code == object_code)
             .order_by(ObjectRelatedFileTable.created_date.desc())
         )
-        return self.fetch_all(session, stmt)
+        return await self.fetch_all(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         pagination: SortedPagination,
         object_code: str | None = None,
     ) -> PaginatedQueryResult:
@@ -39,7 +44,7 @@ class ObjectRelatedFileRepository(BaseRepository):
 
         stmt = select(ObjectRelatedFileTable).filter(*filters)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=pagination.offset,

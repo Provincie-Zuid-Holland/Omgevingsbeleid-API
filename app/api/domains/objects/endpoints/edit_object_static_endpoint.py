@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ValidationError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -28,7 +28,7 @@ class EditObjectStaticEndpointContext(BaseEndpointContext):
 
 
 @inject
-def edit_object_static_endpoint(
+async def edit_object_static_endpoint(
     lineage_id: int,
     object_in: BaseModel,
     user: Annotated[UsersTable, Depends(depends_current_user)],
@@ -36,14 +36,14 @@ def edit_object_static_endpoint(
         ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[EditObjectStaticEndpointContext, Depends()],
 ) -> ResponseOK:
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nothing to update")
 
-    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = await object_static_repository.get_by_object_type_and_id(
         session,
         context.object_type,
         lineage_id,
@@ -87,7 +87,7 @@ def edit_object_static_endpoint(
     )
     session.add(change_log)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

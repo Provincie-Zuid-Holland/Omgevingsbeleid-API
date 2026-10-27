@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.types.api_input_data import DocFrbr
 from app.core.tables.publications import (
@@ -15,15 +15,15 @@ from app.core.tables.publications import (
 
 
 class DocFrbrProvider:
-    def generate_frbr(self, session: Session, announcement: PublicationAnnouncementTable) -> DocFrbr:
+    async def generate_frbr(self, session: AsyncSession, announcement: PublicationAnnouncementTable) -> DocFrbr:
         if announcement.publication.environment.has_state:
-            return self._create_real(session, announcement)
+            return await self._create_real(session, announcement)
 
         return self._create_fake(announcement)
 
-    def _create_real(self, session: Session, announcement: PublicationAnnouncementTable) -> DocFrbr:
+    async def _create_real(self, session: AsyncSession, announcement: PublicationAnnouncementTable) -> DocFrbr:
         stmt = select(func.count()).select_from(PublicationDocTable)
-        count: int = session.execute(stmt).scalar() + 1
+        count: int = (await session.execute(stmt)).scalar() + 1
         id_suffix: str = f"{count}"
         result: DocFrbr = self._create(announcement, id_suffix)
         return result

@@ -16,7 +16,7 @@ run: ## Run the API with auto-reload
 	$(RUN) uvicorn app.main:app --reload
 
 debug: ## Run the API in debug mode
-	$(RUN) python app/main.py localhost 8000 8001
+	$(RUN) python -m debugpy --listen localhost:8001 -m uvicorn app.main:app --port 8000 --reload
 
 
 # ---------------------------------------------------------------------------

@@ -30,6 +30,7 @@ class AddObjectCodeRelationshipListener(BuildListener[GenerateTableEvent]):
                     "ObjectStaticsTable",
                     primaryjoin=f"{event.table_name}.{column.name} == ObjectStaticsTable.code",
                     viewonly=True,
+                    lazy="raise_on_sql",
                 ),
             )
 
@@ -57,6 +58,7 @@ class AddAreasRelationshipListener(BuildListener[GenerateTableEvent]):
                     AreasTable,
                     primaryjoin=f"{event.table_name}.{column.name} == AreasTable.id",
                     viewonly=True,
+                    lazy="raise_on_sql",
                 ),
             )
 
@@ -84,6 +86,7 @@ class AddUserRelationshipListener(BuildListener[GenerateTableEvent]):
                     UsersTable,
                     primaryjoin=f"{event.table_name}.{column.name} == UsersTable.id",
                     viewonly=True,
+                    lazy="raise_on_sql",
                 ),
             )
 
@@ -111,6 +114,7 @@ class AddWerkingsgebiedenRelationshipListener(BuildListener[GenerateTableEvent])
                     "SourceWerkingsgebiedenTable",
                     primaryjoin=f"{event.table_name}.{column.name} == SourceWerkingsgebiedenTable.id",
                     viewonly=True,
+                    lazy="raise_on_sql",
                 ),
             )
 
@@ -139,5 +143,6 @@ class AddStoreageFileRelationshipListener(BuildListener[GenerateTableEvent]):
                     StorageFileTable,
                     primaryjoin=f"{event.table_name}.{column.name} == StorageFileTable.id",
                     viewonly=True,
+                    lazy="raise_on_sql",
                 ),
             )

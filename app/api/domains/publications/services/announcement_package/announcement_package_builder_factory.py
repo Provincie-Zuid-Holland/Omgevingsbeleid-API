@@ -1,5 +1,5 @@
 from dso.announcement_builder.state_manager.models import InputData
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.announcement_package.announcement_package_builder import (
     AnnouncementPackageBuilder,
@@ -29,13 +29,13 @@ class AnnouncementPackageBuilderFactory:
         self._doc_frbr_provider: DocFrbrProvider = doc_frbr_provider
         self._state_loader: StateLoader = state_loader
 
-    def create_builder(
+    async def create_builder(
         self,
-        session: Session,
+        session: AsyncSession,
         announcement: PublicationAnnouncementTable,
         package_type: PackageType,
     ) -> AnnouncementPackageBuilder:
-        doc_frbr: DocFrbr = self._doc_frbr_provider.generate_frbr(session, announcement)
+        doc_frbr: DocFrbr = await self._doc_frbr_provider.generate_frbr(session, announcement)
         about_act_frbr: ActFrbr = self._get_about_act_frbr(announcement)
         about_bill_frbr: BillFrbr = self._get_about_bill_frbr(announcement)
 
@@ -50,7 +50,7 @@ class AnnouncementPackageBuilderFactory:
             Announcement_Content=AnnouncementContent.model_validate(announcement.content),
         )
 
-        state: ActiveState | None = self._state_loader.load_from_environment(
+        state: ActiveState | None = await self._state_loader.load_from_environment(
             session, announcement.publication.environment
         )
 

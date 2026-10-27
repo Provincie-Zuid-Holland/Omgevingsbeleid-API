@@ -5,7 +5,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -39,9 +39,9 @@ class UnifiedPackage(BaseModel):
 
 
 @inject
-def get_list_unified_packages_endpoint(
+async def get_list_unified_packages_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     unified_packages_provider: Annotated[
         UnifiedPackagesProvider, Depends(Provide[ApiContainer.publication.unified_packages_provider])
     ],
@@ -64,7 +64,7 @@ def get_list_unified_packages_endpoint(
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    paginated_result = unified_packages_provider.get_unified_packages(
+    paginated_result = await unified_packages_provider.get_unified_packages(
         session=session,
         pagination=pagination,
         environment_id=environment_id,

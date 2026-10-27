@@ -5,7 +5,7 @@ from typing import Annotated, Any
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -38,10 +38,10 @@ class ModuleEdit(BaseModel):
 
 
 @inject
-def post_edit_module_endpoint(
+async def post_edit_module_endpoint(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     object_in: ModuleEdit,
 ) -> ResponseOK:
@@ -62,7 +62,7 @@ def post_edit_module_endpoint(
     module.modified_date = datetime.now(UTC)
 
     session.add(module)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

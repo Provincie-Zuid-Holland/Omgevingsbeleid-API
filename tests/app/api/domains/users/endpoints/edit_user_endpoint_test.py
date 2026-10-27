@@ -1,10 +1,11 @@
 import uuid
 
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.tables.others import ChangeLogTable
 from app.core.tables.users import UsersTable
@@ -24,18 +25,18 @@ def target_uuid(ctx: Context) -> uuid.UUID:
     return ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
 
-def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: Session):
+async def test_edit_user_success(admin: httpx2.AsyncClient, target_uuid: uuid.UUID, session: AsyncSession):
     payload = {
         "name": "Edited Name",
         "email": "edited@pzh.nl",
         "roles": [ALLOWED_ROL],
     }
 
-    response = admin.post(f"/users/{target_uuid}", json=payload)
+    response = await admin.post(f"/users/{target_uuid}", json=payload)
     assert response.status_code == 200, response.text
     assert response.json()["message"] == "OK"
 
-    row: UsersTable | None = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = await session.get(UsersTable, target_uuid, options=[selectinload(UsersTable.user_roles)])
     assert row is not None
     assert row.name == "Edited Name"
     assert row.email == "edited@pzh.nl"
@@ -43,25 +44,29 @@ def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: S
     assert row.is_active is True
 
 
-def test_edit_user_deactivate_and_reactivate(admin: TestClient, target_uuid: uuid.UUID, session: Session):
-    deactivate = admin.post(f"/users/{target_uuid}", json={"is_active": False})
+async def test_edit_user_deactivate_and_reactivate(
+    admin: httpx2.AsyncClient, target_uuid: uuid.UUID, session: AsyncSession
+):
+    deactivate = await admin.post(f"/users/{target_uuid}", json={"is_active": False})
     assert deactivate.status_code == 200, deactivate.text
-    row: UsersTable | None = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = await session.get(UsersTable, target_uuid, options=[selectinload(UsersTable.user_roles)])
     assert row is not None
     assert row.is_active is False
 
-    reactivate = admin.post(f"/users/{target_uuid}", json={"is_active": True})
+    reactivate = await admin.post(f"/users/{target_uuid}", json={"is_active": True})
     assert reactivate.status_code == 200, reactivate.text
-    session.refresh(row)
+    await session.refresh(row)
     assert row.is_active is True
 
 
-def test_edit_user_writes_changelog_without_password(admin: TestClient, target_uuid: uuid.UUID, ctx: Context):
-    response = admin.post(f"/users/{target_uuid}", json={"name": "Edited Name"})
+async def test_edit_user_writes_changelog_without_password(
+    admin: httpx2.AsyncClient, target_uuid: uuid.UUID, ctx: Context
+):
+    response = await admin.post(f"/users/{target_uuid}", json={"name": "Edited Name"})
     assert response.status_code == 200, response.text
 
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
-    change_log: ChangeLogTable | None = ctx.session.scalar(
+    change_log: ChangeLogTable | None = await ctx.session.scalar(
         select(ChangeLogTable)
         .where(ChangeLogTable.action_type == "edit_user")
         .order_by(desc(ChangeLogTable.created_date))
@@ -77,21 +82,23 @@ def test_edit_user_writes_changelog_without_password(admin: TestClient, target_u
     assert "password_hashed" not in (change_log.after or "")
 
 
-def test_edit_user_email_already_in_use(admin: TestClient, target_uuid: uuid.UUID, session: Session, ctx: Context):
+async def test_edit_user_email_already_in_use(
+    admin: httpx2.AsyncClient, target_uuid: uuid.UUID, session: AsyncSession, ctx: Context
+):
     # Try to steal the admin's email.
-    response = admin.post(f"/users/{target_uuid}", json={"email": "admin@pzh.nl"})
+    response = await admin.post(f"/users/{target_uuid}", json={"email": "admin@pzh.nl"})
     assert response.status_code == 400
     assert response.json()["detail"] == "Email already in use"
 
     # The target kept its own email.
-    row: UsersTable | None = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = await session.get(UsersTable, target_uuid, options=[selectinload(UsersTable.user_roles)])
     assert row is not None
     assert row.email == "viewer@pzh.nl"
 
 
-def test_edit_user_same_email_is_allowed(admin: TestClient, target_uuid: uuid.UUID):
+async def test_edit_user_same_email_is_allowed(admin: httpx2.AsyncClient, target_uuid: uuid.UUID):
     # Re-submitting the user's own email must not trip the "already in use" guard.
-    response = admin.post(
+    response = await admin.post(
         f"/users/{target_uuid}",
         json={"email": "viewer@pzh.nl", "name": "Renamed"},
     )
@@ -117,7 +124,7 @@ def test_edit_user_same_email_is_allowed(admin: TestClient, target_uuid: uuid.UU
         pytest.param("admin", True, {"roles": []}, 400, "At least one role is required", id="no_roles"),
     ],
 )
-def test_edit_user_rejected(
+async def test_edit_user_rejected(
     request: FixtureRequest,
     target_uuid: uuid.UUID,
     client_fixture: str,
@@ -126,9 +133,9 @@ def test_edit_user_rejected(
     expected_status: int,
     expected_detail: str,
 ):
-    test_client: TestClient = request.getfixturevalue(client_fixture)
+    test_client: httpx2.AsyncClient = request.getfixturevalue(client_fixture)
     target: uuid.UUID = target_uuid if use_existing_user else NONEXISTENT_UUID
 
-    response = test_client.post(f"/users/{target}", json=payload)
+    response = await test_client.post(f"/users/{target}", json=payload)
     assert response.status_code == expected_status, response.text
     assert response.json()["detail"] == expected_detail

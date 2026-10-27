@@ -2,10 +2,11 @@ import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
+import anyio
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -46,13 +47,13 @@ class PublicationAnnouncementPackageCreatedResponse(BaseModel):
 class EndpointHandler:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         package_builder_factory: AnnouncementPackageBuilderFactory,
         user: UsersTable,
         object_in: PublicationAnnouncementPackageCreate,
         announcement: PublicationAnnouncementTable,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._package_builder_factory: AnnouncementPackageBuilderFactory = package_builder_factory
         self._user: UsersTable = user
         self._object_in: PublicationAnnouncementPackageCreate = object_in
@@ -61,18 +62,19 @@ class EndpointHandler:
         self._environment: PublicationEnvironmentTable = announcement.publication.environment
         self._timepoint: datetime = datetime.now(UTC)
 
-    def handle(self) -> PublicationAnnouncementPackageCreatedResponse:
+    async def handle(self) -> PublicationAnnouncementPackageCreatedResponse:
         self._guard_validate_package_type()
         self._guard_locked()
 
-        package_builder: AnnouncementPackageBuilder = self._package_builder_factory.create_builder(
+        package_builder: AnnouncementPackageBuilder = await self._package_builder_factory.create_builder(
             self._session,
             self._announcement,
             self._object_in.package_type,
         )
         try:
-            package_builder.build_publication_files()
-            zip_data: ZipData = package_builder.zip_files()
+            # Building the DSO package is CPU heavy, so it runs in a worker thread
+            await anyio.to_thread.run_sync(package_builder.build_publication_files)
+            zip_data: ZipData = await anyio.to_thread.run_sync(package_builder.zip_files)
 
             report_status: ReportStatusType = ReportStatusType.NOT_APPLICABLE
             if self._environment.has_state:
@@ -89,7 +91,7 @@ class EndpointHandler:
                 created_by_id=self._user.id,
             )
             self._session.add(package_zip)
-            self._session.flush()
+            await self._session.flush()
 
             package: PublicationAnnouncementPackageTable = PublicationAnnouncementPackageTable(
                 id=uuid.uuid4(),
@@ -104,16 +106,16 @@ class EndpointHandler:
                 modified_by_id=self._user.id,
             )
             self._session.add(package)
-            self._session.flush()
+            await self._session.flush()
 
-            self._handle_new_state(package_builder, package)
-            self._handle_frbr(package_builder, package)
+            await self._handle_new_state(package_builder, package)
+            await self._handle_frbr(package_builder, package)
 
             # update publication version status to announcement
             self._announcement.act_package.publication_version.status = PublicationVersionStatus.ANNOUNCEMENT
             self._session.add(self._announcement.act_package.publication_version)
 
-            self._session.commit()
+            await self._session.commit()
 
             response: PublicationAnnouncementPackageCreatedResponse = PublicationAnnouncementPackageCreatedResponse(
                 package_id=package.id,
@@ -141,7 +143,7 @@ class EndpointHandler:
         if self._environment.is_locked:
             raise HTTPException(status.HTTP_409_CONFLICT, "This environment is locked")
 
-    def _handle_new_state(
+    async def _handle_new_state(
         self, package_builder: AnnouncementPackageBuilder, package: PublicationAnnouncementPackageTable
     ):
         if not self._environment.has_state:
@@ -153,18 +155,20 @@ class EndpointHandler:
         new_state.created_date = self._timepoint
         new_state.created_by_id = self._user.id
         self._session.add(new_state)
-        self._session.flush()
+        await self._session.flush()
 
         package.used_environment_state_id = self._environment.active_state_id
         package.created_environment_state_id = new_state.id
         self._session.add(package)
-        self._session.flush()
+        await self._session.flush()
 
         environment: PublicationEnvironmentTable = self._environment
         environment.is_locked = True
         self._session.add(environment)
 
-    def _handle_frbr(self, package_builder: AnnouncementPackageBuilder, package: PublicationAnnouncementPackageTable):
+    async def _handle_frbr(
+        self, package_builder: AnnouncementPackageBuilder, package: PublicationAnnouncementPackageTable
+    ):
         if not self._environment.has_state:
             return
         if self._object_in.package_type != PackageType.PUBLICATION:
@@ -185,7 +189,7 @@ class EndpointHandler:
             modified_by_id=self._user.id,
         )
         self._session.add(doc)
-        self._session.flush()
+        await self._session.flush()
 
         doc_version = PublicationDocVersionTable(
             id=uuid.uuid4(),
@@ -197,16 +201,16 @@ class EndpointHandler:
             created_by_id=self._user.id,
         )
         self._session.add(doc_version)
-        self._session.flush()
+        await self._session.flush()
 
         # @todo: turn on
         # package.Doc_Version_UUID = doc_version.UUID
         self._session.add(package)
-        self._session.flush()
+        await self._session.flush()
 
 
 @inject
-def post_create_announcement_package_endpoint(
+async def post_create_announcement_package_endpoint(
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
     user: Annotated[
         UsersTable,
@@ -222,7 +226,7 @@ def post_create_announcement_package_endpoint(
             Provide[ApiContainer.publication.announcement_package_builder_factory],
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: PublicationAnnouncementPackageCreate,
 ) -> PublicationAnnouncementPackageCreatedResponse:
     handler: EndpointHandler = EndpointHandler(
@@ -232,4 +236,4 @@ def post_create_announcement_package_endpoint(
         object_in,
         announcement,
     )
-    return handler.handle()
+    return await handler.handle()

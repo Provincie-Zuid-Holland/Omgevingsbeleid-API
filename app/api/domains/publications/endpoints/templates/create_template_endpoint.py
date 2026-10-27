@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.types.enums import DocumentType
@@ -28,7 +28,7 @@ class TemplateCreatedResponse(BaseModel):
     id: uuid.UUID
 
 
-def post_create_template_endpoint(
+async def post_create_template_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -37,7 +37,7 @@ def post_create_template_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: TemplateCreate,
 ) -> TemplateCreatedResponse:
     timepoint: datetime = datetime.now(UTC)
@@ -59,8 +59,8 @@ def post_create_template_endpoint(
     )
 
     session.add(template)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return TemplateCreatedResponse(
         id=template.id,

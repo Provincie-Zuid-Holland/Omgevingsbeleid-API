@@ -182,17 +182,17 @@ class DsoActInputDataBuilder:
         dso_procedure_type: DSOProcedureType = PROCEDURE_TYPE_MAP[api_procedure_type]
 
         besluit = Besluit(
-            officiele_titel=self._publication_version.bill_metadata["Official_Title"],
-            citeertitel=self._publication_version.bill_metadata["Quote_Title"],
-            aanhef=self._publication_version.bill_compact["Preamble"],
+            officiele_titel=self._publication_version.bill_metadata["official_title"],
+            citeertitel=self._publication_version.bill_metadata["quote_title"],
+            aanhef=self._publication_version.bill_compact["preamble"],
             wijzig_artikel=self._get_wijzigingsartikel(),
             wijzig_bijlage=self._get_amendment_appendix(),
             tekst_artikelen=self._get_text_articles(),
             tijd_artikel=self._get_time_article(),
             sluiting=self._get_closing_text(),
-            ondertekening=self._publication_version.bill_compact.get("Signed", ""),
-            rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.bill_metadata["Jurisdictions"]),
-            onderwerpen=self._as_dso_onderwerpen(self._publication_version.bill_metadata["Subjects"]),
+            ondertekening=self._publication_version.bill_compact.get("signed", ""),
+            rechtsgebieden=self._as_dso_rechtsgebieden(self._publication_version.bill_metadata["jurisdictions"]),
+            onderwerpen=self._as_dso_onderwerpen(self._publication_version.bill_metadata["subjects"]),
             soort_procedure=dso_procedure_type,
             bijlagen=self._get_appendices(),
             motivering=self._get_motivering(),
@@ -202,11 +202,11 @@ class DsoActInputDataBuilder:
     def _get_regeling(self) -> Regeling:
         regeling = Regeling(
             versienummer=str(self._act_frbr.Expression_Version),
-            officiele_titel=self._act.meta_data["Official_Title"],
-            citeertitel=self._act.meta_data["Quote_Title"],
+            officiele_titel=self._act.meta_data["official_title"],
+            citeertitel=self._act.meta_data["quote_title"],
             is_officieel=("true" if self._publication.procedure_type == APIProcedureType.FINAL else "false"),
-            rechtsgebieden=self._as_dso_rechtsgebieden(self._act.meta_data["Jurisdictions"]),
-            onderwerpen=self._as_dso_onderwerpen(self._act.meta_data["Subjects"]),
+            rechtsgebieden=self._as_dso_rechtsgebieden(self._act.meta_data["jurisdictions"]),
+            onderwerpen=self._as_dso_onderwerpen(self._act.meta_data["subjects"]),
         )
         return regeling
 
@@ -237,7 +237,7 @@ class DsoActInputDataBuilder:
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
         steps: list[dso_models.ProcedureStap] = []
 
-        enactment_date: str | None = self._publication_version.procedural.get("Enactment_Date", None)
+        enactment_date: str | None = self._publication_version.procedural.get("enactment_date", None)
         if enactment_date is not None:
             steps.append(
                 dso_models.ProcedureStap(
@@ -246,7 +246,7 @@ class DsoActInputDataBuilder:
                 )
             )
 
-        signed_date: str | None = self._publication_version.procedural.get("Signed_Date", None)
+        signed_date: str | None = self._publication_version.procedural.get("signed_date", None)
         if signed_date is not None:
             steps.append(
                 dso_models.ProcedureStap(
@@ -257,15 +257,15 @@ class DsoActInputDataBuilder:
 
         procedure_verloop = dso_models.ProcedureVerloop(
             # @todo: This should be its own date
-            bekend_op=self._publication_version.procedural["Procedural_Announcement_Date"],
+            bekend_op=self._publication_version.procedural["procedural_announcement_date"],
             stappen=steps,
         )
         return procedure_verloop
 
     def _get_wijzigingsartikel(self) -> Artikel:
-        text: str = self._publication_version.bill_compact["Amendment_Article"]
+        text: str = self._publication_version.bill_compact["amendment_article"]
 
-        enactment_date: str | None = self._publication_version.procedural.get("Enactment_Date", None)
+        enactment_date: str | None = self._publication_version.procedural.get("enactment_date", None)
         if enactment_date is not None:
             date_readable: str = self._get_readable_date_from_str(enactment_date)
             text = text.replace("[[ENACTMENT_DATE]]", date_readable)
@@ -277,9 +277,9 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_amendment_appendix(self) -> WijzigBijlage:
-        data: dict = self._publication_version.bill_compact.get("Amendment_Appendix", {})
-        number = data.get("Number", "A")
-        title = data.get("Title", "bij Artikel I")
+        data: dict = self._publication_version.bill_compact.get("amendment_appendix", {})
+        number = data.get("number", "A")
+        title = data.get("title", "bij Artikel I")
 
         result = WijzigBijlage(
             nummer=number,
@@ -289,45 +289,45 @@ class DsoActInputDataBuilder:
 
     def _get_text_articles(self) -> list[Artikel]:
         result: list[Artikel] = []
-        for custom_article in self._publication_version.bill_compact.get("Custom_Articles", []):
+        for custom_article in self._publication_version.bill_compact.get("custom_articles", []):
             article: Artikel = Artikel(
-                nummer=custom_article["Number"],
-                inhoud=custom_article["Content"],
+                nummer=custom_article["number"],
+                inhoud=custom_article["content"],
             )
             result.append(article)
         return result
 
     def _get_appendices(self) -> list[Bijlage]:
-        appendices: list[dict] = self._publication_version.bill_compact.get("Appendices", [])
+        appendices: list[dict] = self._publication_version.bill_compact.get("appendices", [])
         result: list[Bijlage] = []
 
         for appendix in appendices:
             bijlage = Bijlage(
-                nummer=appendix["Number"],
-                opschrift=appendix["Title"],
-                content=appendix["Content"],
+                nummer=appendix["number"],
+                opschrift=appendix["title"],
+                content=appendix["content"],
             )
             result.append(bijlage)
         return result
 
     def _get_motivering(self) -> Motivering | None:
-        motivation: dict | None = self._publication_version.bill_compact.get("Motivation", None)
+        motivation: dict | None = self._publication_version.bill_compact.get("motivation", None)
         if motivation is None:
             return None
 
         appendices: list[Bijlage] = []
-        for appendix in motivation.get("Appendices", []):
+        for appendix in motivation.get("appendices", []):
             bijlage = Bijlage(
-                nummer=appendix["Number"],
-                opschrift=appendix["Title"],
-                content=appendix["Content"],
+                nummer=appendix["number"],
+                opschrift=appendix["title"],
+                content=appendix["content"],
             )
             appendices.append(bijlage)
 
         result = Motivering(
-            nummer=motivation.get("Number"),
-            opschrift=motivation["Title"],
-            content=motivation["Content"],
+            nummer=motivation.get("number"),
+            opschrift=motivation["title"],
+            content=motivation["content"],
             bijlagen=appendices,
         )
         return result
@@ -456,11 +456,11 @@ class DsoActInputDataBuilder:
         return result
 
     def _get_closing_text(self) -> str:
-        text: str = self._publication_version.bill_compact.get("Closing", "")
+        text: str = self._publication_version.bill_compact.get("closing", "")
         if text == "":
             return text
 
-        signed_date: str | None = self._publication_version.procedural.get("Signed_Date", None)
+        signed_date: str | None = self._publication_version.procedural.get("signed_date", None)
         if signed_date is not None:
             signed_date_readable: str = self._get_readable_date_from_str(signed_date)
             text = text.replace("[[SIGNED_DATE]]", signed_date_readable)
@@ -468,7 +468,7 @@ class DsoActInputDataBuilder:
         return text
 
     def _get_time_article_content(self) -> str:
-        text: str = self._publication_version.bill_compact.get("Time_Article", "")
+        text: str = self._publication_version.bill_compact.get("time_article", "")
 
         if self._publication_version.effective_date is not None:
             effective_date_readable: str = self._get_readable_date(self._publication_version.effective_date)

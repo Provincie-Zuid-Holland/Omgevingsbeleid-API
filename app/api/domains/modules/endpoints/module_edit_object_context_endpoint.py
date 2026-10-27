@@ -5,7 +5,7 @@ from typing import Annotated, Any
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -33,12 +33,12 @@ class ModuleEditObjectContext(BaseModel):
 
 
 @inject
-def post_module_edit_object_context_endpoint(
+async def post_module_edit_object_context_endpoint(
     _: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module_object: Annotated[ModuleObjectsTable, Depends(depends_module_object_latest_by_id)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     object_in: ModuleEditObjectContext,
 ) -> ResponseOK:
@@ -82,7 +82,7 @@ def post_module_edit_object_context_endpoint(
     )
     session.add(change_log)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

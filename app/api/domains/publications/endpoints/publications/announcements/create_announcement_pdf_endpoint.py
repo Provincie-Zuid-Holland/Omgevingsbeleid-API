@@ -1,11 +1,11 @@
 from typing import Annotated
 
-import requests
+import anyio
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from pydantic import ValidationError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -32,7 +32,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def post_create_announcement_pdf_endpoint(
+async def post_create_announcement_pdf_endpoint(
     announcement: Annotated[PublicationAnnouncementTable, Depends(depends_publication_announcement)],
     user: Annotated[
         UsersTable,
@@ -42,7 +42,7 @@ def post_create_announcement_pdf_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     package_builder_factory: Annotated[
         AnnouncementPackageBuilderFactory,
         Depends(
@@ -50,32 +50,33 @@ def post_create_announcement_pdf_endpoint(
         ),
     ],
     pdf_export_service: Annotated[PdfExportService, Depends(Provide[ApiContainer.publication.pdf_export_service])],
-) -> StreamingResponse:
+) -> Response:
     if not announcement.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
     try:
-        pdf_export_service.healthcheck(announcement.publication.environment.code or "")
+        await pdf_export_service.healthcheck(announcement.publication.environment.code or "")
     except PdfExportUnavailableError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, e.msg)
 
     try:
-        package_builder: AnnouncementPackageBuilder = package_builder_factory.create_builder(
+        package_builder: AnnouncementPackageBuilder = await package_builder_factory.create_builder(
             session,
             announcement,
             PackageType.VALIDATION,
         )
-        package_builder.build_publication_files()
-        zip_data: ZipData = package_builder.zip_files()
+        # Building the DSO package is CPU heavy, so it runs in a worker thread
+        await anyio.to_thread.run_sync(package_builder.build_publication_files)
+        zip_data: ZipData = await anyio.to_thread.run_sync(package_builder.zip_files)
 
-        pdf_response: requests.Response = pdf_export_service.create_pdf(
+        pdf_content: bytes = await pdf_export_service.create_pdf(
             announcement.publication.environment.code or "",
             zip_data,
         )
 
         filename: str = f"{zip_data.filename.removesuffix('.zip')}.pdf"
-        response = StreamingResponse(
-            pdf_response.iter_content(chunk_size=1024),
+        response = Response(
+            content=pdf_content,
             media_type="application/pdf",
             headers={
                 "Access-Control-Expose-Headers": "Content-Disposition",

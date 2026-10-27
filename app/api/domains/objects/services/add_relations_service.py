@@ -3,7 +3,7 @@ from typing import Any, get_args
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.tables.objects import ObjectsTable
 from app.core.tables.others import RelationsTable
@@ -31,20 +31,20 @@ class Config(BaseModel):
 class AddRelationsService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         rows: list[BaseModel],
         response_model: Model,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._rows: list[BaseModel] = rows
         self._response_model: DynamicObjectModel | Model = response_model
 
-    def add_relations(self) -> list[BaseModel]:
+    async def add_relations(self) -> list[BaseModel]:
         config: Config | None = self._collect_config()
         if not config:
             return self._rows
 
-        relation_rows: list[dict[str, Any]] = self._fetch_relation_rows(config)
+        relation_rows: list[dict[str, Any]] = await self._fetch_relation_rows(config)
 
         """
         relations=
@@ -103,7 +103,7 @@ class AddRelationsService:
 
         return result_rows
 
-    def _fetch_relation_rows(self, config: Config) -> list[dict[str, Any]]:
+    async def _fetch_relation_rows(self, config: Config) -> list[dict[str, Any]]:
         subq = (
             select(
                 ObjectsTable,
@@ -134,7 +134,7 @@ class AddRelationsService:
 
         stmt = select(subq).filter(subq.c._row_number == 1)
 
-        rows = self._session.execute(stmt).all()
+        rows = (await self._session.execute(stmt)).all()
         dict_rows = [r._asdict() for r in rows]
         return dict_rows
 
@@ -161,7 +161,7 @@ class AddRelationsService:
 class AddRelationsServiceFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         rows: list[BaseModel],
         response_model: Model,
     ) -> AddRelationsService:

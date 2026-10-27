@@ -420,39 +420,39 @@ api:
         - resolver: create_publication_template
         - resolver: edit_publication_template
           resolver_data:
-            path: /{template_uuid}
+            path: /{template_id}
         - resolver: detail_publication_template
           resolver_data:
-            path: /{template_uuid}
+            path: /{template_id}
         - resolver: list_publication_templates
     - prefix: /publication-acts
       endpoints:
         - resolver: create_publication_act
         - resolver: close_publication_act
           resolver_data:
-            path: /{act_uuid}/close
+            path: /{act_id}/close
         - resolver: edit_publication_act
           resolver_data:
-            path: /{act_uuid}
+            path: /{act_id}
         - resolver: detail_publication_act
           resolver_data:
-            path: /{act_uuid}
+            path: /{act_id}
         - resolver: list_publication_acts
     - prefix: /publication-environments
       endpoints:
         - resolver: create_publication_environment
         - resolver: edit_publication_environment
           resolver_data:
-            path: /{environment_uuid}
+            path: /{environment_id}
         - resolver: detail_publication_environment
           resolver_data:
-            path: /{environment_uuid}
+            path: /{environment_id}
         - resolver: list_publication_environments
     - prefix: /publications
       endpoints:
         - resolver: list_publications
         - resolver: create_publication
-    - prefix: /publications/{publication_uuid}
+    - prefix: /publications/{publication_id}
       endpoints:
         - resolver: detail_publication
         - resolver: edit_publication
@@ -463,23 +463,23 @@ api:
           resolver_data:
             path: /versions
     # Publication Version flow
-    - prefix: /publication-versions/{version_uuid}
+    - prefix: /publication-versions/{version_id}
       endpoints:
         - resolver: edit_publication_version
         - resolver: detail_publication_version
         - resolver: delete_publication_version
-    - prefix: /publication-versions/{version_uuid}/attachments
+    - prefix: /publication-versions/{version_id}/attachments
       endpoints:
         - resolver: upload_publication_version_attachment
         - resolver: list_publication_version_attachment
-    - prefix: /publication-versions/{version_uuid}/attachments/{attachment_id}
+    - prefix: /publication-versions/{version_id}/attachments/{attachment_id}
       endpoints:
         - resolver: delete_publication_version_attachment
         - resolver: download_publication_version_attachment
-    - prefix: /publication-versions/{version_uuid}/pdf_export
+    - prefix: /publication-versions/{version_id}/pdf_export
       endpoints:
         - resolver: create_publication_version_pdf
-    - prefix: /publication-versions/{version_uuid}/packages
+    - prefix: /publication-versions/{version_id}/packages
       endpoints:
         - resolver: create_publication_act_package
     - prefix: /publication-act-packages
@@ -491,7 +491,7 @@ api:
               allowed_columns:
                 - modified_date
                 - created_date
-    - prefix: /publication-act-packages/{act_package_uuid}
+    - prefix: /publication-act-packages/{act_package_id}
       endpoints:
         - resolver: detail_publication_act_package
         - resolver: abort_publication_act_package
@@ -503,33 +503,33 @@ api:
         - resolver: upload_publication_act_package_report
           resolver_data:
             path: /report
-    - prefix: /publication-act-packages/{version_uuid}/validate
+    - prefix: /publication-act-packages/{version_id}/validate
       endpoints:
         - resolver: validate_publication_act_package
     - prefix: /publication-act-reports
       endpoints:
         - resolver: list_publication_act_package_reports
-    - prefix: /publication-act-reports/{act_report_uuid}
+    - prefix: /publication-act-reports/{act_report_id}
       endpoints:
         - resolver: detail_publication_act_package_report
         - resolver: download_publication_act_package_report
           resolver_data:
             path: /download
     # Announcement flow
-    - prefix: /publication-act-packages/{act_package_uuid}/create-announcement
+    - prefix: /publication-act-packages/{act_package_id}/create-announcement
       endpoints:
         - resolver: create_publication_announcement
     - prefix: /publication-announcements
       endpoints:
         - resolver: list_publication_announcements
-    - prefix: /publication-announcements/{announcement_uuid}
+    - prefix: /publication-announcements/{announcement_id}
       endpoints:
         - resolver: edit_publication_announcement
         - resolver: detail_publication_announcement
-    - prefix: /publication-announcements/{announcement_uuid}/pdf_export
+    - prefix: /publication-announcements/{announcement_id}/pdf_export
       endpoints:
         - resolver: create_announcement_pdf
-    - prefix: /publication-announcements/{announcement_uuid}/packages
+    - prefix: /publication-announcements/{announcement_id}/packages
       endpoints:
         - resolver: create_publication_announcement_package
     - prefix: /publication-announcement-packages
@@ -541,7 +541,7 @@ api:
               allowed_columns:
                 - modified_date
                 - created_date
-    - prefix: /publication-announcement-packages/{announcement_package_uuid}
+    - prefix: /publication-announcement-packages/{announcement_package_id}
       endpoints:
         - resolver: detail_publication_announcement_package
         - resolver: download_publication_announcement_package
@@ -553,7 +553,7 @@ api:
     - prefix: /publication-announcement-reports
       endpoints:
         - resolver: list_publication_announcement_package_reports
-    - prefix: /publication-announcement-reports/{announcement_report_uuid}
+    - prefix: /publication-announcement-reports/{announcement_report_id}
       endpoints:
         - resolver: detail_publication_announcement_package_report
         - resolver: download_publication_announcement_package_report

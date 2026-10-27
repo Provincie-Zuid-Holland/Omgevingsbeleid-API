@@ -3,7 +3,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -28,18 +28,18 @@ class ListActiveModuleObjectsEndpointContext(BaseEndpointContext):
 
 
 @inject
-def get_list_active_module_objects_endpoint(
+async def get_list_active_module_objects_endpoint(
     lineage_id: int,
     minimum_status: Annotated[ModuleStatusCode, ModuleStatusCode.Ontwerp_PS],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
     _: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[ListActiveModuleObjectsEndpointContext, Depends()],
 ) -> list[ActiveModuleObjectsResponse]:
     code = f"{context.object_type}-{lineage_id}"
-    items: list[LatestObjectPerModuleResult] = module_object_repository.get_latest_per_module(
+    items: list[LatestObjectPerModuleResult] = await module_object_repository.get_latest_per_module(
         session,
         code,
         minimum_status,

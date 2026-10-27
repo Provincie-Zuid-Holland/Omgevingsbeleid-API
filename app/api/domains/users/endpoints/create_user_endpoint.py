@@ -7,7 +7,7 @@ import validators
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -47,10 +47,10 @@ class CreateUserEndpointContext(BaseEndpointContext):
 
 
 @inject
-def post_create_user_endpoint(
+async def post_create_user_endpoint(
     object_in: UserCreate,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
@@ -64,12 +64,12 @@ def post_create_user_endpoint(
     if not set(object_in.roles) <= set(context.allowed_roles):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Roles")
 
-    same_email_user: UsersTable | None = repository.get_by_email(session, object_in.email)
+    same_email_user: UsersTable | None = await repository.get_by_email(session, object_in.email)
     if same_email_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already in use")
 
     password = "change-me-" + security.get_random_password()
-    password_hashed = security.get_password_hash(password)
+    password_hashed = await security.get_password_hash(password)
 
     user = UsersTable(
         id=uuid.uuid4(),
@@ -90,8 +90,8 @@ def post_create_user_endpoint(
 
     session.add(change_log)
     session.add(user)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return UserCreateResponse(
         id=user.id,

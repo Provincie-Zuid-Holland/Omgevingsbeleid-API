@@ -1,17 +1,17 @@
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 
 from tests.conftest import Context
 from tests.fixtures.internal.spec.modules import ModuleBeleidskeuzeSpec
 from tests.fixtures.internal.types import Ref
 
 
-def test_returns_the_object_context(admin: TestClient, ctx: Context):
+async def test_returns_the_object_context(admin: httpx2.AsyncClient, ctx: Context):
     first_entry: ModuleBeleidskeuzeSpec = ctx.f.find(
         Ref(ModuleBeleidskeuzeSpec, "mod_5_beleidskeuze_510_first_entry")
     ).spec
 
-    response = admin.get("/modules/5/object-context/beleidskeuze/510")
+    response = await admin.get("/modules/5/object-context/beleidskeuze/510")
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["module_id"] == 5
@@ -33,9 +33,9 @@ def test_returns_the_object_context(admin: TestClient, ctx: Context):
         pytest.param(5, "gebied", 511, "Object context is verwijderd", id="context-hidden"),
     ],
 )
-def test_doesnt_find_context(
-    admin: TestClient, ctx: Context, module_id: int, object_type: str, object_id: str, detail: str
+async def test_doesnt_find_context(
+    admin: httpx2.AsyncClient, ctx: Context, module_id: int, object_type: str, object_id: str, detail: str
 ):
-    response = admin.get(f"/modules/{module_id}/object-context/{object_type}/{object_id}")
+    response = await admin.get(f"/modules/{module_id}/object-context/{object_type}/{object_id}")
     assert response.status_code == 404
     assert response.json()["detail"] == detail

@@ -1,16 +1,15 @@
-import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.types.api_input_data import ActFrbr
 from app.core.tables.publications import PublicationActTable, PublicationActVersionTable
 
 
 class ActFrbrProvider:
-    def generate_frbr(self, session: Session, act: PublicationActTable) -> ActFrbr:
-        expression_version: int = self._get_next_expression_version(session, act.uuid)
+    async def generate_frbr(self, session: AsyncSession, act: PublicationActTable) -> ActFrbr:
+        expression_version: int = await self._get_next_expression_version(session, act.id)
 
         timepoint: datetime = datetime.now(UTC)
         frbr: ActFrbr = ActFrbr(
@@ -25,11 +24,11 @@ class ActFrbrProvider:
         )
         return frbr
 
-    def _get_next_expression_version(self, session: Session, act_id: uuid.UUID) -> int:
+    async def _get_next_expression_version(self, session: AsyncSession, act_id: int) -> int:
         stmt = (
             select(func.count())
             .select_from(PublicationActVersionTable)
             .filter(PublicationActVersionTable.act_id == act_id)
         )
-        next_expression_version: int = session.execute(stmt).scalar() + 1
+        next_expression_version: int = (await session.execute(stmt)).scalar() + 1
         return next_expression_version

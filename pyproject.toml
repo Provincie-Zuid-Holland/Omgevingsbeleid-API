@@ -3,6 +3,7 @@ name = "omgevingsbeleid"
 dynamic = ["version"]
 requires-python = ">=3.13"
 dependencies = [
+    "aiosqlite>=0.22.1",
     "alembic>=1.20.0",
     "azure-monitor-opentelemetry>=1.8.10",
     "beautifulsoup4>=4.15.0",
@@ -31,7 +32,7 @@ dependencies = [
     "requests>=2.34.2",
     "requests-toolbelt>=1.0.0",
     "shapely>=2.2.0",
-    "sqlalchemy>=2.1.3",
+    "sqlalchemy[asyncio]>=2.1.3",
     "uvicorn[standard]>=0.54.0",
     "validators>=0.35.0",
 ]
@@ -56,6 +57,7 @@ ignore = [
 norecursedirs = "*venv* *.venv* *.pytest_cache* .hidden"
 testpaths = "tests"
 python_files = "*_test.py"
+anyio_mode = "auto"
 
 env = [
     "D:SQLALCHEMY_DATABASE_URI=sqlite:///:memory:",
@@ -65,9 +67,6 @@ env = [
     "D:SECRET_KEY=secret-key-which-is-at-least-32-bytes-long",
 ]
 
-filterwarnings = [
-    "ignore::DeprecationWarning:starlette.testclient",
-]
 
 [tool.coverage.run]
 source = ["app"]
@@ -80,6 +79,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "anyio>=4.15.1",
     "coverage>=7.16.2",
     "coverage-badge>=1.1.2",
     "debugpy>=1.8.22",

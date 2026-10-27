@@ -1,5 +1,5 @@
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 
 from app.api.domains.users.types import User
 from tests.conftest import Context
@@ -8,10 +8,10 @@ from tests.fixtures.internal.types import Ref
 
 
 @pytest.mark.parametrize("user_key", ["admin", "ambtenaar", "viewer"])
-def test_returns_the_requested_user(admin: TestClient, ctx: Context, user_key: str):
+async def test_returns_the_requested_user(admin: httpx2.AsyncClient, ctx: Context, user_key: str):
     expected: UserSpec = ctx.f.find(Ref(UserSpec, user_key)).spec
 
-    body = admin.get(f"/users/{expected.id}").json()
+    body = (await admin.get(f"/users/{expected.id}")).json()
 
     assert body["id"] == str(expected.id)
     assert body["email"] == expected.email
@@ -19,34 +19,34 @@ def test_returns_the_requested_user(admin: TestClient, ctx: Context, user_key: s
     assert body["name"] == expected.name
 
 
-def test_any_authenticated_user_can_fetch_a_user(ambtenaar: TestClient, ctx: Context):
+async def test_any_authenticated_user_can_fetch_a_user(ambtenaar: httpx2.AsyncClient, ctx: Context):
     target: UserSpec = ctx.f.find(Ref(UserSpec, "admin")).spec
 
-    response = ambtenaar.get(f"/users/{target.id}")
+    response = await ambtenaar.get(f"/users/{target.id}")
 
     assert response.status_code == 200, response.text
     assert response.json()["id"] == str(target.id)
 
 
-def test_response_matches_the_user_model_shape(admin: TestClient, ctx: Context):
+async def test_response_matches_the_user_model_shape(admin: httpx2.AsyncClient, ctx: Context):
     target: UserSpec = ctx.f.find(Ref(UserSpec, "admin")).spec
 
-    body: dict = admin.get(f"/users/{target.id}").json()
+    body: dict = (await admin.get(f"/users/{target.id}")).json()
 
     assert set(body.keys()) == set(User.model_fields)
 
 
-def test_unknown_uuid_returns_400(admin: TestClient):
-    response = admin.get("/users/00000000-0000-0000-0000-0000000000aa")
+async def test_unknown_uuid_returns_400(admin: httpx2.AsyncClient):
+    response = await admin.get("/users/00000000-0000-0000-0000-0000000000aa")
 
     assert response.status_code == 400
     assert response.json()["detail"] == "User does not exist"
 
 
-def test_unauthenticated_returns_401(client: TestClient, ctx: Context):
+async def test_unauthenticated_returns_401(client: httpx2.AsyncClient, ctx: Context):
     target: UserSpec = ctx.f.find(Ref(UserSpec, "admin")).spec
 
-    response = client.get(f"/users/{target.id}")
+    response = await client.get(f"/users/{target.id}")
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Not authenticated"

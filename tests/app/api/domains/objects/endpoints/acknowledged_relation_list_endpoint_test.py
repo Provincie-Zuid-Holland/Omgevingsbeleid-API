@@ -1,15 +1,15 @@
 import uuid
 
-from fastapi.testclient import TestClient
+import httpx2
 
 from tests.conftest import Context
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
 
-def test_lists_acknowledged_relations(admin: TestClient, ctx: Context):
+async def test_lists_acknowledged_relations(admin: httpx2.AsyncClient, ctx: Context):
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
-    response = admin.get("/beleidskeuze/acknowledged-relations/1")
+    response = await admin.get("/beleidskeuze/acknowledged-relations/1")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -29,9 +29,9 @@ def test_lists_acknowledged_relations(admin: TestClient, ctx: Context):
     assert side_b["object_type"] == "beleidskeuze"
 
 
-def test_lists_acknowledged_relations_acknowledged(admin: TestClient, ctx: Context):
+async def test_lists_acknowledged_relations_acknowledged(admin: httpx2.AsyncClient, ctx: Context):
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
-    response = admin.get("/beleidskeuze/acknowledged-relations/3?acknowledged=true")
+    response = await admin.get("/beleidskeuze/acknowledged-relations/3?acknowledged=true")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -51,9 +51,9 @@ def test_lists_acknowledged_relations_acknowledged(admin: TestClient, ctx: Conte
     assert side_b["object_type"] == "beleidskeuze"
 
 
-def test_lists_acknowledged_relations_not_acknowledged(admin: TestClient, ctx: Context):
+async def test_lists_acknowledged_relations_not_acknowledged(admin: httpx2.AsyncClient, ctx: Context):
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
-    response = admin.get("/beleidskeuze/acknowledged-relations/1?acknowledged=false")
+    response = await admin.get("/beleidskeuze/acknowledged-relations/1?acknowledged=false")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -73,8 +73,8 @@ def test_lists_acknowledged_relations_not_acknowledged(admin: TestClient, ctx: C
     assert side_b["object_type"] == "beleidskeuze"
 
 
-def test_lists_acknowledged_relations_inactive(admin: TestClient, ctx: Context):
-    response = admin.get("/beleidskeuze/acknowledged-relations/1?show_inactive=true")
+async def test_lists_acknowledged_relations_inactive(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.get("/beleidskeuze/acknowledged-relations/1?show_inactive=true")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -86,9 +86,9 @@ def test_lists_acknowledged_relations_inactive(admin: TestClient, ctx: Context):
     ]
 
 
-def test_lists_acknowledged_requested_by(beheerder: TestClient, ctx: Context):
+async def test_lists_acknowledged_requested_by(beheerder: httpx2.AsyncClient, ctx: Context):
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
-    response = beheerder.get("/beleidskeuze/acknowledged-relations/1?requested_by_us=true")
+    response = await beheerder.get("/beleidskeuze/acknowledged-relations/1?requested_by_us=true")
 
     assert response.status_code == 200, response.text
     body = response.json()
