@@ -67,11 +67,9 @@ env = [
     "D:SECRET_KEY=secret-key-which-is-at-least-32-bytes-long",
 ]
 
-
 [tool.coverage.run]
 source = ["app"]
 relative_files = true
-
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
@@ -99,13 +97,13 @@ dev = [
 
 [tool.hatch.version]
 source = "vcs"
-fallback-version = "0.0.0"
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
 
 [tool.uv]
 cache-keys = [{ file = "pyproject.toml" }, { git = { commit = false, tags = true } }]
+package = false
 
 [tool.uv.sources]
 dso = { git = "https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git", rev = "v0.14.0" }
