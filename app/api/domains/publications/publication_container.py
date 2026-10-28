@@ -40,6 +40,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     hoofdlijn_repository = providers.Dependency()
     dso_thema_factory = providers.Dependency()
     async_model_validators_service = providers.Dependency()
+    storage_file_repository = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -52,7 +53,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     environment_repository = providers.Singleton(repositories.PublicationEnvironmentRepository)
     object_repository = providers.Singleton(repositories.PublicationObjectRepository)
     publication_repository = providers.Singleton(repositories.PublicationRepository)
-    storage_file_repository = providers.Singleton(repositories.PublicationStorageFileRepository)
+    publication_storage_file_repository = providers.Singleton(repositories.PublicationStorageFileRepository)
     template_repository = providers.Singleton(repositories.PublicationTemplateRepository)
     version_attachment_repository = providers.Singleton(repositories.PublicationVersionAttachmentRepository)
     version_repository = providers.Singleton(repositories.PublicationVersionRepository)

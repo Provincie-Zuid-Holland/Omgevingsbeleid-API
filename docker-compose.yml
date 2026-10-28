@@ -20,9 +20,6 @@ services:
       DB_PORT: 5432
       DB_NAME: omgevingsbeleid
       PYTHONPATH: "/code"
-      PUBLICATION_KOOP__PROD__API_KEY: ""
-      PUBLICATION_KOOP__PROD__RENVOOI_API_URL: "https://renvooiservice-eto.overheid.nl"
-      PUBLICATION_KOOP__PROD__PREVIEW_API_URL: "https://besluitpreviewservice-eto.overheid.nl"
     restart: "no"
     security_opt:
       - seccomp:unconfined

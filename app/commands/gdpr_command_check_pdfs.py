@@ -95,7 +95,7 @@ def check_pdfs(
     db_session_factory: Annotated[AsyncSessionFactoryType, Provide[ApiContainer.db_session_factory]],
     storage_file_repository: Annotated[StorageFileRepository, Provide[ApiContainer.storage_file_repository]],
     publication_storage_file_repository: Annotated[
-        PublicationStorageFileRepository, Provide[ApiContainer.publication.storage_file_repository]
+        PublicationStorageFileRepository, Provide[ApiContainer.publication.publication_storage_file_repository]
     ],
     object_repository: Annotated[ObjectRepository, Provide[ApiContainer.object_repository]],
     module_object_repository: Annotated[ModuleObjectRepository, Provide[ApiContainer.module_object_repository]],

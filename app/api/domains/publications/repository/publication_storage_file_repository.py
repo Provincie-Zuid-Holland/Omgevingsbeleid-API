@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import undefer
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.publications import PublicationStorageFileTable
@@ -10,6 +11,14 @@ from app.core.tables.publications import PublicationStorageFileTable
 class PublicationStorageFileRepository(BaseRepository):
     async def get_by_id(self, session: AsyncSession, idx: UUID) -> PublicationStorageFileTable | None:
         stmt = select(PublicationStorageFileTable).filter(PublicationStorageFileTable.id == idx)
+        return await self.fetch_first(session, stmt)
+
+    async def get_with_binary(self, session: AsyncSession, idx: UUID) -> PublicationStorageFileTable | None:
+        stmt = (
+            select(PublicationStorageFileTable)
+            .options(undefer(PublicationStorageFileTable.binary))
+            .filter(PublicationStorageFileTable.id == idx)
+        )
         return await self.fetch_first(session, stmt)
 
     async def get_by_checksum(self, session: AsyncSession, checksum: str) -> PublicationStorageFileTable | None:

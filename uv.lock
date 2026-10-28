@@ -751,8 +751,8 @@ wheels = [
 
 [[package]]
 name = "dso"
-version = "0.15.1.dev3+g57a598122"
-source = { git = "https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git?rev=57a59812258130010af0dc1379a15635360eaf2c#57a59812258130010af0dc1379a15635360eaf2c" }
+version = "0.15.1.dev5+g3f15ef72c"
+source = { git = "https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git?rev=3f15ef72c1630e34bc9632daa29950478480673d#3f15ef72c1630e34bc9632daa29950478480673d" }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "certifi" },
@@ -1530,7 +1530,7 @@ requires-dist = [
     { name = "click", specifier = ">=8.5.0" },
     { name = "dependency-injector", specifier = ">=4.49.1" },
     { name = "diff-match-patch", specifier = ">=20241021" },
-    { name = "dso", git = "https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git?rev=57a59812258130010af0dc1379a15635360eaf2c" },
+    { name = "dso", git = "https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git?rev=3f15ef72c1630e34bc9632daa29950478480673d" },
     { name = "fastapi", specifier = ">=0.142.2" },
     { name = "geoalchemy2", specifier = ">=0.20.0" },
     { name = "geopandas", specifier = ">=1.2.0" },
