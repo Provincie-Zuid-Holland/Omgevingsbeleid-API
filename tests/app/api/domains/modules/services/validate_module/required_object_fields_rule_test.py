@@ -37,10 +37,10 @@ def test_validate():
                 Title="Object valid",
             ),
             ModuleObjectsTable(
-                Object_Type="beleidsdoel",  # Object type not in map
+                Object_Type="beleidsdoel",  # Object type not in map, so skipped
                 Object_ID="1",
                 Code="beleidsdoel-1",
-                Title="Some beleidsdoel",
+                Title="Obj",
             ),
         ],
     )

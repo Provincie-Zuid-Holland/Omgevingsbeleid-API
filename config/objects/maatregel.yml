@@ -400,12 +400,12 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
+      role: # role is deprecated, but we need to be able to make the field empty
       roles:
-        default: none
-        optional: true
         validators:
           - id: allowed_values_list
             data: *roles_allowed_values_list_data
+          - id: not_empty
       effect:
         default: none
         optional: true
@@ -538,6 +538,62 @@ models:
               min: 3
           - id: html
       roles:
+        validators:
+          - id: allowed_values_list
+            data: *roles_allowed_values_list_data
+          - id: not_empty
+      effect:
+        optional: true
+        validators:
+          - id: none_to_default_value
+          - id: length
+            data:
+              min: 3
+          - id: html
+      hierarchy_code:
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - beleidskeuze
+          - id: object_code_exists
+      documents:
+        default: none
+        optional: true
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - document
+          - id: object_codes_exists
+      werkingsgebied_code:
+        default: none
+        optional: true
+        validators:
+          - id: object_code_allowed_type
+            data:
+              allowed_object_types:
+                - werkingsgebied
+          - id: object_code_exists
+  maatregel_publication_validate:
+    name: MaatregelModuleValidate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        validators:
+          - id: length
+            data:
+              min: 3
+          - id: html
+      roles:
+        default: none
+        optional: true
         validators:
           - id: allowed_values_list
             data: *roles_allowed_values_list_data
