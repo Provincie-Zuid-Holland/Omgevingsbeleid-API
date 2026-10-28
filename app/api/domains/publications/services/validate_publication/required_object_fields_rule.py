@@ -25,7 +25,7 @@ class RequiredObjectFieldsRule(ValidatePublicationRule):
 
         object_map = self._document_type_map.get(request.document_type)
 
-        for object_to_validate in request.input_data.Publication_Data.used_objects:
+        for object_to_validate in request.input_data.publication_data.used_objects:
             model: type[BaseModel] | None = object_map.get(object_to_validate.get("object_type"))
             if not model:
                 continue

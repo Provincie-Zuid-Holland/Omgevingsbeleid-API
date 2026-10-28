@@ -15,13 +15,13 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
     async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
-        bill_compact: dict[str, Any] = request.input_data.Publication_Version.bill_compact or {}
+        bill_compact: dict[str, Any] = request.input_data.publication_version.bill_compact or {}
         referenced_ids: set[int] = self._extract_ref_ids(bill_compact)
 
         attachment_ids: set[int] = set()
         attachment_title_map: dict[int, str] = {}
 
-        for attachment in request.input_data.Publication_Data.bill_attachments:
+        for attachment in request.input_data.publication_data.bill_attachments:
             attachment_ids.add(attachment["id"])
             attachment_title_map[attachment["id"]] = attachment.get("title", attachment.get("filename", ""))
 

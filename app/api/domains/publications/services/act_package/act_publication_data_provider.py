@@ -166,15 +166,15 @@ class ActPublicationDataProvider:
             PublicationVersionAttachmentTable
         ] = await self._version_attachment_repository.get_by_version_id_with_binary(session, publication_version.id)
         for attachment in attachments:
-            work_other = f"pdf-{bill_frbr.Work_Other}-{attachment.id}"
+            work_other = f"pdf-{bill_frbr.work_other}-{attachment.id}"
 
             frbr = dso_models.PubdataFRBR(
-                Work_Province_ID=bill_frbr.Work_Province_ID,
-                Work_Date=bill_frbr.Work_Date,
-                Work_Other=work_other,
-                Expression_Language=bill_frbr.Expression_Language,
-                Expression_Date=bill_frbr.Expression_Date,
-                Expression_Version=1,
+                work_province_id=bill_frbr.work_province_id,
+                work_date=bill_frbr.work_date,
+                work_other=work_other,
+                expression_language=bill_frbr.expression_language,
+                expression_date=bill_frbr.expression_date,
+                expression_version=1,
             )
             attachment_dict: dict = {
                 "id": attachment.id,

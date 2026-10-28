@@ -80,7 +80,7 @@ async def test_validate():
     rule: AreaDesignationRefCheckRule = AreaDesignationRefCheckRule(factory)
     request: ValidatePublicationRequest = ValidatePublicationRequest(
         input_data=make_api_act_input_data(
-            Publication_Data=make_publication_data(gebiedsaanwijzingen=gebiedsaanwijzingen_request)
+            publication_data=make_publication_data(gebiedsaanwijzingen=gebiedsaanwijzingen_request)
         ),
         document_type=DocumentType.VISION,
     )

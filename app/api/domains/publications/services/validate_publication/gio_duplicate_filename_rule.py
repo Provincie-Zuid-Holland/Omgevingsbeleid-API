@@ -15,7 +15,7 @@ class GioDuplicateFilenameRule(ValidatePublicationRule):
         errors: list[ValidatePublicationError] = []
         gios: dict[str, PublicationGio] = {}
 
-        for publication_gio in request.input_data.Publication_Data.gios.values():
+        for publication_gio in request.input_data.publication_data.gios.values():
             dso_name: str = generate_dso_gio_name(publication_gio.title)
             if dso_name in gios:
                 duplicate_gio: PublicationGio = gios.get(dso_name)

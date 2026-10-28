@@ -14,7 +14,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
         errors: list[ValidatePublicationError] = []
 
         koop_subjects: list[str] = [subject for subject in OnderwerpType.__members__]
-        for subject in request.input_data.Publication_Version.bill_metadata["subjects"]:
+        for subject in request.input_data.publication_version.bill_metadata["subjects"]:
             if subject not in koop_subjects:
                 errors.append(
                     ValidatePublicationError(
@@ -27,7 +27,7 @@ class WaardelijstenValuesUsedCheckRule(ValidatePublicationRule):
                 )
 
         koop_jurisdictions: list[str] = [subject for subject in RechtsgebiedType.__members__]
-        for jurisdiction in request.input_data.Publication_Version.bill_metadata["jurisdictions"]:
+        for jurisdiction in request.input_data.publication_version.bill_metadata["jurisdictions"]:
             if jurisdiction not in koop_jurisdictions:
                 errors.append(
                     ValidatePublicationError(

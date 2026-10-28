@@ -32,7 +32,7 @@ class PublicationDocumentsProvider:
         )
 
         # @todo: Look for better solution, maybe filename can be auto prefixed?
-        filenames: list[str] = [r["Filename"] for r in result]
+        filenames: list[str] = [r["filename"] for r in result]
         if len(filenames) != len(set(filenames)):
             raise validation_exception(
                 [
@@ -91,18 +91,18 @@ class PublicationDocumentsProvider:
         document: dict,
         storage_file: StorageFileTable,
     ) -> dict:
-        work_date: str = act_frbr.Work_Date
-        work_identifier = f"file-{act_frbr.Act_ID}-{act_frbr.Expression_Version}-{document['object_id']}"
+        work_date: str = act_frbr.work_date
+        work_identifier = f"file-{act_frbr.act_id}-{act_frbr.expression_version}-{document['object_id']}"
 
         # Some of these expression values are set as if this is the first version
         # But should be overwritten by the state system if they are already published under this UUID/Hash
         frbr = dso_models.GioFRBR(
-            Work_Province_ID=act_frbr.Work_Province_ID,
-            Work_Date=work_date,
-            Work_Other=work_identifier,
-            Expression_Language=act_frbr.Expression_Language,
-            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
-            Expression_Version=1,
+            work_province_id=act_frbr.work_province_id,
+            work_date=work_date,
+            work_other=work_identifier,
+            expression_language=act_frbr.expression_language,
+            expression_date=datetime.now(UTC).strftime("%Y-%m-%d"),
+            expression_version=1,
         )
 
         result = {

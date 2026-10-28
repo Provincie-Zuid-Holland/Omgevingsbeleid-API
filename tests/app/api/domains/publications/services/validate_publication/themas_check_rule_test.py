@@ -95,7 +95,7 @@ async def test_validate():
         },
     ]
     request: ValidatePublicationRequest = ValidatePublicationRequest(
-        input_data=make_api_act_input_data(Publication_Data=make_publication_data(used_objects=used_objects)),
+        input_data=make_api_act_input_data(publication_data=make_publication_data(used_objects=used_objects)),
         document_type=DocumentType.VISION,
     )
     db: Mock | AsyncSession = Mock(AsyncSession)

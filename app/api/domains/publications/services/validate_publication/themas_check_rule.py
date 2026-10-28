@@ -27,7 +27,7 @@ class ThemasCheckRule(ValidatePublicationRule):
         errors: list[ValidatePublicationError] = []
         dso_themas: dict[str, Thema] = self._dso_thema_factory.get_all()
 
-        for object_to_validate in request.input_data.Publication_Data.used_objects:
+        for object_to_validate in request.input_data.publication_data.used_objects:
             if not object_to_validate.get(self._config.field):
                 continue
             themas: list[str] = object_to_validate.get(self._config.field)

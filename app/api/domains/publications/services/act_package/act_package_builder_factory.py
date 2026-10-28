@@ -83,15 +83,15 @@ class ActPackageBuilderFactory:
         )
 
         api_input_data = ApiActInputData(
-            Bill_Frbr=bill_frbr,
-            Act_Frbr=act_frbr,
-            Consolidation_Purpose=purpose,
-            Publication_Data=publication_data,
-            Package_Type=package_type,
-            Publication_Version=publication_version,
-            Act_Mutation=None,
-            Ow_State=None,
-            Mutation_Strategy=mutation_strategy,
+            bill_frbr=bill_frbr,
+            act_frbr=act_frbr,
+            consolidation_purpose=purpose,
+            publication_data=publication_data,
+            package_type=package_type,
+            publication_version=publication_version,
+            act_mutation=None,
+            ow_state=None,
+            mutation_strategy=mutation_strategy,
         )
 
         state: ActiveState | None = await self._state_loader.load_from_publication_version(session, publication_version)

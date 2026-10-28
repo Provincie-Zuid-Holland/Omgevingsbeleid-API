@@ -13,11 +13,11 @@ class ReferencedGebiedengroepCodeExistsRule(ValidatePublicationRule):
         errors: list[ValidatePublicationError] = []
 
         existing_gebiedengroepen: set[str] = {
-            gebiedengroep.code for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values()
+            gebiedengroep.code for gebiedengroep in request.input_data.publication_data.gebiedengroepen.values()
         }
 
-        for used_object in request.input_data.Publication_Data.used_objects:
-            gebiedengroep_code: str | None = used_object.get("Gebiedengroep_Code")
+        for used_object in request.input_data.publication_data.used_objects:
+            gebiedengroep_code: str | None = used_object.get("gebiedengroep_code")
             if not gebiedengroep_code:
                 continue
 

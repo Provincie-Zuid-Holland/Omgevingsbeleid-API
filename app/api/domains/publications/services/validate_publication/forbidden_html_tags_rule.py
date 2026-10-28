@@ -26,7 +26,7 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
     async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
-        for used_object in request.input_data.Publication_Data.used_objects:
+        for used_object in request.input_data.publication_data.used_objects:
             for field_name in self._config.fields:
                 value: str = str(used_object.get(field_name, ""))
                 maybe_forbidden_tag = self._has_forbidden_tags(value)

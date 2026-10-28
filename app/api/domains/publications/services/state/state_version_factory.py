@@ -33,7 +33,7 @@ class StateVersionFactory:
 
             state = await upgrader.upgrade(
                 session=session,
-                environment_id=environment_id,
+                environment_uuid=environment_id,
                 old_state=state,
             )
 

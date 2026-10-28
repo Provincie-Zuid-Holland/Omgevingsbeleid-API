@@ -45,12 +45,12 @@ DUTCH_MONTHS = {
 class DsoAnnouncementInputDataBuilder:
     def __init__(self, api_input_data: ApiAnnouncementInputData):
         self._api_input_data: ApiAnnouncementInputData = api_input_data
-        self._environment: PublicationEnvironmentTable = api_input_data.Announcement.publication.environment
-        self._announcement: PublicationAnnouncementTable = api_input_data.Announcement
-        self._doc_frbr: DocFrbr = api_input_data.Doc_Frbr
-        self._about_bill_frbr: BillFrbr = api_input_data.About_Bill_Frbr
-        self._procedural: AnnouncementProcedural = api_input_data.Announcement_Procedural
-        self._announcement_content: AnnouncementContent = api_input_data.Announcement_Content
+        self._environment: PublicationEnvironmentTable = api_input_data.announcement.publication.environment
+        self._announcement: PublicationAnnouncementTable = api_input_data.announcement
+        self._doc_frbr: DocFrbr = api_input_data.doc_frbr
+        self._about_bill_frbr: BillFrbr = api_input_data.about_bill_frbr
+        self._procedural: AnnouncementProcedural = api_input_data.announcement_procedural
+        self._announcement_content: AnnouncementContent = api_input_data.announcement_content
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
@@ -65,7 +65,7 @@ class DsoAnnouncementInputDataBuilder:
         return input_data
 
     def _get_opdracht(self) -> dso_models.PublicatieOpdracht:
-        dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._api_input_data.Package_Type]
+        dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._api_input_data.package_type]
         result = dso_models.PublicatieOpdracht(
             opdracht_type=dso_opdracht_type,
             id_levering=str(uuid.uuid4()),
@@ -78,31 +78,31 @@ class DsoAnnouncementInputDataBuilder:
 
     def _get_doc_frbr(self) -> dso_models.DocFRBR:
         result = dso_models.DocFRBR(
-            Work_Province_ID=self._environment.province_id,
-            Work_Country=self._doc_frbr.Work_Country,
-            Work_Date=self._doc_frbr.Work_Date,
-            Work_Other=self._doc_frbr.Work_Other,
-            Expression_Language=self._doc_frbr.Expression_Language,
-            Expression_Date=self._doc_frbr.Expression_Date,
-            Expression_Version=self._doc_frbr.Expression_Version,
+            work_province_id=self._environment.province_id,
+            work_country=self._doc_frbr.work_country,
+            work_date=self._doc_frbr.work_date,
+            work_other=self._doc_frbr.work_other,
+            expression_language=self._doc_frbr.expression_language,
+            expression_date=self._doc_frbr.expression_date,
+            expression_version=self._doc_frbr.expression_version,
         )
         return result
 
     def _get_about_bill_frbr(self) -> dso_models.BillFRBR:
         result = dso_models.BillFRBR(
-            Work_Province_ID=self._environment.province_id,
-            Work_Country=self._about_bill_frbr.Work_Country,
-            Work_Date=self._about_bill_frbr.Work_Date,
-            Work_Other=self._about_bill_frbr.Work_Other,
-            Expression_Language=self._about_bill_frbr.Expression_Language,
-            Expression_Date=self._about_bill_frbr.Expression_Date,
-            Expression_Version=self._about_bill_frbr.Expression_Version,
+            work_province_id=self._environment.province_id,
+            work_country=self._about_bill_frbr.work_country,
+            work_date=self._about_bill_frbr.work_date,
+            work_other=self._about_bill_frbr.work_other,
+            expression_language=self._about_bill_frbr.expression_language,
+            expression_date=self._about_bill_frbr.expression_date,
+            expression_version=self._about_bill_frbr.expression_version,
         )
         return result
 
     def _get_kennisgeving(self) -> Kennisgeving:
         result = Kennisgeving(
-            officiele_titel=self._api_input_data.Announcement_Metadata.official_title,
+            officiele_titel=self._api_input_data.announcement_metadata.official_title,
             onderwerpen=self._get_onderwerpen(),
             mededeling_over_frbr=self._get_about_bill_frbr(),
         )
@@ -110,7 +110,7 @@ class DsoAnnouncementInputDataBuilder:
         return result
 
     def _get_onderwerpen(self) -> list[OnderwerpType]:
-        result: list[OnderwerpType] = [OnderwerpType[v] for v in self._api_input_data.Announcement_Metadata.subjects]
+        result: list[OnderwerpType] = [OnderwerpType[v] for v in self._api_input_data.announcement_metadata.subjects]
         return result
 
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
@@ -149,8 +149,8 @@ class DsoAnnouncementInputDataBuilder:
         return procedure_verloop
 
     def _get_akn_filename(self) -> str:
-        package_type: str = (self._api_input_data.Package_Type[:3]).lower()
-        filename: str = f"akn_nl_doc_{self._environment.province_id}-{package_type}-{self._doc_frbr.Work_Date}-{self._doc_frbr.Work_Other}-{self._doc_frbr.Expression_Version}.xml"
+        package_type: str = (self._api_input_data.package_type[:3]).lower()
+        filename: str = f"akn_nl_doc_{self._environment.province_id}-{package_type}-{self._doc_frbr.work_date}-{self._doc_frbr.work_other}-{self._doc_frbr.expression_version}.xml"
         return filename
 
     def _get_kennisgeving_tekst(self) -> str:

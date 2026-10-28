@@ -13,14 +13,14 @@ class ActFrbrProvider:
 
         timepoint: datetime = datetime.now(UTC)
         frbr: ActFrbr = ActFrbr(
-            Act_ID=act.id,
-            Work_Province_ID=act.work_province_id,
-            Work_Country=act.work_country,
-            Work_Date=act.work_date,
-            Work_Other=act.work_other,
-            Expression_Language=act.environment.frbr_language,
-            Expression_Date=timepoint.strftime("%Y-%m-%d"),
-            Expression_Version=expression_version,
+            act_id=act.id,
+            work_province_id=act.work_province_id,
+            work_country=act.work_country,
+            work_date=act.work_date,
+            work_other=act.work_other,
+            expression_language=act.environment.frbr_language,
+            expression_date=timepoint.strftime("%Y-%m-%d"),
+            expression_version=expression_version,
         )
         return frbr
 

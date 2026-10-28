@@ -55,19 +55,19 @@ class ActPackageBuilder:
         return delivery_id
 
     def get_bill_frbr(self) -> BillFrbr:
-        return self._api_input_data.Bill_Frbr
+        return self._api_input_data.bill_frbr
 
     def get_act_frbr(self) -> ActFrbr:
-        return self._api_input_data.Act_Frbr
+        return self._api_input_data.act_frbr
 
     def get_consolidation_purpose(self) -> Purpose:
-        return self._api_input_data.Consolidation_Purpose
+        return self._api_input_data.consolidation_purpose
 
     def create_new_state(self) -> PublicationEnvironmentStateTable:
         if self._state is None:
             raise RuntimeError("Can not create new state")
 
-        environment: PublicationEnvironmentTable = self._api_input_data.Publication_Version.publication.environment
+        environment: PublicationEnvironmentTable = self._api_input_data.publication_version.publication.environment
 
         state_changer = ActStatePatcher(self._api_input_data, self._dso_builder)
         state: State = state_changer.apply(self._state)

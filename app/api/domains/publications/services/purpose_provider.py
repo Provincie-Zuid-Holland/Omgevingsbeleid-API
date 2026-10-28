@@ -41,8 +41,8 @@ class PurposeProvider:
         work_other: str = "-".join(
             [
                 TYPE_MAP[purpose_type],
-                act_frbr.Work_Other.lower(),
-                str(act_frbr.Expression_Version),
+                act_frbr.work_other.lower(),
+                str(act_frbr.expression_version),
             ]
         )
         result: Purpose = self._create(publication_version, purpose_type, work_other)
@@ -58,10 +58,10 @@ class PurposeProvider:
 
         timepoint: datetime = datetime.now(UTC)
         purpose: Purpose = Purpose(
-            Purpose_Type=purpose_type,
-            Effective_Date=publication_version.effective_date,
-            Work_Province_ID=environment.province_id,
-            Work_Date=str(timepoint.year),
-            Work_Other=work_other,
+            purpose_type=purpose_type,
+            effective_date=publication_version.effective_date,
+            work_province_id=environment.province_id,
+            work_date=str(timepoint.year),
+            work_other=work_other,
         )
         return purpose

@@ -72,10 +72,10 @@ class PublicationAssetProvider:
             content, meta = self._asset_remove_transparency.fix(content, meta)
 
             asset_dict = {
-                "UUID": str(asset.id),
+                "id": str(asset.id),
                 "created_date": str(asset.created_date),
-                "Meta": meta,
-                "Content": content,
+                "meta": meta,
+                "content": content,
             }
             dso_assets.append(asset_dict)
 

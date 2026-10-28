@@ -99,19 +99,19 @@ class DsoActInputDataBuilder:
         self._koop_settings: dict[str, KoopSettings] = koop_settings
         self._ow_dataset: str = ow_dataset
         self._ow_gebied: str = ow_gebied
-        self._publication_version: PublicationVersionTable = api_input_data.Publication_Version
-        self._package_type: PackageType = api_input_data.Package_Type
-        self._bill_frbr: BillFrbr = api_input_data.Bill_Frbr
-        self._act_frbr: ActFrbr = api_input_data.Act_Frbr
-        self._consolidation_purpose: Purpose = api_input_data.Consolidation_Purpose
-        self._publication_data: PublicationData = api_input_data.Publication_Data
-        self._publication: PublicationTable = api_input_data.Publication_Version.publication
-        self._environment: PublicationEnvironmentTable = api_input_data.Publication_Version.publication.environment
-        self._act: PublicationActTable = api_input_data.Publication_Version.publication.act
+        self._publication_version: PublicationVersionTable = api_input_data.publication_version
+        self._package_type: PackageType = api_input_data.package_type
+        self._bill_frbr: BillFrbr = api_input_data.bill_frbr
+        self._act_frbr: ActFrbr = api_input_data.act_frbr
+        self._consolidation_purpose: Purpose = api_input_data.consolidation_purpose
+        self._publication_data: PublicationData = api_input_data.publication_data
+        self._publication: PublicationTable = api_input_data.publication_version.publication
+        self._environment: PublicationEnvironmentTable = api_input_data.publication_version.publication.environment
+        self._act: PublicationActTable = api_input_data.publication_version.publication.act
         self._template: PublicationTemplateTable = self._publication.template
-        self._act_mutation: ActMutation | None = api_input_data.Act_Mutation
-        self._mutation_strategy: MutationStrategy = api_input_data.Mutation_Strategy
-        self._ow_state_json: str | None = api_input_data.Ow_State
+        self._act_mutation: ActMutation | None = api_input_data.act_mutation
+        self._mutation_strategy: MutationStrategy = api_input_data.mutation_strategy
+        self._ow_state_json: str | None = api_input_data.ow_state
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
@@ -151,22 +151,22 @@ class DsoActInputDataBuilder:
             ).model_dump(),
             instelling_doel=self._get_instelling_doel(),
             besluit_frbr=dso_models.BillFRBR(
-                Work_Province_ID=self._environment.province_id,
-                Work_Country=self._bill_frbr.Work_Country,
-                Work_Date=self._bill_frbr.Work_Date,
-                Work_Other=self._bill_frbr.Work_Other,
-                Expression_Language=self._bill_frbr.Expression_Language,
-                Expression_Date=self._bill_frbr.Expression_Date,
-                Expression_Version=self._bill_frbr.Expression_Version,
+                work_province_id=self._environment.province_id,
+                work_country=self._bill_frbr.work_country,
+                work_date=self._bill_frbr.work_date,
+                work_other=self._bill_frbr.work_other,
+                expression_language=self._bill_frbr.expression_language,
+                expression_date=self._bill_frbr.expression_date,
+                expression_version=self._bill_frbr.expression_version,
             ),
             regeling_frbr=dso_models.ActFRBR(
-                Work_Province_ID=self._environment.province_id,
-                Work_Country=self._act_frbr.Work_Country,
-                Work_Date=self._act_frbr.Work_Date,
-                Work_Other=self._act_frbr.Work_Other,
-                Expression_Language=self._act_frbr.Expression_Language,
-                Expression_Date=self._act_frbr.Expression_Date,
-                Expression_Version=self._act_frbr.Expression_Version,
+                work_province_id=self._environment.province_id,
+                work_country=self._act_frbr.work_country,
+                work_date=self._act_frbr.work_date,
+                work_other=self._act_frbr.work_other,
+                expression_language=self._act_frbr.expression_language,
+                expression_date=self._act_frbr.expression_date,
+                expression_version=self._act_frbr.expression_version,
             ),
             intrekking=None,
         )
@@ -174,7 +174,7 @@ class DsoActInputDataBuilder:
 
     def _get_akn_filename(self) -> str:
         package_type: str = (self._package_type[:3]).lower()
-        filename: str = f"akn_nl_bill_{self._environment.province_id}-{package_type}-{self._bill_frbr.Work_Date}-{self._bill_frbr.Work_Other}-{self._bill_frbr.Expression_Version}.xml"
+        filename: str = f"akn_nl_bill_{self._environment.province_id}-{package_type}-{self._bill_frbr.work_date}-{self._bill_frbr.work_other}-{self._bill_frbr.expression_version}.xml"
         return filename
 
     def _get_besluit(self) -> Besluit:
@@ -201,7 +201,7 @@ class DsoActInputDataBuilder:
 
     def _get_regeling(self) -> Regeling:
         regeling = Regeling(
-            versienummer=str(self._act_frbr.Expression_Version),
+            versienummer=str(self._act_frbr.expression_version),
             officiele_titel=self._act.meta_data["official_title"],
             citeertitel=self._act.meta_data["quote_title"],
             is_officieel=("true" if self._publication.procedure_type == APIProcedureType.FINAL else "false"),
@@ -212,9 +212,9 @@ class DsoActInputDataBuilder:
 
     def _get_instelling_doel(self) -> dso_models.InstellingDoel:
         frbr = dso_models.DoelFRBR(
-            Work_Province_ID=self._consolidation_purpose.Work_Province_ID,
-            Work_Date=self._consolidation_purpose.Work_Date,
-            Work_Other=self._consolidation_purpose.Work_Other,
+            work_province_id=self._consolidation_purpose.work_province_id,
+            work_date=self._consolidation_purpose.work_date,
+            work_other=self._consolidation_purpose.work_other,
         )
 
         datum: str | None = None
@@ -388,7 +388,7 @@ class DsoActInputDataBuilder:
         for input_groep in self._publication_data.gebiedengroepen.values():
             repository.add(
                 dso_gebieden.GebiedenGroep(
-                    uuid=uuid.UUID(input_groep.uuid),
+                    id=uuid.UUID(input_groep.id),
                     code=input_groep.code,
                     title=input_groep.title,
                     gio_key=input_groep.gio_key,
@@ -401,7 +401,7 @@ class DsoActInputDataBuilder:
         for input_aanwijzing in self._publication_data.gebiedsaanwijzingen.values():
             repository.add(
                 dso_gebieden.Gebiedsaanwijzing(
-                    uuid=uuid.UUID(input_aanwijzing.uuid),
+                    id=uuid.UUID(input_aanwijzing.id),
                     code=input_aanwijzing.code,
                     aanwijzing_type=input_aanwijzing.aanwijzing_type,
                     aanwijzing_groep=input_aanwijzing.aanwijzing_group,
@@ -431,7 +431,7 @@ class DsoActInputDataBuilder:
     def _get_ambtsgebied(self) -> Ambtsgebied:
         aoj: dict = self._publication_data.area_of_jurisdiction
         ambtsgebied: Ambtsgebied = Ambtsgebied(
-            UUID=aoj["id"],
+            id=aoj["id"],
             identificatie_suffix=aoj["administrative_borders_id"],
             domein=aoj["administrative_borders_domain"],
             geldig_op=aoj["administrative_borders_date"].strftime("%Y-%m-%d"),
@@ -497,28 +497,28 @@ class DsoActInputDataBuilder:
             raise RuntimeError("Missing runtime environment settings for this PublicationEnvironment")
 
         frbr = dso_models.ActFRBR(
-            Work_Province_ID=self._act_mutation.Consolidated_Act_Frbr.Work_Province_ID,
-            Work_Country=self._act_mutation.Consolidated_Act_Frbr.Work_Country,
-            Work_Date=self._act_mutation.Consolidated_Act_Frbr.Work_Date,
-            Work_Other=self._act_mutation.Consolidated_Act_Frbr.Work_Other,
-            Expression_Language=self._act_mutation.Consolidated_Act_Frbr.Expression_Language,
-            Expression_Date=self._act_mutation.Consolidated_Act_Frbr.Expression_Date,
-            Expression_Version=self._act_mutation.Consolidated_Act_Frbr.Expression_Version,
+            work_province_id=self._act_mutation.consolidated_act_frbr.work_province_id,
+            work_country=self._act_mutation.consolidated_act_frbr.work_country,
+            work_date=self._act_mutation.consolidated_act_frbr.work_date,
+            work_other=self._act_mutation.consolidated_act_frbr.work_other,
+            expression_language=self._act_mutation.consolidated_act_frbr.expression_language,
+            expression_date=self._act_mutation.consolidated_act_frbr.expression_date,
+            expression_version=self._act_mutation.consolidated_act_frbr.expression_version,
         )
 
         te_verwijderden_gios = [
             dso_models.VerwijderdeGio(
                 frbr=dso_models.GioFRBR.model_validate(w["frbr"]),
             )
-            for w in self._act_mutation.Removed_Gios
+            for w in self._act_mutation.removed_gios
         ]
 
         match self._mutation_strategy:
             case MutationStrategy.REPLACE:
                 result = dso_models.VervangRegelingMutatie(
                     was_regeling_frbr=frbr,
-                    bekend_wid_map=self._act_mutation.Known_Wid_Map,
-                    bekend_wids=self._act_mutation.Known_Wids,
+                    bekend_wid_map=self._act_mutation.known_wid_map,
+                    bekend_wids=self._act_mutation.known_wids,
                     te_verwijderden_gios=te_verwijderden_gios,
                 )
                 return result
@@ -526,9 +526,9 @@ class DsoActInputDataBuilder:
             case MutationStrategy.RENVOOI:
                 result = dso_models.RenvooiRegelingMutatie(
                     was_regeling_frbr=frbr,
-                    was_regeling_vrijetekst=self._act_mutation.Consolidated_Act_Text,
-                    bekend_wid_map=self._act_mutation.Known_Wid_Map,
-                    bekend_wids=self._act_mutation.Known_Wids,
+                    was_regeling_vrijetekst=self._act_mutation.consolidated_act_text,
+                    bekend_wid_map=self._act_mutation.known_wid_map,
+                    bekend_wids=self._act_mutation.known_wids,
                     te_verwijderden_gios=te_verwijderden_gios,
                     renvooi_api_key=renvooi.API_KEY,
                     renvooi_api_url=renvooi.RENVOOI_API_URL,
@@ -544,10 +544,10 @@ class DsoActInputDataBuilder:
 
         key: str = "_".join(
             [
-                str(self._act_frbr.Work_Province_ID),
-                str(self._act_frbr.Work_Other),
-                str(self._act_frbr.Expression_Version),
-                str(self._act_mutation.Consolidated_Act_Frbr.Expression_Version),
+                str(self._act_frbr.work_province_id),
+                str(self._act_frbr.work_other),
+                str(self._act_frbr.expression_version),
+                str(self._act_mutation.consolidated_act_frbr.expression_version),
             ]
         ).replace("-", "_")
         return key

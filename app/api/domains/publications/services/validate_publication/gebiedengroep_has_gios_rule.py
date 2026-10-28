@@ -12,7 +12,7 @@ class GebiedengroepHasGiosRule(ValidatePublicationRule):
     async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
-        for gebiedengroep in request.input_data.Publication_Data.gebiedengroepen.values():
+        for gebiedengroep in request.input_data.publication_data.gebiedengroepen.values():
             if not gebiedengroep.gio_key:
                 errors.append(
                     ValidatePublicationError(

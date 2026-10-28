@@ -24,7 +24,7 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
             dso_document_type
         )
 
-        for gebiedsaanwijzing in request.input_data.Publication_Data.gebiedsaanwijzingen.values():
+        for gebiedsaanwijzing in request.input_data.publication_data.gebiedsaanwijzingen.values():
             object_type, object_id = gebiedsaanwijzing.code.split("-", 1)
             ref_type: Gebiedsaanwijzing | None = gebiedsaanwijzingen.get_by_type_label(
                 gebiedsaanwijzing.aanwijzing_type

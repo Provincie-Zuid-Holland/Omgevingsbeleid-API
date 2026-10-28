@@ -38,7 +38,7 @@ class HoofdlijnenCheckRule(ValidatePublicationRule):
         hoofdlijnen_set: set[UUID] = set()
 
         errors: list[ValidatePublicationError] = []
-        for object_to_validate in request.input_data.Publication_Data.used_objects:
+        for object_to_validate in request.input_data.publication_data.used_objects:
             if object_to_validate.get("object_type") not in self._config.allowed_object_types:
                 continue
 

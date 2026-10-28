@@ -40,14 +40,14 @@ class AnnouncementPackageBuilderFactory:
         about_bill_frbr: BillFrbr = self._get_about_bill_frbr(announcement)
 
         api_input_data = ApiAnnouncementInputData(
-            Doc_Frbr=doc_frbr,
-            About_Bill_Frbr=about_bill_frbr,
-            About_Act_Frbr=about_act_frbr,
-            Package_Type=package_type,
-            Announcement=announcement,
-            Announcement_Metadata=AnnouncementMetadata.model_validate(announcement.meta_data),
-            Announcement_Procedural=AnnouncementProcedural.model_validate(announcement.procedural),
-            Announcement_Content=AnnouncementContent.model_validate(announcement.content),
+            doc_frbr=doc_frbr,
+            about_bill_frbr=about_bill_frbr,
+            about_act_frbr=about_act_frbr,
+            package_type=package_type,
+            announcement=announcement,
+            announcement_metadata=AnnouncementMetadata.model_validate(announcement.meta_data),
+            announcement_procedural=AnnouncementProcedural.model_validate(announcement.procedural),
+            announcement_content=AnnouncementContent.model_validate(announcement.content),
         )
 
         state: ActiveState | None = await self._state_loader.load_from_environment(
@@ -68,13 +68,13 @@ class AnnouncementPackageBuilderFactory:
         bill_version_table: PublicationBillVersionTable = announcement.act_package.bill_version
 
         result = BillFrbr(
-            Work_Province_ID=bill_version_table.bill.work_province_id,
-            Work_Country=bill_version_table.bill.work_country,
-            Work_Date=bill_version_table.bill.work_date,
-            Work_Other=bill_version_table.bill.work_other,
-            Expression_Language=bill_version_table.expression_language,
-            Expression_Date=bill_version_table.expression_date,
-            Expression_Version=bill_version_table.expression_version,
+            work_province_id=bill_version_table.bill.work_province_id,
+            work_country=bill_version_table.bill.work_country,
+            work_date=bill_version_table.bill.work_date,
+            work_other=bill_version_table.bill.work_other,
+            expression_language=bill_version_table.expression_language,
+            expression_date=bill_version_table.expression_date,
+            expression_version=bill_version_table.expression_version,
         )
         return result
 
@@ -82,13 +82,13 @@ class AnnouncementPackageBuilderFactory:
         act_version_table: PublicationActVersionTable = announcement.act_package.act_version
 
         result = ActFrbr(
-            Act_ID=act_version_table.act.id,
-            Work_Province_ID=act_version_table.act.work_province_id,
-            Work_Country=act_version_table.act.work_country,
-            Work_Date=act_version_table.act.work_date,
-            Work_Other=act_version_table.act.work_other,
-            Expression_Language=act_version_table.expression_language,
-            Expression_Date=act_version_table.expression_date,
-            Expression_Version=act_version_table.expression_version,
+            act_id=act_version_table.act.id,
+            work_province_id=act_version_table.act.work_province_id,
+            work_country=act_version_table.act.work_country,
+            work_date=act_version_table.act.work_date,
+            work_other=act_version_table.act.work_other,
+            expression_language=act_version_table.expression_language,
+            expression_date=act_version_table.expression_date,
+            expression_version=act_version_table.expression_version,
         )
         return result

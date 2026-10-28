@@ -51,19 +51,19 @@ class AnnouncementPackageBuilder:
         return delivery_id
 
     def get_bill_frbr(self) -> BillFrbr:
-        return self._api_input_data.About_Bill_Frbr
+        return self._api_input_data.about_bill_frbr
 
     def get_act_frbr(self) -> ActFrbr:
-        return self._api_input_data.About_Act_Frbr
+        return self._api_input_data.about_act_frbr
 
     def get_doc_frbr(self) -> DocFrbr:
-        return self._api_input_data.Doc_Frbr
+        return self._api_input_data.doc_frbr
 
     def create_new_state(self) -> PublicationEnvironmentStateTable:
         if self._state is None:
             raise RuntimeError("Can not create new state")
 
-        environment: PublicationEnvironmentTable = self._api_input_data.Announcement.publication.environment
+        environment: PublicationEnvironmentTable = self._api_input_data.announcement.publication.environment
 
         state_changer = AnnouncementStatePatcher(self._api_input_data, self._dso_builder)
         state: State = state_changer.apply(self._state)

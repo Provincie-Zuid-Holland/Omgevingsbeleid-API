@@ -13,15 +13,15 @@ class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
         errors: list[ValidatePublicationError] = []
 
         used_object_types_in_template: set[str] = set()
-        for used_object_code in request.input_data.Publication_Data.used_object_codes:
+        for used_object_code in request.input_data.publication_data.used_object_codes:
             object_type, _ = used_object_code.split("-")
             used_object_types_in_template.add(object_type)
 
-        for object_current in request.input_data.Publication_Data.all_objects:
+        for object_current in request.input_data.publication_data.all_objects:
             if object_current.get("object_type") not in used_object_types_in_template:
                 continue
 
-            if object_current.get("code") not in request.input_data.Publication_Data.used_object_codes:
+            if object_current.get("code") not in request.input_data.publication_data.used_object_codes:
                 errors.append(
                     ValidatePublicationError(
                         rule="used_object_in_publication_exists_rule",

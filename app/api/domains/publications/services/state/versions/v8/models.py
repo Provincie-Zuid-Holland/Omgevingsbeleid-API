@@ -297,6 +297,7 @@ class OwTekstdeel(BaseOwObject):
     text_ref: WidRefUnion
     location_refs: list[LocationRefUnion] = Field(default_factory=list)
     gebiedsaanwijzing_refs: list[GebiedsaanwijzingRefUnion] = Field(default_factory=list)
+    themas: list[str] = Field(default_factory=list)
 
     def __hash__(self):
         return hash((self.source_code,))

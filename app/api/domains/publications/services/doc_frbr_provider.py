@@ -46,13 +46,13 @@ class DocFrbrProvider:
 
         timepoint: datetime = datetime.now(UTC)
         frbr: DocFrbr = DocFrbr(
-            Work_Province_ID=environment.province_id,
-            Work_Country=environment.frbr_country,
-            Work_Date=str(timepoint.year),
-            Work_Other=work_other,
-            Expression_Language=environment.frbr_language,
-            Expression_Date=timepoint.strftime("%Y-%m-%d"),
-            Expression_Version=1,
-            Document_Type=publication.document_type,
+            work_province_id=environment.province_id,
+            work_country=environment.frbr_country,
+            work_date=str(timepoint.year),
+            work_other=work_other,
+            expression_language=environment.frbr_language,
+            expression_date=timepoint.strftime("%Y-%m-%d"),
+            expression_version=1,
+            document_type=publication.document_type,
         )
         return frbr

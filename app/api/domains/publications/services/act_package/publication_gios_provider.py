@@ -56,7 +56,7 @@ class PublicationGiosProvider:
             gio_key: str = await self._resolve_gebiedengroep_gio(gebieden_data, input_groep)
 
             groep: PublicationGebiedengroep = PublicationGebiedengroep(
-                uuid=str(input_groep.uuid),
+                id=str(input_groep.uuid),
                 code=input_groep.code,
                 title=input_groep.title,
                 source_gebieden_codes=input_groep.gebied_codes,
@@ -88,21 +88,21 @@ class PublicationGiosProvider:
         return gio_key
 
     def _build_frbr_gebiedengroep(self, input_gebiedengroep: InputGebiedengroep) -> dso_models.GioFRBR:
-        # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
+        # Note: GIO's are consolidated per Act, so we use the Act's work_date
         # and make their identifier unique with act data.
         # Can't really remember why, but I think it's a legacy system in DSO where the same FRBR must be unique (Omgevingsvisie/programma should not use the same)
         # I added GG as a shorthand for Gebiedengroep
-        work_date: str = self._act_frbr.Work_Date
+        work_date: str = self._act_frbr.work_date
         work_identifier = (
-            f"{self._act_frbr.Act_ID}-{self._act_frbr.Expression_Version}-GG-{input_gebiedengroep.object_id}"
+            f"{self._act_frbr.act_id}-{self._act_frbr.expression_version}-GG-{input_gebiedengroep.object_id}"
         )
         return dso_models.GioFRBR(
-            Work_Province_ID=self._act_frbr.Work_Province_ID,
-            Work_Date=work_date,
-            Work_Other=work_identifier,
-            Expression_Language=self._act_frbr.Expression_Language,
-            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
-            Expression_Version=1,
+            work_province_id=self._act_frbr.work_province_id,
+            work_date=work_date,
+            work_other=work_identifier,
+            expression_language=self._act_frbr.expression_language,
+            expression_date=datetime.now(UTC).strftime("%Y-%m-%d"),
+            expression_version=1,
         )
 
     #
@@ -116,7 +116,7 @@ class PublicationGiosProvider:
             gio_key: str = await self._resolve_gebiedsaanwijzing_gio(gebieden_data, input_aanwijzing)
 
             aanwijzing: PublicationGebiedsaanwijzing = PublicationGebiedsaanwijzing(
-                uuid=str(input_aanwijzing.uuid),
+                id=str(input_aanwijzing.uuid),
                 code=input_aanwijzing.code,
                 title=input_aanwijzing.title,
                 aanwijzing_type=input_aanwijzing.aanwijzing_type,
@@ -153,19 +153,19 @@ class PublicationGiosProvider:
         return gio_key
 
     def _build_frbr_gebiedsaanwijzing(self, input_aanwijzing: GebiedsaanwijzingData) -> dso_models.GioFRBR:
-        # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
+        # Note: GIO's are consolidated per Act, so we use the Act's work_date
         # and make their identifier unique with act data.
         # Can't really remember why, but I think it's a legacy system in DSO where the same FRBR must be unique (Omgevingsvisie/programma should not use the same)
         # I added GA as a shorthand for Gebiedsaanwijzing
-        work_date: str = self._act_frbr.Work_Date
-        work_identifier = f"{self._act_frbr.Act_ID}-{self._act_frbr.Expression_Version}-GA-{input_aanwijzing.object_id}"
+        work_date: str = self._act_frbr.work_date
+        work_identifier = f"{self._act_frbr.act_id}-{self._act_frbr.expression_version}-GA-{input_aanwijzing.object_id}"
         return dso_models.GioFRBR(
-            Work_Province_ID=self._act_frbr.Work_Province_ID,
-            Work_Date=work_date,
-            Work_Other=work_identifier,
-            Expression_Language=self._act_frbr.Expression_Language,
-            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
-            Expression_Version=1,
+            work_province_id=self._act_frbr.work_province_id,
+            work_date=work_date,
+            work_other=work_identifier,
+            expression_language=self._act_frbr.expression_language,
+            expression_date=datetime.now(UTC).strftime("%Y-%m-%d"),
+            expression_version=1,
         )
 
     #
@@ -216,7 +216,7 @@ class PublicationGiosProvider:
     def _new_gio_key(self) -> str:
         # Creates a unique key for each gio over all the publications
         self._gio_seq += 1
-        return f"gio-{self._act_frbr.Act_ID}-{self._act_frbr.Expression_Version}-{self._gio_seq}"
+        return f"gio-{self._act_frbr.act_id}-{self._act_frbr.expression_version}-{self._gio_seq}"
 
     def _manage_gio(self, new_gio: PublicationGio) -> str:
         # If this GIO already exists than reuse the existing GIO
