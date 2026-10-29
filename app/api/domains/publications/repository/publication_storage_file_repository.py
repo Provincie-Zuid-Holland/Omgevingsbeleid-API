@@ -1,26 +1,35 @@
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import undefer
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.publications import PublicationStorageFileTable
 
 
 class PublicationStorageFileRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: UUID) -> PublicationStorageFileTable | None:
-        stmt = select(PublicationStorageFileTable).filter(PublicationStorageFileTable.UUID == uuidx)
-        return self.fetch_first(session, stmt)
+    async def get_by_id(self, session: AsyncSession, idx: UUID) -> PublicationStorageFileTable | None:
+        stmt = select(PublicationStorageFileTable).filter(PublicationStorageFileTable.id == idx)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_checksum_uuid(self, session: Session, checksum: str) -> PublicationStorageFileTable | None:
+    async def get_with_binary(self, session: AsyncSession, idx: UUID) -> PublicationStorageFileTable | None:
+        stmt = (
+            select(PublicationStorageFileTable)
+            .options(undefer(PublicationStorageFileTable.binary))
+            .filter(PublicationStorageFileTable.id == idx)
+        )
+        return await self.fetch_first(session, stmt)
+
+    async def get_by_checksum(self, session: AsyncSession, checksum: str) -> PublicationStorageFileTable | None:
         lookup: str = checksum[0:10]
         stmt = (
             select(PublicationStorageFileTable)
-            .filter(PublicationStorageFileTable.Lookup == lookup)
-            .filter(PublicationStorageFileTable.Checksum == checksum)
+            .filter(PublicationStorageFileTable.lookup == lookup)
+            .filter(PublicationStorageFileTable.checksum == checksum)
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_all(self, session: Session):
+    async def get_all(self, session: AsyncSession):
         stmt = select(PublicationStorageFileTable)
-        return self.fetch_all(session, stmt)
+        return await self.fetch_all(session, stmt)

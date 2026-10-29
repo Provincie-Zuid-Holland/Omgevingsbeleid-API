@@ -46,10 +46,10 @@ class BasePrefillHandler[T: Spec]:
     def _handle_module_context(self, record: Record[T]) -> Record[T]:
         if record.ctx.module is None:
             return record
-        if not hasattr(record.spec, "Module_ID"):
+        if not hasattr(record.spec, "module_id"):
             return record
-        if record.spec.Module_ID:
+        if record.spec.module_id:
             return record
 
-        record.spec.Module_ID = record.ctx.module
+        record.spec.module_id = record.ctx.module
         return record

@@ -1,5 +1,5 @@
 from dso.act_builder.state_manager.input_data.input_data_loader import InputData
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.exceptions import DSOConfigurationException
 from app.api.domains.publications.services.act_frbr_provider import ActFrbrProvider
@@ -54,24 +54,24 @@ class ActPackageBuilderFactory:
         self._data_patcher_factory: ApiActInputDataPatcherFactory = data_patcher_factory
         self._validate_publication_service: ValidatePublicationService = validate_publication_service
 
-    def create_builder(
+    async def create_builder(
         self,
-        session: Session,
+        session: AsyncSession,
         publication_version: PublicationVersionTable,
         package_type: PackageType,
         overwrite_mutation_strategy: MutationStrategy | None = None,
     ) -> ActPackageBuilder:
-        publication: PublicationTable = publication_version.Publication
-        act: PublicationActTable = publication.Act
+        publication: PublicationTable = publication_version.publication
+        act: PublicationActTable = publication.act
 
-        act_frbr: ActFrbr = self._act_frbr_provider.generate_frbr(session, act)
-        bill_frbr: BillFrbr = self._bill_frbr_provider.generate_frbr(session, publication.Environment, act_frbr)
+        act_frbr: ActFrbr = await self._act_frbr_provider.generate_frbr(session, act)
+        bill_frbr: BillFrbr = await self._bill_frbr_provider.generate_frbr(session, publication.environment, act_frbr)
         purpose: Purpose = self._purpose_provider.generate_purpose(
             publication_version,
             act_frbr,
             PurposeType.CONSOLIDATION,
         )
-        publication_data: PublicationData = self._publication_data_provider.fetch_data(
+        publication_data: PublicationData = await self._publication_data_provider.fetch_data(
             session,
             publication_version,
             bill_frbr,
@@ -79,31 +79,31 @@ class ActPackageBuilderFactory:
         )
 
         mutation_strategy: MutationStrategy = overwrite_mutation_strategy or MutationStrategy(
-            publication_version.Mutation_Strategy
+            publication_version.mutation_strategy
         )
 
         api_input_data = ApiActInputData(
-            Bill_Frbr=bill_frbr,
-            Act_Frbr=act_frbr,
-            Consolidation_Purpose=purpose,
-            Publication_Data=publication_data,
-            Package_Type=package_type,
-            Publication_Version=publication_version,
-            Act_Mutation=None,
-            Ow_State=None,
-            Mutation_Strategy=mutation_strategy,
+            bill_frbr=bill_frbr,
+            act_frbr=act_frbr,
+            consolidation_purpose=purpose,
+            publication_data=publication_data,
+            package_type=package_type,
+            publication_version=publication_version,
+            act_mutation=None,
+            ow_state=None,
+            mutation_strategy=mutation_strategy,
         )
 
-        state: ActiveState | None = self._state_loader.load_from_publication_version(session, publication_version)
+        state: ActiveState | None = await self._state_loader.load_from_publication_version(session, publication_version)
         if state is not None:
             data_patcher: ApiActInputDataPatcher = self._data_patcher_factory.create(state)
-            api_input_data = data_patcher.apply(session, api_input_data)
+            api_input_data = await data_patcher.apply(session, api_input_data)
 
         validation_request = ValidatePublicationRequest(
-            document_type=publication_version.Publication.Document_Type,
+            document_type=publication_version.publication.document_type,
             input_data=api_input_data,
         )
-        validation_result = self._validate_publication_service.validate(session, validation_request)
+        validation_result = await self._validate_publication_service.validate(session, validation_request)
         if len(validation_result.errors) > 0:
             raise ValidatePublicationException(
                 "Error(s) found while validating publication",

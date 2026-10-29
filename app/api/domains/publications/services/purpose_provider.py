@@ -17,7 +17,7 @@ class PurposeProvider:
         act_frbr: ActFrbr,
         purpose_type: PurposeType,
     ) -> Purpose:
-        if publication_version.Publication.Environment.Has_State:
+        if publication_version.publication.environment.has_state:
             return self._create_real(publication_version, act_frbr, purpose_type)
 
         return self._create_fake(publication_version, act_frbr, purpose_type)
@@ -41,8 +41,8 @@ class PurposeProvider:
         work_other: str = "-".join(
             [
                 TYPE_MAP[purpose_type],
-                act_frbr.Work_Other.lower(),
-                str(act_frbr.Expression_Version),
+                act_frbr.work_other.lower(),
+                str(act_frbr.expression_version),
             ]
         )
         result: Purpose = self._create(publication_version, purpose_type, work_other)
@@ -54,14 +54,14 @@ class PurposeProvider:
         purpose_type: PurposeType,
         work_other: str,
     ) -> Purpose:
-        environment: PublicationEnvironmentTable = publication_version.Publication.Environment
+        environment: PublicationEnvironmentTable = publication_version.publication.environment
 
         timepoint: datetime = datetime.now(UTC)
         purpose: Purpose = Purpose(
-            Purpose_Type=purpose_type,
-            Effective_Date=publication_version.Effective_Date,
-            Work_Province_ID=environment.Province_ID,
-            Work_Date=str(timepoint.year),
-            Work_Other=work_other,
+            purpose_type=purpose_type,
+            effective_date=publication_version.effective_date,
+            work_province_id=environment.province_id,
+            work_date=str(timepoint.year),
+            work_other=work_other,
         )
         return purpose

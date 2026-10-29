@@ -9,3 +9,8 @@ from .gebiedsaanwijzing_spec import (
     GebiedsaanwijzingSpec,
 )
 from .maatregel_spec import MaatregelPersistHandler, MaatregelPrefillHandler, MaatregelSpec
+from .verplicht_programma_spec import (
+    VerplichtProgrammaPersistHandler,
+    VerplichtProgrammaPrefillHandler,
+    VerplichtProgrammaSpec,
+)

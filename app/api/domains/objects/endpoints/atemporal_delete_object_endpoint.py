@@ -4,7 +4,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -24,12 +24,12 @@ class AtemporalDeleteObjectEndpointContext(BaseEndpointContext):
 
 
 @inject
-def atemporal_delete_object_endpoint(
+async def atemporal_delete_object_endpoint(
     lineage_id: int,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[AtemporalDeleteObjectEndpointContext, Depends()],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
@@ -37,7 +37,7 @@ def atemporal_delete_object_endpoint(
         user,
     )
 
-    maybe_object: ObjectsTable | None = object_repository.get_latest_by_id(
+    maybe_object: ObjectsTable | None = await object_repository.get_latest_by_id(
         session,
         context.object_type,
         lineage_id,
@@ -46,28 +46,28 @@ def atemporal_delete_object_endpoint(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object not found")
 
     timepoint: datetime = datetime.now(UTC)
-    if maybe_object.End_Validity is not None and maybe_object.End_Validity < timepoint:
+    if maybe_object.end_validity is not None and maybe_object.end_validity < timepoint:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Object is already deleted")
 
     log_before: str = json.dumps(maybe_object.to_dict())
 
-    maybe_object.End_Validity = timepoint
-    maybe_object.Modified_By_UUID = user.UUID
-    maybe_object.Modified_Date = timepoint
+    maybe_object.end_validity = timepoint
+    maybe_object.modified_by_id = user.id
+    maybe_object.modified_date = timepoint
     session.add(maybe_object)
 
     change_log: ChangeLogTable = ChangeLogTable(
-        Object_Type=context.object_type,
-        Object_ID=lineage_id,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Action_Type="atemporal_edit_object",
-        Before=log_before,
-        After=json.dumps(maybe_object.to_dict()),
+        object_type=context.object_type,
+        object_id=lineage_id,
+        created_date=timepoint,
+        created_by_id=user.id,
+        action_type="atemporal_edit_object",
+        before=log_before,
+        after=json.dumps(maybe_object.to_dict()),
     )
     session.add(change_log)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

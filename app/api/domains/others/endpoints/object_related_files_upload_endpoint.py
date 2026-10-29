@@ -2,10 +2,11 @@ import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
+import anyio
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -29,7 +30,7 @@ class ObjectRelatedFilesUploadEndpointContext(BaseEndpointContext):
 class EndpointHandler:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         object_static: ObjectStaticsTable,
         storage_repository: StorageFileRepository,
         pdf_meta_service: PdfMetaService,
@@ -38,38 +39,40 @@ class EndpointHandler:
         title: str,
         ignore_report: bool,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._object_static: ObjectStaticsTable = object_static
         self._storage_repository: StorageFileRepository = storage_repository
         self._pdf_meta_service: PdfMetaService = pdf_meta_service
         self._user: UsersTable = user
         self._uploaded_file: UploadFile = uploaded_file
-        self._file_data: FileData = FileData(File=uploaded_file)
         self._title: str = title
         self._ignore_report: bool = ignore_report
         self._timepoint: datetime = datetime.now(UTC)
 
-    def handle(self) -> ObjectRelatedFileResponse:
+    async def handle(self) -> ObjectRelatedFileResponse:
+        self._file_data: FileData = FileData(file_in=self._uploaded_file, binary=await self._uploaded_file.read())
         self._guard_upload()
 
         if not self._ignore_report:
-            pdf_meta_report = self._pdf_meta_service.report_banned_meta(self._file_data.get_binary())
+            pdf_meta_report = await anyio.to_thread.run_sync(
+                self._pdf_meta_service.report_banned_meta, self._file_data.get_binary()
+            )
             if len(pdf_meta_report) > 0:
                 raise HTTPException(434, jsonable_encoder(pdf_meta_report))
 
-        file_table: StorageFileTable = self._store_file()
+        file_table: StorageFileTable = await self._store_file()
 
         related_file = ObjectRelatedFileTable(
-            UUID=uuid.uuid4(),
-            Code=self._object_static.Code,
-            File_UUID=file_table.UUID,
-            Title=self._title,
-            Created_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
+            id=uuid.uuid4(),
+            code=self._object_static.code,
+            file_id=file_table.id,
+            title=self._title,
+            created_date=self._timepoint,
+            created_by_id=self._user.id,
         )
         self._session.add(related_file)
-        self._session.flush()
-        self._session.commit()
+        await self._session.flush()
+        await self._session.commit()
 
         return ObjectRelatedFileResponse.model_validate(related_file)
 
@@ -80,8 +83,8 @@ class EndpointHandler:
         if self._uploaded_file.content_type != "application/pdf":
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unsupported file type, expected a PDF.")
 
-    def _store_file(self) -> StorageFileTable:
-        existing_file_table: StorageFileTable | None = self._storage_repository.get_by_checksum_uuid(
+    async def _store_file(self) -> StorageFileTable:
+        existing_file_table: StorageFileTable | None = await self._storage_repository.get_by_checksum_uuid(
             self._session,
             self._file_data.get_checksum(),
         )
@@ -89,30 +92,30 @@ class EndpointHandler:
             return existing_file_table
 
         file_table = StorageFileTable(
-            UUID=uuid.uuid4(),
-            Lookup=self._file_data.get_lookup(),
-            Checksum=self._file_data.get_checksum(),
-            Filename=self._file_data.normalize_filename(),
-            Content_Type=self._file_data.get_content_type(),
-            Size=self._file_data.get_size(),
-            Binary=self._file_data.get_binary(),
-            Created_Date=self._timepoint,
-            Created_By_UUID=self._user.UUID,
+            id=uuid.uuid4(),
+            lookup=self._file_data.get_lookup(),
+            checksum=self._file_data.get_checksum(),
+            filename=self._file_data.normalize_filename(),
+            content_type=self._file_data.get_content_type(),
+            size=self._file_data.get_size(),
+            binary=self._file_data.get_binary(),
+            created_date=self._timepoint,
+            created_by_id=self._user.id,
         )
         self._session.add(file_table)
-        self._session.flush()
+        await self._session.flush()
         return file_table
 
 
 @inject
-def post_object_related_files_upload_endpoint(
+async def post_object_related_files_upload_endpoint(
     lineage_id: int,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     storage_repository: Annotated[StorageFileRepository, Depends(Provide[ApiContainer.storage_file_repository])],
     object_static_repository: Annotated[
         ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     pdf_meta_service: Annotated[PdfMetaService, Depends(Provide[ApiContainer.pdf_meta_service])],
     context: Annotated[ObjectRelatedFilesUploadEndpointContext, Depends()],
@@ -120,7 +123,7 @@ def post_object_related_files_upload_endpoint(
     ignore_report: Annotated[bool, Form()],
     uploaded_file: Annotated[UploadFile, File()],
 ) -> ObjectRelatedFileResponse:
-    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = await object_static_repository.get_by_object_type_and_id(
         session, context.object_type, lineage_id
     )
     if not object_static:
@@ -130,9 +133,9 @@ def post_object_related_files_upload_endpoint(
         Permissions.object_related_files_can_create_object_related_file,
         user,
         [
-            object_static.Owner_1_UUID,
-            object_static.Owner_2_UUID,
-            object_static.Owner_3_UUID,
+            object_static.owner_1_id,
+            object_static.owner_2_id,
+            object_static.owner_3_id,
         ],
     )
 
@@ -146,4 +149,4 @@ def post_object_related_files_upload_endpoint(
         title,
         ignore_report,
     )
-    return handler.handle()
+    return await handler.handle()

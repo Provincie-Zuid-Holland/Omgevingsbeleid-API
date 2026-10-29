@@ -34,3 +34,8 @@ from .module_status_history_spec import (
     ModuleStatusHistoryPrefillHandler,
     ModuleStatusHistorySpec,
 )
+from .module_verplicht_programma_spec import (
+    ModuleVerplichtProgrammaPersistHandler,
+    ModuleVerplichtProgrammaPrefillHandler,
+    ModuleVerplichtProgrammaSpec,
+)

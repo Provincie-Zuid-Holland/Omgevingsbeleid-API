@@ -7,7 +7,7 @@ import validators
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -18,26 +18,28 @@ from app.api.endpoint import BaseEndpointContext
 from app.api.permissions import Permissions
 from app.api.services.permission_service import PermissionService
 from app.core.tables.others import ChangeLogTable
-from app.core.tables.users import IS_ACTIVE, UsersTable
+from app.core.tables.users import UsersTable
 
 
 class UserCreate(BaseModel):
-    Gebruikersnaam: str = Field(..., min_length=3)
-    Email: str
-    Roles: list[str]
+    name: str = Field(..., min_length=3)
+    email: str
+    roles: list[str]
 
-    @field_validator("Email", mode="before")
+    @field_validator("email", mode="before")
     def valid_email(cls, v):
         if not validators.email(v):
+            raise ValueError("Invalid email")
+        if v.strip().lower() != v:
             raise ValueError("Invalid email")
         return v
 
 
 class UserCreateResponse(BaseModel):
-    UUID: uuid.UUID
-    Email: str
-    Roles: list[str]
-    Password: str
+    id: uuid.UUID
+    email: str
+    roles: list[str]
+    password: str
 
 
 class CreateUserEndpointContext(BaseEndpointContext):
@@ -45,10 +47,10 @@ class CreateUserEndpointContext(BaseEndpointContext):
 
 
 @inject
-def post_create_user_endpoint(
+async def post_create_user_endpoint(
     object_in: UserCreate,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
@@ -56,44 +58,44 @@ def post_create_user_endpoint(
 ) -> UserCreateResponse:
     permission_service.guard_valid_user(Permissions.user_can_create_user, logged_in_user)
 
-    if not object_in.Roles:
+    if not object_in.roles:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "At least one role is required")
 
-    if not set(object_in.Roles) <= set(context.allowed_roles):
+    if not set(object_in.roles) <= set(context.allowed_roles):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid Roles")
 
-    same_email_user: UsersTable | None = repository.get_by_email(session, object_in.Email)
+    same_email_user: UsersTable | None = await repository.get_by_email(session, object_in.email)
     if same_email_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email already in use")
 
     password = "change-me-" + security.get_random_password()
-    password_hash = security.get_password_hash(password)
+    password_hashed = await security.get_password_hash(password)
 
     user = UsersTable(
-        UUID=uuid.uuid4(),
-        Gebruikersnaam=object_in.Gebruikersnaam,
-        Email=object_in.Email,
-        Roles=object_in.Roles,
-        Status=IS_ACTIVE,
-        Wachtwoord=password_hash,
+        id=uuid.uuid4(),
+        name=object_in.name,
+        email=object_in.email,
+        roles=object_in.roles,
+        is_active=True,
+        password_hashed=password_hashed,
     )
 
-    change_log = ChangeLogTable(
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=logged_in_user.UUID,
-        Action_Type="create_user",
-        Action_Data=object_in.model_dump_json(),
-        After=json.dumps(user.to_dict_safe()),
+    change_log: ChangeLogTable = ChangeLogTable(
+        created_date=datetime.now(UTC),
+        created_by_id=logged_in_user.id,
+        action_type="create_user",
+        action_data=object_in.model_dump_json(),
+        after=json.dumps(user.to_dict_safe()),
     )
 
     session.add(change_log)
     session.add(user)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return UserCreateResponse(
-        UUID=user.UUID,
-        Email=user.Email,
-        Roles=list(user.Roles),
-        Password=password,
+        id=user.id,
+        email=user.email,
+        roles=list(user.roles),
+        password=password,
     )

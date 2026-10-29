@@ -1,12 +1,12 @@
 from typing import Annotated
 
-import requests
+import anyio
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from pydantic import BaseModel, ValidationError
 from pydantic_core import ErrorDetails
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -33,11 +33,11 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationPackagePdf(BaseModel):
-    Mutation: MutationStrategy | None = None
+    mutation_strategy: MutationStrategy | None = None
 
 
 @inject
-def post_create_version_pdf_endpoint(
+async def post_create_version_pdf_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
     user: Annotated[
@@ -48,39 +48,40 @@ def post_create_version_pdf_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     package_builder_factory: Annotated[
         ActPackageBuilderFactory, Depends(Provide[ApiContainer.publication.act_package_builder_factory])
     ],
     pdf_export_service: Annotated[PdfExportService, Depends(Provide[ApiContainer.publication.pdf_export_service])],
     object_in: PublicationPackagePdf,
-) -> StreamingResponse:
+) -> Response:
     _guard_publication(validator, version)
 
     try:
-        pdf_export_service.healthcheck(version.Publication.Environment.Code or "")
+        await pdf_export_service.healthcheck(version.publication.environment.code or "")
     except PdfExportUnavailableError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, e.msg)
 
     try:
-        package_builder: ActPackageBuilder = package_builder_factory.create_builder(
+        package_builder: ActPackageBuilder = await package_builder_factory.create_builder(
             session,
             version,
             PackageType.VALIDATION,
-            overwrite_mutation_strategy=object_in.Mutation,
+            overwrite_mutation_strategy=object_in.mutation_strategy,
         )
-        package_builder.build_publication_files()
-        zip_data: ZipData = package_builder.zip_files()
+        # Building the DSO package is CPU heavy, so it runs in a worker thread
+        await anyio.to_thread.run_sync(package_builder.build_publication_files)
+        zip_data: ZipData = await anyio.to_thread.run_sync(package_builder.zip_files)
 
-        pdf_response: requests.Response = pdf_export_service.create_pdf(
-            version.Publication.Environment.Code or "",
+        pdf_content: bytes = await pdf_export_service.create_pdf(
+            version.publication.environment.code or "",
             zip_data,
         )
 
-        mutation_strategy: MutationStrategy = object_in.Mutation or MutationStrategy(version.Mutation_Strategy)
-        filename: str = f"{zip_data.Filename.removesuffix('.zip')}-{mutation_strategy.value}.pdf"
-        response = StreamingResponse(
-            pdf_response.iter_content(chunk_size=1024),
+        mutation_strategy: MutationStrategy = object_in.mutation_strategy or MutationStrategy(version.mutation_strategy)
+        filename: str = f"{zip_data.filename.removesuffix('.zip')}-{mutation_strategy.value}.pdf"
+        response = Response(
+            content=pdf_content,
             media_type="application/pdf",
             headers={
                 "Access-Control-Expose-Headers": "Content-Disposition",
@@ -113,7 +114,7 @@ def _guard_publication(
     validator: PublicationVersionValidator,
     version: PublicationVersionTable,
 ) -> None:
-    if not version.Publication.Module.is_active:
+    if not version.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
     errors: list[ErrorDetails] = validator.get_errors(version)

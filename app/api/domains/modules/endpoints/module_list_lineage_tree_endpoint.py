@@ -4,7 +4,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -35,12 +35,12 @@ class ModuleListLineageTreeEndpointContext(BaseEndpointContext):
 
 
 @inject
-def get_module_list_lineage_tree_endpoint(
+async def get_module_list_lineage_tree_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     lineage_id: int,
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     module: Annotated[ModuleTable, Depends(depends_module)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
     context: Annotated[ModuleListLineageTreeEndpointContext, Depends()],
 ) -> PagedResponse[BaseModel]:
@@ -49,11 +49,11 @@ def get_module_list_lineage_tree_endpoint(
 
     stmt = (
         select(ModuleObjectsTable)
-        .filter(ModuleObjectsTable.Module_ID == module.Module_ID)
-        .filter(ModuleObjectsTable.Object_Type == context.object_type)
-        .filter(ModuleObjectsTable.Object_ID == lineage_id)
+        .filter(ModuleObjectsTable.module_id == module.module_id)
+        .filter(ModuleObjectsTable.object_type == context.object_type)
+        .filter(ModuleObjectsTable.object_id == lineage_id)
     )
-    query_event: BeforeSelectExecutionEvent = event_manager.dispatch(
+    query_event: BeforeSelectExecutionEvent = await event_manager.dispatch(
         session,
         BeforeSelectExecutionEvent.create(
             query=stmt,
@@ -63,7 +63,7 @@ def get_module_list_lineage_tree_endpoint(
     )
     stmt = query_event.payload.query
 
-    paginated_result = query_paginated(
+    paginated_result = await query_paginated(
         query=stmt,
         session=session,
         limit=pagination.limit,
@@ -74,14 +74,14 @@ def get_module_list_lineage_tree_endpoint(
     rows: list[BaseModel] = [
         context.response_config_model.pydantic_model.model_validate(r) for r in paginated_result.items
     ]
-    rows_event: RetrievedModuleObjectsEvent = event_manager.dispatch(
+    rows_event: RetrievedModuleObjectsEvent = await event_manager.dispatch(
         session,
         RetrievedModuleObjectsEvent.create(
             rows,
             context.builder_data.endpoint_id,
             context.response_config_model,
             user=user,
-            module_id=module.Module_ID,
+            module_id=module.module_id,
         ),
     )
     rows = rows_event.payload.rows

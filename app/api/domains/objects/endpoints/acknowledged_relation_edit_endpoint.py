@@ -4,7 +4,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import Field, model_validator
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -18,14 +18,14 @@ from app.core.types import AcknowledgedRelationBase, AcknowledgedRelationSide
 
 
 class EditAcknowledgedRelation(AcknowledgedRelationBase):
-    Acknowledged: bool | None = Field(None)
-    Denied: bool | None = Field(None)
-    Deleted: bool | None = Field(None)
+    acknowledged: bool | None = Field(None)
+    denied: bool | None = Field(None)
+    deleted: bool | None = Field(None)
 
     @model_validator(mode="after")
     def validate_denied_acknowledged_deleted(self):
-        if sum(bool(val) for val in [self.Acknowledged, self.Denied, self.Deleted]) > 1:
-            raise ValueError("Only one of Denied, Acknowledged, and Deleted can be set to True")
+        if sum(bool(val) for val in [self.acknowledged, self.denied, self.deleted]) > 1:
+            raise ValueError("Only one of denied, acknowledged, and deleted can be set to True")
         return self
 
 
@@ -34,23 +34,23 @@ class AcknowledgedRelationEditEndpointContext(BaseEndpointContext):
 
 
 @inject
-def post_acknowledged_relation_edit_endpoint(
+async def post_acknowledged_relation_edit_endpoint(
     lineage_id: int,
     object_in: EditAcknowledgedRelation,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     repository: Annotated[
         AcknowledgedRelationsRepository, Depends(Provide[ApiContainer.acknowledged_relations_repository])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[AcknowledgedRelationEditEndpointContext, Depends()],
 ) -> ResponseOK:
     object_code: str = f"{context.object_type}-{lineage_id}"
     timepoint: datetime = datetime.now(UTC)
 
-    relation: AcknowledgedRelationsTable | None = repository.get_by_codes(
+    relation: AcknowledgedRelationsTable | None = await repository.get_by_codes(
         session,
         object_code,
-        object_in.Code,
+        object_in.code,
     )
     if not relation:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Acknowledged relation not found")
@@ -58,24 +58,24 @@ def post_acknowledged_relation_edit_endpoint(
     # We just edit a side and then push it back in to the table
     side: AcknowledgedRelationSide = relation.get_side(object_code)
 
-    if object_in.Explanation is not None:
-        side.Explanation = object_in.Explanation
-    if object_in.Acknowledged == False:
+    if object_in.explanation is not None:
+        side.explanation = object_in.explanation
+    if object_in.acknowledged == False:
         side.disapprove()
-    if object_in.Acknowledged == True:
-        side.approve(user.UUID)
+    if object_in.acknowledged == True:
+        side.approve(user.id)
 
     relation.apply_side(side)
-    relation.Modified_Date = timepoint
-    relation.Modified_By_UUID = user.UUID
+    relation.modified_date = timepoint
+    relation.modified_by_id = user.id
 
-    if object_in.Denied == True:
+    if object_in.denied == True:
         relation.deny()
-    if object_in.Deleted == True:
+    if object_in.deleted == True:
         relation.delete()
 
     session.add(relation)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

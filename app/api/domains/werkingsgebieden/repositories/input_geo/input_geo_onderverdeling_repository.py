@@ -2,7 +2,7 @@ import uuid
 from abc import ABCMeta, abstractmethod
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
@@ -14,17 +14,17 @@ class InputGeoOnderverdelingRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
+    def _format_uuid(self, idx: uuid.UUID) -> str:
         pass
 
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> InputGeoOnderverdelingenTable | None:
-        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.UUID == uuidx)
-        return self.fetch_first(session, stmt)
+    async def get_by_uuid(self, session: AsyncSession, idx: uuid.UUID) -> InputGeoOnderverdelingenTable | None:
+        stmt = select(InputGeoOnderverdelingenTable).filter(InputGeoOnderverdelingenTable.id == idx)
+        return await self.fetch_first(session, stmt)
 
-    def get_latest_by_title(self, session: Session, title: str) -> InputGeoOnderverdelingenTable | None:
+    async def get_latest_by_title(self, session: AsyncSession, title: str) -> InputGeoOnderverdelingenTable | None:
         stmt = (
             select(InputGeoOnderverdelingenTable)
-            .filter(InputGeoOnderverdelingenTable.Title == title)
-            .order_by(desc(InputGeoOnderverdelingenTable.Created_Date))
+            .filter(InputGeoOnderverdelingenTable.title == title)
+            .order_by(desc(InputGeoOnderverdelingenTable.created_date))
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)

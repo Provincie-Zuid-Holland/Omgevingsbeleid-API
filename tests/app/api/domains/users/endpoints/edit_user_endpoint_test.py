@@ -1,13 +1,14 @@
 import uuid
 
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.tables.others import ChangeLogTable
-from app.core.tables.users import IS_ACTIVE, UsersTable
+from app.core.tables.users import UsersTable
 from tests.conftest import Context
 from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
@@ -24,76 +25,82 @@ def target_uuid(ctx: Context) -> uuid.UUID:
     return ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
 
-def test_edit_user_success(admin: TestClient, target_uuid: uuid.UUID, session: Session):
+async def test_edit_user_success(admin: httpx2.AsyncClient, target_uuid: uuid.UUID, session: AsyncSession):
     payload = {
-        "Gebruikersnaam": "Edited Name",
-        "Email": "edited@pzh.nl",
-        "Roles": [ALLOWED_ROL],
+        "name": "Edited Name",
+        "email": "edited@pzh.nl",
+        "roles": [ALLOWED_ROL],
     }
 
-    response = admin.post(f"/users/{target_uuid}", json=payload)
+    response = await admin.post(f"/users/{target_uuid}", json=payload)
     assert response.status_code == 200, response.text
     assert response.json()["message"] == "OK"
 
-    row: UsersTable | None = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = await session.get(UsersTable, target_uuid, options=[selectinload(UsersTable.user_roles)])
     assert row is not None
-    assert row.Gebruikersnaam == "Edited Name"
-    assert row.Email == "edited@pzh.nl"
-    assert row.Roles == [ALLOWED_ROL]
-    assert row.Status == IS_ACTIVE
+    assert row.name == "Edited Name"
+    assert row.email == "edited@pzh.nl"
+    assert row.roles == [ALLOWED_ROL]
+    assert row.is_active is True
 
 
-def test_edit_user_deactivate_and_reactivate(admin: TestClient, target_uuid: uuid.UUID, session: Session):
-    deactivate = admin.post(f"/users/{target_uuid}", json={"IsActive": False})
+async def test_edit_user_deactivate_and_reactivate(
+    admin: httpx2.AsyncClient, target_uuid: uuid.UUID, session: AsyncSession
+):
+    deactivate = await admin.post(f"/users/{target_uuid}", json={"is_active": False})
     assert deactivate.status_code == 200, deactivate.text
-    row: UsersTable | None = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = await session.get(UsersTable, target_uuid, options=[selectinload(UsersTable.user_roles)])
     assert row is not None
-    assert row.Status == ""
-    assert row.IsActive is False
+    assert row.is_active is False
 
-    reactivate = admin.post(f"/users/{target_uuid}", json={"IsActive": True})
+    reactivate = await admin.post(f"/users/{target_uuid}", json={"is_active": True})
     assert reactivate.status_code == 200, reactivate.text
-    session.refresh(row)
-    assert row.Status == IS_ACTIVE
-    assert row.IsActive is True
+    await session.refresh(row)
+    assert row.is_active is True
 
 
-def test_edit_user_writes_changelog_without_password(admin: TestClient, target_uuid: uuid.UUID, ctx: Context):
-    response = admin.post(f"/users/{target_uuid}", json={"Gebruikersnaam": "Edited Name"})
+async def test_edit_user_writes_changelog_without_password(
+    admin: httpx2.AsyncClient, target_uuid: uuid.UUID, ctx: Context
+):
+    response = await admin.post(f"/users/{target_uuid}", json={"name": "Edited Name"})
     assert response.status_code == 200, response.text
 
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
-    change_log: ChangeLogTable | None = ctx.session.scalar(
+    change_log: ChangeLogTable | None = await ctx.session.scalar(
         select(ChangeLogTable)
-        .where(ChangeLogTable.Action_Type == "edit_user")
-        .order_by(desc(ChangeLogTable.Created_Date))
+        .where(ChangeLogTable.action_type == "edit_user")
+        .order_by(desc(ChangeLogTable.created_date))
     )
     assert change_log is not None
-    assert change_log.Created_By_UUID == admin_uuid
+    assert change_log.created_by_id == admin_uuid
 
-    assert '"Gebruikersnaam": "Viewer"' in (change_log.Before or "")
-    assert '"Gebruikersnaam": "Edited Name"' in (change_log.After or "")
-    assert "Wachtwoord" not in (change_log.Before or "")
-    assert "Wachtwoord" not in (change_log.After or "")
+    assert '"name": "Viewer"' in (change_log.before or "")
+    assert '"name": "Edited Name"' in (change_log.after or "")
+    assert "password" not in (change_log.before or "")
+    assert "password" not in (change_log.after or "")
+    assert "password_hashed" not in (change_log.before or "")
+    assert "password_hashed" not in (change_log.after or "")
 
 
-def test_edit_user_email_already_in_use(admin: TestClient, target_uuid: uuid.UUID, session: Session, ctx: Context):
+async def test_edit_user_email_already_in_use(
+    admin: httpx2.AsyncClient, target_uuid: uuid.UUID, session: AsyncSession, ctx: Context
+):
     # Try to steal the admin's email.
-    response = admin.post(f"/users/{target_uuid}", json={"Email": "admin@pzh.nl"})
+    response = await admin.post(f"/users/{target_uuid}", json={"email": "admin@pzh.nl"})
     assert response.status_code == 400
     assert response.json()["detail"] == "Email already in use"
 
     # The target kept its own email.
-    row: UsersTable | None = session.get(UsersTable, target_uuid)
+    row: UsersTable | None = await session.get(UsersTable, target_uuid, options=[selectinload(UsersTable.user_roles)])
     assert row is not None
-    assert row.Email == "viewer@pzh.nl"
+    assert row.email == "viewer@pzh.nl"
 
 
-def test_edit_user_same_email_is_allowed(admin: TestClient, target_uuid: uuid.UUID):
+async def test_edit_user_same_email_is_allowed(admin: httpx2.AsyncClient, target_uuid: uuid.UUID):
     # Re-submitting the user's own email must not trip the "already in use" guard.
-    response = admin.post(
+    response = await admin.post(
         f"/users/{target_uuid}",
-        json={"Email": "viewer@pzh.nl", "Gebruikersnaam": "Renamed"},
+        json={"email": "viewer@pzh.nl", "name": "Renamed"},
     )
     assert response.status_code == 200, response.text
 
@@ -102,22 +109,22 @@ def test_edit_user_same_email_is_allowed(admin: TestClient, target_uuid: uuid.UU
     "client_fixture, use_existing_user, payload, expected_status, expected_detail",
     [
         # Cant be done without an account.
-        pytest.param("client", True, {"Gebruikersnaam": "X"}, 401, "Not authenticated", id="unauthenticated"),
+        pytest.param("client", True, {"name": "X"}, 401, "Not authenticated", id="unauthenticated"),
         # Ambtenaar lacks `user_can_edit_user`.
-        pytest.param("ambtenaar", True, {"Gebruikersnaam": "X"}, 401, "Invalid user role", id="no_permission"),
+        pytest.param("ambtenaar", True, {"name": "X"}, 401, "Invalid user role", id="no_permission"),
         # An empty body has nothing to change.
         pytest.param("admin", True, {}, 400, "Nothing to update", id="nothing_to_update"),
         # Editing a user that does not exist.
-        pytest.param("admin", False, {"Gebruikersnaam": "X"}, 400, "User does not exist", id="user_does_not_exist"),
+        pytest.param("admin", False, {"name": "X"}, 400, "User does not exist", id="user_does_not_exist"),
         # The resulting email must be valid (EditUser has no field validator, so this is a 400, not 422).
-        pytest.param("admin", True, {"Email": "not-an-email"}, 400, "Invalid email", id="invalid_email"),
+        pytest.param("admin", True, {"email": "not-an-email"}, 400, "Invalid email", id="invalid_email"),
         # "Superuser" is not in the resolver's allowed_roles.
-        pytest.param("admin", True, {"Roles": ["Superuser"]}, 400, "Invalid Roles", id="disallowed_role"),
+        pytest.param("admin", True, {"roles": ["Superuser"]}, 400, "Invalid Roles", id="disallowed_role"),
         # Roles must not be empty.
-        pytest.param("admin", True, {"Roles": []}, 400, "At least one role is required", id="no_roles"),
+        pytest.param("admin", True, {"roles": []}, 400, "At least one role is required", id="no_roles"),
     ],
 )
-def test_edit_user_rejected(
+async def test_edit_user_rejected(
     request: FixtureRequest,
     target_uuid: uuid.UUID,
     client_fixture: str,
@@ -126,9 +133,9 @@ def test_edit_user_rejected(
     expected_status: int,
     expected_detail: str,
 ):
-    test_client: TestClient = request.getfixturevalue(client_fixture)
+    test_client: httpx2.AsyncClient = request.getfixturevalue(client_fixture)
     target: uuid.UUID = target_uuid if use_existing_user else NONEXISTENT_UUID
 
-    response = test_client.post(f"/users/{target}", json=payload)
+    response = await test_client.post(f"/users/{target}", json=payload)
     assert response.status_code == expected_status, response.text
     assert response.json()["detail"] == expected_detail

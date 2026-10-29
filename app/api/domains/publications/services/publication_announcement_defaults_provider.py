@@ -9,7 +9,7 @@ class PublicationAnnouncementDefaultsProvider:
 
     def get_metadata(self, document_type: str, procedure_type: str) -> AnnouncementMetadata:
         key: str = self._get_key(document_type, procedure_type)
-        defaults: dict = self._defaults[key]["metadata"]
+        defaults: dict = self._defaults[key]["meta_data"]
         result: AnnouncementMetadata = AnnouncementMetadata(**defaults)
         return result
 

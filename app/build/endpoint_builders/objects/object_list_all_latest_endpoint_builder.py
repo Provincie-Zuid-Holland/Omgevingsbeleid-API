@@ -53,5 +53,5 @@ class ObjectListAllLatestEndpointBuilder(EndpointBuilder):
             methods=["GET"],
             response_model=response_type,
             summary="List all objects filterable in short format",
-            tags=["Objects"],
+            tags=["objects"],
         )

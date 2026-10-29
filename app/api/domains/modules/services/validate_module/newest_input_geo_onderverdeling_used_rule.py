@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -27,11 +27,11 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
         )
         self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = repository
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
-            if object_table.Object_Type != self._config.object_type:
+            if object_table.object_type != self._config.object_type:
                 continue
 
             area_current: AreasTable | None = getattr(object_table, self._config.field)
@@ -40,51 +40,51 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[f"Object is of type '{self._config.object_type}', but area is not known"],
                     )
                 )
                 continue
 
-            area_hash: str = area_current.Source_Geometry_Hash or ""
-            area_title: str = area_current.Source_Title
-            onderverdeling: InputGeoOnderverdelingenTable | None = (
-                self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
-            )
+            area_hash: str = area_current.source_geometry_hash or ""
+            area_title: str = area_current.source_title
+            onderverdeling: (
+                InputGeoOnderverdelingenTable | None
+            ) = await self._input_geo_onderverdeling_repository.get_latest_by_title(db, area_title)
             if onderverdeling is None:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
-                            f"The onderverdelingen lineage used by Area `{area_current.UUID}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
+                            f"The onderverdelingen lineage used by Area `{area_current.id}` with source title `{area_title}` can no longer be found in InputGeoOnderverdelingen"
                         ],
                         severity=ValidateModuleSeverity.warning,
                     )
                 )
                 continue
 
-            if area_hash != onderverdeling.Geometry_Hash:
+            if area_hash != onderverdeling.geometry_hash:
                 errors.append(
                     ValidateModuleError(
                         rule="newest_input_geo_onderverdeling_used_rule",
                         object=ValidateModuleObject(
-                            code=object_table.Code,
-                            object_id=object_table.Object_ID,
-                            object_type=object_table.Object_Type,
-                            title=object_table.Title,
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
                         ),
                         messages=[
-                            f"Area {area_current.UUID} does not use the latest known onderverdeling shape {onderverdeling.UUID}"
+                            f"Area {area_current.id} does not use the latest known onderverdeling shape {onderverdeling.id}"
                         ],
                         severity=ValidateModuleSeverity.warning,
                     )

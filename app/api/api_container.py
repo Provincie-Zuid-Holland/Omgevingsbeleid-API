@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import dso
 from dependency_injector import containers, providers
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 import app.api.domains.modules as module_domain
 import app.api.domains.modules.services as module_services
@@ -24,8 +24,8 @@ from app.api.domains.others.repositories import (
 )
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.events import event_manager
-from app.api.services import permission_service
-from app.core.db.session import create_db_engine
+from app.api.services import async_model_validators_service, permission_service
+from app.core.db.session import create_async_db_engine
 from app.core.services.main_config import MainConfig
 from app.core.settings import Settings
 
@@ -40,18 +40,20 @@ class ApiContainer(containers.DeclarativeContainer):
     main_config = providers.Singleton(MainConfig, config.MAIN_CONFIG_FILE)
 
     db_engine = providers.Singleton(
-        create_db_engine,
+        create_async_db_engine,
         uri=config.SQLALCHEMY_DATABASE_URI,
         echo=config.SQLALCHEMY_ECHO,
     )
     db_session_factory = providers.Singleton(
-        sessionmaker, bind=db_engine, autocommit=False, autoflush=False, expire_on_commit=False
+        async_sessionmaker, bind=db_engine, autoflush=False, expire_on_commit=False
     )
 
     permission_service = providers.Singleton(
         permission_service.PermissionService,
         main_config=main_config,
     )
+
+    async_model_validators_service = providers.Singleton(async_model_validators_service.AsyncModelValidatorsService)
 
     pdf_meta_service = providers.Singleton(others_services.PdfMetaService)
 
@@ -66,18 +68,20 @@ class ApiContainer(containers.DeclarativeContainer):
     werkingsgebieden_repository = providers.Singleton(werkingsgebieden_repositories.WerkingsgebiedenRepository)
     sqlite_geometry_repository = providers.Singleton(werkingsgebieden_repositories.SqliteGeometryRepository)
     sqlite_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.SqliteAreaGeometryRepository)
-    mssql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlGeometryRepository)
-    mssql_area_geometry_repository = providers.Singleton(werkingsgebieden_repositories.MssqlAreaGeometryRepository)
+    postgresql_geometry_repository = providers.Singleton(werkingsgebieden_repositories.PostgresqlGeometryRepository)
+    postgresql_area_geometry_repository = providers.Singleton(
+        werkingsgebieden_repositories.PostgresqlAreaGeometryRepository
+    )
     area_repository = providers.Singleton(werkingsgebieden_repositories.AreaRepository)
     hoofdlijn_repository = providers.Singleton(hoofdlijn_repository.HoofdlijnRepository)
 
     input_geo_onderverdeling_repository_base = providers.Singleton(
         werkingsgebieden_repositories.InputGeoOnderverdelingRepository
     )
-    mssql_input_geo_onderverdeling_repository = providers.Singleton(
-        werkingsgebieden_repositories.MssqlInputGeoOnderverdelingRepository
-    )
     sqlite_input_geo_onderverdeling_repository = providers.Singleton(
+        werkingsgebieden_repositories.SqliteInputGeoOnderverdelingRepository
+    )
+    postgresql_input_geo_onderverdeling_repository = providers.Singleton(
         werkingsgebieden_repositories.SqliteInputGeoOnderverdelingRepository
     )
 
@@ -90,17 +94,17 @@ class ApiContainer(containers.DeclarativeContainer):
     geometry_repository = providers.Selector(
         config.DB_TYPE,
         sqlite=sqlite_geometry_repository,
-        mssql=mssql_geometry_repository,
+        postgresql=postgresql_geometry_repository,
     )
     area_geometry_repository = providers.Selector(
         config.DB_TYPE,
         sqlite=sqlite_area_geometry_repository,
-        mssql=mssql_area_geometry_repository,
+        postgresql=postgresql_area_geometry_repository,
     )
     input_geo_onderverdeling_repository = providers.Selector(
         config.DB_TYPE,
         sqlite=sqlite_input_geo_onderverdeling_repository,
-        mssql=mssql_input_geo_onderverdeling_repository,
+        postgresql=postgresql_input_geo_onderverdeling_repository,
     )
 
     gebiedsaanwijzing_service = providers.Singleton(GebiedsaanwijzingService)
@@ -124,6 +128,8 @@ class ApiContainer(containers.DeclarativeContainer):
         asset_repository=asset_repository,
         hoofdlijn_repository=hoofdlijn_repository,
         dso_thema_factory=dso_thema_factory,
+        async_model_validators_service=async_model_validators_service,
+        storage_file_repository=storage_file_repository,
     )
 
     html_images_extractor_factory = providers.Factory(
@@ -211,6 +217,7 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 validate_module_services.RequiredObjectFieldsRule,
                 object_map=required_object_fields_rule_mapping,
+                async_model_validators_service=async_model_validators_service,
             ),
             providers.Singleton(
                 validate_module_services.RequireExistingHierarchyCodeRule,

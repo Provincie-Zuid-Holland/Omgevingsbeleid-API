@@ -4,7 +4,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -37,12 +37,12 @@ class PatchResponse(BaseModel):
 
 
 @inject
-def patch_input_geo_use_werkingsgebied_endpoint(
+async def patch_input_geo_use_werkingsgebied_endpoint(
     lineage_id: int,
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     context: Annotated[PatchUseWerkingsgebiedContext, Depends()],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_static_repository: Annotated[
         ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
@@ -56,7 +56,7 @@ def patch_input_geo_use_werkingsgebied_endpoint(
     ],
     input_geo_werkingsgebied: Annotated[InputGeoWerkingsgebiedenTable, Depends(depends_input_geo_werkingsgebied)],
 ) -> PatchResponse:
-    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = await object_static_repository.get_by_object_type_and_id(
         session,
         context.object_type,
         lineage_id,
@@ -67,13 +67,13 @@ def patch_input_geo_use_werkingsgebied_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_patch_object_in_module,
         user,
-        [object_static.Owner_1_UUID, object_static.Owner_2_UUID, object_static.Owner_3_UUID],
+        [object_static.owner_1_id, object_static.owner_2_id, object_static.owner_3_id],
     )
     guard_module_not_locked(module)
 
-    old_record: ModuleObjectsTable | None = module_object_repository.get_latest_by_id(
+    old_record: ModuleObjectsTable | None = await module_object_repository.get_latest_by_id(
         session,
-        module.Module_ID,
+        module.module_id,
         context.object_type,
         lineage_id,
     )
@@ -86,8 +86,8 @@ def patch_input_geo_use_werkingsgebied_endpoint(
         context.target_object_type,
         input_geo_werkingsgebied,
     )
-    new_record: ModuleObjectsTable = patch_service.patch(old_record)
+    new_record: ModuleObjectsTable = await patch_service.patch(old_record)
 
     return PatchResponse(
-        UUID=new_record.UUID,
+        UUID=new_record.id,
     )

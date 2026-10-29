@@ -45,17 +45,17 @@ DUTCH_MONTHS = {
 class DsoAnnouncementInputDataBuilder:
     def __init__(self, api_input_data: ApiAnnouncementInputData):
         self._api_input_data: ApiAnnouncementInputData = api_input_data
-        self._environment: PublicationEnvironmentTable = api_input_data.Announcement.Publication.Environment
-        self._announcement: PublicationAnnouncementTable = api_input_data.Announcement
-        self._doc_frbr: DocFrbr = api_input_data.Doc_Frbr
-        self._about_bill_frbr: BillFrbr = api_input_data.About_Bill_Frbr
-        self._procedural: AnnouncementProcedural = api_input_data.Announcement_Procedural
-        self._announcement_content: AnnouncementContent = api_input_data.Announcement_Content
+        self._environment: PublicationEnvironmentTable = api_input_data.announcement.publication.environment
+        self._announcement: PublicationAnnouncementTable = api_input_data.announcement
+        self._doc_frbr: DocFrbr = api_input_data.doc_frbr
+        self._about_bill_frbr: BillFrbr = api_input_data.about_bill_frbr
+        self._procedural: AnnouncementProcedural = api_input_data.announcement_procedural
+        self._announcement_content: AnnouncementContent = api_input_data.announcement_content
 
     def build(self) -> InputData:
         input_data: InputData = InputData(
-            provincie_id=self._environment.Province_ID,
-            provincie_ref=f"/tooi/id/provincie/{self._environment.Province_ID}",
+            provincie_id=self._environment.province_id,
+            provincie_ref=f"/tooi/id/provincie/{self._environment.province_id}",
             opdracht=self._get_opdracht(),
             bekendmaking_frbr=self._get_doc_frbr(),
             kennisgeving=self._get_kennisgeving(),
@@ -65,44 +65,44 @@ class DsoAnnouncementInputDataBuilder:
         return input_data
 
     def _get_opdracht(self) -> dso_models.PublicatieOpdracht:
-        dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._api_input_data.Package_Type]
+        dso_opdracht_type: OpdrachtType = OPDRACHT_TYPE_MAP[self._api_input_data.package_type]
         result = dso_models.PublicatieOpdracht(
             opdracht_type=dso_opdracht_type,
             id_levering=str(uuid.uuid4()),
-            id_bevoegdgezag=self._environment.Authority_ID,
-            id_aanleveraar=self._environment.Submitter_ID,
+            id_bevoegdgezag=self._environment.authority_id,
+            id_aanleveraar=self._environment.submitter_id,
             publicatie_bestand=self._get_akn_filename(),
-            datum_bekendmaking=self._announcement.Announcement_Date.strftime("%Y-%m-%d"),
+            datum_bekendmaking=self._announcement.announcement_date.strftime("%Y-%m-%d"),
         )
         return result
 
     def _get_doc_frbr(self) -> dso_models.DocFRBR:
         result = dso_models.DocFRBR(
-            Work_Province_ID=self._environment.Province_ID,
-            Work_Country=self._doc_frbr.Work_Country,
-            Work_Date=self._doc_frbr.Work_Date,
-            Work_Other=self._doc_frbr.Work_Other,
-            Expression_Language=self._doc_frbr.Expression_Language,
-            Expression_Date=self._doc_frbr.Expression_Date,
-            Expression_Version=self._doc_frbr.Expression_Version,
+            work_province_id=self._environment.province_id,
+            work_country=self._doc_frbr.work_country,
+            work_date=self._doc_frbr.work_date,
+            work_other=self._doc_frbr.work_other,
+            expression_language=self._doc_frbr.expression_language,
+            expression_date=self._doc_frbr.expression_date,
+            expression_version=self._doc_frbr.expression_version,
         )
         return result
 
     def _get_about_bill_frbr(self) -> dso_models.BillFRBR:
         result = dso_models.BillFRBR(
-            Work_Province_ID=self._environment.Province_ID,
-            Work_Country=self._about_bill_frbr.Work_Country,
-            Work_Date=self._about_bill_frbr.Work_Date,
-            Work_Other=self._about_bill_frbr.Work_Other,
-            Expression_Language=self._about_bill_frbr.Expression_Language,
-            Expression_Date=self._about_bill_frbr.Expression_Date,
-            Expression_Version=self._about_bill_frbr.Expression_Version,
+            work_province_id=self._environment.province_id,
+            work_country=self._about_bill_frbr.work_country,
+            work_date=self._about_bill_frbr.work_date,
+            work_other=self._about_bill_frbr.work_other,
+            expression_language=self._about_bill_frbr.expression_language,
+            expression_date=self._about_bill_frbr.expression_date,
+            expression_version=self._about_bill_frbr.expression_version,
         )
         return result
 
     def _get_kennisgeving(self) -> Kennisgeving:
         result = Kennisgeving(
-            officiele_titel=self._api_input_data.Announcement_Metadata.Official_Title,
+            officiele_titel=self._api_input_data.announcement_metadata.official_title,
             onderwerpen=self._get_onderwerpen(),
             mededeling_over_frbr=self._get_about_bill_frbr(),
         )
@@ -110,7 +110,7 @@ class DsoAnnouncementInputDataBuilder:
         return result
 
     def _get_onderwerpen(self) -> list[OnderwerpType]:
-        result: list[OnderwerpType] = [OnderwerpType[v] for v in self._api_input_data.Announcement_Metadata.Subjects]
+        result: list[OnderwerpType] = [OnderwerpType[v] for v in self._api_input_data.announcement_metadata.subjects]
         return result
 
     def _get_procedure_verloop(self) -> dso_models.ProcedureVerloop:
@@ -118,12 +118,12 @@ class DsoAnnouncementInputDataBuilder:
 
         field_map: list[dict] = [
             {
-                "field": "Begin_Inspection_Period_Date",
+                "field": "begin_inspection_period_date",
                 "target": ProcedureStappenOntwerp.begin_inzagetermijn,
                 "required": True,
             },
             {
-                "field": "End_Inspection_Period_Date",
+                "field": "end_inspection_period_date",
                 "target": ProcedureStappenOntwerp.einde_inzagetermijn,
                 "required": True,
             },
@@ -143,29 +143,29 @@ class DsoAnnouncementInputDataBuilder:
                 )
 
         procedure_verloop = dso_models.ProcedureVerloop(
-            bekend_op=self._procedural.Procedural_Announcement_Date or "",
+            bekend_op=self._procedural.procedural_announcement_date or "",
             stappen=steps,
         )
         return procedure_verloop
 
     def _get_akn_filename(self) -> str:
-        package_type: str = (self._api_input_data.Package_Type[:3]).lower()
-        filename: str = f"akn_nl_doc_{self._environment.Province_ID}-{package_type}-{self._doc_frbr.Work_Date}-{self._doc_frbr.Work_Other}-{self._doc_frbr.Expression_Version}.xml"
+        package_type: str = (self._api_input_data.package_type[:3]).lower()
+        filename: str = f"akn_nl_doc_{self._environment.province_id}-{package_type}-{self._doc_frbr.work_date}-{self._doc_frbr.work_other}-{self._doc_frbr.expression_version}.xml"
         return filename
 
     def _get_kennisgeving_tekst(self) -> str:
-        if len(self._announcement_content.Texts) == 0:
+        if len(self._announcement_content.texts) == 0:
             raise RuntimeError("Expecting at least one text (article)")
 
         pieces: list[str] = []
-        for data in self._announcement_content.Texts:
-            description: str = data.Description
+        for data in self._announcement_content.texts:
+            description: str = data.description
             description = self._replace_placeholders(description)
 
             # @todo: parse dates and other placeholders
             title_placeholder: str = ""
-            if data.Title is not None and len(data.Title):
-                title_placeholder = f"<h1>{data.Title}</h1>"
+            if data.title is not None and len(data.title):
+                title_placeholder = f"<h1>{data.title}</h1>"
             html = f"""<div data-hint-element="divisietekst">{title_placeholder}{description}</div>"""
             pieces.append(html)
         result: str = "\n".join(pieces)
@@ -196,14 +196,14 @@ class DsoAnnouncementInputDataBuilder:
             f"""<a href="{self._about_bill_frbr.get_work()}/{self._about_bill_frbr.get_expression_version()}">www.officielebekendmakingen.nl</a>""",
         )
 
-        begin_date: str | None = self._procedural.Begin_Inspection_Period_Date
+        begin_date: str | None = self._procedural.begin_inspection_period_date
         if begin_date is not None:
             date_readable: str = self._get_readable_date_from_str(begin_date)
             content = content.replace("[[BEGIN_INSPECTION_DATE]]", date_readable)
             date_readable: str = self._get_readable_date_from_str_short(begin_date)
             content = content.replace("[[BEGIN_INSPECTION_DATE_SHORT]]", date_readable)
 
-        end_date: str | None = self._procedural.End_Inspection_Period_Date
+        end_date: str | None = self._procedural.end_inspection_period_date
         if end_date is not None:
             date_readable: str = self._get_readable_date_from_str(end_date)
             content = content.replace("[[END_INSPECTION_DATE]]", date_readable)
