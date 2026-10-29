@@ -108,5 +108,5 @@ cache-keys = [{ file = "pyproject.toml" }, { git = { commit = false, tags = true
 package = false
 
 [tool.uv.sources]
-dso = { git = "https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git", rev = "3f15ef72c1630e34bc9632daa29950478480673d" }
+dso = { git = "https://github.com/Provincie-Zuid-Holland/Omgevingsbeleid-DSO.git", rev = "f82d450723cdfe2dbbce28e0f77854bb72ff392f" }
 
