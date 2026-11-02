@@ -96,6 +96,9 @@ def load(col: Collector) -> None:
                     ModuleMaatregelSpec(
                         key="maatregel_6_mod_1",
                         object_id=6,
+                        roles=[
+                            "Presterende provincie: waar overheidsinvesteringen onmisbaar zijn, zelf prestaties leveren."
+                        ],
                     ),
                 ]
             )
