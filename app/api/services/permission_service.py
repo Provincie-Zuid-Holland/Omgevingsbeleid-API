@@ -39,3 +39,6 @@ class PermissionService:
 
         if not self.has_permission(permission, user):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user role")
+
+    def get_known_permissions(self) -> set[str]:
+        return set(self._permissions_per_role.keys())

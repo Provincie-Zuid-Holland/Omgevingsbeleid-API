@@ -71,7 +71,7 @@ async def test_create_user_duplicate_email(admin: httpx2.AsyncClient, session: A
     assert first.status_code == 200, first.text
 
     second = await admin.post("/users", json=_payload(name="Duplicate", email="dup@pzh.nl"))
-    assert second.status_code == 400
+    assert second.status_code == 422
     assert second.json()["detail"] == "Email already in use"
 
     # Only the first user exists.
@@ -88,11 +88,11 @@ async def test_create_user_duplicate_email(admin: httpx2.AsyncClient, session: A
         pytest.param("ambtenaar", _payload(email="forbidden@pzh.nl"), 401, "Invalid user role", id="no_permission"),
         # "Superuser" is not in the resolver's allowed_roles.
         pytest.param(
-            "admin", _payload(email="wrongrole@pzh.nl", roles=["Superuser"]), 400, "Invalid Roles", id="disallowed_role"
+            "admin", _payload(email="wrongrole@pzh.nl", roles=["Superuser"]), 422, "Invalid Roles", id="disallowed_role"
         ),
         # Roles must not be empty.
         pytest.param(
-            "admin", _payload(email="noroles@pzh.nl", roles=[]), 400, "At least one role is required", id="no_roles"
+            "admin", _payload(email="noroles@pzh.nl", roles=[]), 422, "At least one role is required", id="no_roles"
         ),
         # Body validation
         pytest.param("admin", _payload(email="not-an-email"), 422, None, id="invalid_email"),

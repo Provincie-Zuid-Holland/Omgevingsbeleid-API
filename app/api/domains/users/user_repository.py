@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import asc, or_, select
+from sqlalchemy import asc, exists, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -21,6 +21,10 @@ class UserRepository(BaseRepository):
     async def get_by_email(self, session: AsyncSession, email: str) -> UsersTable | None:
         stmt = select(UsersTable).options(selectinload(UsersTable.user_roles)).where(UsersTable.email == email)
         return await self.fetch_first(session, stmt)
+
+    async def email_exists(self, session: AsyncSession, email: str) -> bool:
+        stmt = select(exists().where(UsersTable.email == email))
+        return bool(await session.scalar(stmt))
 
     async def get_filtered(
         self,

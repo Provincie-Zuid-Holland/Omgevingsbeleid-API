@@ -24,7 +24,7 @@ from app.api.domains.others.repositories import (
 )
 from app.api.domains.publications.publication_container import PublicationContainer
 from app.api.events import event_manager
-from app.api.services import async_model_validators_service, permission_service
+from app.api.services import async_model_validators_service, create_user_service, permission_service
 from app.core.db.session import create_async_db_engine
 from app.core.services.main_config import MainConfig
 from app.core.settings import Settings
@@ -157,6 +157,9 @@ class ApiContainer(containers.DeclarativeContainer):
         token_lifetime=access_token_lifetime,
     )
     user_repository = providers.Factory(user_domain.UserRepository, security=security)
+    create_user_service = providers.Singleton(
+        create_user_service.CreateUserService, repository=user_repository, security=security
+    )
 
     advanced_objects_resolver_factory = providers.Singleton(AdvancedObjectsResolverFactory)
 
