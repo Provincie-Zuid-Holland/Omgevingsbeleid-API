@@ -51,7 +51,7 @@ publication_required_object_fields_rule:
     visie_algemeen: visie_algemeen_module_validate
   programma:
     document: document_module_validate
-    maatregel: maatregel_module_validate
+    maatregel: maatregel_publication_validate
     programma_algemeen: programma_module_validate
     beleidsdoel: beleidsdoel_module_validate
 
