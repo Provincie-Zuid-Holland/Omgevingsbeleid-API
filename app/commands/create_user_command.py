@@ -23,12 +23,9 @@ def create_user(
     permission_service: Annotated[PermissionService, Provide[ApiContainer.permission_service]],
     email: str,
     name: str,
-    password: str | None,
+    password: str,
     roles: tuple[str, ...],
 ):
-    if password is None:
-        raise ValueError("password is required")
-
     async def _do(session: AsyncSession) -> None:
         _ = await create_user_service.create_user(
             session,
