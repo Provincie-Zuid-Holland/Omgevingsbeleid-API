@@ -38,10 +38,10 @@ async def test_validate():
                 title="Object valid",
             ),
             ModuleObjectsTable(
-                object_type="beleidsdoel",  # Object type not in map
+                object_type="beleidsdoel",  # Object type not in map, so skipped
                 object_id="1",
                 code="beleidsdoel-1",
-                title="Some beleidsdoel",
+                title="Obj",
             ),
         ],
     )
