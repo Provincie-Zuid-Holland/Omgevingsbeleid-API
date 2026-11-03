@@ -197,6 +197,7 @@ def load(col: Collector) -> None:
 </p>""",
                     effect="Effect of maatregel 6",
                     hierarchy_code="beleidskeuze-3",
+                    roles=["Samenwerkende provincie: waar (meer) regie nodig is, netwerkend werken."],
                 ),
             ]
         )

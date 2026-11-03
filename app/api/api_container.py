@@ -230,7 +230,8 @@ class ApiContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 validate_module_services.NewestInputGeoOnderverdelingUsedRule,
                 main_config=main_config,
-                repository=input_geo_onderverdeling_repository,
+                area_repository=area_repository,
+                geo_repository=input_geo_onderverdeling_repository,
             ),
             providers.Singleton(
                 validate_module_services.ForbidEmptyHtmlNodesRule,

@@ -77,7 +77,7 @@ validate_rules:
         - maatregel
     newest_input_geo_onderverdeling_used:
       object_type: gebied
-      field: area
+      field: area_id
     require_existing_hierarchy_code:
       field: hierarchy_code
     required_object_fields:

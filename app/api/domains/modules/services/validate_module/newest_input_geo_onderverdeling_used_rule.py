@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +11,7 @@ from app.api.domains.modules.services.validate_module.validate_module_service im
     ValidateModuleSeverity,
 )
 from app.api.domains.werkingsgebieden.repositories import InputGeoOnderverdelingRepository
+from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
 from app.core.services import MainConfig
 from app.core.tables.others import AreasTable
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
@@ -20,12 +23,18 @@ class NewestInputGeoOnderverdelingUsedRuleConfig(BaseModel):
 
 
 class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
-    def __init__(self, main_config: MainConfig, repository: InputGeoOnderverdelingRepository):
+    def __init__(
+        self,
+        main_config: MainConfig,
+        geo_repository: InputGeoOnderverdelingRepository,
+        area_repository: AreaRepository,
+    ):
         self._config: NewestInputGeoOnderverdelingUsedRuleConfig = main_config.get_as_model(
             "validate_rules.module.newest_input_geo_onderverdeling_used",
             NewestInputGeoOnderverdelingUsedRuleConfig,
         )
-        self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = repository
+        self._area_repository: AreaRepository = area_repository
+        self._input_geo_onderverdeling_repository: InputGeoOnderverdelingRepository = geo_repository
 
     async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
@@ -34,7 +43,23 @@ class NewestInputGeoOnderverdelingUsedRule(ValidateModuleRule):
             if object_table.object_type != self._config.object_type:
                 continue
 
-            area_current: AreasTable | None = getattr(object_table, self._config.field)
+            area_id: uuid.UUID | None = getattr(object_table, self._config.field)
+            if area_id is None:
+                errors.append(
+                    ValidateModuleError(
+                        rule="newest_input_geo_onderverdeling_used_rule",
+                        object=ValidateModuleObject(
+                            code=object_table.code,
+                            object_id=object_table.object_id,
+                            object_type=object_table.object_type,
+                            title=object_table.title,
+                        ),
+                        messages=[f"Object is of type '{self._config.object_type}', but area is not set"],
+                    )
+                )
+                continue
+
+            area_current: AreasTable | None = await self._area_repository.get_by_id(db, area_id)
             if area_current is None:
                 errors.append(
                     ValidateModuleError(
