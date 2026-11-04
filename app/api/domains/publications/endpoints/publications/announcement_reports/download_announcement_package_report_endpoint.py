@@ -25,9 +25,10 @@ async def get_download_announcement_package_report_endpoint(
     content = report.source_document
     filename = report.filename
 
-    # We try to make it pretty, but its not required for the response to work
+    # We try to make it pretty, but it's not required for the response to work
     with contextlib.suppress(etree.XMLSyntaxError):
-        xml_tree = etree.fromstring(content.encode(), None)
+        parser = etree.XMLParser(encoding="utf-8")
+        xml_tree = etree.fromstring(content.encode("utf-8"), parser)
         content = etree.tostring(xml_tree, pretty_print=True).decode()
 
     response = Response(
