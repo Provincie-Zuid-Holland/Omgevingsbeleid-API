@@ -19,8 +19,8 @@ class AbortPublicationPackageEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
-        if "{act_package_uuid}" not in builder_data.path:
-            raise RuntimeError("Missing {act_package_uuid} argument in path")
+        if "{act_package_id}" not in builder_data.path:
+            raise RuntimeError("Missing {act_package_id} argument in path")
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,

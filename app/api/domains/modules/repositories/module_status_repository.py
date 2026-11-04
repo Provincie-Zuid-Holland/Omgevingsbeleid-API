@@ -1,31 +1,35 @@
-from sqlalchemy import desc, select
-from sqlalchemy.orm import Session
+from sqlalchemy import asc, desc, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.modules import ModuleStatusHistoryTable
 
 
 class ModuleStatusRepository(BaseRepository):
-    def get_all_by_module_id(self, session: Session, module_id: int) -> list[ModuleStatusHistoryTable]:
-        stmt = select(ModuleStatusHistoryTable).filter(ModuleStatusHistoryTable.Module_ID == module_id)
-        statuses: list[ModuleStatusHistoryTable] = session.scalars(stmt).all()
+    async def get_all_by_module_id(self, session: AsyncSession, module_id: int) -> list[ModuleStatusHistoryTable]:
+        stmt = (
+            select(ModuleStatusHistoryTable)
+            .filter(ModuleStatusHistoryTable.module_id == module_id)
+            .order_by(asc(ModuleStatusHistoryTable.id))
+        )
+        statuses: list[ModuleStatusHistoryTable] = (await session.scalars(stmt)).all()
         return statuses
 
-    def get_by_id(self, session: Session, module_id: int, status_id: int) -> ModuleStatusHistoryTable | None:
+    async def get_by_id(self, session: AsyncSession, module_id: int, status_id: int) -> ModuleStatusHistoryTable | None:
         stmt = (
             select(ModuleStatusHistoryTable)
-            .filter(ModuleStatusHistoryTable.ID == status_id)
-            .filter(ModuleStatusHistoryTable.Module_ID == module_id)
+            .filter(ModuleStatusHistoryTable.id == status_id)
+            .filter(ModuleStatusHistoryTable.module_id == module_id)
         )
-        maybe_status = session.scalars(stmt).first()
+        maybe_status = (await session.scalars(stmt)).first()
         return maybe_status
 
-    def get_latest_for_module(self, session: Session, module_id: int) -> ModuleStatusHistoryTable | None:
+    async def get_latest_for_module(self, session: AsyncSession, module_id: int) -> ModuleStatusHistoryTable | None:
         stmt = (
             select(ModuleStatusHistoryTable)
-            .filter(ModuleStatusHistoryTable.Module_ID == module_id)
-            .order_by(desc(ModuleStatusHistoryTable.Created_Date))
+            .filter(ModuleStatusHistoryTable.module_id == module_id)
+            .order_by(desc(ModuleStatusHistoryTable.created_date))
         )
-        maybe_status = session.scalars(stmt).first()
+        maybe_status = (await session.scalars(stmt)).first()
 
         return maybe_status

@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -19,9 +19,9 @@ class ObjectRelatedFilesListEndpointContext(BaseEndpointContext):
 
 
 @inject
-def get_object_related_files_list_endpoint(
+async def get_object_related_files_list_endpoint(
     lineage_id: int,
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_related_file_repository: Annotated[
         ObjectRelatedFileRepository, Depends(Provide[ApiContainer.object_related_file_repository])
     ],
@@ -30,14 +30,14 @@ def get_object_related_files_list_endpoint(
     ],
     context: Annotated[ObjectRelatedFilesListEndpointContext, Depends()],
 ) -> list[ObjectRelatedFileResponse]:
-    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = await object_static_repository.get_by_object_type_and_id(
         session, context.object_type, lineage_id
     )
     if not object_static:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object niet gevonden")
 
-    related_files: list[ObjectRelatedFileTable] = object_related_file_repository.get_by_object_code(
-        session, object_static.Code
+    related_files: list[ObjectRelatedFileTable] = await object_related_file_repository.get_by_object_code(
+        session, object_static.code
     )
 
     return [ObjectRelatedFileResponse.model_validate(rf) for rf in related_files]

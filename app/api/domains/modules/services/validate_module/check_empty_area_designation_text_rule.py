@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -23,7 +23,7 @@ class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
             CheckEmptyAreaDesignationTextConfig,
         )
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
@@ -37,10 +37,10 @@ class CheckEmptyAreaDesignationTextRule(ValidateModuleRule):
                             ValidateModuleError(
                                 rule="check_empty_area_designation_text_rule",
                                 object=ValidateModuleObject(
-                                    code=object_table.Code,
-                                    object_id=object_table.Object_ID,
-                                    object_type=object_table.Object_Type,
-                                    title=object_table.Title,
+                                    code=object_table.code,
+                                    object_id=object_table.object_id,
+                                    object_type=object_table.object_type,
+                                    title=object_table.title,
                                 ),
                                 severity=ValidateModuleSeverity.warning,
                                 messages=[

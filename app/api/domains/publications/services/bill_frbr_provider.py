@@ -2,32 +2,32 @@ import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.types.api_input_data import ActFrbr, BillFrbr
 from app.core.tables.publications import PublicationBillTable, PublicationEnvironmentTable
 
 
 class BillFrbrProvider:
-    def generate_frbr(
+    async def generate_frbr(
         self,
-        session: Session,
+        session: AsyncSession,
         environment: PublicationEnvironmentTable,
         act_frbr: ActFrbr,
     ) -> BillFrbr:
-        if environment.Has_State:
-            return self._create_real(session, environment, act_frbr)
+        if environment.has_state:
+            return await self._create_real(session, environment, act_frbr)
 
         return self._create_fake(environment, act_frbr)
 
-    def _create_real(
+    async def _create_real(
         self,
-        session: Session,
+        session: AsyncSession,
         environment: PublicationEnvironmentTable,
         act_frbr: ActFrbr,
     ) -> BillFrbr:
         stmt = select(func.count()).select_from(PublicationBillTable)
-        count: int = (session.execute(stmt).scalar()) + 1
+        count: int = ((await session.execute(stmt)).scalar()) + 1
         id_suffix: str = f"{count}"
         result: BillFrbr = self._create(environment, act_frbr, id_suffix)
         return result
@@ -47,16 +47,16 @@ class BillFrbrProvider:
         act_frbr: ActFrbr,
         id_suffix: str,
     ) -> BillFrbr:
-        work_other: str = f"{act_frbr.Work_Other}-{id_suffix}"
+        work_other: str = f"{act_frbr.work_other}-{id_suffix}"
 
         timepoint: datetime = datetime.now(UTC)
         frbr: BillFrbr = BillFrbr(
-            Work_Province_ID=environment.Province_ID,
-            Work_Country=environment.Frbr_Country,
-            Work_Date=str(timepoint.year),
-            Work_Other=work_other,
-            Expression_Language=environment.Frbr_Language,
-            Expression_Date=timepoint.strftime("%Y-%m-%d"),
-            Expression_Version=1,
+            work_province_id=environment.province_id,
+            work_country=environment.frbr_country,
+            work_date=str(timepoint.year),
+            work_other=work_other,
+            expression_language=environment.frbr_language,
+            expression_date=timepoint.strftime("%Y-%m-%d"),
+            expression_version=1,
         )
         return frbr

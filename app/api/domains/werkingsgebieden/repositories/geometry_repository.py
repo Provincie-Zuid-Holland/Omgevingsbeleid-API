@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 from pydantic import BaseModel
 from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
@@ -24,33 +24,33 @@ class GeometryRepository(BaseRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
+    def _format_uuid(self, idx: uuid.UUID) -> str:
         pass
 
     @abstractmethod
     def _calculate_hex(self, column: str) -> str:
         pass
 
-    def create_onderverdeling(
+    async def create_onderverdeling(
         self,
-        session: Session,
+        session: AsyncSession,
         onderverdeling: InputGeoOnderverdelingenTable,
         geometry: str,
     ):
         session.add(onderverdeling)
-        session.flush()
-        session.commit()
+        await session.flush()
+        await session.commit()
 
         params = {
-            "uuid": self._format_uuid(onderverdeling.UUID),
+            "id": self._format_uuid(onderverdeling.id),
             "geometry": geometry,
         }
         sql = f"""
             UPDATE
-                Input_GEO_Onderverdeling
+                input_geo_onderverdeling
             SET
-                Geometry = {self._text_to_shape("geometry")}
+                geometry = {self._text_to_shape("geometry")}
             WHERE
-                UUID = :uuid
+                id = :id
             """
-        session.execute(text(sql), params)
+        await session.execute(text(sql), params)

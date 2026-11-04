@@ -11,7 +11,7 @@ from app.core.tables.publications import PublicationActPackageReportTable
 from app.core.tables.users import UsersTable
 
 
-def get_download_act_package_report_endpoint(
+async def get_download_act_package_report_endpoint(
     report: Annotated[PublicationActPackageReportTable, Depends(depends_publication_act_report)],
     user: Annotated[
         UsersTable,
@@ -22,8 +22,8 @@ def get_download_act_package_report_endpoint(
         ),
     ],
 ) -> Response:
-    content = report.Source_Document
-    filename = report.Filename
+    content = report.source_document
+    filename = report.filename
 
     # We try to make it pretty, but it's not required for the response to work
     with contextlib.suppress(etree.XMLSyntaxError):

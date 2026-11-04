@@ -4,16 +4,17 @@ from typing import Annotated
 import sqlalchemy
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
+from sqlalchemy import text
 
 from app.api.api_container import ApiContainer
-from app.core.db.session import SessionFactoryType, session_scope_with_context
+from app.core.db.session import AsyncSessionFactoryType, async_session_scope
 
 build_datetime: datetime = datetime.now(UTC)
 
 
 @inject
-def health_check(
-    db_session_factory: Annotated[SessionFactoryType, Depends(Provide[ApiContainer.db_session_factory])],
+async def health_check(
+    db_session_factory: Annotated[AsyncSessionFactoryType, Depends(Provide[ApiContainer.db_session_factory])],
     lifetime: Annotated[timedelta, Depends(Provide[ApiContainer.access_token_lifetime])],
 ):
     health_info = {
@@ -25,8 +26,8 @@ def health_check(
     }
 
     try:
-        with session_scope_with_context(db_session_factory) as session:
-            session.close()
+        async with async_session_scope(db_session_factory) as session:
+            await session.execute(text("SELECT 1"))
     except sqlalchemy.exc.SQLAlchemyError:
         health_info["status"] = "unhealthy"
         health_info["database"] = "not connected"

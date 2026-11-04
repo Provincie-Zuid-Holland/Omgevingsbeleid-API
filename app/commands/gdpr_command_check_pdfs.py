@@ -1,11 +1,12 @@
 import uuid
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from typing import Annotated
 
 import click
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy import Select, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import undefer
 
 from app.api.api_container import ApiContainer
 from app.api.domains.modules import ModuleObjectRepository
@@ -14,6 +15,7 @@ from app.api.domains.others.repositories import StorageFileRepository
 from app.api.domains.others.services import PdfMetaService
 from app.api.domains.others.services.pdf_meta_service import PdfMetaReport
 from app.api.domains.publications.repository import PublicationStorageFileRepository
+from app.commands.async_runner import run_with_session
 from app.commands.gdpr_commands import (
     FilterStrategy,
     KeyStrategy,
@@ -23,7 +25,7 @@ from app.commands.gdpr_commands import (
     StorageFileRepositoryType,
     StorageFileTableType,
 )
-from app.core.db.session import SessionFactoryType, session_scope_with_context
+from app.core.db.session import AsyncSessionFactoryType
 from app.core.logging import log_message
 from app.core.tables.others import StorageFileTable
 from app.core.tables.publications import PublicationStorageFileTable
@@ -44,8 +46,8 @@ def _file_uuid_key() -> KeyStrategy:
     return _key
 
 
-def _handle_storage_files(
-    session: Session,
+async def _handle_storage_files(
+    session: AsyncSession,
     table_type: type[StorageFileTableType],
     repository: StorageFileRepositoryType,
     pdf_meta_service: PdfMetaService,
@@ -54,10 +56,9 @@ def _handle_storage_files(
     label: str,
 ) -> None:
     report: Report = {}
-    stmt: Select = select(table_type)
-    storage_files: Sequence[StorageFileTableType] = repository.iter_all(session, stmt)
-    for storage_file in storage_files:
-        meta_report_list: list[PdfMetaReport] = pdf_meta_service.report_banned_meta(storage_file.Binary)
+    stmt: Select = select(table_type).options(undefer(table_type.binary))
+    async for storage_file in repository.iter_all(session, stmt):
+        meta_report_list: list[PdfMetaReport] = pdf_meta_service.report_banned_meta(storage_file.binary)
         if len(meta_report_list) <= 0:
             continue
         report[storage_file] = [
@@ -67,22 +68,22 @@ def _handle_storage_files(
     if not report:
         return
 
-    storage_file_uuids: list[uuid.UUID] = [storage_file.UUID for storage_file in report]
+    storage_file_uuids: list[uuid.UUID] = [storage_file.id for storage_file in report]
     object_lookups: ObjectLookups = ObjectLookups(
         session,
         object_repository,
         module_object_repository,
     )
-    object_lookups.create_all(
+    await object_lookups.create_all(
         _file_uuid_filter(storage_file_uuids),
         _file_uuid_key(),
     )
 
     for storage_file, meta_issues in report.items():
         log_list: list[str] = []
-        object_log: str | None = object_lookups.get_log(storage_file.UUID) or ""
+        object_log: str | None = object_lookups.get_log(storage_file.id) or ""
         log_list.append(
-            f"{label} {storage_file.UUID} with name {storage_file.Filename}{object_log} has the following report:"
+            f"{label} {storage_file.id} with name {storage_file.filename}{object_log} has the following report:"
         )
         log_list.extend(meta_issues)
         log_message("\n".join(log_list))
@@ -91,17 +92,17 @@ def _handle_storage_files(
 @click.command()
 @inject
 def check_pdfs(
-    db_session_factory: Annotated[SessionFactoryType, Provide[ApiContainer.db_session_factory]],
+    db_session_factory: Annotated[AsyncSessionFactoryType, Provide[ApiContainer.db_session_factory]],
     storage_file_repository: Annotated[StorageFileRepository, Provide[ApiContainer.storage_file_repository]],
     publication_storage_file_repository: Annotated[
-        PublicationStorageFileRepository, Provide[ApiContainer.publication.storage_file_repository]
+        PublicationStorageFileRepository, Provide[ApiContainer.publication.publication_storage_file_repository]
     ],
     object_repository: Annotated[ObjectRepository, Provide[ApiContainer.object_repository]],
     module_object_repository: Annotated[ModuleObjectRepository, Provide[ApiContainer.module_object_repository]],
     pdf_meta_service: Annotated[PdfMetaService, Provide[ApiContainer.pdf_meta_service]],
 ) -> None:
-    with session_scope_with_context(db_session_factory) as session:
-        _handle_storage_files(
+    async def _check(session: AsyncSession) -> None:
+        await _handle_storage_files(
             session,
             StorageFileTable,
             storage_file_repository,
@@ -110,7 +111,7 @@ def check_pdfs(
             module_object_repository,
             "Storage file",
         )
-        _handle_storage_files(
+        await _handle_storage_files(
             session,
             PublicationStorageFileTable,
             publication_storage_file_repository,
@@ -119,3 +120,5 @@ def check_pdfs(
             module_object_repository,
             "Publication storage file",
         )
+
+    run_with_session(db_session_factory, _check)

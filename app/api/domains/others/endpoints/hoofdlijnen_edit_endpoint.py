@@ -5,7 +5,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -19,18 +19,18 @@ from app.core.tables.users import UsersTable
 
 
 class EditHoofdlijn(BaseModel):
-    Name: str | None = Field(default=None, min_length=3, max_length=255)
-    Type: str | None = Field(default=None, min_length=3, max_length=255)
+    name: str | None = Field(default=None, min_length=3, max_length=255)
+    kind: str | None = Field(default=None, min_length=3, max_length=255)
 
     model_config = ConfigDict(from_attributes=True)
 
 
 @inject
-def post_hoofdlijnen_edit_endpoint(
+async def post_hoofdlijnen_edit_endpoint(
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
     hoofdlijn: Annotated[HoofdlijnTable, Depends(depends_hoofdlijn)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: EditHoofdlijn,
 ) -> ResponseOK:
     permission_service.guard_valid_user(Permissions.hoofdlijnen_can_edit_hoofdlijn, logged_in_user)
@@ -46,23 +46,23 @@ def post_hoofdlijnen_edit_endpoint(
     for key, value in changes.items():
         setattr(hoofdlijn, key, value)
 
-    hoofdlijn.Modified_By_UUID = logged_in_user.UUID
-    hoofdlijn.Modified_Date = timepoint
+    hoofdlijn.modified_by_id = logged_in_user.id
+    hoofdlijn.modified_date = timepoint
 
     hoofdlijn_after = hoofdlijn.to_dict()
 
-    change_log = ChangeLogTable(
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=logged_in_user.UUID,
-        Action_Type="edit_hoofdlijn",
-        Action_Data=json.dumps(changes),
-        Before=json.dumps(hoofdlijn_before),
-        After=json.dumps(hoofdlijn_after),
+    change_log: ChangeLogTable = ChangeLogTable(
+        created_date=datetime.now(UTC),
+        created_by_id=logged_in_user.id,
+        action_type="edit_hoofdlijn",
+        action_data=json.dumps(changes),
+        before=json.dumps(hoofdlijn_before),
+        after=json.dumps(hoofdlijn_after),
     )
 
     session.add(change_log)
     session.add(hoofdlijn)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

@@ -3,14 +3,16 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.api.endpoint import BaseEndpointContext
+from app.api.events.before_select_execution_event import BeforeSelectExecutionEvent
 from app.api.events.event_manager import ApiEventManager
 from app.api.events.retrieved_objects_event import RetrievedObjectsEvent
+from app.api.types import PreparedQuery
 from app.core.tables.objects import ObjectStaticsTable
 from app.core.types import Model
 
@@ -21,23 +23,31 @@ class ObjectStaticEndpointContext(BaseEndpointContext):
 
 
 @inject
-def view_get_object_static_endpoint(
+async def view_get_object_static_endpoint(
     lineage_id: int,
     repository: Annotated[ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])],
     event_manager: Annotated[ApiEventManager, Depends(Provide[ApiContainer.event_manager])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[ObjectStaticEndpointContext, Depends()],
 ) -> BaseModel:
-    maybe_static: ObjectStaticsTable | None = repository.get_by_object_type_and_id(
-        session,
+    prepared_query: PreparedQuery = repository.prepare_by_object_type_and_id(
         context.object_type,
         lineage_id,
     )
+    prepare_query_event: BeforeSelectExecutionEvent = await event_manager.dispatch(
+        session,
+        BeforeSelectExecutionEvent.create(
+            query=prepared_query.query,
+            response_model=context.response_config_model,
+            objects_table_ref=prepared_query.aliased_ref,
+        ),
+    )
+    maybe_static: ObjectStaticsTable | None = await repository.fetch_first(session, prepare_query_event.payload.query)
     if not maybe_static:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object static niet gevonden")
 
     result: BaseModel = context.response_config_model.pydantic_model.model_validate(maybe_static)
-    event: RetrievedObjectsEvent = event_manager.dispatch(
+    event: RetrievedObjectsEvent = await event_manager.dispatch(
         session,
         RetrievedObjectsEvent.create(
             rows=[result],

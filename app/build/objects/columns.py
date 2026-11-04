@@ -3,12 +3,12 @@ from app.core.types import Column
 BASE_COLUMNS = [
     Column(
         id="object_id",
-        name="Object_ID",
+        name="object_id",
         type="int",
     ),
     Column(
-        id="uuid",
-        name="UUID",
+        id="id",
+        name="id",
         type="str",
         serializers=[
             "str",
@@ -19,27 +19,27 @@ BASE_COLUMNS = [
     ),
     Column(
         id="object_type",
-        name="Object_Type",
+        name="object_type",
         type="str_25",
     ),
     Column(
         id="code",
-        name="Code",
+        name="code",
         type="str_35",
     ),
     Column(
         id="created_date",
-        name="Created_Date",
+        name="created_date",
         type="datetime",
     ),
     Column(
         id="modified_date",
-        name="Modified_Date",
+        name="modified_date",
         type="datetime",
     ),
     Column(
         id="adjust_on",
-        name="Adjust_On",
+        name="adjust_on",
         type="object_uuid",
         nullable=True,
         serializers=[
@@ -50,11 +50,11 @@ BASE_COLUMNS = [
         ],
     ),
     Column(
-        id="created_by_uuid",
-        name="Created_By_UUID",
+        id="created_by_id",
+        name="created_by_id",
         type="user_uuid",
         type_data={
-            "relation_field": "Created_By",
+            "relation_field": "created_by",
         },
         serializers=[
             "str",
@@ -64,11 +64,11 @@ BASE_COLUMNS = [
         ],
     ),
     Column(
-        id="modified_by_uuid",
-        name="Modified_By_UUID",
+        id="modified_by_id",
+        name="modified_by_id",
         type="user_uuid",
         type_data={
-            "relation_field": "Modified_By",
+            "relation_field": "modified_by",
         },
         serializers=[
             "str",
@@ -79,13 +79,13 @@ BASE_COLUMNS = [
     ),
     Column(
         id="start_validity",
-        name="Start_Validity",
+        name="start_validity",
         nullable=True,
         type="datetime",
     ),
     Column(
         id="end_validity",
-        name="End_Validity",
+        name="end_validity",
         nullable=True,
         type="datetime",
     ),

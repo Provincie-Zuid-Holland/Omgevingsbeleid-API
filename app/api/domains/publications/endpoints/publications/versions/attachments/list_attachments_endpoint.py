@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -16,7 +16,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_attachments_endpoint(
+async def get_list_attachments_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     user: Annotated[
         UsersTable,
@@ -29,10 +29,10 @@ def get_list_attachments_endpoint(
     publication_version_attachment_repository: Annotated[
         PublicationVersionAttachmentRepository, Depends(Provide[ApiContainer.publication.version_attachment_repository])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ) -> list[AttachmentShort]:
-    attachments: list[PublicationVersionAttachmentTable] = (
-        publication_version_attachment_repository.get_by_version_uuid(session, version.UUID)
-    )
+    attachments: list[
+        PublicationVersionAttachmentTable
+    ] = await publication_version_attachment_repository.get_by_version_id(session, version.id)
     response: list[AttachmentShort] = [AttachmentShort.model_validate(r) for r in attachments]
     return response

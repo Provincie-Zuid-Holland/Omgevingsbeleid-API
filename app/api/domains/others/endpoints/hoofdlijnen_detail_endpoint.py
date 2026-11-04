@@ -9,7 +9,7 @@ from app.core.tables.others import HoofdlijnTable
 from app.core.tables.users import UsersTable
 
 
-def get_hoofdlijnen_detail_endpoint(
+async def get_hoofdlijnen_detail_endpoint(
     _: Annotated[UsersTable, Depends(depends_current_user)],
     hoofdlijn: Annotated[HoofdlijnTable, Depends(depends_hoofdlijn)],
 ) -> Hoofdlijn:

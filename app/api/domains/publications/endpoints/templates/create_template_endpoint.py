@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.types.enums import DocumentType
@@ -15,20 +15,20 @@ from app.core.tables.users import UsersTable
 
 
 class TemplateCreate(BaseModel):
-    Title: str = Field(..., min_length=3)
-    Description: str
-    Document_Type: DocumentType
-    Object_Types: list[str]
-    Object_Field_Map: dict[str, list[str]]
-    Text_Template: str
-    Object_Templates: dict[str, str]
+    title: str = Field(..., min_length=3)
+    description: str
+    document_type: DocumentType
+    object_types: list[str]
+    object_field_map: dict[str, list[str]]
+    text_template: str
+    object_templates: dict[str, str]
 
 
 class TemplateCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
-def post_create_template_endpoint(
+async def post_create_template_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -37,31 +37,31 @@ def post_create_template_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: TemplateCreate,
 ) -> TemplateCreatedResponse:
     timepoint: datetime = datetime.now(UTC)
 
     template = PublicationTemplateTable(
-        UUID=uuid.uuid4(),
-        Title=object_in.Title,
-        Description=object_in.Description,
-        Is_Active=True,
-        Document_Type=object_in.Document_Type,
-        Object_Types=object_in.Object_Types,
-        Object_Field_Map=object_in.Object_Field_Map,
-        Text_Template=object_in.Text_Template,
-        Object_Templates=object_in.Object_Templates,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
+        id=uuid.uuid4(),
+        title=object_in.title,
+        description=object_in.description,
+        is_active=True,
+        document_type=object_in.document_type,
+        object_types=object_in.object_types,
+        object_field_map=object_in.object_field_map,
+        text_template=object_in.text_template,
+        object_templates=object_in.object_templates,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.id,
+        modified_by_id=user.id,
     )
 
     session.add(template)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return TemplateCreatedResponse(
-        UUID=template.UUID,
+        id=template.id,
     )

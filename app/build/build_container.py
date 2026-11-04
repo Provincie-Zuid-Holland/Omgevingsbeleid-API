@@ -1,6 +1,5 @@
 import dso
 from dependency_injector import containers, providers
-from sqlalchemy.orm import sessionmaker
 
 import app.build.endpoint_builders.modules as endpoint_builders_modules
 import app.build.endpoint_builders.objects as endpoint_builders_objects
@@ -22,26 +21,12 @@ from app.build.services import (
 )
 from app.build.services.model_dynamic_type_builder import ModelDynamicTypeBuilder
 from app.build.services.validators import validators
-from app.core.db.session import create_db_engine
 from app.core.services import MainConfig, ModelsProvider
 from app.core.settings import Settings
 
 
 class BuildContainer(containers.DeclarativeContainer):
     config = providers.Configuration(pydantic_settings=[Settings()])
-
-    db_engine = providers.Singleton(
-        create_db_engine,
-        uri=config.SQLALCHEMY_DATABASE_URI,
-        echo=config.SQLALCHEMY_ECHO,
-    )
-    db_session_factory = providers.Singleton(
-        sessionmaker,
-        bind=db_engine,
-        autocommit=False,
-        autoflush=False,
-        expire_on_commit=False,
-    )
 
     object_static_repository = providers.Singleton(ObjectStaticRepository)
     module_object_repository = providers.Singleton(ModuleObjectRepository)
@@ -62,24 +47,20 @@ class BuildContainer(containers.DeclarativeContainer):
             providers.Factory(validators.NotEqualRootValidator),
             providers.Factory(
                 validators.ObjectCodeExistsValidator,
-                session_factory=db_session_factory,
                 object_static_repository=object_static_repository,
             ),
             providers.Factory(validators.ObjectCodeAllowedTypeValidator),
             providers.Factory(
                 validators.ObjectCodesExistsValidator,
-                session_factory=db_session_factory,
                 object_static_repository=object_static_repository,
             ),
             providers.Factory(
                 validators.ObjectCodesValidForModuleValidator,
-                session_factory=db_session_factory,
                 module_object_repository=module_object_repository,
             ),
             providers.Factory(validators.ObjectCodesAllowedTypeValidator),
             providers.Factory(
                 validators.GebiedsaanwijzingValidator,
-                session_factory=db_session_factory,
                 object_static_repository=object_static_repository,
                 dso_gebiedsaanwijzingen_factory=dso_gebiedsaanwijzingen_factory,
             ),

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lvbb:validatieVerzoekResultaat xmlns:lvbb="http://www.overheid.nl/2017/lvbb"
+                                xmlns:stop="http://www.overheid.nl/2017/stop">
+   <lvbb:uitkomst>succes</lvbb:uitkomst>
+   <lvbb:verslag>
+      <lvbb:idLevering>00000000-0000-0000-0000-000000000001</lvbb:idLevering>
+      <lvbb:tijdstipVerslag>2025-01-01T08:00:00.000000Z</lvbb:tijdstipVerslag>
+      <lvbb:meldingen>
+         <lvbb:melding>
+            <stop:code>DL-0004</stop:code>
+            <stop:ernst>informatie</stop:ernst>
+            <stop:soort>technisch</stop:soort>
+            <stop:beschrijving>Volledige aanlevering is valide</stop:beschrijving>
+         </lvbb:melding>
+      </lvbb:meldingen>
+      <lvbb:uitkomst>valide</lvbb:uitkomst>
+   </lvbb:verslag>
+</lvbb:validatieVerzoekResultaat>

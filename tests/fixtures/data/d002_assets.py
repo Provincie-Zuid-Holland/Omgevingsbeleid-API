@@ -7,15 +7,15 @@ def load(col: Collector) -> None:
         [
             AssetSpec(
                 key="blue",
-                File_Path="./rectangle-blue.png",
+                file_path="./rectangle-blue.png",
             ),
             AssetSpec(
                 key="green",
-                File_Path="./rectangle-green.png",
+                file_path="./rectangle-green.png",
             ),
             AssetSpec(
                 key="yellow",
-                File_Path="./rectangle-yellow.png",
+                file_path="./rectangle-yellow.png",
             ),
         ]
     )

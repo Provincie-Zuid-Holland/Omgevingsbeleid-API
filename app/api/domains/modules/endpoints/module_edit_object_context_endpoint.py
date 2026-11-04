@@ -5,7 +5,7 @@ from typing import Annotated, Any
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -25,31 +25,32 @@ from app.core.tables.users import UsersTable
 
 
 class ModuleEditObjectContext(BaseModel):
-    Action: ModuleObjectAction | None = None
-    Explanation: str | None = None
-    Conclusion: str | None = None
+    action: ModuleObjectAction | None = None
+    explanation: str | None = None
+    conclusion: str | None = None
+
     model_config = ConfigDict(use_enum_values=True)
 
 
 @inject
-def post_module_edit_object_context_endpoint(
+async def post_module_edit_object_context_endpoint(
     _: Annotated[ModuleTable, Depends(depends_active_module)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module_object: Annotated[ModuleObjectsTable, Depends(depends_module_object_latest_by_id)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     object_in: ModuleEditObjectContext,
 ) -> ResponseOK:
     permission_service.guard_valid_user(
         Permissions.module_can_edit_module_object_context,
         user,
-        whitelisted_uuids=[
-            module_object.ObjectStatics.Owner_1_UUID,
-            module_object.ObjectStatics.Owner_2_UUID,
-            module_object.ObjectStatics.Owner_3_UUID,
-            module_object.ObjectStatics.Portfolio_Holder_1_UUID,
-            module_object.ObjectStatics.Client_1_UUID,
+        whitelisted_ids=[
+            module_object.object_statics.owner_1_id,
+            module_object.object_statics.owner_2_id,
+            module_object.object_statics.owner_3_id,
+            module_object.object_statics.portfolio_holder_1_id,
+            module_object.object_statics.client_1_id,
         ],
     )
 
@@ -64,24 +65,24 @@ def post_module_edit_object_context_endpoint(
 
     timepoint: datetime = datetime.now(UTC)
 
-    object_context.Modified_By_UUID = user.UUID
-    object_context.Modified_Date = timepoint
+    object_context.modified_by_id = user.id
+    object_context.modified_date = timepoint
 
     session.add(object_context)
 
-    change_log = ChangeLogTable(
-        Object_Type=object_context.Object_Type,
-        Object_ID=object_context.Object_ID,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Action_Type="module_edit_object_context",
-        Action_Data=object_in.model_dump_json(),
-        Before=log_before,
-        After=json.dumps(object_context.to_dict()),
+    change_log: ChangeLogTable = ChangeLogTable(
+        object_type=object_context.object_type,
+        object_id=object_context.object_id,
+        created_date=timepoint,
+        created_by_id=user.id,
+        action_type="module_edit_object_context",
+        action_data=object_in.model_dump_json(),
+        before=log_before,
+        after=json.dumps(object_context.to_dict()),
     )
     session.add(change_log)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

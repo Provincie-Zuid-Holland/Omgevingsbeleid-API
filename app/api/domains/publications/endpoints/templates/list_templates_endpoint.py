@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
@@ -16,9 +16,9 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_templates_endpoint(
+async def get_list_templates_endpoint(
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     user: Annotated[
         UsersTable,
         Depends(
@@ -33,7 +33,7 @@ def get_list_templates_endpoint(
     is_active: bool | None = None,
     document_type: DocumentType | None = None,
 ) -> PagedResponse[PublicationTemplate]:
-    paginated_result = template_repository.get_with_filters(
+    paginated_result = await template_repository.get_with_filters(
         session=session,
         is_active=is_active,
         document_type=document_type,

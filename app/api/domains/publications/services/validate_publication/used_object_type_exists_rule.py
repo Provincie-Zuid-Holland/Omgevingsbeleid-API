@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup, ResultSet, Tag
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -10,13 +10,13 @@ from app.api.domains.publications.services.validate_publication.validate_publica
 
 
 class UsedObjectTypeExistsRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
-        soup: BeautifulSoup = BeautifulSoup(request.input_data.Publication_Data.parsed_template, "html.parser")
+        soup: BeautifulSoup = BeautifulSoup(request.input_data.publication_data.parsed_template, "html.parser")
         object_tags: ResultSet[Tag] = soup.find_all("object")
         objects: list[str] = [obj.get("code") for obj in object_tags if obj.get("code")]
         object_types: set[str] = {v.split("-", 1)[0] for v in objects}
-        object_templates: set[str] = request.input_data.Publication_Version.Publication.Template.Object_Templates.keys()
+        object_templates: set[str] = request.input_data.publication_version.publication.template.object_templates.keys()
 
         for object_type in object_types:
             if object_type not in object_templates:

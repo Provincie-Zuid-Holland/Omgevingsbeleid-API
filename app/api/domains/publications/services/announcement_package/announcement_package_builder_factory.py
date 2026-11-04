@@ -1,5 +1,5 @@
 from dso.announcement_builder.state_manager.models import InputData
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.announcement_package.announcement_package_builder import (
     AnnouncementPackageBuilder,
@@ -29,29 +29,29 @@ class AnnouncementPackageBuilderFactory:
         self._doc_frbr_provider: DocFrbrProvider = doc_frbr_provider
         self._state_loader: StateLoader = state_loader
 
-    def create_builder(
+    async def create_builder(
         self,
-        session: Session,
+        session: AsyncSession,
         announcement: PublicationAnnouncementTable,
         package_type: PackageType,
     ) -> AnnouncementPackageBuilder:
-        doc_frbr: DocFrbr = self._doc_frbr_provider.generate_frbr(session, announcement)
+        doc_frbr: DocFrbr = await self._doc_frbr_provider.generate_frbr(session, announcement)
         about_act_frbr: ActFrbr = self._get_about_act_frbr(announcement)
         about_bill_frbr: BillFrbr = self._get_about_bill_frbr(announcement)
 
         api_input_data = ApiAnnouncementInputData(
-            Doc_Frbr=doc_frbr,
-            About_Bill_Frbr=about_bill_frbr,
-            About_Act_Frbr=about_act_frbr,
-            Package_Type=package_type,
-            Announcement=announcement,
-            Announcement_Metadata=AnnouncementMetadata.model_validate(announcement.Metadata),
-            Announcement_Procedural=AnnouncementProcedural.model_validate(announcement.Procedural),
-            Announcement_Content=AnnouncementContent.model_validate(announcement.Content),
+            doc_frbr=doc_frbr,
+            about_bill_frbr=about_bill_frbr,
+            about_act_frbr=about_act_frbr,
+            package_type=package_type,
+            announcement=announcement,
+            announcement_metadata=AnnouncementMetadata.model_validate(announcement.meta_data),
+            announcement_procedural=AnnouncementProcedural.model_validate(announcement.procedural),
+            announcement_content=AnnouncementContent.model_validate(announcement.content),
         )
 
-        state: ActiveState | None = self._state_loader.load_from_environment(
-            session, announcement.Publication.Environment
+        state: ActiveState | None = await self._state_loader.load_from_environment(
+            session, announcement.publication.environment
         )
 
         input_data_builder = DsoAnnouncementInputDataBuilder(api_input_data)
@@ -65,30 +65,30 @@ class AnnouncementPackageBuilderFactory:
         return builder
 
     def _get_about_bill_frbr(self, announcement: PublicationAnnouncementTable) -> BillFrbr:
-        bill_version_table: PublicationBillVersionTable = announcement.Act_Package.Bill_Version
+        bill_version_table: PublicationBillVersionTable = announcement.act_package.bill_version
 
         result = BillFrbr(
-            Work_Province_ID=bill_version_table.Bill.Work_Province_ID,
-            Work_Country=bill_version_table.Bill.Work_Country,
-            Work_Date=bill_version_table.Bill.Work_Date,
-            Work_Other=bill_version_table.Bill.Work_Other,
-            Expression_Language=bill_version_table.Expression_Language,
-            Expression_Date=bill_version_table.Expression_Date,
-            Expression_Version=bill_version_table.Expression_Version,
+            work_province_id=bill_version_table.bill.work_province_id,
+            work_country=bill_version_table.bill.work_country,
+            work_date=bill_version_table.bill.work_date,
+            work_other=bill_version_table.bill.work_other,
+            expression_language=bill_version_table.expression_language,
+            expression_date=bill_version_table.expression_date,
+            expression_version=bill_version_table.expression_version,
         )
         return result
 
     def _get_about_act_frbr(self, announcement: PublicationAnnouncementTable) -> ActFrbr:
-        act_version_table: PublicationActVersionTable = announcement.Act_Package.Act_Version
+        act_version_table: PublicationActVersionTable = announcement.act_package.act_version
 
         result = ActFrbr(
-            Act_ID=act_version_table.Act.ID,
-            Work_Province_ID=act_version_table.Act.Work_Province_ID,
-            Work_Country=act_version_table.Act.Work_Country,
-            Work_Date=act_version_table.Act.Work_Date,
-            Work_Other=act_version_table.Act.Work_Other,
-            Expression_Language=act_version_table.Expression_Language,
-            Expression_Date=act_version_table.Expression_Date,
-            Expression_Version=act_version_table.Expression_Version,
+            act_id=act_version_table.act.id,
+            work_province_id=act_version_table.act.work_province_id,
+            work_country=act_version_table.act.work_country,
+            work_date=act_version_table.act.work_date,
+            work_other=act_version_table.act.work_other,
+            expression_language=act_version_table.expression_language,
+            expression_date=act_version_table.expression_date,
+            expression_version=act_version_table.expression_version,
         )
         return result

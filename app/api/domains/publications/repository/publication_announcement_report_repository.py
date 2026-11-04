@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import and_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.publications.types.enums import ReportStatusType
@@ -10,38 +10,40 @@ from app.core.tables.publications import PublicationAnnouncementPackageReportTab
 
 
 class PublicationAnnouncementReportRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationAnnouncementPackageReportTable | None:
+    async def get_by_id(
+        self, session: AsyncSession, idx: uuid.UUID
+    ) -> PublicationAnnouncementPackageReportTable | None:
         stmt = select(PublicationAnnouncementPackageReportTable).where(
-            PublicationAnnouncementPackageReportTable.UUID == uuidx
+            PublicationAnnouncementPackageReportTable.id == idx
         )
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
-        announcement_package_uuid: uuid.UUID | None = None,
+        session: AsyncSession,
+        announcement_package_id: uuid.UUID | None = None,
         filename: str | None = None,
         report_status: ReportStatusType | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
         filters = []
-        if announcement_package_uuid is not None:
+        if announcement_package_id is not None:
             filters.append(
-                and_(PublicationAnnouncementPackageReportTable.Announcement_Package_UUID == announcement_package_uuid)
+                and_(PublicationAnnouncementPackageReportTable.announcement_package_id == announcement_package_id)
             )
         if filename is not None:
-            filters.append(and_(PublicationAnnouncementPackageReportTable.Filename == filename))
+            filters.append(and_(PublicationAnnouncementPackageReportTable.filename == filename))
         if report_status is not None:
-            filters.append(and_(PublicationAnnouncementPackageReportTable.Report_Status == report_status.value))
+            filters.append(and_(PublicationAnnouncementPackageReportTable.report_status == report_status.value))
 
         stmt = select(PublicationAnnouncementPackageReportTable).filter(*filters)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationAnnouncementPackageReportTable.Created_Date, SortOrder.DESC),
+            sort=(PublicationAnnouncementPackageReportTable.created_date, SortOrder.DESC),
         )
         return paged_result

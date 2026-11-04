@@ -12,25 +12,25 @@ from tests.fixtures.internal.spec.objects.base_object_spec import (
 class BeleidskeuzeMixin(BaseModel):
     __object_type__: ClassVar[str] = "beleidskeuze"
     __inheritable__: ClassVar[set[str]] = {
-        "Title",
-        "Description",
-        "Explanation",
-        "Hierarchy_Code",
-        "Gebiedengroep_Code",
+        "title",
+        "description",
+        "explanation",
+        "hierarchy_code",
+        "gebiedengroep_code",
     }
     __object_fields__: ClassVar[set[str]] = {
-        "Title",
-        "Description",
-        "Explanation",
-        "Hierarchy_Code",
-        "Gebiedengroep_Code",
+        "title",
+        "description",
+        "explanation",
+        "hierarchy_code",
+        "gebiedengroep_code",
     }
 
-    Title: str | None = None
-    Description: str | None = None
-    Explanation: str | None = None
-    Hierarchy_Code: str | None = None
-    Gebiedengroep_Code: str | None = None
+    title: str | None = None
+    description: str | None = None
+    explanation: str | None = None
+    hierarchy_code: str | None = None
+    gebiedengroep_code: str | None = None
 
 
 class BeleidskeuzeSpec(BeleidskeuzeMixin, BaseObjectSpec):

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lvbb:publicatieVerzoekResultaat xmlns:lvbb="http://www.overheid.nl/2017/lvbb"
+                                 xmlns:stop="http://www.overheid.nl/2017/stop">
+   <lvbb:uitkomst>mislukt</lvbb:uitkomst>
+   <lvbb:verslag>
+      <lvbb:idLevering>00000000-0000-0000-0000-000000000004</lvbb:idLevering>
+      <lvbb:tijdstipVerslag>2025-01-01T08:00:00.000000Z</lvbb:tijdstipVerslag>
+      <lvbb:meldingen>
+         <lvbb:melding>
+            <stop:code>LVBB1501</stop:code>
+            <stop:ernst>fout</stop:ernst>
+            <stop:soort>inhoudelijk</stop:soort>
+            <stop:categorie>opdracht.xml</stop:categorie>
+            <stop:beschrijving>Custom trigger failed</stop:beschrijving>
+         </lvbb:melding>
+      </lvbb:meldingen>
+      <lvbb:uitkomst>niet-valide</lvbb:uitkomst>
+   </lvbb:verslag>
+</lvbb:publicatieVerzoekResultaat>

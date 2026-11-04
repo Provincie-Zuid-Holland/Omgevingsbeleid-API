@@ -36,7 +36,7 @@ class GioLocatie(BaseModel):
 
 
 class Gio(BaseModel):
-    # The GIO key will be the Code from the source, as that is unique enough for now
+    # The GIO key will be the `code` from the source, as that is unique enough for now
     # Since the latest communications it's oke if we generate 1 GIO per gebiedengroep/gebiedsaanwijzing.
     # Even if they have the same locations
     #

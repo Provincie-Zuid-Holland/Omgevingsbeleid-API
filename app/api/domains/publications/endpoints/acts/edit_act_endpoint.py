@@ -3,7 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_act_active
@@ -16,11 +16,11 @@ from app.core.tables.users import UsersTable
 
 
 class ActEdit(BaseModel):
-    Title: str | None = Field(None)
-    Metadata: ActMetadata | None = None
+    title: str | None = Field(None)
+    meta_data: ActMetadata | None = None
 
 
-def post_edit_act_endpoint(
+async def post_edit_act_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -30,7 +30,7 @@ def post_edit_act_endpoint(
         ),
     ],
     act: Annotated[PublicationActTable, Depends(depends_publication_act_active)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: ActEdit,
 ) -> ResponseOK:
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
@@ -42,11 +42,11 @@ def post_edit_act_endpoint(
             value = value.model_dump()
         setattr(act, key, value)
 
-    act.Modified_By_UUID = user.UUID
-    act.Modified_Date = datetime.now(UTC)
+    act.modified_by_id = user.id
+    act.modified_date = datetime.now(UTC)
 
     session.add(act)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -23,10 +23,10 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
             ForbiddenHtmlTagsRuleConfig,
         )
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
-        for used_object in request.input_data.Publication_Data.used_objects:
+        for used_object in request.input_data.publication_data.used_objects:
             for field_name in self._config.fields:
                 value: str = str(used_object.get(field_name, ""))
                 maybe_forbidden_tag = self._has_forbidden_tags(value)
@@ -35,10 +35,10 @@ class ForbiddenHtmlTagsRule(ValidatePublicationRule):
                         ValidatePublicationError(
                             rule="forbidden_html_tags_rule",
                             object=ValidatePublicationObject(
-                                code=used_object.get("Code"),
-                                object_id=used_object.get("Object_ID"),
-                                object_type=used_object.get("Object_Type"),
-                                title=used_object.get("Title"),
+                                code=used_object.get("code"),
+                                object_id=used_object.get("object_id"),
+                                object_type=used_object.get("object_type"),
+                                title=used_object.get("title"),
                             ),
                             messages=[f"Forbidden html tag '{maybe_forbidden_tag}' found in '{field_name}'"],
                         )

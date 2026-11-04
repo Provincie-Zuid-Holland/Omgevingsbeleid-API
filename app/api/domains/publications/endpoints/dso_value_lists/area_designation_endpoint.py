@@ -17,7 +17,7 @@ class ListAreaDesignationResponse(BaseModel):
 
 
 @inject
-def get_area_designation_endpoint(
+async def get_area_designation_endpoint(
     dso_gebiedsaanwijzingen_factory: Annotated[
         GebiedsaanwijzingenFactory, Depends(Provide[ApiContainer.dso_gebiedsaanwijzingen_factory])
     ],

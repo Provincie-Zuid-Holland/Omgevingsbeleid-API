@@ -19,8 +19,8 @@ class CreatePublicationVersionEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
-        if "{publication_uuid}" not in builder_data.path:
-            raise RuntimeError("Missing {publication_uuid} argument in path")
+        if "{publication_id}" not in builder_data.path:
+            raise RuntimeError("Missing {publication_id} argument in path")
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,

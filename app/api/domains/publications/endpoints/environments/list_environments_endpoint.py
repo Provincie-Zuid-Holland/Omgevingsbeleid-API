@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
@@ -15,7 +15,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_environments_endpoint(
+async def get_list_environments_endpoint(
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
     user: Annotated[
         UsersTable,
@@ -25,13 +25,13 @@ def get_list_environments_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     environment_repository: Annotated[
         PublicationEnvironmentRepository, Depends(Provide[ApiContainer.publication.environment_repository])
     ],
     is_active: bool | None = None,
 ) -> PagedResponse[PublicationEnvironment]:
-    paginated_result = environment_repository.get_with_filters(
+    paginated_result = await environment_repository.get_with_filters(
         session=session,
         is_active=is_active,
         offset=pagination.offset,

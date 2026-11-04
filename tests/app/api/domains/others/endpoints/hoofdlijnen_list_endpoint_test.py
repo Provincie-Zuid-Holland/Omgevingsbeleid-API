@@ -1,32 +1,32 @@
-from fastapi.testclient import TestClient
+import httpx2
 
 from tests.assert_helpers import get_uuids_from_spec
 from tests.conftest import Context
 from tests.fixtures.internal.spec.hoofdlijn_spec import HoofdlijnSpec
 
 
-def test_lists_the_hoofdlijnen_newest_first(admin: TestClient, ctx: Context):
-    response = admin.get("/hoofdlijnen")
+async def test_lists_the_hoofdlijnen_newest_first(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.get("/hoofdlijnen")
 
     assert response.status_code == 200
-    assert [r["UUID"] for r in response.json().get("results")] == get_uuids_from_spec(
+    assert [r["id"] for r in response.json().get("results")] == get_uuids_from_spec(
         ctx, HoofdlijnSpec, ["hoofdlijn-3", "hoofdlijn-2", "hoofdlijn-1"]
     )
 
 
-def test_lists_the_hoofdlijnen_sort_by_name(admin: TestClient, ctx: Context):
-    response = admin.get("/hoofdlijnen?sort_column=Name&sort_order=ASC")
+async def test_lists_the_hoofdlijnen_sort_by_name(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.get("/hoofdlijnen?sort_column=name&sort_order=ASC")
 
     assert response.status_code == 200
-    assert [r["UUID"] for r in response.json().get("results")] == get_uuids_from_spec(
+    assert [r["id"] for r in response.json().get("results")] == get_uuids_from_spec(
         ctx, HoofdlijnSpec, ["hoofdlijn-1", "hoofdlijn-3", "hoofdlijn-2"]
     )
 
 
-def test_lists_the_hoofdlijnen_sort_by_type(admin: TestClient, ctx: Context):
-    response = admin.get("/hoofdlijnen?sort_column=Type&sort_order=ASC")
+async def test_lists_the_hoofdlijnen_sort_by_kind(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.get("/hoofdlijnen?sort_column=kind&sort_order=ASC")
 
     assert response.status_code == 200
-    assert [r["UUID"] for r in response.json().get("results")] == get_uuids_from_spec(
+    assert [r["id"] for r in response.json().get("results")] == get_uuids_from_spec(
         ctx, HoofdlijnSpec, ["hoofdlijn-3", "hoofdlijn-2", "hoofdlijn-1"]
     )

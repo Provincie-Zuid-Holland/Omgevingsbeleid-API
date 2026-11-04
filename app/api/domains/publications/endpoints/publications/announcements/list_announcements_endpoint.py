@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_simple_pagination
@@ -18,9 +18,9 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_list_announcements_endpoint(
+async def get_list_announcements_endpoint(
     pagination: Annotated[SimplePagination, Depends(depends_simple_pagination)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[
         PublicationAnnouncementRepository, Depends(Provide[ApiContainer.publication.announcement_repository])
     ],
@@ -32,11 +32,11 @@ def get_list_announcements_endpoint(
             )
         ),
     ],
-    act_package_uuid: uuid.UUID | None = None,
+    act_package_id: uuid.UUID | None = None,
 ) -> PagedResponse[PublicationAnnouncementShort]:
-    paginated_result = repository.get_with_filters(
+    paginated_result = await repository.get_with_filters(
         session=session,
-        act_package_uuid=act_package_uuid,
+        act_package_id=act_package_id,
         offset=pagination.offset,
         limit=pagination.limit,
     )

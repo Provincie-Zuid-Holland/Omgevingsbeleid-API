@@ -18,8 +18,8 @@ class DownloadPublicationVersionAttachmentEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
-        if "{version_uuid}" not in builder_data.path:
-            raise RuntimeError("Missing {version_uuid} argument in path")
+        if "{version_id}" not in builder_data.path:
+            raise RuntimeError("Missing {version_id} argument in path")
         if "{attachment_id}" not in builder_data.path:
             raise RuntimeError("Missing {attachment_id} argument in path")
 

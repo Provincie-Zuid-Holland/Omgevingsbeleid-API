@@ -5,7 +5,7 @@ from typing import Any
 from fastapi import HTTPException, status
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import asc, desc, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
 
@@ -118,9 +118,9 @@ class PaginatedQueryResult(BaseModel):
     total_count: int = Field(0)
 
 
-def query_paginated(
+async def query_paginated(
     query: Select,
-    session: Session,
+    session: AsyncSession,
     limit: int = -1,
     offset: int = 0,
     sort: tuple | None = None,
@@ -137,14 +137,14 @@ def query_paginated(
     and `column` is the sqlalch column object.
     """
     paginated: Select = add_pagination(query, limit, offset, sort)
-    results: Sequence[Any] = session.execute(paginated).scalars().all()
-    total_count: int = query_total_count(query, session)
+    results: Sequence[Any] = (await session.execute(paginated)).scalars().all()
+    total_count: int = await query_total_count(query, session)
     return PaginatedQueryResult(items=list(results), total_count=total_count)
 
 
-def query_paginated_no_scalars(
+async def query_paginated_no_scalars(
     query: Select,
-    session: Session,
+    session: AsyncSession,
     limit: int = -1,
     offset: int = 0,
     sort: tuple | None = None,
@@ -154,8 +154,8 @@ def query_paginated_no_scalars(
     to allow custom query results.
     """
     paginated = add_pagination(query, limit, offset, sort)
-    results = session.execute(paginated).all()
-    total_count = query_total_count(query, session)
+    results = (await session.execute(paginated)).all()
+    total_count = await query_total_count(query, session)
     return PaginatedQueryResult(items=list(results), total_count=total_count)
 
 
@@ -176,7 +176,7 @@ def add_pagination(
     return result
 
 
-def query_total_count(query: Select, session: Session) -> int:
+async def query_total_count(query: Select, session: AsyncSession) -> int:
     count_stmt: Select = select(func.count()).select_from(query.alias())
-    total_count: int = session.execute(count_stmt).scalar_one()
+    total_count: int = (await session.execute(count_stmt)).scalar_one()
     return total_count

@@ -10,32 +10,32 @@ from tests.fixtures.internal.types import BasePersistHandler, Link, PersistConte
 
 class ModuleSpec(Spec):
     __link_fields__: ClassVar[set[str]] = {
-        "Created_By_UUID",
-        "Modified_By_UUID",
-        "Module_Manager_1_UUID",
-        "Module_Manager_2_UUID",
+        "created_by_id",
+        "modified_by_id",
+        "module_manager_1_id",
+        "module_manager_2_id",
     }
 
-    Module_ID: int
+    module_id: int
 
     # Sensible defaults for most cases
-    Activated: bool = True
-    Closed: bool = False
-    Successful: bool = False
-    Temporary_Locked: bool = False
+    activated: bool = True
+    closed: bool = False
+    successful: bool = False
+    temporary_locked: bool = False
 
-    Title: str
-    Description: str
-    Module_Manager_1_UUID: Link | None = None
-    Module_Manager_2_UUID: Link | None = None
+    title: str
+    description: str
+    module_manager_1_id: Link | None = None
+    module_manager_2_id: Link | None = None
 
-    Created_Date: datetime | None = None
-    Created_By_UUID: Link | None = None
-    Modified_Date: datetime | None = None
-    Modified_By_UUID: Link | None = None
+    created_date: datetime | None = None
+    created_by_id: Link | None = None
+    modified_date: datetime | None = None
+    modified_by_id: Link | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
-        return self.Module_ID
+        return self.module_id
 
 
 class ModulePrefillHandler(BasePrefillHandler[ModuleSpec]):
@@ -50,18 +50,18 @@ class ModulePersistHandler(BasePersistHandler[ModuleSpec]):
         spec: ModuleSpec = record.spec
         return [
             ModuleTable(
-                Module_ID=spec.Module_ID,
-                Activated=spec.Activated,
-                Closed=spec.Closed,
-                Successful=spec.Successful,
-                Temporary_Locked=spec.Temporary_Locked,
-                Title=spec.Title,
-                Description=spec.Description,
-                Module_Manager_1_UUID=spec.Module_Manager_1_UUID,
-                Module_Manager_2_UUID=spec.Module_Manager_2_UUID,
-                Created_Date=spec.Created_Date,
-                Created_By_UUID=spec.Created_By_UUID,
-                Modified_Date=spec.Modified_Date,
-                Modified_By_UUID=spec.Modified_By_UUID,
+                module_id=spec.module_id,
+                activated=spec.activated,
+                closed=spec.closed,
+                successful=spec.successful,
+                temporary_locked=spec.temporary_locked,
+                title=spec.title,
+                description=spec.description,
+                module_manager_1_id=spec.module_manager_1_id,
+                module_manager_2_id=spec.module_manager_2_id,
+                created_date=spec.created_date,
+                created_by_id=spec.created_by_id,
+                modified_date=spec.modified_date,
+                modified_by_id=spec.modified_by_id,
             ),
         ]
