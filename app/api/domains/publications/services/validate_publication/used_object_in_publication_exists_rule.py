@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -9,29 +9,29 @@ from app.api.domains.publications.services.validate_publication.validate_publica
 
 
 class UsedObjectInPublicationExistsRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
         used_object_types_in_template: set[str] = set()
-        for used_object_code in request.input_data.Publication_Data.used_object_codes:
+        for used_object_code in request.input_data.publication_data.used_object_codes:
             object_type, _ = used_object_code.split("-")
             used_object_types_in_template.add(object_type)
 
-        for object_current in request.input_data.Publication_Data.all_objects:
-            if object_current.get("Object_Type") not in used_object_types_in_template:
+        for object_current in request.input_data.publication_data.all_objects:
+            if object_current.get("object_type") not in used_object_types_in_template:
                 continue
 
-            if object_current.get("Code") not in request.input_data.Publication_Data.used_object_codes:
+            if object_current.get("code") not in request.input_data.publication_data.used_object_codes:
                 errors.append(
                     ValidatePublicationError(
                         rule="used_object_in_publication_exists_rule",
                         object=ValidatePublicationObject(
-                            code=object_current.get("Code"),
-                            object_id=object_current.get("Object_ID"),
-                            object_type=object_current.get("Object_Type"),
-                            title=object_current.get("Title", ""),
+                            code=object_current.get("code"),
+                            object_id=object_current.get("object_id"),
+                            object_type=object_current.get("object_type"),
+                            title=object_current.get("title", ""),
                         ),
-                        messages=[f"Object {object_current.get('Code')} can't be found in publication"],
+                        messages=[f"Object {object_current.get('code')} can't be found in publication"],
                     )
                 )
         return errors

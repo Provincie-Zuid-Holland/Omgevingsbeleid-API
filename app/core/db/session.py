@@ -1,42 +1,44 @@
-import sqlite3
-from collections.abc import Callable
-from contextlib import AbstractContextManager, contextmanager
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
-from sqlalchemy import Engine, create_engine, event, text
-from sqlalchemy.orm import Session
+from sqlalchemy import event, make_url
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 
-SessionFactoryType = Callable[..., AbstractContextManager[Session]]
-
-
-def _enable_sqlite_load_extension(dbapi_connection, connection_record) -> None:
-    if isinstance(dbapi_connection, sqlite3.Connection):
-        dbapi_connection.enable_load_extension(True)
-        dbapi_connection.execute('SELECT load_extension("mod_spatialite")')
-        dbapi_connection.load_extension("mod_spatialite")
+AsyncSessionFactoryType = async_sessionmaker[AsyncSession]
 
 
-def create_db_engine(uri: str, echo: str) -> Engine:
-    engine = create_engine(
-        uri,
+def _enable_aiosqlite_extensions(dbapi_connection, connection_record) -> None:
+    async def load_spatialite(driver_connection) -> None:
+        await driver_connection.enable_load_extension(True)
+        await driver_connection.load_extension("mod_spatialite")
+
+    dbapi_connection.run_async(load_spatialite)
+
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys = ON")
+    cursor.close()
+
+
+def as_async_uri(uri: str) -> str:
+    url = make_url(uri)
+    if url.drivername in ("sqlite", "sqlite+pysqlite"):
+        url = url.set(drivername="sqlite+aiosqlite")
+    return url.render_as_string(hide_password=False)
+
+
+def create_async_db_engine(uri: str, echo: str) -> AsyncEngine:
+    engine: AsyncEngine = create_async_engine(
+        as_async_uri(uri),
         pool_pre_ping=True,
         echo=echo,
     )
     if engine.dialect.name == "sqlite":
-        event.listen(engine, "connect", _enable_sqlite_load_extension)
+        event.listen(engine.sync_engine, "connect", _enable_aiosqlite_extensions)
 
     return engine
 
 
-@contextmanager
-def session_scope_with_context(session_factory: SessionFactoryType):
-    with session_factory() as session:
-        try:
-            # when using SQLite, ensure FK constraints and load Spatialite
-            if session.bind.dialect.name == "sqlite":
-                session.execute(text("PRAGMA foreign_keys = ON"))
-                session.execute(text("SELECT load_extension('mod_spatialite')"))
-            yield session
-            # commit happens automatically when exiting the 'with' block
-        except Exception:
-            session.rollback()
-            raise
+@asynccontextmanager
+async def async_session_scope(session_factory: AsyncSessionFactoryType) -> AsyncGenerator[AsyncSession]:
+    async with session_factory.begin() as session:
+        yield session

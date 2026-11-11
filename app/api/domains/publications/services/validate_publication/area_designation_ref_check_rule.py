@@ -1,7 +1,7 @@
 from dso import Gebiedsaanwijzingen, GebiedsaanwijzingenFactory
 from dso.models import DocumentType
 from dso.services.ow.gebiedsaanwijzingen.types import Gebiedsaanwijzing, GebiedsaanwijzingWaarde
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.act_package.dso_act_input_data_builder import DOCUMENT_TYPE_MAP
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
@@ -17,14 +17,14 @@ class AreaDesignationRefCheckRule(ValidatePublicationRule):
     def __init__(self, dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory):
         self._dso_gebiedsaanwijzingen_factory: GebiedsaanwijzingenFactory = dso_gebiedsaanwijzingen_factory
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
         dso_document_type: DocumentType = DOCUMENT_TYPE_MAP[request.document_type]
         gebiedsaanwijzingen: Gebiedsaanwijzingen | None = self._dso_gebiedsaanwijzingen_factory.get_for_document(
             dso_document_type
         )
 
-        for gebiedsaanwijzing in request.input_data.Publication_Data.gebiedsaanwijzingen.values():
+        for gebiedsaanwijzing in request.input_data.publication_data.gebiedsaanwijzingen.values():
             object_type, object_id = gebiedsaanwijzing.code.split("-", 1)
             ref_type: Gebiedsaanwijzing | None = gebiedsaanwijzingen.get_by_type_label(
                 gebiedsaanwijzing.aanwijzing_type

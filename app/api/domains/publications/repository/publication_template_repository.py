@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import and_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.publications.types.enums import DocumentType
@@ -10,13 +10,13 @@ from app.core.tables.publications import PublicationTemplateTable
 
 
 class PublicationTemplateRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuidx: uuid.UUID) -> PublicationTemplateTable | None:
-        stmt = select(PublicationTemplateTable).where(PublicationTemplateTable.UUID == uuidx)
-        return self.fetch_first(session, stmt)
+    async def get_by_id(self, session: AsyncSession, idx: uuid.UUID) -> PublicationTemplateTable | None:
+        stmt = select(PublicationTemplateTable).where(PublicationTemplateTable.id == idx)
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
+        session: AsyncSession,
         is_active: bool | None,
         document_type: DocumentType | None,
         offset: int = 0,
@@ -24,17 +24,17 @@ class PublicationTemplateRepository(BaseRepository):
     ) -> PaginatedQueryResult:
         filters = []
         if is_active is not None:
-            filters.append(and_(PublicationTemplateTable.Is_Active == is_active))
+            filters.append(and_(PublicationTemplateTable.is_active == is_active))
         if document_type is not None:
-            filters.append(and_(PublicationTemplateTable.Document_Type == document_type.value))
+            filters.append(and_(PublicationTemplateTable.document_type == document_type.value))
 
         stmt = select(PublicationTemplateTable).filter(*filters)
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationTemplateTable.Modified_Date, SortOrder.DESC),
+            sort=(PublicationTemplateTable.modified_date, SortOrder.DESC),
         )
         return paged_result

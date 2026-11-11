@@ -1,16 +1,14 @@
+import asyncio
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from geoalchemy2 import alembic_helpers
+from sqlalchemy import Connection, pool
+from sqlalchemy.ext.asyncio import async_engine_from_config
 
+import app.main  # noqa: F401
 from alembic import context
-
-# We need these to load all sqlalchemy tables
-from app.core import settings
-from app.main import app  ## noqa
-from app.core.db import table_metadata  ## noqa
-from app.core.settings import Settings  ## noqa
-
+from app.core.db.base import Base
+from app.core.settings import Settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,7 +23,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = table_metadata
+target_metadata = Base.metadata
+
+
+config.set_main_option("sqlalchemy.url", Settings().SQLALCHEMY_DATABASE_URI.replace("%", "%%"))
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -45,12 +46,11 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    # url = config.get_main_option("sqlalchemy.url")
-    settings = Settings()
-    uri = settings.SQLALCHEMY_DATABASE_URI
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=uri,
+        url=url,
         target_metadata=target_metadata,
+        include_object=alembic_helpers.include_object,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -59,30 +59,35 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-    # overwrite alembic.ini connection string with app settings URI
-    settings = Settings()
-    uri = settings.SQLALCHEMY_DATABASE_URI
-    conn = config.get_section(config.config_ini_section)
-    conn["sqlalchemy.url"] = uri
-
-    connectable = engine_from_config(
-        conn,
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
+def do_run_migrations(connection: Connection) -> None:
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        include_object=alembic_helpers.include_object,
     )
 
-    with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+    with context.begin_transaction():
+        context.run_migrations()
 
-        with context.begin_transaction():
-            context.run_migrations()
+
+async def run_async_migrations() -> None:
+    connectable = async_engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+        # PostGIS adds its tiger/topology schemas to the search_path; SQLAlchemy would reflect them as ours
+        connect_args={"options": "-csearch_path=public"},
+    )
+
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations)
+
+    await connectable.dispose()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode."""
+    asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():

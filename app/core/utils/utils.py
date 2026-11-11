@@ -4,6 +4,7 @@ from datetime import UTC, date, datetime
 from typing import Any
 
 from shapely import wkt
+from sqlalchemy import inspect
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
@@ -18,6 +19,9 @@ DATETIME_MIN = datetime(2010, 1, 1, tzinfo=UTC)
 def table_to_dict(object_table) -> dict:
     object_dict = dict(object_table.__dict__)
     object_dict.pop("_sa_instance_state", None)
+    # Eager loaded relationships also live in __dict__, but only the column values belong here
+    for relationship in inspect(object_table).mapper.relationships:
+        object_dict.pop(relationship.key, None)
     return object_dict
 
 

@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.repository.publication_object_repository import (
     PUBLICATION_BASE_FIELDS,
@@ -17,19 +17,19 @@ class PublicationObjectProvider:
         self._publication_object_repository: PublicationObjectRepository = publication_object_repository
         self._object_field_mapping_provider: ObjectFieldMappingProvider = object_field_mapping_provider
 
-    def get_objects(
+    async def get_objects(
         self,
-        session: Session,
+        session: AsyncSession,
         publication_version: PublicationVersionTable,
     ) -> list[dict]:
-        template: PublicationTemplateTable = publication_version.Publication.Template
-        object_field_map: dict[str, list[str]] = template.Object_Field_Map or {}
+        template: PublicationTemplateTable = publication_version.publication.template
+        object_field_map: dict[str, list[str]] = template.object_field_map or {}
         requested_fields: set[str] = {field for field_list in object_field_map.values() for field in field_list}
-        objects: list[dict] = self._publication_object_repository.fetch_objects(
+        objects: list[dict] = await self._publication_object_repository.fetch_objects(
             session,
-            publication_version.Publication.Module_ID,
-            publication_version.Module_Status.Created_Date,
-            template.Object_Types,
+            publication_version.publication.module_id,
+            publication_version.module_status.created_date,
+            template.object_types,
             list(requested_fields),
         )
 
@@ -42,9 +42,9 @@ class PublicationObjectProvider:
 
         result: list[dict] = []
         for obj in objects:
-            obj_type: str = obj["Object_Type"]
+            obj_type: str = obj["object_type"]
             type_specific_fields: set[str] = set(object_field_map.get(obj_type, []))
-            allowed_fields: set[str] = PUBLICATION_BASE_FIELDS | {"Module_ID"} | type_specific_fields
+            allowed_fields: set[str] = PUBLICATION_BASE_FIELDS | {"module_id"} | type_specific_fields
 
             # @NOTE: I'm not sure anymore why we keep fields with underscores here
             cleaned: dict = {

@@ -6,7 +6,8 @@ from typing import Annotated, Any
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -51,7 +52,7 @@ def _get_validities(
     end_validity: datetime | None = None
 
     # If the object action is "Terminate" then we set the default end_validity to now
-    if module_object_context and module_object_context.Action == ModuleObjectAction.Terminate:
+    if module_object_context and module_object_context.action == ModuleObjectAction.Terminate:
         end_validity = start_validity
 
     return ObjectValidities(
@@ -60,17 +61,17 @@ def _get_validities(
     )
 
 
-def _create_objects(
-    session: Session,
+async def _create_objects(
+    session: AsyncSession,
     module_object_repository: ModuleObjectRepository,
     user: UsersTable,
     module: ModuleTable,
     object_in: CompleteModule,
     timepoint: datetime,
 ) -> None:
-    module_objects: list[ModuleObjectsTable] = module_object_repository.get_objects_in_time(
+    module_objects: list[ModuleObjectsTable] = await module_object_repository.get_objects_in_time(
         session,
-        module.Module_ID,
+        module.module_id,
         timepoint,
     )
 
@@ -80,37 +81,37 @@ def _create_objects(
 
         # Copy module object into the new object
         for key, value in module_object_dict.items():
-            if key in ["Module_ID"]:
+            if key in ["module_id"]:
                 continue
             setattr(new_object, key, copy(value))
 
-        new_object.Adjust_On = module_object_dict["UUID"]
-        new_object.UUID = uuid.uuid4()
+        new_object.adjust_on = module_object_dict["id"]
+        new_object.id = uuid.uuid4()
 
-        new_object.Modified_By_UUID = user.UUID
-        new_object.Modified_Date = timepoint
+        new_object.modified_by_id = user.id
+        new_object.modified_date = timepoint
 
         validities: ObjectValidities = _get_validities(
             object_in,
-            module_object_table.ModuleObjectContext,
+            module_object_table.module_object_context,
             timepoint,
         )
-        new_object.Start_Validity = validities.start
-        new_object.End_Validity = validities.end
+        new_object.start_validity = validities.start
+        new_object.end_validity = validities.end
 
         statics: ObjectStaticsTable = (
-            session.query(ObjectStaticsTable).filter(ObjectStaticsTable.Code == new_object.Code).one()
-        )
-        statics.Cached_Title = new_object.Title
+            await session.scalars(select(ObjectStaticsTable).filter(ObjectStaticsTable.code == new_object.code))
+        ).one()
+        statics.cached_title = new_object.title
         session.add(new_object)
         session.add(statics)
 
 
 @inject
-def post_complete_module_endpoint(
+async def post_complete_module_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
@@ -120,35 +121,29 @@ def post_complete_module_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_activate_module,
         user,
-        [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
+        [module.module_manager_1_id, module.module_manager_2_id],
     )
     guard_module_is_locked(module)
-    _guard_status_vastgesteld(module.Current_Status)
+    _guard_status_vastgesteld(module.current_status)
 
     timepoint: datetime = datetime.now(UTC)
 
-    try:
-        status = ModuleStatusHistoryTable(
-            Module_ID=module.Module_ID,
-            Status=ModuleStatusCodeInternal.Module_afgerond,
-            Created_Date=timepoint,
-            Created_By_UUID=user.UUID,
-        )
-        session.add(status)
+    module_status = ModuleStatusHistoryTable(
+        module_id=module.module_id,
+        status=ModuleStatusCodeInternal.Module_afgerond,
+        created_date=timepoint,
+        created_by_id=user.id,
+    )
+    session.add(module_status)
 
-        _create_objects(session, module_object_repository, user, module, object_in, timepoint)
+    await _create_objects(session, module_object_repository, user, module, object_in, timepoint)
 
-        module.Closed = True
-        module.Successful = True
-        module.Modified_By_UUID = user.UUID
-        module.Modified_Date = timepoint
-        session.add(module)
+    module.closed = True
+    module.successful = True
+    module.modified_by_id = user.id
+    module.modified_date = timepoint
+    session.add(module)
 
-        session.flush()
-        session.commit()
-
-    except Exception:
-        session.rollback()
-        raise
+    await session.commit()
 
     return ResponseOK(message="OK")

@@ -4,7 +4,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -16,8 +16,8 @@ from app.core.tables.werkingsgebieden import InputGeoWerkingsgebiedenTable
 
 
 @inject
-def get_input_geo_werkingsgebieden_history_endpoint(
-    session: Annotated[Session, Depends(depends_db_session)],
+async def get_input_geo_werkingsgebieden_history_endpoint(
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[
         InputGeoWerkingsgebiedenRepository, Depends(Provide[ApiContainer.input_geo_werkingsgebieden_repository])
     ],
@@ -30,7 +30,7 @@ def get_input_geo_werkingsgebieden_history_endpoint(
     Shows all versions of a werkingsgebied with the same title from the external
     InputGeo tables.
     """
-    werkingsgebieden: Sequence[InputGeoWerkingsgebiedenTable] = repository.get_by_title_paginated(
+    werkingsgebieden: Sequence[InputGeoWerkingsgebiedenTable] = await repository.get_by_title_paginated(
         session,
         title,
         from_date,

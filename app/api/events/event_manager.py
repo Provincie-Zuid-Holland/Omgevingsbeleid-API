@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .types import ApiEvent, ApiListener
 
@@ -31,13 +31,13 @@ class ApiEventManager[ApiEventType: ApiEvent]:
     ):
         self._event_listeners: ApiEventListeners = event_listeners
 
-    def dispatch(self, session: Session, event: ApiEventType) -> ApiEventType:
+    async def dispatch(self, session: AsyncSession, event: ApiEventType) -> ApiEventType:
         listeners: list[ApiListener] = self._event_listeners.get_listeners(event)
         if not listeners:
             return event
 
         for listener in listeners:
-            response = listener.handle_event(session, event)
+            response = await listener.handle_event(session, event)
             if response is not None:
                 event = response
 

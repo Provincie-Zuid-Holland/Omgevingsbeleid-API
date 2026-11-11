@@ -5,7 +5,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 from pydantic_core import ErrorDetails
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -20,23 +20,23 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationVersionEdit(BaseModel):
-    Module_Status_ID: int | None = None
-    Effective_Date: date | None = None
-    Announcement_Date: date | None = None
-    Mutation_Strategy: MutationStrategy | None = None
+    module_status_id: int | None = None
+    effective_date: date | None = None
+    announcement_date: date | None = None
+    mutation_strategy: MutationStrategy | None = None
 
-    Bill_Metadata: BillMetadata | None = None
-    Bill_Compact: BillCompact | None = None
-    Procedural: ProceduralClass | None = None
+    bill_metadata: BillMetadata | None = None
+    bill_compact: BillCompact | None = None
+    procedural: ProceduralClass | None = None
 
 
 class PublicationVersionEditResponse(BaseModel):
-    Errors: list[ErrorDetails]
-    Is_Valid: bool
+    errors: list[ErrorDetails]
+    is_valid: bool
 
 
 @inject
-def post_edit_version_endpoint(
+async def post_edit_version_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -47,7 +47,7 @@ def post_edit_version_endpoint(
     ],
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     validator: Annotated[PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: PublicationVersionEdit,
 ) -> PublicationVersionEditResponse:
     _guard_locked(version)
@@ -61,24 +61,24 @@ def post_edit_version_endpoint(
             value = value.model_dump()
         setattr(version, key, value)
 
-    version.Modified_By_UUID = user.UUID
-    version.Modified_Date = datetime.now(UTC)
+    version.modified_by_id = user.id
+    version.modified_date = datetime.now(UTC)
 
     session.add(version)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     errors: list[ErrorDetails] = validator.get_errors(version)
     is_valid: bool = len(errors) == 0
 
     return PublicationVersionEditResponse(
-        Errors=errors,
-        Is_Valid=is_valid,
+        errors=errors,
+        is_valid=is_valid,
     )
 
 
 def _guard_locked(version: PublicationVersionTable):
-    if not version.Publication.Module.is_active:
+    if not version.publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
-    if not version.Publication.Act.Is_Active:
+    if not version.publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")

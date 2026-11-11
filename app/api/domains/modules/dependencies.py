@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -16,79 +16,83 @@ from app.core.tables.modules import ModuleObjectContextTable, ModuleObjectsTable
 
 
 @inject
-def depends_module(
+async def depends_module(
     module_id: int,
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     module_repository: Annotated[ModuleRepository, Depends(Provide[ApiContainer.module_repository])],
 ) -> ModuleTable:
-    maybe_module: ModuleTable | None = module_repository.get_by_id(session, module_id)
+    maybe_module: ModuleTable | None = await module_repository.get_by_id(session, module_id)
     if not maybe_module:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module niet gevonden")
     return maybe_module
 
 
-def depends_active_module(
+async def depends_active_module(
     module: Annotated[ModuleTable, Depends(depends_module)],
 ) -> ModuleTable:
-    if module.Closed:
+    if module.closed:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "De module is gesloten")
     return module
 
 
-def depends_active_and_activated_module(
+async def depends_active_and_activated_module(
     module: Annotated[ModuleTable, Depends(depends_active_module)],
 ) -> ModuleTable:
-    if not module.Activated:
+    if not module.activated:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "De module is nog niet actief")
     return module
 
 
 @inject
-def depends_module_object_latest_by_id(
+async def depends_module_object_latest_by_id(
     module_id: int,
     object_type: str,
     lineage_id: int,
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])],
 ) -> ModuleObjectsTable:
-    maybe_object: ModuleObjectsTable | None = repository.get_latest_by_id(session, module_id, object_type, lineage_id)
+    maybe_object: ModuleObjectsTable | None = await repository.get_latest_by_id(
+        session, module_id, object_type, lineage_id
+    )
     if not maybe_object:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module object niet gevonden")
     return maybe_object
 
 
 @inject
-def depends_active_module_object_context(
+async def depends_active_module_object_context(
     module_id: int,
     object_type: str,
     lineage_id: int,
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[
         ModuleObjectContextRepository, Depends(Provide[ApiContainer.module_object_context_repository])
     ],
 ) -> ModuleObjectContextTable:
-    maybe_context: ModuleObjectContextTable | None = repository.get_by_ids(session, module_id, object_type, lineage_id)
+    maybe_context: ModuleObjectContextTable | None = await repository.get_by_ids(
+        session, module_id, object_type, lineage_id
+    )
     if not maybe_context:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object context niet gevonden")
-    if maybe_context.Hidden:
+    if maybe_context.hidden:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Object context is verwijderd")
     return maybe_context
 
 
 @inject
-def depends_module_status_by_id(
+async def depends_module_status_by_id(
     status_id: int,
     module: Annotated[ModuleTable, Depends(depends_module)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])],
 ) -> ModuleStatusHistoryTable:
-    maybe_status: ModuleStatusHistoryTable | None = repository.get_by_id(session, module.Module_ID, status_id)
+    maybe_status: ModuleStatusHistoryTable | None = await repository.get_by_id(session, module.module_id, status_id)
     if not maybe_status:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Module status niet gevonden")
     return maybe_status
 
 
-def depends_optional_module_sorted_pagination(
+async def depends_optional_module_sorted_pagination(
     offset: int | None = None,
     limit: int | None = None,
     sort_column: ModuleSortColumn | None = None,

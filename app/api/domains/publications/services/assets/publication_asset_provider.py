@@ -4,7 +4,7 @@ import uuid
 from collections.abc import Sequence
 
 from bs4 import BeautifulSoup
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.domains.publications.services.assets.asset_remove_transparency import AssetRemoveTransparency
@@ -22,28 +22,29 @@ class PublicationAssetProvider:
         self._asset_repository: AssetRepository = asset_repository
         self._asset_remove_transparency: AssetRemoveTransparency = asset_remove_transparency
 
-    def get_assets(self, session: Session, objects: list[dict]) -> list[dict]:
-        asset_uuids: list[uuid.UUID] = self._calculate_asset_uuids(objects)
-        dso_assets: list[dict] = self.get_assets_by_uuids(session, asset_uuids)
-
-        return dso_assets
-
-    def get_assets_by_uuids(self, session: Session, uuids: list[uuid.UUID]) -> list[dict]:
-        assets: Sequence[AssetsTable] = self._asset_repository.get_by_uuids(session, uuids)
+    async def get_assets(self, session: AsyncSession, objects: list[dict]) -> list[dict]:
+        asset_ids: list[uuid.UUID] = self._calculate_asset_ids(objects)
+        assets: Sequence[AssetsTable] = await self._asset_repository.get_by_ids(session, asset_ids)
         dso_assets: list[dict] = self._as_dso_assets(assets)
 
         return dso_assets
 
-    def _calculate_asset_uuids(self, objects: list[dict]) -> list[uuid.UUID]:
-        asset_uuids: set[uuid.UUID] = set()
+    async def get_assets_by_ids(self, session: AsyncSession, ids: list[uuid.UUID]) -> list[dict]:
+        assets: Sequence[AssetsTable] = await self._asset_repository.get_by_ids(session, ids)
+        dso_assets: list[dict] = self._as_dso_assets(assets)
+
+        return dso_assets
+
+    def _calculate_asset_ids(self, objects: list[dict]) -> list[uuid.UUID]:
+        asset_ids: set[uuid.UUID] = set()
 
         # @todo: should be provided somewhere
         asset_fields = [
-            "Description",
-            "Cause",
-            "Provincial_Interest",
-            "Explanation",
-            "Effect",
+            "description",
+            "cause",
+            "provincial_interest",
+            "explanation",
+            "effect",
         ]
 
         for o in objects:
@@ -55,26 +56,26 @@ class PublicationAssetProvider:
                 soup = BeautifulSoup(value, "html.parser")
                 for img in soup.find_all("img", src=asset_re):
                     try:
-                        asset_uuid = uuid.UUID(img["src"].split(":")[1][:-1])
-                        asset_uuids.add(asset_uuid)
+                        asset_id = uuid.UUID(img["src"].split(":")[1][:-1])
+                        asset_ids.add(asset_id)
                     except ValueError:
                         continue
 
-        return list(asset_uuids)
+        return list(asset_ids)
 
     def _as_dso_assets(self, assets: Sequence[AssetsTable]) -> list[dict]:
         dso_assets: list[dict] = []
 
         for asset in assets:
-            content = asset.Content
-            meta = json.loads(asset.Meta)
+            content = asset.content
+            meta = json.loads(asset.meta)
             content, meta = self._asset_remove_transparency.fix(content, meta)
 
             asset_dict = {
-                "UUID": str(asset.UUID),
-                "Created_Date": str(asset.Created_Date),
-                "Meta": meta,
-                "Content": content,
+                "id": str(asset.id),
+                "created_date": str(asset.created_date),
+                "meta": meta,
+                "content": content,
             }
             dso_assets.append(asset_dict)
 

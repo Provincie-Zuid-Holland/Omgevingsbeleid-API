@@ -15,14 +15,14 @@ from tests.fixtures.internal.types import (
 
 
 class InputGeoWerkingsgebiedenSpec(Spec):
-    UUID: uuid.UUID | None = None
-    Title: str
-    Description: str = ""
-    Created_Date: datetime | None = None
+    id: uuid.UUID | None = None
+    title: str
+    description: str = ""
+    created_date: datetime | None = None
 
     def get_table_primary_key(self) -> PrimaryKey:
-        assert self.UUID, "UUID is not set which is expected to happen at this stage."
-        return self.UUID
+        assert self.id, "id is not set which is expected to happen at this stage."
+        return self.id
 
 
 class InputGeoWerkingsgebiedenPrefillHandler(BasePrefillHandler[InputGeoWerkingsgebiedenSpec]):
@@ -31,8 +31,8 @@ class InputGeoWerkingsgebiedenPrefillHandler(BasePrefillHandler[InputGeoWerkings
     ) -> Record[InputGeoWerkingsgebiedenSpec]:
         record = super().fill(record, context)
 
-        if record.spec.UUID is None:
-            record.spec.UUID = uuid.uuid4()
+        if record.spec.id is None:
+            record.spec.id = uuid.uuid4()
 
         return record
 
@@ -42,9 +42,9 @@ class InputGeoWerkingsgebiedenPersistHandler(BasePersistHandler[InputGeoWerkings
         spec: InputGeoWerkingsgebiedenSpec = record.spec
         return [
             InputGeoWerkingsgebiedenTable(
-                UUID=spec.UUID,
-                Created_Date=spec.Created_Date,
-                Title=spec.Title,
-                Description=spec.Description,
+                id=spec.id,
+                created_date=spec.created_date,
+                title=spec.title,
+                description=spec.description,
             )
         ]

@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session, depends_optional_sorted_pagination
@@ -19,17 +19,17 @@ class ListUsersEndpointContext(BaseEndpointContext):
 
 
 @inject
-def get_list_users_endpoint(
+async def get_list_users_endpoint(
     optional_pagination: Annotated[OptionalSortedPagination, Depends(depends_optional_sorted_pagination)],
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     context: Annotated[ListUsersEndpointContext, Depends()],
 ) -> PagedResponse[User]:
     sort: Sort = context.order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    paginated_result = repository.get_active(session, pagination)
+    paginated_result = await repository.get_active(session, pagination)
     users: list[User] = [User.model_validate(u) for u in paginated_result.items]
 
     return PagedResponse[User](

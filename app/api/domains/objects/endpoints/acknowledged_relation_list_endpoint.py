@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -20,9 +20,9 @@ class AcknowledgedRelationListEndpointContext(BaseEndpointContext):
 
 
 @inject
-def get_acknowledged_relation_list_endpoint(
+async def get_acknowledged_relation_list_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[
         AcknowledgedRelationsRepository, Depends(Provide[ApiContainer.acknowledged_relations_repository])
     ],
@@ -33,7 +33,7 @@ def get_acknowledged_relation_list_endpoint(
     show_inactive: bool = False,
 ) -> list[AcknowledgedRelation]:
     object_code: str = f"{context.object_type}-{lineage_id}"
-    table_rows: Sequence[AcknowledgedRelationsTable] = repository.get_with_filters(
+    table_rows: Sequence[AcknowledgedRelationsTable] = await repository.get_with_filters(
         session=session,
         code=object_code,
         requested_by_me=requested_by_us,

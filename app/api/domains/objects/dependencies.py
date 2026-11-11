@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -11,7 +11,7 @@ from app.api.domains.objects.types import FilterObjectCode
 from app.core.tables.objects import ObjectStaticsTable
 
 
-def depends_filter_object_code(
+async def depends_filter_object_code(
     object_type: str | None = None,
     lineage_id: int | None = None,
 ) -> FilterObjectCode | None:
@@ -30,13 +30,13 @@ def depends_filter_object_code(
 
 
 @inject
-def depends_object_static_by_object_type_and_id(
+async def depends_object_static_by_object_type_and_id(
     object_type: str,
     lineage_id: int,
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])],
 ):
-    maybe_static: ObjectStaticsTable | None = repository.get_by_object_type_and_id(
+    maybe_static: ObjectStaticsTable | None = await repository.get_by_object_type_and_id(
         session,
         object_type,
         lineage_id,

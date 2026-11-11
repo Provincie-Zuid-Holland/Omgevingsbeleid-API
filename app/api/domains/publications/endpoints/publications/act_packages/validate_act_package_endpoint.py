@@ -4,7 +4,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -25,7 +25,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def get_validate_act_package_endpoint(
+async def get_validate_act_package_endpoint(
     publication_version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     publication_version_validator: Annotated[
         PublicationVersionValidator, Depends(Provide[ApiContainer.publication.version_validator])
@@ -41,14 +41,14 @@ def get_validate_act_package_endpoint(
     package_builder_factory: Annotated[
         ActPackageBuilderFactory, Depends(Provide[ApiContainer.publication.act_package_builder_factory])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ):
     errors: list[ErrorDetails] = publication_version_validator.get_errors(publication_version)
     if len(errors) != 0:
         raise HTTPException(status.HTTP_409_CONFLICT, errors)
 
     try:
-        _: ActPackageBuilder = package_builder_factory.create_builder(
+        _: ActPackageBuilder = await package_builder_factory.create_builder(
             session,
             publication_version,
             PackageType.VALIDATION,  # because we're validating, this is always VALIDATION type

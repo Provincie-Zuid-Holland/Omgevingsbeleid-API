@@ -1,119 +1,115 @@
 .DEFAULT_GOAL := help
-default: help;
+
+RUN := uv run
+
 .PHONY: help
-help:
+help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 
-.PHONY: prepare-env
-VENV   := .venv
-PYTHON := $(shell pyenv which python)
+# ---------------------------------------------------------------------------
+# Local development
+# ---------------------------------------------------------------------------
 
-prepare-env:
-	@echo "→ Creating virtualenv at $(VENV)/…"
-	@$(PYTHON) -m venv $(VENV)
-	@echo "→ Activating $(VENV) and upgrading pip…"
-	@. $(VENV)/bin/activate && pip install --upgrade pip
-	@echo "→ Installing runtime dependencies…"
-	@. $(VENV)/bin/activate && pip install -r requirements.txt
-	@echo "→ Installing development dependencies…"
-	@. $(VENV)/bin/activate && pip install -r requirements-dev.txt
-	@echo "✅ Environment ready! Activate with: source $(VENV)/bin/activate"
+.PHONY: run debug
+run: ## Run the API with auto-reload
+	$(RUN) uvicorn app.main:app --reload
+
+debug: ## Run the API in debug mode
+	$(RUN) python -m debugpy --listen localhost:8001 -m uvicorn app.main:app --port 8000 --reload
 
 
-# Commands justs for local env development
-run:
-	uvicorn app.main:app --reload
+# ---------------------------------------------------------------------------
+# Local database
+# ---------------------------------------------------------------------------
 
-debug:
-	python app/main.py localhost 8000 8001
+.PHONY: drop-database init-database load-fixtures reset-test-database
+drop-database: ## Drop the local database
+	$(RUN) python -m app.cmds dropdb
 
-pip-sync:
-	pip install -U "pip<26.1" pip-tools # if we want pip>=26.1 https://github.com/jazzband/pip-tools/pull/2383 needs to be released (in pip tools 7.5.4?)
-	pip-sync requirements.txt requirements-dev.txt
+init-database: ## Create the local database
+	$(RUN) python -m app.cmds initdb
 
-pip-compile:
-	pip install -U "pip<26.1" pip-tools
-	pip-compile requirements.in
-	pip-compile requirements-dev.in
+load-fixtures: ## Load fixtures into the local database
+	$(RUN) python -m app.cmds load-fixtures
 
-pip-upgrade:
-	pip install -U "pip<26.1" pip-tools
-	pip-compile --upgrade requirements.in
-	pip-compile --upgrade requirements-dev.in
+reset-test-database: drop-database init-database load-fixtures ## Drop, create and fill the local database
 
-drop-database:
-	python -m app.cmds dropdb
 
-init-database:
-	python -m app.cmds initdb
+# ---------------------------------------------------------------------------
+# Lint & format
+# ---------------------------------------------------------------------------
 
-load-fixtures:
-	python -m app.cmds load-fixtures
+.PHONY: check check-fix format fix
+check: ## Check lint and formatting without fixing (also used in CI)
+	$(RUN) ruff check ./app/ ./tests/
+	$(RUN) ruff format --check ./app/ ./tests/
 
-reset-test-database: drop-database init-database load-fixtures
+check-fix: ## Fix lint issues found by Ruff
+	$(RUN) ruff check --fix ./app/ ./tests/
 
-check: ## Check without fixing via Ruff Lint
-	python -m ruff check ./app/ ./tests/
-	python -m ruff format --check ./app/ ./tests/
+format: ## Format code with Ruff
+	$(RUN) ruff format ./app/ ./tests/
 
-check-fix: ## Fix issues found by Ruff Lint
-	python -m ruff check --fix ./app/ ./tests/
+fix: check-fix format ## Fix lint issues and format the code
 
-format: ## Format code via Ruff Format
-	python -m ruff format ./app/ ./tests/
 
-fix: check-fix format ## Fix and Format the code via Ruff
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
 
-test:
-	python -m pytest
+.PHONY: test testx testcase testcov
+test: ## Run all tests
+	$(RUN) python -m pytest
 
-testx:
-	python -m pytest -vv -x
+testx: ## Run tests verbose, stop at first failure
+	$(RUN) python -m pytest -vv -x
 
-testcase:
-	python -m pytest -s -vvv -x -k ${case}
+testcase: ## Run tests matching a name: make testcase case=<name>
+	$(RUN) python -m pytest -s -vvv -x -k $(case)
 
-testcov:
-	python -m pytest --cov --cov-report=xml
+testcov: ## Run tests with coverage (XML report)
+	$(RUN) python -m pytest --cov --cov-report=xml
 
-# Ment to test MSSQL
-docker-init: docker-up docker-mssql-create-database-dev docker-alembic-do-upgrade
 
-docker-up: ## Starts the docker services
+# ---------------------------------------------------------------------------
+# Docker
+# ---------------------------------------------------------------------------
+
+.PHONY: docker-init docker-up docker-down docker-restart docker-api \
+	docker-drop-database docker-init-database docker-load-fixtures \
+	docker-alembic-create-revision docker-alembic-show-upgrade docker-alembic-do-upgrade \
+	docker-psql
+docker-init: docker-up docker-alembic-do-upgrade ## Start services and run migrations
+
+docker-up: ## Start the docker services
 	docker compose up -d --build --wait
 
-docker-down: ## Stops the docker services, will also remove volumes and orphans
+docker-down: ## Stop the docker services, also removes volumes and orphans
 	docker compose down -v --remove-orphans
 
-docker-restart: docker-down docker-init
+docker-restart: docker-down docker-init ## Recreate everything from scratch
 
-docker-api: ## Exec into api
+docker-api: ## Open a shell in the api container
 	docker compose exec api /bin/bash
 
-docker-mssql: ## Exec into mssql
-	docker compose exec mssql /bin/bash
-
-docker-mssql-create-database-dev:
-	@docker compose exec mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P Passw0rd -C -i /opt/sql/init-dev.sql
-
-docker-drop-database:
+docker-drop-database: ## Drop the database in docker
 	docker compose exec api python -m app.cmds dropdb
 
-docker-init-database:
+docker-init-database: ## Create the database in docker
 	docker compose exec api python -m app.cmds initdb
 
-docker-alembic-create-revision:
+docker-load-fixtures: ## Load fixtures into the docker database
+	docker compose exec api python -m app.cmds load-fixtures
+
+docker-alembic-create-revision: ## Autogenerate a new Alembic migration
 	docker compose exec api python -m alembic revision --autogenerate
 
-docker-alembic-show-upgrade:
+docker-alembic-show-upgrade: ## Show the SQL for pending migrations
 	docker compose exec api python -m alembic upgrade head --sql
 
-docker-alembic-do-upgrade:
+docker-alembic-do-upgrade: ## Apply pending migrations
 	docker compose exec api python -m alembic upgrade head
 
-docker-mssql-setup-search:
-	docker compose exec api python cmds.py mssql-setup-search-database
-
-docker-load-fixtures:
-	docker compose exec api python -m app.cmds load-fixtures
+docker-psql: ## Open psql in the postgres container
+	docker compose exec -it postgres psql -U omgevingsbeleid omgevingsbeleid

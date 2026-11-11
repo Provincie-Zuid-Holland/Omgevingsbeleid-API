@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.asset_repository import AssetRepository
 from app.api.events.listeners.images.types import ImageMeta
@@ -26,27 +26,27 @@ class StoreImagesConfig(BaseModel):
 class StoreImagesExtractor:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         asset_repository: AssetRepository,
         event: ModuleObjectPatchedEvent,
         config: StoreImagesConfig,
         interested_fields: set[str],
     ):
         self._asset_repository: AssetRepository = asset_repository
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: StoreImagesConfig = config
         self._interested_fields: set[str] = interested_fields
         self._module_object: ModuleObjectsTable = event.payload.new_record
 
-    def process(self) -> ModuleObjectsTable:
+    async def process(self) -> ModuleObjectsTable:
         for field_name in self._interested_fields:
             content: str = getattr(self._module_object, field_name)
-            image_asset: AssetsTable = self._get_or_create_image(content)
-            setattr(self._module_object, field_name, str(image_asset.UUID))
+            image_asset: AssetsTable = await self._get_or_create_image(content)
+            setattr(self._module_object, field_name, str(image_asset.id))
 
         return self._module_object
 
-    def _get_or_create_image(self, image_data) -> AssetsTable:
+    async def _get_or_create_image(self, image_data) -> AssetsTable:
         # Check if the data URL is valid
         match = re.match(r"data:image/(.*?);base64,(.*)", image_data)
         if not match:
@@ -61,7 +61,7 @@ class StoreImagesExtractor:
         # First check if the image already exists
         # if so; then we do not need to parse the image to gain the meta
         image_hash: str = sha256(image_data.encode("utf-8")).hexdigest()
-        image_table: AssetsTable | None = self._asset_repository.get_by_hash_and_content(
+        image_table: AssetsTable | None = await self._asset_repository.get_by_hash_and_content(
             self._session, image_hash, image_data
         )
         if image_table is not None:
@@ -81,14 +81,14 @@ class StoreImagesExtractor:
             height=height,
             size=size,
         )
-        image_table = AssetsTable(
-            UUID=uuid4(),
-            Created_Date=self._module_object.Created_Date,
-            Created_By_UUID=self._module_object.Created_By_UUID,
-            Lookup=image_hash[0:10],
-            Hash=image_hash,
-            Meta=json.dumps(meta.to_dict()),
-            Content=image_data,
+        image_table: AssetsTable = AssetsTable(
+            id=uuid4(),
+            created_date=self._module_object.created_date,
+            created_by_id=self._module_object.created_by_id,
+            lookup=image_hash[0:10],
+            hash=image_hash,
+            meta=json.dumps(meta.to_dict()),
+            content=image_data,
         )
         self._session.add(image_table)
         return image_table
@@ -100,7 +100,7 @@ class StoreImagesExtractorFactory:
 
     def create(
         self,
-        session: Session,
+        session: AsyncSession,
         event: ModuleObjectPatchedEvent,
         config: StoreImagesConfig,
         interested_fields: set[str],
@@ -118,7 +118,9 @@ class StoreImagesListener(ApiListener[ModuleObjectPatchedEvent]):
     def __init__(self, service_factory: StoreImagesExtractorFactory):
         self._service_factory: StoreImagesExtractorFactory = service_factory
 
-    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> ModuleObjectPatchedEvent | None:
+    async def handle_event(
+        self, session: AsyncSession, event: ModuleObjectPatchedEvent
+    ) -> ModuleObjectPatchedEvent | None:
         config: StoreImagesConfig | None = self._collect_config(event.context.request_model)
         if not config:
             return event
@@ -129,7 +131,7 @@ class StoreImagesListener(ApiListener[ModuleObjectPatchedEvent]):
             return event
 
         extractor: StoreImagesExtractor = self._service_factory.create(session, event, config, interested_fields)
-        result_object = extractor.process()
+        result_object = await extractor.process()
 
         event.payload.new_record = result_object
         return event

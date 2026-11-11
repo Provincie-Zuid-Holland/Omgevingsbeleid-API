@@ -21,8 +21,8 @@ class UploadAnnouncementPackageReportEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
-        if "{announcement_package_uuid}" not in builder_data.path:
-            raise RuntimeError("Missing {announcement_package_uuid} argument in path")
+        if "{announcement_package_id}" not in builder_data.path:
+            raise RuntimeError("Missing {announcement_package_id} argument in path")
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,

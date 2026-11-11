@@ -11,90 +11,90 @@ from app.core.tables.publications import PublicationAnnouncementTable, Publicati
 
 @dataclass
 class BillFrbr:
-    Work_Province_ID: str
-    Work_Country: str
-    Work_Date: str
-    Work_Other: str
+    work_province_id: str
+    work_country: str
+    work_date: str
+    work_other: str
 
-    Expression_Language: str
-    Expression_Date: str
-    Expression_Version: int
+    expression_language: str
+    expression_date: str
+    expression_version: int
 
     def get_work(self) -> str:
-        work: str = f"/akn/{self.Work_Country}/bill/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
+        work: str = f"/akn/{self.work_country}/bill/{self.work_province_id}/{self.work_date}/{self.work_other}"
         return work
 
     def get_expression_version(self) -> str:
-        expression: str = f"{self.Expression_Language}@{self.Expression_Date};{self.Expression_Version}"
+        expression: str = f"{self.expression_language}@{self.expression_date};{self.expression_version}"
         return expression
 
 
 @dataclass
 class ActFrbr:
-    Act_ID: int
+    act_id: int
 
-    Work_Province_ID: str
-    Work_Country: str
-    Work_Date: str
-    Work_Other: str
+    work_province_id: str
+    work_country: str
+    work_date: str
+    work_other: str
 
-    Expression_Language: str
-    Expression_Date: str
-    Expression_Version: int
+    expression_language: str
+    expression_date: str
+    expression_version: int
 
     def get_work(self) -> str:
-        work: str = f"/akn/{self.Work_Country}/act/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
+        work: str = f"/akn/{self.work_country}/act/{self.work_province_id}/{self.work_date}/{self.work_other}"
         return work
 
     def get_expression_version(self) -> str:
-        expression: str = f"{self.Expression_Language}@{self.Expression_Date};{self.Expression_Version}"
+        expression: str = f"{self.expression_language}@{self.expression_date};{self.expression_version}"
         return expression
 
     def __repr__(self) -> str:
         return f"""
         ActFrbr(
             Work={self.get_work()},
-            Expression_Version={self.get_expression_version()},
+            expression_version={self.get_expression_version()},
         )
         """
 
 
 @dataclass
 class DocFrbr:
-    Document_Type: str
+    document_type: str
 
-    Work_Province_ID: str
-    Work_Country: str
-    Work_Date: str
-    Work_Other: str
+    work_province_id: str
+    work_country: str
+    work_date: str
+    work_other: str
 
-    Expression_Language: str
-    Expression_Date: str
-    Expression_Version: int
+    expression_language: str
+    expression_date: str
+    expression_version: int
 
     def get_work(self) -> str:
-        work: str = f"/akn/{self.Work_Country}/doc/{self.Work_Province_ID}/{self.Work_Date}/{self.Work_Other}"
+        work: str = f"/akn/{self.work_country}/doc/{self.work_province_id}/{self.work_date}/{self.work_other}"
         return work
 
     def get_expression_version(self) -> str:
-        expression: str = f"{self.Expression_Language}@{self.Expression_Date};{self.Expression_Version}"
+        expression: str = f"{self.expression_language}@{self.expression_date};{self.expression_version}"
         return expression
 
 
 @dataclass
 class Purpose:
-    Purpose_Type: PurposeType
-    Effective_Date: date | None
-    Work_Province_ID: str
-    Work_Date: str
-    Work_Other: str
+    purpose_type: PurposeType
+    effective_date: date | None
+    work_province_id: str
+    work_date: str
+    work_other: str
 
 
 class PublicationGioLocatie(BaseModel):
     code: str  # code of 'gebied' like 'gebied-1'
     title: str
     # Also used in OW as the link from OW to GIO
-    # I think its save to use the area_uuid as its unique for the geometry
+    # I think its save to use the area_id as its unique for the geometry
     # And if we find a match when loading from state, then we will overwrite this
     basisgeo_id: str
     # Used to conclude if we have new version
@@ -131,7 +131,7 @@ class PublicationGio(BaseModel):
 
 
 class PublicationGebiedengroep(BaseModel):
-    uuid: str
+    id: str
     code: str
     title: str
     source_gebieden_codes: set[str]
@@ -139,7 +139,7 @@ class PublicationGebiedengroep(BaseModel):
 
 
 class PublicationGebiedsaanwijzing(BaseModel):
-    uuid: str
+    id: str
     code: str
     title: str  # Used everywhere except the inline html <a>{inline_title}</a>
     aanwijzing_type: str
@@ -177,33 +177,33 @@ class PublicationData:
 
 @dataclass
 class ActMutation:
-    Consolidated_Act_Frbr: ActFrbr
-    Consolidated_Act_Text: str
-    Known_Wid_Map: dict[str, str]
-    Known_Wids: list[str]
-    Removed_Gios: list[dict]
+    consolidated_act_frbr: ActFrbr
+    consolidated_act_text: str
+    known_wid_map: dict[str, str]
+    known_wids: list[str]
+    removed_gios: list[dict]
 
 
 @dataclass
 class ApiActInputData:
-    Bill_Frbr: BillFrbr
-    Act_Frbr: ActFrbr
-    Consolidation_Purpose: Purpose
-    Publication_Data: PublicationData
-    Package_Type: PackageType
-    Publication_Version: PublicationVersionTable
-    Act_Mutation: ActMutation | None
-    Ow_State: str | None
-    Mutation_Strategy: MutationStrategy
+    bill_frbr: BillFrbr
+    act_frbr: ActFrbr
+    consolidation_purpose: Purpose
+    publication_data: PublicationData
+    package_type: PackageType
+    publication_version: PublicationVersionTable
+    act_mutation: ActMutation | None
+    ow_state: str | None
+    mutation_strategy: MutationStrategy
 
 
 @dataclass
 class ApiAnnouncementInputData:
-    Doc_Frbr: DocFrbr
-    About_Bill_Frbr: BillFrbr
-    About_Act_Frbr: ActFrbr
-    Package_Type: PackageType
-    Announcement: PublicationAnnouncementTable
-    Announcement_Metadata: AnnouncementMetadata
-    Announcement_Procedural: AnnouncementProcedural
-    Announcement_Content: AnnouncementContent
+    doc_frbr: DocFrbr
+    about_bill_frbr: BillFrbr
+    about_act_frbr: ActFrbr
+    package_type: PackageType
+    announcement: PublicationAnnouncementTable
+    announcement_metadata: AnnouncementMetadata
+    announcement_procedural: AnnouncementProcedural
+    announcement_content: AnnouncementContent

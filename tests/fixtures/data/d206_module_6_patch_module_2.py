@@ -16,31 +16,31 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 
 def load(col: Collector) -> None:
     with col.with_defaults(
-        Created_Date=datetime(2025, 6, 6, tzinfo=UTC),
-        Modified_Date=datetime(2025, 6, 6, tzinfo=UTC),
-        Created_By_UUID=col.ref(UserSpec, "admin"),
-        Modified_By_UUID=col.ref(UserSpec, "admin"),
-        Module_Manager_1_UUID=col.ref(UserSpec, "admin"),
+        created_date=datetime(2025, 6, 6, tzinfo=UTC),
+        modified_date=datetime(2025, 6, 6, tzinfo=UTC),
+        created_by_id=col.ref(UserSpec, "admin"),
+        modified_by_id=col.ref(UserSpec, "admin"),
+        module_manager_1_id=col.ref(UserSpec, "admin"),
     ):
         col.add(
             ModuleSpec(
                 key="module_6",
-                Module_ID=6,
-                Title="Title of Module 6",
-                Description="Description of Module 6",
+                module_id=6,
+                title="Title of Module 6",
+                description="Description of Module 6",
             )
         )
 
         with col.in_module(6):
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCodeInternal.Niet_Actief,
+                    status=ModuleStatusCodeInternal.Niet_Actief,
                 )
             )
             col.move_at(hours=1)
             col.add(
                 ModuleStatusHistorySpec(
-                    Status=ModuleStatusCode.Ontwerp_GS_Concept,
+                    status=ModuleStatusCode.Ontwerp_GS_Concept,
                 )
             )
 
@@ -50,21 +50,21 @@ def load(col: Collector) -> None:
                     # Created Gebiedengroepen and Gebieden
                     # Which should not be usable by other modules yet
                     ModuleGebiedengroepSpec(
-                        key="mod_6_gebiedengroep_610", Object_ID=610, Title="Gebiedengroep 610 in Module 6"
+                        key="mod_6_gebiedengroep_610", object_id=610, title="Gebiedengroep 610 in Module 6"
                     ),
-                    ModuleGebiedSpec(key="mod_6_gebied_610", Object_ID=610, Title="Gebied 610 in Module 6"),
+                    ModuleGebiedSpec(key="mod_6_gebied_610", object_id=610, title="Gebied 610 in Module 6"),
                     ModuleGebiedsaanwijzingSpec(
-                        key="mod_6_gebiedsaanwijzing_610", Object_ID=610, Title="Gebiedsaanwijzing 610 in Module 6"
+                        key="mod_6_gebiedsaanwijzing_610", object_id=610, title="Gebiedsaanwijzing 610 in Module 6"
                     ),
                     # These 2 objects are added to test resolve of gebiedsaanwijzing.
                     ModuleMaatregelSpec(
                         key="maatregel_6_mod_6",
-                        Object_ID=6,
+                        object_id=6,
                     ),
                     ModuleGebiedSpec(
                         key="nature_west_v1_mod_6",
-                        Object_ID=1,
-                        Area_UUID=col.ref(AreaSpec, "sea_v1"),
+                        object_id=1,
+                        area_id=col.ref(AreaSpec, "sea_v1"),
                     ),
                 ]
             )

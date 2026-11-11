@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.object_repository import ObjectRepository
 from app.api.domains.objects.types import ObjectStatics
@@ -17,18 +17,18 @@ class JoinObjectsService:
     def __init__(
         self,
         object_repository: ObjectRepository,
-        session: Session,
+        session: AsyncSession,
         config: JoinObjectsConfig,
     ):
         self._object_repository: ObjectRepository = object_repository
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: JoinObjectsConfig = config
 
-    def join_objects(self, rows: list[BaseModel]) -> list[BaseModel]:
+    async def join_objects(self, rows: list[BaseModel]) -> list[BaseModel]:
         if len(self._config.object_codes) == 0:
             return rows
 
-        objects: dict[str, BaseModel] = self._fetch_objects()
+        objects: dict[str, BaseModel] = await self._fetch_objects()
 
         result_rows: list[BaseModel] = []
         for row in rows:
@@ -46,11 +46,11 @@ class JoinObjectsService:
 
         return result_rows
 
-    def _fetch_objects(self) -> dict[str, BaseModel]:
-        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(self._config.object_codes))
-        rows = self._session.execute(stmt).scalars().all()
+    async def _fetch_objects(self) -> dict[str, BaseModel]:
+        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.code.in_(self._config.object_codes))
+        rows = (await self._session.execute(stmt)).scalars().all()
 
-        return {r.Code: ObjectStatics.model_validate(r) for r in rows}
+        return {r.code: ObjectStatics.model_validate(r) for r in rows}
 
 
 class JoinObjectsServiceFactory:
@@ -59,7 +59,7 @@ class JoinObjectsServiceFactory:
 
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinObjectsConfig,
     ) -> JoinObjectsService:
         return JoinObjectsService(
