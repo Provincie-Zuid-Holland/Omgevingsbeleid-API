@@ -19,7 +19,7 @@ def init_logging() -> None:
 
     # Set Azure (and also Application Insights) logging level
     azure_logging_level: str = os.getenv("AZURE_LOGGING_LEVEL", "30")  # 30 = warning
-    logging.getLogger("azure").setLevel(azure_logging_level)
+    logging.getLogger("azure").setLevel(int(azure_logging_level))
 
     applicationinsights_connection_string: str = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "")
     if applicationinsights_connection_string:
