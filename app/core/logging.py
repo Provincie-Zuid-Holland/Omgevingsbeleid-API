@@ -17,6 +17,10 @@ def init_logging() -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
 
+    # Set Azure (and also Application Insights) logging level
+    azure_logging_level: str = os.getenv("AZURE_LOGGING_LEVEL", "30")  # 30 = warning
+    logging.getLogger("azure").setLevel(azure_logging_level)
+
     applicationinsights_connection_string: str = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "")
     if applicationinsights_connection_string:
         configure_azure_monitor(logger_name=logger_name, instrumentation_options={"fastapi": {"enabled": True}})
