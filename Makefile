@@ -7,7 +7,7 @@ help:
 
 .PHONY: prepare-env
 VENV   := .venv
-PYTHON := $(shell pyenv which python)
+PYTHON := $(shell command -v pyenv >/dev/null 2>&1 && pyenv which python || command -v python3)
 
 prepare-env:
 	@echo "→ Creating virtualenv at $(VENV)/…"
