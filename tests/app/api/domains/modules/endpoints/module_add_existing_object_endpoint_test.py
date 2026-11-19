@@ -169,7 +169,7 @@ def test_inaccessible_module_returns_404(admin: TestClient, ctx: Context, module
     "client_fixture, expected_status, expected_detail",
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
-        pytest.param("viewer", 401, "Invalid user role", id="role-without-permission"),
+        pytest.param("viewer", 403, "Invalid user role", id="role-without-permission"),
         pytest.param("ambtenaar", 200, None, id="role-with-permission"),
         pytest.param("admin", 200, None, id="user-with-permission"),
     ],

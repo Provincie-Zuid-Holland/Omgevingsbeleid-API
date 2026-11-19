@@ -82,7 +82,7 @@ def test_unknown_module_returns_404(admin: TestClient):
     "client_fixture, expected_status, expected_detail",
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
-        pytest.param("ambtenaar", 401, "Invalid user role", id="role-without-permission"),
+        pytest.param("ambtenaar", 403, "Invalid user role", id="role-without-permission"),
         pytest.param("admin", 200, None, id="manager-with-permission"),
     ],
 )

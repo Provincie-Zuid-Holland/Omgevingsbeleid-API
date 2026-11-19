@@ -305,8 +305,8 @@ def test_inaccessible_module_returns_404(admin: TestClient, module_id: int, deta
     "client_fixture, expected_status, expected_detail",
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
-        pytest.param("viewer", 401, "Invalid user role", id="role-without-permission"),
-        pytest.param("ambtenaar", 401, "Invalid user role", id="role-without-permission-and-not-owner"),
+        pytest.param("viewer", 403, "Invalid user role", id="role-without-permission"),
+        pytest.param("ambtenaar", 403, "Invalid user role", id="role-without-permission-and-not-owner"),
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],
 )
@@ -328,7 +328,7 @@ def test_permission_matrix(
     "lineage_id, expected_status",
     [
         pytest.param(510, 200, id="owner-of-the-object"),
-        pytest.param(1, 401, id="not-owner-of-the-object"),
+        pytest.param(1, 403, id="not-owner-of-the-object"),
     ],
 )
 def test_owner_may_patch_without_the_role_permission(owner_1: TestClient, lineage_id: int, expected_status: int):

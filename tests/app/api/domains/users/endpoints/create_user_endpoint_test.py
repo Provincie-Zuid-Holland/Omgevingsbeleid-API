@@ -83,7 +83,7 @@ def test_create_user_duplicate_email(admin: TestClient, session: Session):
         # Cant be done without an account
         pytest.param("client", _payload(Email="anon@pzh.nl"), 401, "Not authenticated", id="unauthenticated"),
         # Ambtenaar lacks `user_can_create_user`.
-        pytest.param("ambtenaar", _payload(Email="forbidden@pzh.nl"), 401, "Invalid user role", id="no_permission"),
+        pytest.param("ambtenaar", _payload(Email="forbidden@pzh.nl"), 403, "Invalid user role", id="no_permission"),
         # "Superuser" is not in the resolver's allowed_roles.
         pytest.param(
             "admin", _payload(Email="wrongrole@pzh.nl", Roles=["Superuser"]), 400, "Invalid Roles", id="disallowed_role"

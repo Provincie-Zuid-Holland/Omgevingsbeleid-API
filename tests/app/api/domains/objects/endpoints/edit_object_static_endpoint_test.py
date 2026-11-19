@@ -91,7 +91,7 @@ def test_empty_owner_2_or_3_is_allowed(admin: TestClient, ctx: Context):
     "client_fixture, expected_status, expected_detail",
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
-        pytest.param("viewer", 401, "Invalid user role", id="role-without-permission"),
+        pytest.param("viewer", 403, "Invalid user role", id="role-without-permission"),
         pytest.param("owner_1", 200, None, id="owner-1-via-whitelist"),
         pytest.param("owner_3", 200, None, id="owner-3-via-whitelist"),
         pytest.param("admin", 200, None, id="role-with-permission"),
