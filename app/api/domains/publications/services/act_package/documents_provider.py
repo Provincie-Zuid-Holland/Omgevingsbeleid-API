@@ -14,8 +14,8 @@ from app.core.tables.others import StorageFileTable
 
 
 class PublicationDocumentsProvider:
-    def __init__(self, file_repostiory: StorageFileRepository):
-        self._file_repostiory: StorageFileRepository = file_repostiory
+    def __init__(self, file_repository: StorageFileRepository):
+        self._file_repository: StorageFileRepository = file_repository
 
     def get_documents(
         self,
@@ -68,7 +68,7 @@ class PublicationDocumentsProvider:
                     ]
                 )
 
-            storage_file: StorageFileTable | None = self._file_repostiory.get_by_uuid(session, file_uuid)
+            storage_file: StorageFileTable | None = self._file_repository.get_by_uuid(session, file_uuid)
             if storage_file is None:
                 raise validation_exception(
                     [
