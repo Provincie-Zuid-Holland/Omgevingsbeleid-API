@@ -138,6 +138,8 @@ fields:
     name: target_codes
     type: list_str
     column: target_codes
+    validators:
+      - id: none_to_default_value
 
   # Statics
   owner_1_id:
