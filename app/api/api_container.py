@@ -127,9 +127,9 @@ class ApiContainer(containers.DeclarativeContainer):
         area_repository=area_repository,
         asset_repository=asset_repository,
         hoofdlijn_repository=hoofdlijn_repository,
+        storage_file_repository=storage_file_repository,
         dso_thema_factory=dso_thema_factory,
         async_model_validators_service=async_model_validators_service,
-        storage_file_repository=storage_file_repository,
     )
 
     html_images_extractor_factory = providers.Factory(

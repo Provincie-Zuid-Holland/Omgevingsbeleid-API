@@ -323,8 +323,8 @@ async def test_inaccessible_module_returns_404(admin: httpx2.AsyncClient, module
     "client_fixture, expected_status, expected_detail",
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
-        pytest.param("viewer", 401, "Invalid user role", id="role-without-permission"),
-        pytest.param("manager_of_module_4", 401, "Invalid user role", id="role-without-permission-and-not-owner"),
+        pytest.param("viewer", 403, "Invalid user role", id="role-without-permission"),
+        pytest.param("manager_of_module_4", 403, "Invalid user role", id="role-without-permission-and-not-owner"),
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],
 )
@@ -348,7 +348,7 @@ async def test_permission_matrix(
     "lineage_id, expected_status",
     [
         pytest.param(510, 200, id="owner-of-the-object"),
-        pytest.param(1, 401, id="not-owner-of-the-object"),
+        pytest.param(1, 403, id="not-owner-of-the-object"),
     ],
 )
 async def test_owner_may_patch_without_the_role_permission(

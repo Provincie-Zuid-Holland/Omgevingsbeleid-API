@@ -14,8 +14,8 @@ from app.core.tables.others import StorageFileTable
 
 
 class PublicationDocumentsProvider:
-    def __init__(self, file_repostiory: StorageFileRepository):
-        self._file_repostiory: StorageFileRepository = file_repostiory
+    def __init__(self, file_repository: StorageFileRepository):
+        self._file_repository: StorageFileRepository = file_repository
 
     async def get_documents(
         self,
@@ -68,7 +68,7 @@ class PublicationDocumentsProvider:
                     ]
                 )
 
-            storage_file: StorageFileTable | None = await self._file_repostiory.get_with_binary(session, file_id)
+            storage_file: StorageFileTable | None = await self._file_repository.get_with_binary(session, file_id)
             if storage_file is None:
                 raise validation_exception(
                     [

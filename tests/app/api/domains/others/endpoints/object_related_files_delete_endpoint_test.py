@@ -36,7 +36,7 @@ async def test_unknown_uuid_returns_404(admin: httpx2.AsyncClient):
     "client_fixture, expected_status, expected_detail",
     [
         pytest.param("client", 401, "Not authenticated", id="unauthenticated"),
-        pytest.param("ambtenaar", 401, "Invalid user role", id="role-without-permission"),
+        pytest.param("ambtenaar", 403, "Invalid user role", id="role-without-permission"),
         pytest.param("owner_1", 200, None, id="owner-via-whitelist"),
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],

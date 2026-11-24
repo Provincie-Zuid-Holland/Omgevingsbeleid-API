@@ -111,7 +111,7 @@ async def test_edit_user_same_email_is_allowed(admin: httpx2.AsyncClient, target
         # Cant be done without an account.
         pytest.param("client", True, {"name": "X"}, 401, "Not authenticated", id="unauthenticated"),
         # Ambtenaar lacks `user_can_edit_user`.
-        pytest.param("ambtenaar", True, {"name": "X"}, 401, "Invalid user role", id="no_permission"),
+        pytest.param("ambtenaar", True, {"name": "X"}, 403, "Invalid user role", id="no_permission"),
         # An empty body has nothing to change.
         pytest.param("admin", True, {}, 400, "Nothing to update", id="nothing_to_update"),
         # Editing a user that does not exist.

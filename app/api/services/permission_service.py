@@ -32,13 +32,13 @@ class PermissionService:
         whitelisted_ids: list[uuid.UUID | None] | None = None,
     ):
         if user is None or user.id is None:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user role")
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User is not logged in")
 
         if whitelisted_ids and user.id in whitelisted_ids:
             return
 
         if not self.has_permission(permission, user):
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid user role")
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Invalid user role")
 
     def get_known_permissions(self) -> set[str]:
         return set(self._permissions_per_role.keys())
