@@ -134,6 +134,10 @@ fields:
     column: themas
     validators:
       - id: none_to_default_value
+  target_codes:
+    name: Target_Codes
+    type: list_str
+    column: target_codes
 
   # Statics
   owner_1_uuid:
@@ -200,6 +204,7 @@ models:
       end_validity:
       themas:
       hoofdlijnen:
+      target_codes:
     dependency_model_ids:
       - user_short
     services:
@@ -236,6 +241,7 @@ models:
       end_validity:
       themas:
       hoofdlijnen:
+      target_codes:
     dependency_model_ids:
       - user_short
       - wettelijke_taak_minimal
@@ -319,6 +325,13 @@ models:
         optional: true
       hoofdlijnen:
         optional: true
+      target_codes:
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - maatregel
+          - id: object_codes_valid_for_module
     services:
       extract_assets:
         fields:
@@ -395,3 +408,12 @@ models:
             data:
               min: 3
           - id: html
+      target_codes:
+        optional: false
+        validators:
+          - id: object_codes_allowed_type
+            data:
+              allowed_object_types:
+                - maatregel
+          - id: object_codes_exists
+          - id: not_empty
