@@ -123,6 +123,7 @@ class ApiContainer(containers.DeclarativeContainer):
         area_repository=area_repository,
         asset_repository=asset_repository,
         hoofdlijn_repository=hoofdlijn_repository,
+        storage_file_repository=storage_file_repository,
         dso_thema_factory=dso_thema_factory,
     )
 
