@@ -876,6 +876,8 @@ users_permissions:
     - module_can_add_new_object_to_module
     - module_can_add_existing_object_to_module
     - module_can_edit_module_object_context
+    # storage file
+    - storage_file_can_upload_files
   "Regisseur Omgevingsbeleid":
     # Atemporal Object
     - atemporal_can_create_object
