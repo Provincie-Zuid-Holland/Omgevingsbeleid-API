@@ -210,6 +210,9 @@ models:
     dependency_model_ids:
       - user_short
     services:
+      join_objects:
+        to_field: Target_Maatregelen
+        from_field: Target_Codes
       foreign_keys_extender:
         fields_map:
           - to_field: Created_By
@@ -249,6 +252,9 @@ models:
       - wettelijke_taak_minimal
       - maatregel_minimal
     services:
+      join_objects:
+        to_field: Target_Maatregelen
+        from_field: Target_Codes
       next_object_version:
         to_field: Next_Version
       public_revisions:
