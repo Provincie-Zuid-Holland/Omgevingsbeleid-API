@@ -19,6 +19,7 @@ from app.api.domains.publications.services.validate_publication import (
     HoofdlijnenCheckRule,
     ReferencedGebiedengroepCodeExistsRule,
     RequiredObjectFieldsRule,
+    TargetedObjectExistsRule,
     ThemasCheckRule,
     UsedObjectInPublicationExistsRule,
     UsedObjectsInPublicationExistInTemplateRule,
@@ -204,6 +205,10 @@ class PublicationContainer(containers.DeclarativeContainer):
                 ThemasCheckRule,
                 main_config=main_config,
                 dso_thema_factory=dso_thema_factory,
+            ),
+            providers.Singleton(
+                TargetedObjectExistsRule,
+                main_config=main_config,
             ),
         ),
     )
