@@ -137,6 +137,9 @@ validate_rules:
         verplicht_programma: verplicht_programma_module_validate
         programma_algemeen: programma_module_validate
         beleidsdoel: beleidsdoel_module_validate
+    targeted_object_exists:
+      targets:
+        verplicht_programma: Target_Codes
     themas_check:
       field: Themas
 

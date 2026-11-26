@@ -9,6 +9,7 @@ from .gio_unique_rule import GioUniqueRule
 from .hoofdlijnen_check_rule import HoofdlijnenCheckRule
 from .referenced_gebiedengroep_code_exists_rule import ReferencedGebiedengroepCodeExistsRule
 from .required_object_fields_rule import RequiredObjectFieldsRule
+from .targeted_object_exists_rule import TargetedObjectExistsRule, TargetedObjectExistsRuleConfig
 from .themas_check_rule import ThemasCheckRule, ThemasCheckRuleConfig
 from .used_object_in_publication_exists_rule import UsedObjectInPublicationExistsRule
 from .used_object_type_exists_rule import UsedObjectTypeExistsRule
