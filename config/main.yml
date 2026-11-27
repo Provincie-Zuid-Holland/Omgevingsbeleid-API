@@ -75,7 +75,6 @@ validate_rules:
         - beleidsdoel
         - beleidskeuze
         - maatregel
-        - verplicht_programma
     newest_input_geo_onderverdeling_used:
       object_type: gebied
       field: area_id
@@ -87,7 +86,6 @@ validate_rules:
       beleidskeuze: beleidskeuze_module_validate
       document: document_module_validate
       maatregel: maatregel_module_validate
-      verplicht_programma: verplicht_programma_module_validate
       programma_algemeen: programma_module_validate
       visie_algemeen: visie_algemeen_module_validate
       gebied: gebied_module_validate
@@ -123,7 +121,6 @@ validate_rules:
         - beleidsdoel
         - beleidskeuze
         - maatregel
-        - verplicht_programma
     required_object_fields:
       omgevingsvisie:
         ambitie: ambitie_module_validate
@@ -134,7 +131,6 @@ validate_rules:
       programma:
         document: document_module_validate
         maatregel: maatregel_publication_validate
-        verplicht_programma: verplicht_programma_module_validate
         programma_algemeen: programma_module_validate
         beleidsdoel: beleidsdoel_module_validate
     themas_check:
@@ -251,7 +247,6 @@ api:
                   - beleidsdoel
                   - beleidskeuze
                   - maatregel
-                  - verplicht_programma
               acknowledged_relations:
                 - allowed_object_types:
                   - beleidskeuze
@@ -335,7 +330,6 @@ api:
               - beleidsdoel
               - beleidskeuze
               - maatregel
-              - verplicht_programma
               - beleidsregel
               - gebiedsprogramma
               - visie_algemeen
@@ -352,7 +346,6 @@ api:
               - beleidsdoel
               - beleidskeuze
               - maatregel
-              - verplicht_programma
               - beleidsregel
               - gebiedsprogramma
               - visie_algemeen
@@ -402,7 +395,6 @@ api:
               - beleidskeuze
               - document
               - maatregel
-              - verplicht_programma
               - beleidsregel
               - gebiedsprogramma
               - wettelijke_taak
@@ -837,7 +829,7 @@ columns:
     deserializers: ["optional_uuid"]
     nullable: true
     static: true
-  # Eigenaar 3 
+  # Eigenaar 3
   owner_3_id:
     name: owner_3_id
     type: user_uuid
@@ -1251,7 +1243,7 @@ publication:
           - werkgelegenheid
         jurisdictions:
           - omgevingsrecht
-  
+
   bill_defaults:
     draft_omgevingsvisie:
       # @see: class BillMetadata

@@ -22,6 +22,17 @@ api:
   routers:
     - prefix: /verplicht-programma
       endpoints:
+        - resolver: atemporal_create_object
+          resolver_data:
+            request_model: verplicht_programma_create
+            response_model: verplicht_programma_id
+        - resolver: atemporal_edit_object
+          resolver_data:
+            path: /{lineage_id}
+            request_model: verplicht_programma_edit
+        - resolver: atemporal_delete_object
+          resolver_data:
+            path: /{lineage_id}
         - resolver: valid_list_lineages
           resolver_data:
             path: /valid
@@ -29,17 +40,6 @@ api:
             allowed_filter_columns:
               - title
             sort: *sort_default_title
-        - resolver: valid_list_lineage_tree
-          resolver_data:
-            path: /valid/{lineage_id}
-            response_model: verplicht_programma_basic
-            allowed_filter_columns:
-              - title
-            sort: *sort_default_modified_date
-        - resolver: object_version
-          resolver_data:
-            path: /version/{object_uuid}
-            response_model: verplicht_programma_full
         - resolver: object_latest
           resolver_data:
             path: /latest/{lineage_id}
@@ -62,40 +62,6 @@ api:
           resolver_data:
             request_model: verplicht_programma_static_post
             result_model: verplicht_programma_static_post_validated
-    - prefix: /modules/{module_id}/object/verplicht-programma
-      endpoints:
-        - resolver: module_patch_object
-          resolver_data:
-            path: /{lineage_id}
-            request_model: verplicht_programma_patch
-            response_model: verplicht_programma_id
-        - resolver: module_list_lineage_tree
-          resolver_data:
-            path: /{lineage_id}
-            response_model: verplicht_programma_extended
-            allowed_filter_columns:
-              - title
-            sort: *sort_default_modified_date
-        - resolver: module_object_latest
-          resolver_data:
-            path: /latest/{lineage_id}
-            response_model: verplicht_programma_full
-        - resolver: module_object_version
-          resolver_data:
-            path: /version/{object_uuid}
-            response_model: verplicht_programma_full
-    - prefix: /modules/object/verplicht-programma
-      endpoints:
-        - resolver: list_active_module_objects
-          resolver_data:
-            path: /active/{lineage_id}
-    - prefix: /revisions/{module_id}/verplicht-programma/version/{object_uuid}
-      endpoints:
-        - resolver: module_object_version
-          resolver_data:
-            response_model: verplicht_programma_full
-            minimum_status: 'Ontwerp GS Concept'
-            require_auth: False
 
 fields:
   title:
@@ -108,36 +74,6 @@ fields:
     name: description
     type: str
     column: description
-    validators:
-      - id: none_to_default_value
-  idms_link:
-    name: idms_link
-    type: str
-    column: idms_link
-    validators:
-      - id: none_to_default_value
-  decision_number:
-    name: decision_number
-    type: str
-    column: decision_number
-    validators:
-      - id: none_to_default_value
-  hoofdlijnen:
-    name: hoofdlijnen
-    type: list_str
-    column: hoofdlijnen
-    validators:
-      - id: none_to_default_value
-  themas:
-    name: themas
-    type: list_str
-    column: themas
-    validators:
-      - id: none_to_default_value
-  target_codes:
-    name: target_codes
-    type: list_str
-    column: target_codes
     validators:
       - id: none_to_default_value
 
@@ -157,16 +93,6 @@ fields:
     type: uuid
     column: owner_3_id
     optional: true
-  portfolio_holder_1_id:
-    name: portfolio_holder_1_id
-    type: uuid
-    column: portfolio_holder_1_id
-    optional: true
-  client_1_id:
-    name: client_1_id
-    type: uuid
-    column: client_1_id
-    optional: true
 
 models:
   verplicht_programma_minimal:
@@ -174,41 +100,31 @@ models:
     fields:
       object_type:
       object_id:
+      code:
       id:
+      created_date:
+      modified_date:
       title:
   verplicht_programma_basic:
     name: VerplichtProgrammaBasic
     fields:
+      object_type:
       object_id:
       code:
       id:
-      adjust_on:
       created_date:
       modified_date:
       title:
-      start_validity:
-      end_validity:
-    services:
-      next_object_version:
-        to_field: next_version
   verplicht_programma_extended:
     name: VerplichtProgrammaExtended
     fields:
+      object_type:
       object_id:
       code:
       id:
-      adjust_on:
       created_date:
       modified_date:
       title:
-      description:
-      start_validity:
-      end_validity:
-      themas:
-      hoofdlijnen:
-      target_codes:
-    dependency_model_ids:
-      - user_short
     services:
       foreign_keys_extender:
         fields_map:
@@ -224,42 +140,30 @@ models:
             model_id: user_short
           - to_field: owner_3
             model_id: user_short
-          - to_field: portfolio_holder_1
-            model_id: user_short
-          - to_field: client_1
-            model_id: user_short
   verplicht_programma_full:
     name: VerplichtProgrammaFull
     fields:
+      object_type:
       object_id:
       code:
       id:
-      adjust_on:
       created_date:
       modified_date:
       title:
       description:
       start_validity:
       end_validity:
-      themas:
-      hoofdlijnen:
-      target_codes:
     dependency_model_ids:
       - user_short
       - wettelijke_taak_minimal
       - maatregel_minimal
     services:
-      next_object_version:
-        to_field: next_version
-      public_revisions:
-        to_field: public_revisions
-      insert_assets:
-        fields:
-          - description
-      resolve_child_objects_via_hierarchy_listener:
-        to_field: hierarchy_children
       relations:
         objects:
+          - object_type: wettelijke_taak
+            object_id: wettelijke_taak
+            to_field: "wettelijke_taken"
+            model_id: wettelijke_taak_minimal
           - object_type: maatregel
             object_id: maatregel
             to_field: "maatregelen"
@@ -267,8 +171,6 @@ models:
             wrapped_with_relation_data: true
       foreign_keys_extender:
         fields_map:
-          - to_field: hierarchy_statics
-            model_id: hierarchy_statics
           - to_field: created_by
             model_id: user_short
           - to_field: modified_by
@@ -281,24 +183,37 @@ models:
             model_id: user_short
           - to_field: owner_3
             model_id: user_short
-          - to_field: portfolio_holder_1
-            model_id: user_short
-          - to_field: client_1
-            model_id: user_short
-      join_gebiedsaanwijzingen:
-        to_field: gebiedsaanwijzingen_gebieden
-        to_model: gebied_basic
-        from_fields:
+      insert_assets:
+        fields:
           - description
-        columns:
-          - target_codes
-          - gebieden
-      join_hoofdlijnen:
-        to_field: hoofdlijnen_statics
-        from_fields:
-          - hoofdlijnen
-  verplicht_programma_patch:
-    name: VerplichtProgrammaPatch
+  verplicht_programma_create:
+    name: VerplichtProgrammaCreate
+    fields:
+      title:
+        validators:
+          - id: length
+            data:
+              min: 3
+              max: 200
+          - id: plain_text
+      description:
+        optional: true
+        validators:
+          - id: html
+          - id: image
+            data:
+              max_width: 1500
+              max_height: 2500
+              max_kb: 800
+      owner_1_id:
+      owner_2_id:
+      owner_3_id:
+    services:
+      extract_assets:
+        fields:
+          - description
+  verplicht_programma_edit:
+    name: VerplichtProgrammaEdit
     fields:
       title:
         default: none
@@ -319,21 +234,6 @@ models:
               max_width: 1500
               max_height: 2500
               max_kb: 800
-          - id: gebiedsaanwijzing_in_text
-            data:
-              allowed_code_types:
-                - gebiedsaanwijzing
-      themas:
-        optional: true
-      hoofdlijnen:
-        optional: true
-      target_codes:
-        validators:
-          - id: object_codes_allowed_type
-            data:
-              allowed_object_types:
-                - maatregel
-          - id: object_codes_valid_for_module
     services:
       extract_assets:
         fields:
@@ -353,10 +253,6 @@ models:
             model_id: user_short
           - to_field: owner_3
             model_id: user_short
-          - to_field: portfolio_holder_1
-            model_id: user_short
-          - to_field: client_1
-            model_id: user_short
   verplicht_programma_static_post:
     name: VerplichtProgrammaStaticPost
     static_only: true
@@ -364,8 +260,6 @@ models:
       owner_1_id:
       owner_2_id:
       owner_3_id:
-      portfolio_holder_1_id:
-      client_1_id:
   verplicht_programma_static_post_validated:
     name: VerplichtProgrammaStaticPostValidated
     static_only: true
@@ -387,35 +281,8 @@ models:
       owner_1_id:
       owner_2_id:
       owner_3_id:
-      portfolio_holder_1_id:
-      client_1_id:
   verplicht_programma_id:
     name: VerplichtProgrammaID
     fields:
       object_id:
       id:
-  verplicht_programma_module_validate:
-    name: VerplichtProgrammaModuleValidate
-    fields:
-      title:
-        validators:
-          - id: length
-            data:
-              min: 3
-              max: 200
-          - id: plain_text
-      description:
-        validators:
-          - id: length
-            data:
-              min: 3
-          - id: html
-      target_codes:
-        optional: false
-        validators:
-          - id: object_codes_allowed_type
-            data:
-              allowed_object_types:
-                - maatregel
-          - id: object_codes_exists
-          - id: not_empty
