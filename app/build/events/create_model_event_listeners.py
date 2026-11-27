@@ -105,8 +105,8 @@ class AddRelationsListener(BuildListener[CreateModelEvent]):
             name=name,
             pydantic_model=pydantic.create_model(
                 name,
-                Relation=(relation_model.pydantic_model, pydantic.Field(default=None)),
-                Object=(target_model.pydantic_model, pydantic.Field(default=None)),
+                relation=(relation_model.pydantic_model, pydantic.Field(default=None)),
+                object=(target_model.pydantic_model, pydantic.Field(default=None)),
             ),
         )
 

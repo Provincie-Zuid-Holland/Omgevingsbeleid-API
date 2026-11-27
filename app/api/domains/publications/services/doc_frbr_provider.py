@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.types.api_input_data import DocFrbr
 from app.core.tables.publications import (
@@ -15,15 +15,15 @@ from app.core.tables.publications import (
 
 
 class DocFrbrProvider:
-    def generate_frbr(self, session: Session, announcement: PublicationAnnouncementTable) -> DocFrbr:
-        if announcement.Publication.Environment.Has_State:
-            return self._create_real(session, announcement)
+    async def generate_frbr(self, session: AsyncSession, announcement: PublicationAnnouncementTable) -> DocFrbr:
+        if announcement.publication.environment.has_state:
+            return await self._create_real(session, announcement)
 
         return self._create_fake(announcement)
 
-    def _create_real(self, session: Session, announcement: PublicationAnnouncementTable) -> DocFrbr:
+    async def _create_real(self, session: AsyncSession, announcement: PublicationAnnouncementTable) -> DocFrbr:
         stmt = select(func.count()).select_from(PublicationDocTable)
-        count: int = session.execute(stmt).scalar() + 1
+        count: int = (await session.execute(stmt)).scalar() + 1
         id_suffix: str = f"{count}"
         result: DocFrbr = self._create(announcement, id_suffix)
         return result
@@ -38,21 +38,21 @@ class DocFrbrProvider:
         announcement: PublicationAnnouncementTable,
         id_suffix: str,
     ) -> DocFrbr:
-        act_version: PublicationActVersionTable = announcement.Act_Package.Act_Version
-        publication: PublicationTable = announcement.Publication
-        environment: PublicationEnvironmentTable = publication.Environment
+        act_version: PublicationActVersionTable = announcement.act_package.act_version
+        publication: PublicationTable = announcement.publication
+        environment: PublicationEnvironmentTable = publication.environment
 
-        work_other: str = f"kennisgeving-{act_version.Act.Work_Other}-{id_suffix}"
+        work_other: str = f"kennisgeving-{act_version.act.work_other}-{id_suffix}"
 
         timepoint: datetime = datetime.now(UTC)
         frbr: DocFrbr = DocFrbr(
-            Work_Province_ID=environment.Province_ID,
-            Work_Country=environment.Frbr_Country,
-            Work_Date=str(timepoint.year),
-            Work_Other=work_other,
-            Expression_Language=environment.Frbr_Language,
-            Expression_Date=timepoint.strftime("%Y-%m-%d"),
-            Expression_Version=1,
-            Document_Type=publication.Document_Type,
+            work_province_id=environment.province_id,
+            work_country=environment.frbr_country,
+            work_date=str(timepoint.year),
+            work_other=work_other,
+            expression_language=environment.frbr_language,
+            expression_date=timepoint.strftime("%Y-%m-%d"),
+            expression_version=1,
+            document_type=publication.document_type,
         )
         return frbr

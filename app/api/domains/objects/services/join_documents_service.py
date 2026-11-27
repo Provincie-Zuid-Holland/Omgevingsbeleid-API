@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.types import ObjectStatics
 from app.core.tables.objects import ObjectStaticsTable
@@ -15,14 +15,14 @@ class JoinDocumentsConfig(BaseModel):
 class JoinDocumentsService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinDocumentsConfig,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._config: JoinDocumentsConfig = config
 
-    def join_documents(self, rows: list[BaseModel]) -> list[BaseModel]:
-        documents_map: dict[str, BaseModel] = self._fetch_documents()
+    async def join_documents(self, rows: list[BaseModel]) -> list[BaseModel]:
+        documents_map: dict[str, BaseModel] = await self._fetch_documents()
 
         for row in rows:
             document_codes = getattr(row, self._config.from_field) or []
@@ -31,20 +31,20 @@ class JoinDocumentsService:
 
         return rows
 
-    def _fetch_documents(self) -> dict[str, BaseModel]:
+    async def _fetch_documents(self) -> dict[str, BaseModel]:
         if not self._config.document_codes:
             return {}
 
-        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.Code.in_(self._config.document_codes))
-        rows = self._session.execute(stmt).scalars().all()
+        stmt = select(ObjectStaticsTable).filter(ObjectStaticsTable.code.in_(self._config.document_codes))
+        rows = (await self._session.execute(stmt)).scalars().all()
 
-        return {r.Code: ObjectStatics.model_validate(r) for r in rows}
+        return {r.code: ObjectStatics.model_validate(r) for r in rows}
 
 
 class JoinDocumentsServiceFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: JoinDocumentsConfig,
     ) -> JoinDocumentsService:
         return JoinDocumentsService(session=session, config=config)

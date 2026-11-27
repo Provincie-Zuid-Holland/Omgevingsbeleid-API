@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import (
@@ -15,7 +15,7 @@ from app.core.tables.publications import PublicationVersionAttachmentTable, Publ
 from app.core.tables.users import UsersTable
 
 
-def post_delete_attachment_endpoint(
+async def post_delete_attachment_endpoint(
     version: Annotated[PublicationVersionTable, Depends(depends_publication_version)],
     attachment: Annotated[PublicationVersionAttachmentTable, Depends(depends_publication_version_attachment)],
     user: Annotated[
@@ -26,23 +26,23 @@ def post_delete_attachment_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ) -> ResponseOK:
     _guard(version, attachment)
 
     # @todo: This should become a soft delete but I could not upgrade the database at this point
-    session.delete(attachment.File)
-    session.delete(attachment)
-    session.flush()
-    session.commit()
+    await session.delete(attachment.file)
+    await session.delete(attachment)
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")
 
 
 def _guard(version: PublicationVersionTable, attachment: PublicationVersionAttachmentTable) -> None:
-    if attachment.Publication_Version_UUID != version.UUID:
+    if attachment.publication_version_id != version.id:
         raise HTTPException(status.HTTP_409_CONFLICT, "You can not delete an attachment of another publication version")
-    if not version.Publication.Act.Is_Active:
+    if not version.publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
-    if version.Is_Locked:
+    if version.is_locked:
         raise HTTPException(status.HTTP_409_CONFLICT, "This publication version is locked")

@@ -7,7 +7,7 @@ class TemplateParser:
     def get_parsed_template(self, text_template: str, objects: list[dict]) -> str:
         aggregated_objects = defaultdict(list)
         for o in objects:
-            aggregated_objects[o["Object_Type"]].append(o)
+            aggregated_objects[o["object_type"]].append(o)
 
         base_template = Template(text_template)
         free_text_template_str = base_template.render(

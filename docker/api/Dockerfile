@@ -1,32 +1,31 @@
-FROM --platform=linux/amd64 python:3.13-bullseye
+FROM --platform=linux/amd64 python:3.13-trixie
+
+COPY --from=ghcr.io/astral-sh/uv:0.13.1 /uv /uvx /bin/
+
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=never \
+    PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /code
 
 RUN set -ex; \
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -; \
-    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list; \
-    apt-get update; \
-    apt-get upgrade -y && \
-    apt-get install -y build-essential unixodbc-dev wkhtmltopdf; \
-    ACCEPT_EULA=Y apt install -y msodbcsql17 mssql-tools; \
-    rm -rf /var/lib/apt/lists/*rm -rf /var/lib/apt/lists/*;
+    apt update; \
+    apt upgrade -y; \
+    apt install -y build-essential supervisor; \
+    mkdir -p /var/log/supervisor; \
+    rm -rf /var/lib/apt/lists/*;
 
-# add supervisor
-RUN apt-get update; \
-	apt-get install -y supervisor; \
-	mkdir -p /var/log/supervisor;
 COPY --chown=root:root ./docker/api/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Python packages
-COPY requirements.txt /
-COPY requirements-dev.txt /
-RUN pip install pip-tools; \
-	pip install -r /requirements.txt; \
-	pip install -r /requirements-dev.txt;
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=.python-version,target=.python-version \
+    uv sync --locked --no-install-project
 
-# Startup services
 COPY ./docker/api/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 CMD ["/usr/bin/supervisord"]
-#ENTRYPOINT ["/docker-entrypoint.sh"]

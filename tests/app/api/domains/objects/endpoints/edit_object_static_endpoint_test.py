@@ -1,10 +1,10 @@
 import uuid
 
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from pytest import FixtureRequest
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.objects.repositories.object_static_repository import ObjectStaticRepository
 from app.core.tables.objects import ObjectStaticsTable
@@ -14,48 +14,48 @@ from tests.fixtures.internal.spec.user_spec import UserSpec
 from tests.fixtures.internal.types import Ref
 
 
-def _beleidsdoel_static(session: Session, lineage_id: int = 1) -> ObjectStaticsTable:
-    return ObjectStaticRepository().get_by_object_type_and_id(session, "beleidsdoel", lineage_id)
+async def _beleidsdoel_static(session: AsyncSession, lineage_id: int = 1) -> ObjectStaticsTable:
+    return await ObjectStaticRepository().get_by_object_type_and_id(session, "beleidsdoel", lineage_id)
 
 
-def test_edit_updates_the_static_row(admin: TestClient, ctx: Context):
+async def test_edit_updates_the_static_row(admin: httpx2.AsyncClient, ctx: Context):
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
-    response = admin.post("/beleidsdoel/static/1", json={"Portfolio_Holder_1_UUID": str(viewer)})
+    response = await admin.post("/beleidsdoel/static/1", json={"portfolio_holder_1_id": str(viewer)})
 
     assert response.status_code == 200, response.text
     assert response.json()["message"] == "OK"
-    assert _beleidsdoel_static(ctx.session).Portfolio_Holder_1_UUID == viewer
+    assert (await _beleidsdoel_static(ctx.session)).portfolio_holder_1_id == viewer
 
 
-def test_edit_writes_a_changelog_entry(admin: TestClient, ctx: Context):
+async def test_edit_writes_a_changelog_entry(admin: httpx2.AsyncClient, ctx: Context):
     admin_uuid: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "admin"))
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
-    admin.post("/beleidsdoel/static/1", json={"Portfolio_Holder_1_UUID": str(viewer)})
+    await admin.post("/beleidsdoel/static/1", json={"portfolio_holder_1_id": str(viewer)})
 
-    change_log = ctx.session.scalar(
+    change_log = await ctx.session.scalar(
         select(ChangeLogTable)
-        .where(ChangeLogTable.Action_Type == "edit_object_static")
-        .order_by(desc(ChangeLogTable.Created_Date))
+        .where(ChangeLogTable.action_type == "edit_object_static")
+        .order_by(desc(ChangeLogTable.created_date))
     )
     assert change_log is not None
-    assert change_log.Object_Type == "beleidsdoel"
-    assert change_log.Object_ID == 1
-    assert change_log.Created_By_UUID == admin_uuid
+    assert change_log.object_type == "beleidsdoel"
+    assert change_log.object_id == 1
+    assert change_log.created_by_id == admin_uuid
 
 
-def test_empty_body_returns_400(admin: TestClient):
-    response = admin.post("/beleidsdoel/static/1", json={})
+async def test_empty_body_returns_400(admin: httpx2.AsyncClient):
+    response = await admin.post("/beleidsdoel/static/1", json={})
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Nothing to update"
 
 
-def test_unknown_lineage_returns_404(admin: TestClient, ctx: Context):
+async def test_unknown_lineage_returns_404(admin: httpx2.AsyncClient, ctx: Context):
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
-    response = admin.post("/beleidsdoel/static/999", json={"Portfolio_Holder_1_UUID": str(viewer)})
+    response = await admin.post("/beleidsdoel/static/999", json={"portfolio_holder_1_id": str(viewer)})
 
     assert response.status_code == 404
     assert response.json()["detail"] == "lineage_id does not exist"
@@ -64,25 +64,24 @@ def test_unknown_lineage_returns_404(admin: TestClient, ctx: Context):
 @pytest.mark.parametrize(
     "fields",
     [
-        pytest.param(["Owner_1_UUID", "Owner_2_UUID"], id="owner-1-and-owner-2"),
-        pytest.param(["Owner_1_UUID", "Owner_3_UUID"], id="owner-1-and-owner-3"),
-        pytest.param(["Owner_2_UUID", "Owner_3_UUID"], id="owner-2-and-owner-3"),
-        pytest.param(["Owner_1_UUID", "Owner_2_UUID", "Owner_3_UUID"], id="all-three-owners"),
+        pytest.param(["owner_1_id", "owner_2_id"], id="owner-1-and-owner-2"),
+        pytest.param(["owner_1_id", "owner_3_id"], id="owner-1-and-owner-3"),
+        pytest.param(["owner_2_id", "owner_3_id"], id="owner-2-and-owner-3"),
+        pytest.param(["owner_1_id", "owner_2_id", "owner_3_id"], id="all-three-owners"),
     ],
 )
-def test_duplicate_owners_returns_422(admin: TestClient, ctx: Context, fields: list[str]):
-
+async def test_duplicate_owners_returns_422(admin: httpx2.AsyncClient, ctx: Context, fields: list[str]):
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
-    response = admin.post("/beleidsdoel/static/1", json={f: str(viewer) for f in fields})
+    response = await admin.post("/beleidsdoel/static/1", json={f: str(viewer) for f in fields})
 
     assert response.status_code == 422, response.text
     assert "Owners should vary" in response.text
 
 
-def test_empty_owner_2_or_3_is_allowed(admin: TestClient, ctx: Context):
-    response = admin.post(
+async def test_empty_owner_2_or_3_is_allowed(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.post(
         "/beleidsdoel/static/1",
-        json={"Owner_2_UUID": None, "Owner_3_UUID": None},
+        json={"owner_2_id": None, "owner_3_id": None},
     )
     assert response.status_code == 200, response.text
 
@@ -97,23 +96,23 @@ def test_empty_owner_2_or_3_is_allowed(admin: TestClient, ctx: Context):
         pytest.param("admin", 200, None, id="role-with-permission"),
     ],
 )
-def test_edit_permission_matrix(
+async def test_edit_permission_matrix(
     request: FixtureRequest, ctx: Context, client_fixture: str, expected_status: int, expected_detail: str
 ):
-    test_client: TestClient = request.getfixturevalue(client_fixture)
+    test_client: httpx2.AsyncClient = request.getfixturevalue(client_fixture)
     viewer: uuid.UUID = ctx.f.primary_key_uuid(Ref(UserSpec, "viewer"))
 
-    response = test_client.post("/beleidsdoel/static/1", json={"Portfolio_Holder_1_UUID": str(viewer)})
+    response = await test_client.post("/beleidsdoel/static/1", json={"portfolio_holder_1_id": str(viewer)})
 
     assert response.status_code == expected_status, response.text
     if expected_detail is not None:
         assert response.json()["detail"] == expected_detail
 
 
-def test_owner_1_required_returns_422(admin: TestClient, ctx: Context):
-    response = admin.post(
+async def test_owner_1_required_returns_422(admin: httpx2.AsyncClient, ctx: Context):
+    response = await admin.post(
         "/beleidsdoel/static/1",
-        json={"Owner_1_UUID": None},
+        json={"owner_1_id": None},
     )
 
     assert response.status_code == 422

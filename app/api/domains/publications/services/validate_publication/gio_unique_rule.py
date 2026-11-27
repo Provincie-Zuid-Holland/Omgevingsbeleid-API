@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.gio import generate_dso_gio_name
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
@@ -11,11 +11,11 @@ from app.api.domains.publications.types.api_input_data import PublicationGio
 
 
 class GioUniqueRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
         gios: dict[str, PublicationGio] = {}
 
-        for publication_gio in request.input_data.Publication_Data.gios.values():
+        for publication_gio in request.input_data.publication_data.gios.values():
             dso_name: str = generate_dso_gio_name(publication_gio.title)
             if dso_name in gios:
                 existing_gio = gios.get(dso_name)

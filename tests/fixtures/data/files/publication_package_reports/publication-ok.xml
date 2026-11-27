@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lvbb:publicatieVerzoekResultaat xmlns:lvbb="http://www.overheid.nl/2017/lvbb"
+                                 xmlns:stop="http://www.overheid.nl/2017/stop">
+   <lvbb:uitkomst>succes</lvbb:uitkomst>
+   <lvbb:verslag>
+      <lvbb:idLevering>00000000-0000-0000-0000-000000000003</lvbb:idLevering>
+      <lvbb:tijdstipVerslag>2025-01-01T08:00:00.000000Z</lvbb:tijdstipVerslag>
+      <lvbb:meldingen>
+         <lvbb:melding>
+            <stop:code>PUB-0001</stop:code>
+            <stop:ernst>informatie</stop:ernst>
+            <stop:soort>technisch</stop:soort>
+            <stop:categorie>inhoudelijk</stop:categorie>
+            <stop:beschrijving>betreft publicatie id FAKE</stop:beschrijving>
+            <stop:metadata>
+               <stop:uitspraak property="OVERHEIDop.identifier">FAKE</stop:uitspraak>
+               <stop:uitspraak property="FRBRuri">FAKE</stop:uitspraak>
+            </stop:metadata>
+         </lvbb:melding>
+      </lvbb:meldingen>
+      <lvbb:uitkomst>gepubliceerd</lvbb:uitkomst>
+      <lvbb:tijdstipPublicatie>2025-01-01T08:00:00.000Z</lvbb:tijdstipPublicatie>
+   </lvbb:verslag>
+</lvbb:publicatieVerzoekResultaat>

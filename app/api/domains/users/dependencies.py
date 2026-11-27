@@ -5,7 +5,7 @@ from uuid import UUID
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -19,17 +19,17 @@ reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/login/access-token", auto_erro
 
 
 @inject
-def depends_current_user(
+async def depends_current_user(
     token: Annotated[str | None, Depends(reusable_oauth2)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
 ) -> UsersTable:
-    return _do_depends_current_user(session, token, user_repository, security)
+    return await _do_depends_current_user(session, token, user_repository, security)
 
 
-def _do_depends_current_user(
-    session: Session,
+async def _do_depends_current_user(
+    session: AsyncSession,
     token: str | None,
     user_repository: UserRepository,
     security: Security,
@@ -39,24 +39,24 @@ def _do_depends_current_user(
 
     token_data: TokenPayload = security.decode_token(token)
 
-    user: UsersTable | None = user_repository.get_by_uuid(session, UUID(token_data.sub))
+    user: UsersTable | None = await user_repository.get_by_uuid(session, UUID(token_data.sub))
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Token valid, but no matching user found.")
-    if not user.IsActive:
+    if not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Inactive user")
 
     return user
 
 
 @inject
-def depends_optional_current_user(
-    session: Annotated[Session, Depends(depends_db_session)],
+async def depends_optional_current_user(
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     token: Annotated[str | None, Depends(reusable_oauth2)],
     user_repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
     security: Annotated[Security, Depends(Provide[ApiContainer.security])],
 ) -> UsersTable | None:
     try:
-        return _do_depends_current_user(session, token, user_repository, security)
+        return await _do_depends_current_user(session, token, user_repository, security)
     except HTTPException:
         return None
 
@@ -65,7 +65,7 @@ def depends_current_user_with_permission_curried(
     required_permission: str,
 ) -> Callable:
     @inject
-    def depends_active_user_with_permission(
+    async def depends_active_user_with_permission(
         current_user: Annotated[UsersTable, Depends(depends_current_user)],
         permission: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
     ):

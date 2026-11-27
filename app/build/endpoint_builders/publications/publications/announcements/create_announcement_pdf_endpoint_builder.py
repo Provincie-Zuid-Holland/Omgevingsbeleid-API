@@ -18,8 +18,8 @@ class CreateAnnouncementPdfEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
-        if "{announcement_uuid}" not in builder_data.path:
-            raise RuntimeError("Missing {announcement_uuid} argument in path")
+        if "{announcement_id}" not in builder_data.path:
+            raise RuntimeError("Missing {announcement_id} argument in path")
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,

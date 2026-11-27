@@ -2,7 +2,7 @@ import uuid
 from collections.abc import Callable, Iterable, Sequence
 
 from sqlalchemy import ColumnElement, Select, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.base_repository import BaseRepository
 from app.api.domains.modules import ModuleObjectRepository
@@ -26,27 +26,27 @@ type KeyStrategy = Callable[[ObjectTableType], Iterable[uuid.UUID]]
 class ObjectLookups:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         object_repository: ObjectRepository,
         module_object_repository: ModuleObjectRepository,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._object_repository: ObjectRepository = object_repository
         self._module_object_repository: ModuleObjectRepository = module_object_repository
 
-    def create_all(
+    async def create_all(
         self,
         filter_strategy: FilterStrategy,
         key_strategy: KeyStrategy,
     ):
-        self._objects_lookup: dict[uuid.UUID, list[ObjectTableType]] = self._create_lookup(
+        self._objects_lookup: dict[uuid.UUID, list[ObjectTableType]] = await self._create_lookup(
             ObjectsTable, self._object_repository, filter_strategy, key_strategy
         )
-        self._module_objects_lookup: dict[uuid.UUID, list[ObjectTableType]] = self._create_lookup(
+        self._module_objects_lookup: dict[uuid.UUID, list[ObjectTableType]] = await self._create_lookup(
             ModuleObjectsTable, self._module_object_repository, filter_strategy, key_strategy
         )
 
-    def _create_lookup(
+    async def _create_lookup(
         self,
         table_type: type[ObjectsTable | ModuleObjectsTable],
         repository: BaseRepository,
@@ -54,7 +54,7 @@ class ObjectLookups:
         key_strategy: KeyStrategy,
     ) -> dict[uuid.UUID, list[ObjectTableType]]:
         stmt: Select = select(table_type).filter(filter_strategy(table_type))
-        objects_with_files: Sequence[ObjectTableType] = repository.fetch_all(self._session, stmt)
+        objects_with_files: Sequence[ObjectTableType] = await repository.fetch_all(self._session, stmt)
         lookup: dict[uuid.UUID, list[ObjectTableType]] = {}
         for object_current in objects_with_files:
             for key in key_strategy(object_current):
@@ -64,7 +64,7 @@ class ObjectLookups:
     def get_log(self, subject_uuid: uuid.UUID) -> str | None:
         objects: list[ObjectTableType] = self._objects_lookup.get(subject_uuid, [])
         module_objects: list[ObjectTableType] = self._module_objects_lookup.get(subject_uuid, [])
-        parts = [f"valid object {o.Code}" for o in objects] + [
-            f"module object {mo.Code} from module {mo.Module_ID}" for mo in module_objects
+        parts = [f"valid object {o.code}" for o in objects] + [
+            f"module object {mo.code} from module {mo.module_id}" for mo in module_objects
         ]
         return (" used in " + ", ".join(parts)) if parts else None

@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, Response
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.publications.dependencies import depends_publication_zip_by_act_package
@@ -12,7 +12,7 @@ from app.core.tables.publications import PublicationPackageZipTable
 from app.core.tables.users import UsersTable
 
 
-def get_download_act_package_endpoint(
+async def get_download_act_package_endpoint(
     package_zip: Annotated[PublicationPackageZipTable, Depends(depends_publication_zip_by_act_package)],
     user: Annotated[
         UsersTable,
@@ -22,16 +22,16 @@ def get_download_act_package_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
 ) -> Response:
-    package_zip.Latest_Download_Date = datetime.now(UTC)
-    package_zip.Latest_Download_By_UUID = user.UUID
+    package_zip.latest_download_date = datetime.now(UTC)
+    package_zip.latest_download_by_id = user.id
 
-    filename = package_zip.Filename
-    content = package_zip.Binary
+    filename = package_zip.filename
+    content = package_zip.binary
 
     session.add(package_zip)
-    session.commit()
+    await session.commit()
 
     return Response(
         content=content,

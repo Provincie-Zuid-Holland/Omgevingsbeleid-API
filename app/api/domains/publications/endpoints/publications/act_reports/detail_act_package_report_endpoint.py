@@ -10,7 +10,7 @@ from app.core.tables.publications import PublicationActPackageReportTable
 from app.core.tables.users import UsersTable
 
 
-def get_detail_act_package_report_endpoint(
+async def get_detail_act_package_report_endpoint(
     report: Annotated[PublicationActPackageReportTable, Depends(depends_publication_act_report)],
     user: Annotated[
         UsersTable,

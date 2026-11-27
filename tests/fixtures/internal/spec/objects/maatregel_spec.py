@@ -12,28 +12,28 @@ from tests.fixtures.internal.spec.objects.base_object_spec import (
 class MaatregelMixin(BaseModel):
     __object_type__: ClassVar[str] = "maatregel"
     __inheritable__: ClassVar[set[str]] = {
-        "Title",
-        "Description",
-        "Effect",
-        "Hierarchy_Code",
-        "Gebiedengroep_Code",
-        "Roles",
+        "title",
+        "description",
+        "effect",
+        "hierarchy_code",
+        "gebiedengroep_code",
+        "roles",
     }
     __object_fields__: ClassVar[set[str]] = {
-        "Title",
-        "Description",
-        "Effect",
-        "Hierarchy_Code",
-        "Gebiedengroep_Code",
-        "Roles",
+        "title",
+        "description",
+        "effect",
+        "hierarchy_code",
+        "gebiedengroep_code",
+        "roles",
     }
 
-    Title: str | None = None
-    Description: str | None = None
-    Effect: str | None = None
-    Hierarchy_Code: str | None = None
-    Gebiedengroep_Code: str | None = None
-    Roles: list[str] | None = None
+    title: str | None = None
+    description: str | None = None
+    effect: str | None = None
+    hierarchy_code: str | None = None
+    gebiedengroep_code: str | None = None
+    roles: list[str] | None = None
 
 
 class MaatregelSpec(MaatregelMixin, BaseObjectSpec):

@@ -2,7 +2,7 @@ import hashlib
 from datetime import UTC, datetime
 
 import dso.models as dso_models
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.act_package.publication_gebieden_provider import (
     GebiedenData,
@@ -30,20 +30,20 @@ from app.core.tables.others import AreasTable
 
 
 class PublicationGiosProvider:
-    def __init__(self, session: Session, area_repository: AreaRepository, act_frbr: ActFrbr):
-        self._session: Session = session
+    def __init__(self, session: AsyncSession, area_repository: AreaRepository, act_frbr: ActFrbr):
+        self._session: AsyncSession = session
         self._area_repository: AreaRepository = area_repository
         self._act_frbr: ActFrbr = act_frbr
         self._result: PublicationGeoData = PublicationGeoData()
         self._gio_seq: int = 0
 
-    def resolve_geo(
+    async def resolve_geo(
         self,
         gebieden_data: GebiedenData,
         gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData],
     ) -> PublicationGeoData:
-        self._resolve_gebiedengroepen(gebieden_data)
-        self._resolve_gebiedsaanwijzingen(gebieden_data, gebiedsaanwijzingen)
+        await self._resolve_gebiedengroepen(gebieden_data)
+        await self._resolve_gebiedsaanwijzingen(gebieden_data, gebiedsaanwijzingen)
 
         return self._result
 
@@ -51,12 +51,12 @@ class PublicationGiosProvider:
     # Gebiedengroepen
     #
 
-    def _resolve_gebiedengroepen(self, gebieden_data: GebiedenData):
+    async def _resolve_gebiedengroepen(self, gebieden_data: GebiedenData):
         for input_groep in gebieden_data.used_gebiedengroepen:
-            gio_key: str = self._resolve_gebiedengroep_gio(gebieden_data, input_groep)
+            gio_key: str = await self._resolve_gebiedengroep_gio(gebieden_data, input_groep)
 
             groep: PublicationGebiedengroep = PublicationGebiedengroep(
-                uuid=str(input_groep.uuid),
+                id=str(input_groep.uuid),
                 code=input_groep.code,
                 title=input_groep.title,
                 source_gebieden_codes=input_groep.gebied_codes,
@@ -65,11 +65,11 @@ class PublicationGiosProvider:
             # Save to accumulator
             self._result.gebiedengroepen[groep.code] = groep
 
-    def _resolve_gebiedengroep_gio(self, gebieden_data: GebiedenData, input_groep: InputGebiedengroep) -> str:
+    async def _resolve_gebiedengroep_gio(self, gebieden_data: GebiedenData, input_groep: InputGebiedengroep) -> str:
         locations: list[PublicationGioLocatie] = []
         for gebied_code in input_groep.gebied_codes:
             input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_groep.code)
-            location: PublicationGioLocatie = self._as_location(input_gebied)
+            location: PublicationGioLocatie = await self._as_location(input_gebied)
             locations.append(location)
 
         gio: PublicationGio = PublicationGio(
@@ -88,35 +88,35 @@ class PublicationGiosProvider:
         return gio_key
 
     def _build_frbr_gebiedengroep(self, input_gebiedengroep: InputGebiedengroep) -> dso_models.GioFRBR:
-        # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
+        # Note: GIO's are consolidated per Act, so we use the Act's work_date
         # and make their identifier unique with act data.
         # Can't really remember why, but I think it's a legacy system in DSO where the same FRBR must be unique (Omgevingsvisie/programma should not use the same)
         # I added GG as a shorthand for Gebiedengroep
-        work_date: str = self._act_frbr.Work_Date
+        work_date: str = self._act_frbr.work_date
         work_identifier = (
-            f"{self._act_frbr.Act_ID}-{self._act_frbr.Expression_Version}-GG-{input_gebiedengroep.object_id}"
+            f"{self._act_frbr.act_id}-{self._act_frbr.expression_version}-GG-{input_gebiedengroep.object_id}"
         )
         return dso_models.GioFRBR(
-            Work_Province_ID=self._act_frbr.Work_Province_ID,
-            Work_Date=work_date,
-            Work_Other=work_identifier,
-            Expression_Language=self._act_frbr.Expression_Language,
-            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
-            Expression_Version=1,
+            work_province_id=self._act_frbr.work_province_id,
+            work_date=work_date,
+            work_other=work_identifier,
+            expression_language=self._act_frbr.expression_language,
+            expression_date=datetime.now(UTC).strftime("%Y-%m-%d"),
+            expression_version=1,
         )
 
     #
     # Gebiedsaanwijzingen
     #
 
-    def _resolve_gebiedsaanwijzingen(
+    async def _resolve_gebiedsaanwijzingen(
         self, gebieden_data: GebiedenData, gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData]
     ):
         for input_aanwijzing in gebiedsaanwijzingen.values():
-            gio_key: str = self._resolve_gebiedsaanwijzing_gio(gebieden_data, input_aanwijzing)
+            gio_key: str = await self._resolve_gebiedsaanwijzing_gio(gebieden_data, input_aanwijzing)
 
             aanwijzing: PublicationGebiedsaanwijzing = PublicationGebiedsaanwijzing(
-                uuid=str(input_aanwijzing.uuid),
+                id=str(input_aanwijzing.uuid),
                 code=input_aanwijzing.code,
                 title=input_aanwijzing.title,
                 aanwijzing_type=input_aanwijzing.aanwijzing_type,
@@ -128,13 +128,13 @@ class PublicationGiosProvider:
             # Save to accumulator
             self._result.gebiedsaanwijzingen[aanwijzing.code] = aanwijzing
 
-    def _resolve_gebiedsaanwijzing_gio(
+    async def _resolve_gebiedsaanwijzing_gio(
         self, gebieden_data: GebiedenData, input_aanwijzing: GebiedsaanwijzingData
     ) -> str:
         locations: list[PublicationGioLocatie] = []
         for gebied_code in input_aanwijzing.resolved_gebied_codes:
             input_gebied: InputGebied = self._find_input_gebied(gebieden_data, gebied_code, input_aanwijzing.code)
-            location: PublicationGioLocatie = self._as_location(input_gebied)
+            location: PublicationGioLocatie = await self._as_location(input_gebied)
             locations.append(location)
 
         gio: PublicationGio = PublicationGio(
@@ -153,19 +153,19 @@ class PublicationGiosProvider:
         return gio_key
 
     def _build_frbr_gebiedsaanwijzing(self, input_aanwijzing: GebiedsaanwijzingData) -> dso_models.GioFRBR:
-        # Note: GIO's are consolidated per Act, so we use the Act's Work_Date
+        # Note: GIO's are consolidated per Act, so we use the Act's work_date
         # and make their identifier unique with act data.
         # Can't really remember why, but I think it's a legacy system in DSO where the same FRBR must be unique (Omgevingsvisie/programma should not use the same)
         # I added GA as a shorthand for Gebiedsaanwijzing
-        work_date: str = self._act_frbr.Work_Date
-        work_identifier = f"{self._act_frbr.Act_ID}-{self._act_frbr.Expression_Version}-GA-{input_aanwijzing.object_id}"
+        work_date: str = self._act_frbr.work_date
+        work_identifier = f"{self._act_frbr.act_id}-{self._act_frbr.expression_version}-GA-{input_aanwijzing.object_id}"
         return dso_models.GioFRBR(
-            Work_Province_ID=self._act_frbr.Work_Province_ID,
-            Work_Date=work_date,
-            Work_Other=work_identifier,
-            Expression_Language=self._act_frbr.Expression_Language,
-            Expression_Date=datetime.now(UTC).strftime("%Y-%m-%d"),
-            Expression_Version=1,
+            work_province_id=self._act_frbr.work_province_id,
+            work_date=work_date,
+            work_other=work_identifier,
+            expression_language=self._act_frbr.expression_language,
+            expression_date=datetime.now(UTC).strftime("%Y-%m-%d"),
+            expression_version=1,
         )
 
     #
@@ -186,37 +186,37 @@ class PublicationGiosProvider:
             )
         return gebied
 
-    def _fetch_area(self, input_gebied: InputGebied) -> AreasTable:
-        area: AreasTable | None = self._area_repository.get_with_gml(self._session, input_gebied.area_uuid)
+    async def _fetch_area(self, input_gebied: InputGebied) -> AreasTable:
+        area: AreasTable | None = await self._area_repository.get_with_gml(self._session, input_gebied.area_id)
         if area is None:
             raise validation_exception(
                 [
                     ValidatePublicationError(
                         rule="area_not_found",
                         object=ValidatePublicationObject(code=input_gebied.code),
-                        messages=[f"Area UUID {input_gebied.area_uuid} does not exist"],
+                        messages=[f"Area UUID {input_gebied.area_id} does not exist"],
                     )
                 ]
             )
         return area
 
-    def _as_location(self, input_gebied: InputGebied) -> PublicationGioLocatie:
-        area: AreasTable = self._fetch_area(input_gebied)
+    async def _as_location(self, input_gebied: InputGebied) -> PublicationGioLocatie:
+        area: AreasTable = await self._fetch_area(input_gebied)
         gml_hash = hashlib.sha512()
-        gml_hash.update(area.Gml.encode())
+        gml_hash.update(area.gml.encode())
 
         return PublicationGioLocatie(
             code=input_gebied.code,
             title=input_gebied.title,
             basisgeo_id=str(input_gebied.basisgeo_id),
             source_hash=gml_hash.hexdigest(),
-            gml=area.Gml,
+            gml=area.gml,
         )
 
     def _new_gio_key(self) -> str:
         # Creates a unique key for each gio over all the publications
         self._gio_seq += 1
-        return f"gio-{self._act_frbr.Act_ID}-{self._act_frbr.Expression_Version}-{self._gio_seq}"
+        return f"gio-{self._act_frbr.act_id}-{self._act_frbr.expression_version}-{self._gio_seq}"
 
     def _manage_gio(self, new_gio: PublicationGio) -> str:
         # If this GIO already exists than reuse the existing GIO
@@ -233,9 +233,9 @@ class PublicationGiosProviderFactory:
     def __init__(self, area_repository: AreaRepository):
         self._area_repository: AreaRepository = area_repository
 
-    def process(
+    async def process(
         self,
-        session: Session,
+        session: AsyncSession,
         act_frbr: ActFrbr,
         gebieden_data: GebiedenData,
         gebiedsaanwijzingen: dict[str, GebiedsaanwijzingData],
@@ -245,4 +245,4 @@ class PublicationGiosProviderFactory:
             self._area_repository,
             act_frbr,
         )
-        return service.resolve_geo(gebieden_data, gebiedsaanwijzingen)
+        return await service.resolve_geo(gebieden_data, gebiedsaanwijzingen)

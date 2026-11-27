@@ -12,15 +12,15 @@ from tests.fixtures.internal.types import Link
 
 class GebiedengroepMixin(BaseModel):
     __object_type__: ClassVar[str] = "gebiedengroep"
-    __inheritable__: ClassVar[set[str]] = {"Title", "Description", "Gebieden", "Source_Title", "Source_UUID"}
-    __object_fields__: ClassVar[set[str]] = {"Title", "Description", "Gebieden", "Source_Title", "Source_UUID"}
-    __link_fields__: ClassVar[set[str]] = {"Source_UUID"}
+    __inheritable__: ClassVar[set[str]] = {"title", "description", "gebieden", "source_title", "source_uuid"}
+    __object_fields__: ClassVar[set[str]] = {"title", "description", "gebieden", "source_title", "source_uuid"}
+    __link_fields__: ClassVar[set[str]] = {"source_uuid"}
 
-    Title: str | None = None
-    Description: str | None = None
-    Gebieden: list[str] | None = None
-    Source_Title: str | None = None
-    Source_UUID: Link | None = None
+    title: str | None = None
+    description: str | None = None
+    gebieden: list[str] | None = None
+    source_title: str | None = None
+    source_uuid: Link | None = None
 
 
 class GebiedengroepSpec(GebiedengroepMixin, BaseObjectSpec):

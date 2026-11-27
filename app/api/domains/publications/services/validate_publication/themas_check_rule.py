@@ -1,6 +1,6 @@
 from dso import Thema, ThemaFactory
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -23,11 +23,11 @@ class ThemasCheckRule(ValidatePublicationRule):
         )
         self._dso_thema_factory: ThemaFactory = dso_thema_factory
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
         dso_themas: dict[str, Thema] = self._dso_thema_factory.get_all()
 
-        for object_to_validate in request.input_data.Publication_Data.used_objects:
+        for object_to_validate in request.input_data.publication_data.used_objects:
             if not object_to_validate.get(self._config.field):
                 continue
             themas: list[str] = object_to_validate.get(self._config.field)
@@ -38,10 +38,10 @@ class ThemasCheckRule(ValidatePublicationRule):
                         ValidatePublicationError(
                             rule="themas_check_rule",
                             object=ValidatePublicationObject(
-                                code=object_to_validate.get("Code"),
-                                object_id=object_to_validate.get("Object_ID"),
-                                object_type=object_to_validate.get("Object_Type"),
-                                title=object_to_validate.get("Title"),
+                                code=object_to_validate.get("code"),
+                                object_id=object_to_validate.get("object_id"),
+                                object_type=object_to_validate.get("object_type"),
+                                title=object_to_validate.get("title"),
                             ),
                             messages=[f"Thema '{thema}' can't be found in waardelijst"],
                         )
@@ -51,10 +51,10 @@ class ThemasCheckRule(ValidatePublicationRule):
                         ValidatePublicationError(
                             rule="themas_check_rule",
                             object=ValidatePublicationObject(
-                                code=object_to_validate.get("Code"),
-                                object_id=object_to_validate.get("Object_ID"),
-                                object_type=object_to_validate.get("Object_Type"),
-                                title=object_to_validate.get("Title"),
+                                code=object_to_validate.get("code"),
+                                object_id=object_to_validate.get("object_id"),
+                                object_type=object_to_validate.get("object_type"),
+                                title=object_to_validate.get("title"),
                             ),
                             messages=[f"Thema '{thema}' is deprecated"],
                         )

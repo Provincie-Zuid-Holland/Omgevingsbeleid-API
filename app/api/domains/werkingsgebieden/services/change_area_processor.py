@@ -1,7 +1,7 @@
 import uuid
 
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.werkingsgebieden.repositories.area_geometry_repository import AreaGeometryRepository
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
@@ -20,25 +20,25 @@ class AreaProcessorConfig(BaseModel):
 class AreaProcessorService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         onderverdeling_repository: InputGeoOnderverdelingRepository,
         area_repository: AreaRepository,
         area_geometry_repository: AreaGeometryRepository,
         config: AreaProcessorConfig,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._onderverdeling_repository: InputGeoOnderverdelingRepository = onderverdeling_repository
         self._area_repository: AreaRepository = area_repository
         self._area_geometry_repository: AreaGeometryRepository = area_geometry_repository
         self._config: AreaProcessorConfig = config
 
-    def process(self, old_recold: ModuleObjectsTable, new_record: ModuleObjectsTable) -> ModuleObjectsTable:
+    async def process(self, old_recold: ModuleObjectsTable, new_record: ModuleObjectsTable) -> ModuleObjectsTable:
         for field_key in self._config.fields:
-            new_record = self._process_field(old_recold, new_record, field_key)
+            new_record = await self._process_field(old_recold, new_record, field_key)
 
         return new_record
 
-    def _process_field(
+    async def _process_field(
         self, old_recold: ModuleObjectsTable, new_record: ModuleObjectsTable, field_key: str
     ) -> ModuleObjectsTable:
         old_field_value = getattr(old_recold, field_key)
@@ -49,65 +49,69 @@ class AreaProcessorService:
         if old_field_value == new_field_value:
             return new_record
 
-        # If the field value changes then it can either be the UUID of:
+        # If the field value changes then it can either be the id of:
         # - Input Geo Onderverdeling
         # - An Area
         #
-        # If it is the UUID of an Area then we do not need to do anything
+        # If it is the id of an Area then we do not need to do anything
         #
-        # If it is the UUID of a Source Werkingsgebied then
+        # If it is the id of a Source Werkingsgebied then
         # we should fetch the Source Werkingsgebied to and fetch or create the Area based on it
-        # And finally store the Area UUID back in to the record
+        # And finally store the Area id back in to the record
 
         # The Area check
-        area_table: AreasTable | None = self._area_repository.get_by_uuid(self._session, new_field_value)
+        area_table: AreasTable | None = await self._area_repository.get_by_id(self._session, new_field_value)
         if area_table is not None:
             return new_record
 
         # The Input Geo Onderverdeling check
-        selected_onderverdeling: InputGeoOnderverdelingenTable = self._get_input_geo_onderverdeling(new_field_value)
-        area_uuid: uuid.UUID = self._get_or_create_area(new_record, selected_onderverdeling)
-        setattr(new_record, field_key, area_uuid)
+        selected_onderverdeling: InputGeoOnderverdelingenTable = await self._get_input_geo_onderverdeling(
+            new_field_value
+        )
+        area_id: uuid.UUID = await self._get_or_create_area(new_record, selected_onderverdeling)
+        setattr(new_record, field_key, area_id)
 
         return new_record
 
-    def _get_input_geo_onderverdeling(self, input_geo_onderverdeling_uuid: uuid.UUID) -> InputGeoOnderverdelingenTable:
-        onderverdeling: InputGeoOnderverdelingenTable | None = self._onderverdeling_repository.get_by_uuid(
+    async def _get_input_geo_onderverdeling(
+        self, input_geo_onderverdeling_id: uuid.UUID
+    ) -> InputGeoOnderverdelingenTable:
+        onderverdeling: InputGeoOnderverdelingenTable | None = await self._onderverdeling_repository.get_by_uuid(
             self._session,
-            input_geo_onderverdeling_uuid,
+            input_geo_onderverdeling_id,
         )
         if onderverdeling is None:
-            raise ValueError("Invalid UUID for Input Geo Onderverdeling")
+            raise ValueError("Invalid id for Input Geo Onderverdeling")
 
         return onderverdeling
 
-    def _get_or_create_area(
+    async def _get_or_create_area(
         self, new_record: ModuleObjectsTable, onderverdeling: InputGeoOnderverdelingenTable
     ) -> uuid.UUID:
-        existing_area = self._area_repository.get_by_source_hash(
+        existing_area = await self._area_repository.get_by_source_hash(
             self._session,
-            onderverdeling.Geometry_Hash,
+            onderverdeling.geometry_hash,
         )
         if existing_area is not None:
-            return existing_area.UUID
+            return existing_area.id
 
-        existing_area: AreasTable | None = self._area_repository.get_by_source_uuid(
+        existing_area: AreasTable | None = await self._area_repository.get_by_source_uuid(
             self._session,
-            onderverdeling.UUID,
+            onderverdeling.id,
         )
         if existing_area is not None:
-            return existing_area.UUID
+            return existing_area.id
 
-        area_uuid: uuid.UUID = uuid.uuid4()
-        self._area_geometry_repository.create_area(
+        area_id: uuid.UUID = uuid.uuid4()
+        await self._area_geometry_repository.create_area(
             session=self._session,
-            uuidx=area_uuid,
+            idx=area_id,
             onderverdeling=onderverdeling,
-            created_date=new_record.Modified_Date,
-            created_by_uuid=new_record.Modified_By_UUID,
+            created_date=new_record.modified_date,
+            created_by_id=new_record.modified_by_id,
         )
 
-        return area_uuid
+        return area_id
 
 
 class AreaProcessorServiceFactory:
@@ -123,7 +127,7 @@ class AreaProcessorServiceFactory:
 
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         config: AreaProcessorConfig,
     ) -> AreaProcessorService:
         return AreaProcessorService(

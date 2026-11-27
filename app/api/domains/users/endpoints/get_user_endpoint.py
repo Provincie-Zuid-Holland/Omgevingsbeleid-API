@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -14,13 +14,13 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def view_get_user_endpoint(
+async def view_get_user_endpoint(
     user_uuid: uuid.UUID,
     logged_in_user: Annotated[UsersTable, Depends(depends_current_user)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[UserRepository, Depends(Provide[ApiContainer.user_repository])],
 ) -> User:
-    db_user: UsersTable | None = repository.get_by_uuid(session, user_uuid)
+    db_user: UsersTable | None = await repository.get_by_uuid(session, user_uuid)
     if not db_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "User does not exist")
 

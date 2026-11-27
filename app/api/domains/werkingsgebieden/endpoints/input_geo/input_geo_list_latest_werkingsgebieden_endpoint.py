@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -15,11 +15,11 @@ from app.api.utils.pagination import OptionalSortedPagination, PagedResponse, So
 
 
 @inject
-def get_input_geo_list_latest_werkingsgebieden_endpoint(
+async def get_input_geo_list_latest_werkingsgebieden_endpoint(
     optional_pagination: Annotated[
         OptionalSortedPagination, Depends(depends_optional_input_geo_werkingsgebieden_sorted_pagination)
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[
         InputGeoWerkingsgebiedenRepository, Depends(Provide[ApiContainer.input_geo_werkingsgebieden_repository])
     ],
@@ -27,7 +27,7 @@ def get_input_geo_list_latest_werkingsgebieden_endpoint(
     sort: Sort = input_geo_werkingsgebieden_order_config.get_sort(optional_pagination.sort)
     pagination: SortedPagination = optional_pagination.with_sort(sort)
 
-    paged_results = repository.get_unique_paginated(session, pagination)
+    paged_results = await repository.get_unique_paginated(session, pagination)
     werkingsgebieden: list[InputGeoWerkingsgebied] = [
         InputGeoWerkingsgebied.model_validate(w) for w in paged_results.items
     ]

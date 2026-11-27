@@ -1,8 +1,8 @@
 from typing import Any
 from uuid import UUID
 
+import httpx2
 import pytest
-from fastapi.testclient import TestClient
 from pydantic import BaseModel
 from pytest import FixtureRequest
 
@@ -13,11 +13,11 @@ from tests.fixtures.internal.types import Ref
 
 
 class Result(BaseModel):
-    Module_ID: int | None
-    Object_Type: str
-    Title: str
-    Description: str
-    Model: dict[str, Any]
+    module_id: int | None
+    object_type: str
+    title: str
+    description: str
+    model: dict[str, Any]
 
 
 class Response(BaseModel):
@@ -144,7 +144,7 @@ class Response(BaseModel):
         ),
     ],
 )
-def test_search(
+async def test_search(
     request: FixtureRequest,
     ctx: Context,
     client_fixture: str,
@@ -152,17 +152,19 @@ def test_search(
     expected_refs: list[Ref],
     total: int | None,
 ):
-    client: TestClient = request.getfixturevalue(client_fixture)
-    body = client.post(
-        "/search",
-        json=request_body,
+    client: httpx2.AsyncClient = request.getfixturevalue(client_fixture)
+    body = (
+        await client.post(
+            "/search",
+            json=request_body,
+        )
     ).raise_for_status()
     response = Response.model_validate_json(body.text)
 
     if total is not None:
         assert response.total == total
 
-    result_uuids: set[UUID] = {UUID(result.Model["UUID"]) for result in response.results}
+    result_uuids: set[UUID] = {UUID(result.model["id"]) for result in response.results}
     expected_uuids: set[UUID] = set(ctx.f.find_uuids(expected_refs))
 
     assert expected_uuids == result_uuids
@@ -232,15 +234,15 @@ def test_search(
         ),
     ],
 )
-def test_search_request_validation(
-    client: TestClient,
+async def test_search_request_validation(
+    client: httpx2.AsyncClient,
     query_params: dict[str, Any],
     request_body: dict[str, Any],
     expected_status: int,
     expected_message: str | None,
     expected_limit: int | None,
 ):
-    response = client.post(
+    response = await client.post(
         "/search",
         params=query_params,
         json=request_body,

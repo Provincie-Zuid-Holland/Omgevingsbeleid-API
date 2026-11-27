@@ -10,7 +10,7 @@ from app.core.tables.publications import PublicationTemplateTable
 from app.core.tables.users import UsersTable
 
 
-def get_detail_template_endpoint(
+async def get_detail_template_endpoint(
     template: Annotated[PublicationTemplateTable, Depends(depends_publication_template)],
     user: Annotated[
         UsersTable,

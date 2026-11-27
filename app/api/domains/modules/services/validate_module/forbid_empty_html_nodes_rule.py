@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup, PageElement, Tag
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -24,7 +24,7 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
             ForbidEmptyHtmlNodesRuleConfig,
         )
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
         errors: list[ValidateModuleError] = []
 
         for object_table in request.module_objects:
@@ -35,12 +35,12 @@ class ForbidEmptyHtmlNodesRule(ValidateModuleRule):
                         ValidateModuleError(
                             rule="forbid_empty_html_nodes_rule",
                             object=ValidateModuleObject(
-                                code=object_table.Code,
-                                object_id=object_table.Object_ID,
-                                object_type=object_table.Object_Type,
-                                title=object_table.Title,
+                                code=object_table.code,
+                                object_id=object_table.object_id,
+                                object_type=object_table.object_type,
+                                title=object_table.title,
                             ),
-                            messages=[f"Empty html node found in '{field_name}' for object {object_table.Code}"],
+                            messages=[f"Empty html node found in '{field_name}' for object {object_table.code}"],
                         )
                     )
 

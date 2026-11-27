@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, ValidationError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -28,7 +28,7 @@ class EditObjectStaticEndpointContext(BaseEndpointContext):
 
 
 @inject
-def edit_object_static_endpoint(
+async def edit_object_static_endpoint(
     lineage_id: int,
     object_in: BaseModel,
     user: Annotated[UsersTable, Depends(depends_current_user)],
@@ -36,14 +36,14 @@ def edit_object_static_endpoint(
         ObjectStaticRepository, Depends(Provide[ApiContainer.object_static_repository])
     ],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[EditObjectStaticEndpointContext, Depends()],
 ) -> ResponseOK:
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nothing to update")
 
-    object_static: ObjectStaticsTable | None = object_static_repository.get_by_object_type_and_id(
+    object_static: ObjectStaticsTable | None = await object_static_repository.get_by_object_type_and_id(
         session,
         context.object_type,
         lineage_id,
@@ -55,11 +55,11 @@ def edit_object_static_endpoint(
         Permissions.can_patch_object_static,
         user,
         [
-            object_static.Owner_1_UUID,
-            object_static.Owner_2_UUID,
-            object_static.Owner_3_UUID,
-            object_static.Portfolio_Holder_1_UUID,
-            object_static.Client_1_UUID,
+            object_static.owner_1_id,
+            object_static.owner_2_id,
+            object_static.owner_3_id,
+            object_static.portfolio_holder_1_id,
+            object_static.client_1_id,
         ],
     )
 
@@ -76,18 +76,18 @@ def edit_object_static_endpoint(
         raise RequestValidationError(e.errors()) from e
 
     change_log: ChangeLogTable = ChangeLogTable(
-        Object_Type=context.object_type,
-        Object_ID=lineage_id,
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=user.UUID,
-        Action_Type="edit_object_static",
-        Action_Data=object_in.model_dump_json(),
-        Before=log_before,
-        After=json.dumps(object_static.to_dict()),
+        object_type=context.object_type,
+        object_id=lineage_id,
+        created_date=datetime.now(UTC),
+        created_by_id=user.id,
+        action_type="edit_object_static",
+        action_data=object_in.model_dump_json(),
+        before=log_before,
+        after=json.dumps(object_static.to_dict()),
     )
     session.add(change_log)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

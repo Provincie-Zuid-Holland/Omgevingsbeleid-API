@@ -28,7 +28,7 @@ class TablesBuilder:
 
     def build_tables(self, columns: dict[str, Column]):
         self._generate_table(ObjectStaticsTable, "ObjectStaticsTable", columns, static=True)
-        ObjectStaticsTable.Cached_Title = mapped_column("Cached_Title", String(255), nullable=True)
+        ObjectStaticsTable.cached_title = mapped_column("cached_title", String(255), nullable=True)
 
         self._generate_table(ObjectsTable, "ObjectsTable", columns, static=False)
         self._generate_table(ModuleObjectsTable, "ModuleObjectsTable", columns, static=False)

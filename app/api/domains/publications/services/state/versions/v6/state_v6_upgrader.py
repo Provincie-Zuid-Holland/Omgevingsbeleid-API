@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import app.api.domains.publications.services.state.versions.v5.models as models_v5
 import app.api.domains.publications.services.state.versions.v6.models as models_v6
@@ -20,7 +20,7 @@ class StateV6Upgrader(StateUpgrader):
     def get_input_schema_version() -> int:
         return state_v5.StateV5.get_schema_version()
 
-    def upgrade(self, session: Session, environment_uuid: UUID, old_state: State) -> State:
+    async def upgrade(self, session: AsyncSession, environment_uuid: UUID, old_state: State) -> State:
         if old_state.get_schema_version() != state_v5.StateV5.get_schema_version():
             raise RuntimeError("Unexpected state provided")
 

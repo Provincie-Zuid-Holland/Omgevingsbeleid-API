@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -18,34 +18,34 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def post_close_module_endpoint(
+async def post_close_module_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
         Permissions.module_can_close_module,
         user,
-        [module.Module_Manager_1_UUID, module.Module_Manager_2_UUID],
+        [module.module_manager_1_id, module.module_manager_2_id],
     )
 
     timepoint: datetime = datetime.now(UTC)
 
-    module.Closed = True
-    module.Modified_By_UUID = user.UUID
-    module.Modified_Date = timepoint
+    module.closed = True
+    module.modified_by_id = user.id
+    module.modified_date = timepoint
     session.add(module)
 
     status = ModuleStatusHistoryTable(
-        Module_ID=module.Module_ID,
-        Status=ModuleStatusCodeInternal.Gesloten,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
+        module_id=module.module_id,
+        status=ModuleStatusCodeInternal.Gesloten,
+        created_date=timepoint,
+        created_by_id=user.id,
     )
     session.add(status)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

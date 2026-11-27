@@ -8,7 +8,7 @@ from tests.fixtures.internal.spec.input_geo_werkingsgebied_spec import InputGeoW
 def load(col: Collector) -> None:
     # Updated the Input Geo in februari
     with col.with_defaults(
-        Created_Date=datetime(2025, 2, 1, tzinfo=UTC),
+        created_date=datetime(2025, 2, 1, tzinfo=UTC),
         Description="Herziening 2025 - Ontwerp GS",
     ):
         col.adds(
@@ -16,57 +16,57 @@ def load(col: Collector) -> None:
                 # Nature - did not change
                 InputGeoWerkingsgebiedenSpec(
                     key="nature_v2",
-                    Title="Nature",
+                    title="Nature",
                 ),
                 InputGeoOnderverdelingSpec(
                     key="nature_west_v2",
-                    Title="Nature West",
-                    Points=[(100, 100), (110, 100), (110, 110)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v2")],
+                    title="Nature West",
+                    points=[(100, 100), (110, 100), (110, 110)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v2")],
                 ),
                 InputGeoOnderverdelingSpec(
                     key="nature_east_v2",
-                    Title="Nature east",
-                    Points=[(110, 110), (120, 110), (120, 120)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v2")],
+                    title="Nature east",
+                    points=[(110, 110), (120, 110), (120, 120)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "nature_v2")],
                 ),
                 # Water - Only the sea moved a bit
                 InputGeoWerkingsgebiedenSpec(
                     key="water_v2",
-                    Title="Water",
+                    title="Water",
                 ),
                 InputGeoOnderverdelingSpec(
                     key="sea_v2",
-                    Title="sea",
-                    Points=[(201, 201), (211, 201), (211, 211)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v2")],
+                    title="sea",
+                    points=[(201, 201), (211, 201), (211, 211)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v2")],
                 ),
                 InputGeoOnderverdelingSpec(
                     key="lake_v2",
-                    Title="lake",
-                    Points=[(210, 210), (220, 210), (220, 220)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v2")],
+                    title="lake",
+                    points=[(210, 210), (220, 210), (220, 220)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v2")],
                 ),
                 InputGeoOnderverdelingSpec(
                     key="river_v2",
-                    Title="river",
-                    Points=[(220, 220), (230, 220), (230, 230)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v2")],
+                    title="river",
+                    points=[(220, 220), (230, 220), (230, 230)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "water_v2")],
                 ),
                 # Molens - mill B was removed
                 InputGeoWerkingsgebiedenSpec(
                     key="mill_v2",
-                    Title="Molens",
+                    title="Molens",
                 ),
                 InputGeoOnderverdelingSpec(
-                    Title="mill A",
-                    Points=[(300, 300), (310, 300), (310, 310)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "mill_v2")],
+                    title="mill A",
+                    points=[(300, 300), (310, 300), (310, 310)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "mill_v2")],
                 ),
                 InputGeoOnderverdelingSpec(
-                    Title="mill C",
-                    Points=[(320, 320), (330, 320), (330, 330)],
-                    Owners=[col.ref(InputGeoWerkingsgebiedenSpec, "mill_v2")],
+                    title="mill C",
+                    points=[(320, 320), (330, 320), (330, 330)],
+                    owners=[col.ref(InputGeoWerkingsgebiedenSpec, "mill_v2")],
                 ),
             ]
         )

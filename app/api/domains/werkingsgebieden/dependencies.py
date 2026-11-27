@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -15,7 +15,7 @@ from app.api.utils.pagination import OptionalSort, OptionalSortedPagination, Sor
 from app.core.tables.werkingsgebieden import InputGeoWerkingsgebiedenTable
 
 
-def depends_optional_input_geo_werkingsgebieden_sorted_pagination(
+async def depends_optional_input_geo_werkingsgebieden_sorted_pagination(
     offset: int | None = None,
     limit: int | None = None,
     sort_column: InputGeoWerkingsgebiedenSortColumn | None = None,
@@ -34,14 +34,14 @@ def depends_optional_input_geo_werkingsgebieden_sorted_pagination(
 
 
 @inject
-def depends_input_geo_werkingsgebied(
+async def depends_input_geo_werkingsgebied(
     input_geo_werkingsgebied_uuid: uuid.UUID,
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     repository: Annotated[
         InputGeoWerkingsgebiedenRepository, Depends(Provide[ApiContainer.input_geo_werkingsgebieden_repository])
     ],
 ) -> InputGeoWerkingsgebiedenTable:
-    maybe_werkingsgebied: InputGeoWerkingsgebiedenTable | None = repository.get_by_id(
+    maybe_werkingsgebied: InputGeoWerkingsgebiedenTable | None = await repository.get_by_id(
         session, input_geo_werkingsgebied_uuid
     )
     if not maybe_werkingsgebied:

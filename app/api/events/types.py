@@ -1,6 +1,6 @@
 from abc import ABC, ABCMeta, abstractmethod
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ApiEvent(ABC):
@@ -9,7 +9,7 @@ class ApiEvent(ABC):
 
 class ApiListener[ApiEventType: ApiEvent](metaclass=ABCMeta):
     @abstractmethod
-    def handle_event(self, session: Session, event: ApiEventType) -> ApiEventType | None:
+    async def handle_event(self, session: AsyncSession, event: ApiEventType) -> ApiEventType | None:
         pass
 
     def description(self) -> str:

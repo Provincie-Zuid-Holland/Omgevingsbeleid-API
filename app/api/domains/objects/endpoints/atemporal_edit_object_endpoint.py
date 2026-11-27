@@ -5,7 +5,7 @@ from typing import Annotated, Any
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -26,13 +26,13 @@ class AtemporalEditObjectEndpointContext(BaseEndpointContext):
 
 
 @inject
-def atemporal_edit_object_endpoint(
+async def atemporal_edit_object_endpoint(
     lineage_id: int,
     object_in: BaseModel,
     user: Annotated[UsersTable, Depends(depends_current_user)],
     object_repository: Annotated[ObjectRepository, Depends(Provide[ApiContainer.object_repository])],
     permission_service: Annotated[PermissionService, Depends(Provide[ApiContainer.permission_service])],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     context: Annotated[AtemporalEditObjectEndpointContext, Depends()],
 ) -> ResponseOK:
     permission_service.guard_valid_user(
@@ -40,7 +40,7 @@ def atemporal_edit_object_endpoint(
         user,
     )
 
-    maybe_object: ObjectsTable | None = object_repository.get_latest_by_id(
+    maybe_object: ObjectsTable | None = await object_repository.get_latest_by_id(
         session,
         context.object_type,
         lineage_id,
@@ -58,27 +58,27 @@ def atemporal_edit_object_endpoint(
         setattr(maybe_object, key, value)
 
     timepoint: datetime = datetime.now(UTC)
-    maybe_object.Modified_By_UUID = user.UUID
-    maybe_object.Modified_Date = timepoint
+    maybe_object.modified_by_id = user.id
+    maybe_object.modified_date = timepoint
     session.add(maybe_object)
 
-    if "Title" in changes:
-        maybe_object.ObjectStatics.Cached_Title = changes["Title"]
-        session.add(maybe_object.ObjectStatics)
+    if "title" in changes:
+        maybe_object.object_statics.cached_title = changes["title"]
+        session.add(maybe_object.object_statics)
 
     change_log: ChangeLogTable = ChangeLogTable(
-        Object_Type=context.object_type,
-        Object_ID=lineage_id,
-        Created_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Action_Type="atemporal_edit_object",
-        Action_Data=json.dumps(changes),
-        Before=log_before,
-        After=json.dumps(maybe_object.to_dict()),
+        object_type=context.object_type,
+        object_id=lineage_id,
+        created_date=timepoint,
+        created_by_id=user.id,
+        action_type="atemporal_edit_object",
+        action_data=json.dumps(changes),
+        before=log_before,
+        after=json.dumps(maybe_object.to_dict()),
     )
     session.add(change_log)
 
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

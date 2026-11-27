@@ -1,9 +1,8 @@
-import time
 from abc import ABCMeta
 from urllib.parse import urljoin
 
-import requests
-from requests_toolbelt.multipart.encoder import MultipartEncoder
+import anyio
+import httpx2
 
 from app.api.domains.publications.types.zip import ZipData
 from app.core.settings import KoopSettings
@@ -45,52 +44,47 @@ class PdfExportUnkownError(PdfExportError):
 
 
 class PdfExportService:
-    def __init__(self, koop_settings: dict[str, KoopSettings]):
+    def __init__(self, koop_settings: dict[str, KoopSettings], timeout_seconds: float):
         # @todo: should be parsed by the Settings
         self._koop_settings: dict[str, KoopSettings] = {
             k: KoopSettings(**v) if not isinstance(v, KoopSettings) else v for k, v in koop_settings.items()
         }
+        self._timeout_seconds: float = timeout_seconds
 
-    def healthcheck(self, environment_code: str) -> None:
+    async def healthcheck(self, environment_code: str) -> None:
         try:
             api_settings: KoopSettings = self._get_api_settings(environment_code)
 
-            response = requests.get(
-                urljoin(api_settings.PREVIEW_API_URL, "/health"),
-                headers={"x-api-key": api_settings.API_KEY},
-                timeout=5,
-            )
+            async with httpx2.AsyncClient(timeout=5) as client:
+                response = await client.get(
+                    urljoin(api_settings.PREVIEW_API_URL, "/health"),
+                    headers={"x-api-key": api_settings.API_KEY},
+                )
             if response.status_code >= 500:
                 raise PdfExportUnavailableError(f"PDF preview service is unavailable (status {response.status_code})")
-        except requests.ConnectionError:
+        except httpx2.ConnectError:
             raise PdfExportUnavailableError("PDF preview service is unreachable")
-        except requests.Timeout:
+        except httpx2.TimeoutException:
             raise PdfExportUnavailableError("PDF preview service timed out")
 
-    def create_pdf(self, environment_code: str, zip_data: ZipData) -> requests.Response:
+    async def create_pdf(self, environment_code: str, zip_data: ZipData) -> bytes:
         api_settings: KoopSettings = self._get_api_settings(environment_code)
-        idx: str = self._request_generate(api_settings, zip_data)
-        self._wait_for_completion(api_settings, idx)
-        result: requests.Response = self._download_pdf(api_settings, idx)
+        async with httpx2.AsyncClient(timeout=self._timeout_seconds) as client:
+            idx: str = await self._request_generate(client, api_settings, zip_data)
+            await self._wait_for_completion(client, api_settings, idx)
+            result: bytes = await self._download_pdf(client, api_settings, idx)
 
         return result
 
-    def _request_generate(self, api_settings: KoopSettings, zip_data: ZipData) -> str:
-        multipart_data = MultipartEncoder(
-            fields={
-                "aanlevering-zip": (zip_data.Filename, zip_data.Binary, "application/zip"),
+    async def _request_generate(self, client: httpx2.AsyncClient, api_settings: KoopSettings, zip_data: ZipData) -> str:
+        response = await client.post(
+            urljoin(api_settings.PREVIEW_API_URL, "/maak-bekendmaking"),
+            headers={"x-api-key": api_settings.API_KEY},
+            files={"aanlevering-zip": (zip_data.filename, zip_data.binary, "application/zip")},
+            data={
                 "voor-ondertekenen": "true",
                 "auto-clean-up": "true",
-            }
-        )
-        headers = {
-            "x-api-key": api_settings.API_KEY,
-            "Content-Type": multipart_data.content_type,
-        }
-        response = requests.post(
-            urljoin(api_settings.PREVIEW_API_URL, "/maak-bekendmaking"),
-            headers=headers,
-            data=multipart_data,
+            },
         )
 
         match response.status_code:
@@ -109,7 +103,7 @@ class PdfExportService:
             case _ as code:
                 raise PdfExportUnkownError("Pdf export unkown", code)
 
-    def _wait_for_completion(self, api_settings: KoopSettings, idx: str):
+    async def _wait_for_completion(self, client: httpx2.AsyncClient, api_settings: KoopSettings, idx: str):
         headers = {
             "x-api-key": api_settings.API_KEY,
         }
@@ -117,7 +111,7 @@ class PdfExportService:
         attempts: int = 0
 
         while True:
-            response = requests.get(
+            response = await client.get(
                 urljoin(api_settings.PREVIEW_API_URL, f"/status/{idx}"),
                 headers=headers,
             )
@@ -139,26 +133,21 @@ class PdfExportService:
                 case _ as code:
                     raise PdfExportUnkownError(response.text, code)
 
-            time.sleep(delay_ms / 1000)
+            await anyio.sleep(delay_ms / 1000)
             delay_ms = min(int(delay_ms * 1.5), 5000)
             attempts += 1
             if attempts >= 20:
                 raise PdfExportTooManyAttemptsError("Too many attempts on getting the status")
 
-    def _download_pdf(self, api_settings: KoopSettings, idx: str) -> requests.Response:
-        headers = {
-            "x-api-key": api_settings.API_KEY,
-        }
-
-        response = requests.get(
+    async def _download_pdf(self, client: httpx2.AsyncClient, api_settings: KoopSettings, idx: str) -> bytes:
+        response = await client.get(
             urljoin(api_settings.PREVIEW_API_URL, f"/download/{idx}"),
-            headers=headers,
-            stream=True,
+            headers={"x-api-key": api_settings.API_KEY},
         )
 
         match response.status_code:
             case 200 | 202:
-                return response
+                return response.content
             case 403:
                 raise PdfExportUnauthorizedError(response.text)
             case 404:
@@ -173,6 +162,6 @@ class PdfExportService:
     def _get_api_settings(self, environment_code: str) -> KoopSettings:
         api_settings: KoopSettings | None = self._koop_settings.get(environment_code)
         if api_settings is None:
-            raise RuntimeError("Missing runtime environment settings for this Publication Environment Code")
+            raise RuntimeError("Missing runtime environment settings for this Publication Environment code")
 
         return api_settings

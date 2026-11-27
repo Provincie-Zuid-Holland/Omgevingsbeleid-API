@@ -40,6 +40,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     hoofdlijn_repository = providers.Dependency()
     storage_file_repository = providers.Dependency()
     dso_thema_factory = providers.Dependency()
+    async_model_validators_service = providers.Dependency()
 
     act_package_repository = providers.Singleton(repositories.PublicationActPackageRepository)
     act_report_repository = providers.Singleton(repositories.PublicationActReportRepository)
@@ -68,6 +69,7 @@ class PublicationContainer(containers.DeclarativeContainer):
     pdf_export_service = providers.Singleton(
         services.PdfExportService,
         koop_settings=config.PUBLICATION_KOOP,
+        timeout_seconds=config.PUBLICATION_PDF_EXPORT_TIMEOUT_SECONDS,
     )
     announcement_defaults_provider = providers.Factory(
         services.PublicationAnnouncementDefaultsProvider,
@@ -135,6 +137,7 @@ class PublicationContainer(containers.DeclarativeContainer):
         publication_gios_provider=publication_gios_provider_factory,
         publication_documents_provider=documents_provider,
         publication_aoj_repository=aoj_repository,
+        version_attachment_repository=version_attachment_repository,
         template_parser=template_parser,
     )
 
@@ -148,6 +151,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             state_versions.StateV5,
             state_versions.StateV6,
             state_versions.StateV7,
+            state_versions.StateV8,
         ],
         upgraders=providers.List(
             providers.Factory(
@@ -160,11 +164,13 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Factory(state_versions.StateV5Upgrader),
             providers.Factory(state_versions.StateV6Upgrader),
             providers.Factory(state_versions.StateV7Upgrader),
+            providers.Factory(state_versions.StateV8Upgrader),
         ),
     )
     state_loader = providers.Singleton(
         state_services.StateLoader,
         state_version_factory=state_version_factory,
+        environment_repository=environment_repository,
     )
 
     validate_publication_service = providers.Singleton(
@@ -173,6 +179,7 @@ class PublicationContainer(containers.DeclarativeContainer):
             providers.Singleton(
                 RequiredObjectFieldsRule,
                 document_type_map=publication_required_object_fields_rule_mapping,
+                async_model_validators_service=async_model_validators_service,
             ),
             providers.Singleton(UsedObjectsInPublicationExistInTemplateRule),
             providers.Singleton(UsedObjectTypeExistsRule),

@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.werkingsgebieden.services.change_area_processor import (
     AreaProcessorConfig,
@@ -14,13 +14,15 @@ class ChangeAreaListener(ApiListener[ModuleObjectPatchedEvent]):
     def __init__(self, service_factory: AreaProcessorServiceFactory):
         self._service_factory: AreaProcessorServiceFactory = service_factory
 
-    def handle_event(self, session: Session, event: ModuleObjectPatchedEvent) -> ModuleObjectPatchedEvent | None:
+    async def handle_event(
+        self, session: AsyncSession, event: ModuleObjectPatchedEvent
+    ) -> ModuleObjectPatchedEvent | None:
         config: AreaProcessorConfig | None = self._collect_config(event)
         if not config:
             return event
 
         area_processor: AreaProcessorService = self._service_factory.create_service(session, config)
-        new_record = area_processor.process(
+        new_record = await area_processor.process(
             event.context.old_record,
             event.payload.new_record,
         )

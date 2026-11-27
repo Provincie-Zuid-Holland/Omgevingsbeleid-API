@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.modules.services.validate_module.validate_module_service import (
     ValidateModuleError,
@@ -26,13 +26,13 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
         )
         self._repository: PublicationObjectRepository = repository
 
-    def validate(self, db: Session, request: ValidateModuleRequest) -> list[ValidateModuleError]:
-        objects: list[dict] = self._repository.fetch_objects(
+    async def validate(self, db: AsyncSession, request: ValidateModuleRequest) -> list[ValidateModuleError]:
+        objects: list[dict] = await self._repository.fetch_objects(
             db,
             request.module_id,
             datetime.now(UTC),
         )
-        existing_object_codes: set[str] = {o["Code"] for o in objects}
+        existing_object_codes: set[str] = {o["code"] for o in objects}
 
         errors: list[ValidateModuleError] = []
 
@@ -42,16 +42,16 @@ class RequireExistingHierarchyCodeRule(ValidateModuleRule):
                 continue
 
             if target_code not in existing_object_codes:
-                module_object: ModuleObjectsTable = request.get_module_object(object_info["Code"])
-                title: str = module_object.Title if module_object and module_object.Title else ""
+                module_object: ModuleObjectsTable = request.get_module_object(object_info["code"])
+                title: str = module_object.title if module_object and module_object.title else ""
 
                 errors.append(
                     ValidateModuleError(
                         rule="require_existing_hierarchy_code_rule",
                         object=ValidateModuleObject(
-                            code=object_info["Code"],
-                            object_id=object_info["Object_ID"],
-                            object_type=object_info["Object_Type"],
+                            code=object_info["code"],
+                            object_id=object_info["object_id"],
+                            object_type=object_info["object_type"],
                             title=title,
                         ),
                         messages=[f"Hierarchy code {target_code} does or will not exist in next version"],

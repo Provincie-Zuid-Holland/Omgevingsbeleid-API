@@ -1,8 +1,8 @@
 from typing import Any, Self
-from urllib.parse import quote_plus
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
 
 
 class KoopSettings(BaseModel):
@@ -13,7 +13,6 @@ class KoopSettings(BaseModel):
 
 class Settings(BaseSettings):
     PROJECT_VERSION: str = "5.0.0"
-    LOCAL_DEVELOPMENT_MODE: bool = False
 
     PROJECT_NAME: str = "Omgevingsbeleid API"
     PROJECT_DESC: str = """
@@ -26,16 +25,19 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 4
 
     # Database
-    SQLALCHEMY_ECHO: bool = True
-    DB_DRIVER: str = Field("ODBC Driver 17 for SQL Server", description="The driver for the SQL database")
-    DB_HOST: str = Field("mssql", description="The host address of the database")
-    DB_NAME: str = Field("development", description="The name of the database")
-    DB_USER: str = Field("SA", description="The database username")
-    DB_PASS: str = Field("Passw0rd", description="The password for the database user")
-    TEST_DB_NAME: str = Field("db_test", description="The name of the test database")
+    SQLALCHEMY_ECHO: bool = False
+
+    DB_DIALECT: str = Field(
+        "postgresql+psycopg",
+        description="SQLAlchemy dialect+driver, e.g. postgresql+psycopg or sqlite+pysqlite",
+    )
+    DB_HOST: str = Field("postgres", description="The host address of the database")
+    DB_PORT: int = Field(5432, description="The port for the database connection")
+    DB_NAME: str = Field("omgevingsbeleid", description="The name of the database")
+    DB_USER: str = Field("omgevingsbeleid", description="The database username")
+    DB_PASS: str = Field("omgevingsbeleid", description="The password for the database user")
 
     SQLALCHEMY_DATABASE_URI: str = ""
-    SQLALCHEMY_TEST_DATABASE_URI: str = ""
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
     def assemble_db_connection(cls, v: str | None, info) -> Any:
@@ -43,32 +45,18 @@ class Settings(BaseSettings):
             return v
 
         values = info.data
-        db_connection_settings = f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};DATABASE={values['DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
-        encoded_settings = quote_plus(db_connection_settings)
-
-        return f"mssql+pyodbc:///?odbc_connect={encoded_settings}"
-
-    @field_validator("SQLALCHEMY_TEST_DATABASE_URI", mode="before")
-    def assemble_test_db_connection(cls, v: str | None, info) -> Any:
-        if isinstance(v, str) and len(v):
-            return v
-
-        values = info.data
-        db_connection_settings = (
-            f"DRIVER={values['DB_DRIVER']};SERVER={values['DB_HOST']};"
-            f"DATABASE={values['TEST_DB_NAME']};UID={values['DB_USER']};PWD={values['DB_PASS']}"
-        )
-        encoded_settings = quote_plus(db_connection_settings)
-
-        return f"mssql+pyodbc:///?odbc_connect={encoded_settings}"
+        return URL.create(
+            values["DB_DIALECT"],
+            username=values["DB_USER"],
+            password=values["DB_PASS"],
+            host=values["DB_HOST"],
+            port=values["DB_PORT"],
+            database=values["DB_NAME"],
+        ).render_as_string(hide_password=False)
 
     # Dynamic
     MAIN_CONFIG_FILE: str = "./config/main.yml"
     OBJECT_CONFIG_PATH: str = "./config/objects/"
-
-    # Mssql Search
-    MSSQL_SEARCH_FTC_NAME: str = "Omgevingsbeleid_FTC"
-    MSSQL_SEARCH_STOPLIST_NAME: str = "Omgevingsbeleid_SW"
 
     PUBLICATION_KOOP: dict[str, KoopSettings] = Field(default_factory=dict)
     PUBLICATION_OW_DATASET: str = Field(
@@ -79,18 +67,30 @@ class Settings(BaseSettings):
         "provincie Zuid-holland",
         description="Area identifier for OW (Omgevingswet) publications",
     )
+    PUBLICATION_PDF_EXPORT_TIMEOUT_SECONDS: float = Field(
+        300,
+        description="Timeout in seconds for each request to the KOOP PDF preview service (upload, status, download)",
+    )
 
     # @note: These will be overwritten and based on earlier input
-    # These are for the Depedency Injector library
+    # These are for the Dependency Injector library
 
     DB_TYPE: str = Field("")
 
     @model_validator(mode="after")
     def set_values_for_containers(self) -> Self:
-        # "mssql+pyodbc://..." → "mssql"
         # "sqlite+pysqlite:///..." → "sqlite"
         # "sqlite:///:memory:" → "sqlite"
-        self.DB_TYPE = self.SQLALCHEMY_DATABASE_URI.split("://", 1)[0].split("+")[0]
+        # "postgresql+psycopg://..." → "postgresql", the keys of the Selector providers in ApiContainer
+        db_type: str = self.SQLALCHEMY_DATABASE_URI.split("://", 1)[0].split("+")[0]
+
+        valid_db_types: set[str] = {"sqlite", "postgresql"}
+        if db_type not in valid_db_types:
+            raise RuntimeError(
+                f"DB_TYPE `{db_type}` is not supported. Supported databases are {', '.join(valid_db_types)}"
+            )
+        self.DB_TYPE = db_type
+
         return self
 
     model_config = SettingsConfigDict(

@@ -2,7 +2,7 @@ from typing import get_args
 
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.tables.objects import ObjectsTable
 from app.core.types import DynamicObjectModel, Model
@@ -17,15 +17,15 @@ class Config(BaseModel):
 class JoinWerkingsgebiedenService:
     def __init__(
         self,
-        session: Session,
+        session: AsyncSession,
         rows: list[BaseModel],
         response_model: Model,
     ):
-        self._session: Session = session
+        self._session: AsyncSession = session
         self._rows: list[BaseModel] = rows
         self._response_model: Model = response_model
 
-    def join_werkingsgebieden(self) -> list[BaseModel]:
+    async def join_werkingsgebieden(self) -> list[BaseModel]:
         config: Config | None = self._collect_config()
         if not config:
             return self._rows
@@ -33,7 +33,7 @@ class JoinWerkingsgebiedenService:
         if len(config.werkingsgebied_codes) == 0:
             return self._rows
 
-        werkingsgebieden: dict[str, BaseModel] = self._fetch_werkingsgebieden(config)
+        werkingsgebieden: dict[str, BaseModel] = await self._fetch_werkingsgebieden(config)
 
         result_rows: list[BaseModel] = []
         for row in self._rows:
@@ -45,7 +45,7 @@ class JoinWerkingsgebiedenService:
 
         return result_rows
 
-    def _fetch_werkingsgebieden(self, config: Config) -> dict[str, BaseModel]:
+    async def _fetch_werkingsgebieden(self, config: Config) -> dict[str, BaseModel]:
         werkingsgebied_annotation = self._response_model.pydantic_model.__annotations__.get(config.to_field)
         werkingsgebied_model: type[BaseModel] = get_args(werkingsgebied_annotation)[0]
 
@@ -54,24 +54,24 @@ class JoinWerkingsgebiedenService:
                 ObjectsTable,
                 func.row_number()
                 .over(
-                    partition_by=ObjectsTable.Code,
-                    order_by=desc(ObjectsTable.Modified_Date),
+                    partition_by=ObjectsTable.code,
+                    order_by=desc(ObjectsTable.modified_date),
                 )
-                .label("_RowNumber"),
+                .label("_row_number"),
             )
             .select_from(ObjectsTable)
             .filter(
-                ObjectsTable.Code.in_(config.werkingsgebied_codes),
+                ObjectsTable.code.in_(config.werkingsgebied_codes),
             )
             .subquery()
         )
 
         # TODO check of het niet verlopen is
 
-        stmt = select(subq).filter(subq.c._RowNumber == 1)
+        stmt = select(subq).filter(subq.c._row_number == 1)
 
-        rows = self._session.execute(stmt).all()
-        result: dict[str, BaseModel] = {r.Code: werkingsgebied_model.model_validate(r) for r in rows}
+        rows = (await self._session.execute(stmt)).all()
+        result: dict[str, BaseModel] = {r.code: werkingsgebied_model.model_validate(r) for r in rows}
 
         return result
 
@@ -98,7 +98,7 @@ class JoinWerkingsgebiedenService:
 class JoinWerkingsgebiedenServiceFactory:
     def create_service(
         self,
-        session: Session,
+        session: AsyncSession,
         rows: list[BaseModel],
         response_model: Model,
     ) -> JoinWerkingsgebiedenService:

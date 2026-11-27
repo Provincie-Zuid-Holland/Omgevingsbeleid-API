@@ -39,10 +39,10 @@ class AnnouncementPackageBuilder:
         filename: str = publication_filename.replace(".xml", ".zip")
         checksum: str = hashlib.sha256(zip_content).hexdigest()
         zip_data: ZipData = ZipData(
-            Publication_Filename=publication_filename,
-            Filename=filename,
-            Binary=zip_content,
-            Checksum=checksum,
+            publication_filename=publication_filename,
+            filename=filename,
+            binary=zip_content,
+            checksum=checksum,
         )
         return zip_data
 
@@ -51,29 +51,29 @@ class AnnouncementPackageBuilder:
         return delivery_id
 
     def get_bill_frbr(self) -> BillFrbr:
-        return self._api_input_data.About_Bill_Frbr
+        return self._api_input_data.about_bill_frbr
 
     def get_act_frbr(self) -> ActFrbr:
-        return self._api_input_data.About_Act_Frbr
+        return self._api_input_data.about_act_frbr
 
     def get_doc_frbr(self) -> DocFrbr:
-        return self._api_input_data.Doc_Frbr
+        return self._api_input_data.doc_frbr
 
     def create_new_state(self) -> PublicationEnvironmentStateTable:
         if self._state is None:
             raise RuntimeError("Can not create new state")
 
-        environment: PublicationEnvironmentTable = self._api_input_data.Announcement.Publication.Environment
+        environment: PublicationEnvironmentTable = self._api_input_data.announcement.publication.environment
 
         state_changer = AnnouncementStatePatcher(self._api_input_data, self._dso_builder)
         state: State = state_changer.apply(self._state)
 
         state_table: PublicationEnvironmentStateTable = PublicationEnvironmentStateTable(
-            UUID=uuid.uuid4(),
-            Environment_UUID=environment.UUID,
-            Adjust_On_UUID=environment.Active_State_UUID,
-            State=state.state_dict(),
-            Is_Activated=False,
-            Activated_Datetime=None,
+            id=uuid.uuid4(),
+            environment_id=environment.id,
+            adjust_on_id=environment.active_state_id,
+            state=state.state_dict(),
+            is_activated=False,
+            activated_datetime=None,
         )
         return state_table

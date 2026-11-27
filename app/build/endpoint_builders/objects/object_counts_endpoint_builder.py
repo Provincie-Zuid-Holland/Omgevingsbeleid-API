@@ -23,5 +23,5 @@ class ObjectCountsEndpointBuilder(EndpointBuilder):
             methods=["GET"],
             response_model=ObjectCountResponse,
             summary="List object types with counts for loggedin user",
-            tags=["Objects"],
+            tags=["objects"],
         )

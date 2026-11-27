@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import depends_db_session
 from app.api.domains.users.dependencies import depends_current_user_with_permission_curried
@@ -14,16 +14,16 @@ from app.core.tables.users import UsersTable
 
 
 class AOJCreate(BaseModel):
-    Administrative_Borders_ID: str = Field(..., min_length=3)
-    Administrative_Borders_Domain: str = Field(..., min_length=3)
-    Administrative_Borders_Date: date
+    administrative_borders_id: str = Field(..., min_length=3)
+    administrative_borders_domain: str = Field(..., min_length=3)
+    administrative_borders_date: date
 
 
 class AOJCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
-def post_create_aoj_endpoint(
+async def post_create_aoj_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -32,22 +32,22 @@ def post_create_aoj_endpoint(
             )
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: AOJCreate,
 ) -> AOJCreatedResponse:
     area_of_jurisdiction = PublicationAreaOfJurisdictionTable(
-        UUID=uuid.uuid4(),
-        Administrative_Borders_ID=object_in.Administrative_Borders_ID,
-        Administrative_Borders_Domain=object_in.Administrative_Borders_Domain,
-        Administrative_Borders_Date=object_in.Administrative_Borders_Date,
-        Created_Date=datetime.now(UTC),
-        Created_By_UUID=user.UUID,
+        id=uuid.uuid4(),
+        administrative_borders_id=object_in.administrative_borders_id,
+        administrative_borders_domain=object_in.administrative_borders_domain,
+        administrative_borders_date=object_in.administrative_borders_date,
+        created_date=datetime.now(UTC),
+        created_by_id=user.id,
     )
 
     session.add(area_of_jurisdiction)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return AOJCreatedResponse(
-        UUID=area_of_jurisdiction.UUID,
+        id=area_of_jurisdiction.id,
     )

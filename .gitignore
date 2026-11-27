@@ -24,6 +24,5 @@ output-dso/*
 !output/.gitkeep
 .vscode
 notes.md
-.python-version
 temp/
 tmp/

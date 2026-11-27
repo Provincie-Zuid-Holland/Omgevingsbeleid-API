@@ -3,13 +3,14 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
 from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.werkingsgebieden.repositories.area_repository import AreaRepository
 from app.core.tables.others import AreasTable
 from app.core.tables.werkingsgebieden import InputGeoOnderverdelingenTable
 
 
+# @todo: can we simplify this whole file now?
 class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
     @abstractmethod
     def _text_to_shape(self, key: str) -> str:
@@ -20,97 +21,101 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _format_uuid(self, uuidx: uuid.UUID) -> str:
+    def _format_uuid(self, idx: uuid.UUID) -> str:
         pass
 
     @abstractmethod
     def _calculate_hex(self, column: str) -> str:
         pass
 
-    def get_shape_hash(self, session: Session, uuidx: uuid.UUID) -> str | None:
+    async def get_shape_hash(self, session: AsyncSession, idx: uuid.UUID) -> str | None:
+        # TODO to SQLAlchemy
         params = {
-            "uuid": self._format_uuid(uuidx),
+            "id": self._format_uuid(idx),
         }
         sql = f"""
             SELECT
-                {self._calculate_hex("Shape")}
+                {self._calculate_hex("shape")}
             FROM
                 areas
             WHERE
-                UUID = :uuid
+                id = :id
             """
 
-        row = session.execute(text(sql), params).fetchone()
+        row = (await session.execute(text(sql), params)).fetchone()
         if row is None:
             return None
         return row[0]
 
-    def create_area(
+    async def create_area(
         self,
-        session: Session,
-        uuidx: uuid.UUID,
+        session: AsyncSession,
+        idx: uuid.UUID,
         created_date: datetime,
-        created_by_uuid: uuid.UUID,
+        created_by_id: uuid.UUID,
         onderverdeling: InputGeoOnderverdelingenTable,
     ):
         area = AreasTable(
-            UUID=uuidx,
-            Created_Date=created_date,
-            Created_By_UUID=created_by_uuid,
-            Shape=None,
-            Gml=onderverdeling.GML,
-            Source_Symbol=onderverdeling.Symbol,
-            Source_Geometry_Index=onderverdeling.Geometry_Hash[0:10],
-            Source_Geometry_Hash=onderverdeling.Geometry_Hash,
-            Source_UUID=onderverdeling.UUID,
-            Source_Title=onderverdeling.Title,
-            Source_Created_Date=onderverdeling.Created_Date,
+            id=idx,
+            created_date=created_date,
+            created_by_id=created_by_id,
+            shape=None,
+            gml=onderverdeling.gml,
+            source_uuid=onderverdeling.id,
+            source_title=onderverdeling.title,
+            source_symbol=onderverdeling.symbol,
+            source_created_date=onderverdeling.created_date,
+            source_geometry_index=onderverdeling.geometry_hash[0:10],
+            source_geometry_hash=onderverdeling.geometry_hash,
         )
         session.add(area)
-        session.flush()
+        await session.flush()
 
         put_geometry_params = {
-            "input_uuid": self._format_uuid(onderverdeling.UUID),
-            "area_uuid": self._format_uuid(uuidx),
+            "input_id": self._format_uuid(onderverdeling.id),
+            "area_id": self._format_uuid(idx),
         }
+        # TODO to SQLAlchemy
+        # @todo: fix this
         put_geometry_stmt = """
             UPDATE
                 areas
             SET
-                Shape = (
+                shape = (
                     SELECT
-                        Geometry
+                        geometry
                     FROM
-                        Input_GEO_Onderverdeling
+                        input_geo_onderverdeling
                     WHERE
-                        UUID = :input_uuid
+                        id = :input_id
                 )
             WHERE
-                UUID = :area_uuid
+                id = :area_id
         """
-        session.execute(text(put_geometry_stmt), put_geometry_params)
+        await session.execute(text(put_geometry_stmt), put_geometry_params)
 
-    def get_area(self, session: Session, uuidx: uuid.UUID) -> dict:
-        row = self.get_area_optional(session, uuidx)
+    async def get_area(self, session: AsyncSession, idx: uuid.UUID) -> dict:
+        row = await self.get_area_optional(session, idx)
         if row is None:
-            raise RuntimeError(f"Area with UUID {uuidx} does not exist")
+            raise RuntimeError(f"Area with id {idx} does not exist")
         return row
 
-    def get_area_optional(self, session: Session, uuidx: uuid.UUID) -> dict | None:
+    async def get_area_optional(self, session: AsyncSession, idx: uuid.UUID) -> dict | None:
+        # TODO to SQLAlchemy
         params = {
-            "uuid": self._format_uuid(uuidx),
+            "id": self._format_uuid(idx),
         }
         sql = f"""
             SELECT
-                UUID, Created_Date, Created_By_UUID,
-                {self._shape_to_text("Shape")} AS Shape,
-                Source_Title, Source_Symbol
+                id, created_date, created_by,
+                {self._shape_to_text("shape")} AS shape,
+                source_title, source_symbol
             FROM
                 areas
             WHERE
-                UUID = :uuid
+                id = :id
             """
-        row = session.execute(text(sql), params).fetchone()
+        row = (await session.execute(text(sql), params)).fetchone()
         if row is None:
             return None
 
@@ -118,18 +123,19 @@ class AreaGeometryRepository(AreaRepository, metaclass=ABCMeta):
         return row_dict
 
     # TODO: WIP - not used yet. combine query for multiple areas for performance
-    def get_areas(self, session: Session, uuids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
-        placeholders = ", ".join(f":uuid{i}" for i in range(len(uuids)))
-        params = {f"uuid{i}": uuid for i, uuid in enumerate(uuids)}
+    async def get_areas(self, session: AsyncSession, ids: list[uuid.UUID]) -> dict[uuid.UUID, dict]:
+        placeholders = ", ".join(f":uuid{i}" for i in range(len(ids)))
+        params = {f"id{i}": idx for i, idx in enumerate(ids)}
+        # TODO to SQLAlchemy
         sql = f"""
             SELECT
-                UUID, Created_Date, Created_By_UUID,
-                {self._shape_to_text("Shape")} AS Shape,
-                Source_Title, Source_Symbol
+                id, created_date, created_by,
+                {self._shape_to_text("shape")} AS shape,
+                source_title, source_symbol
             FROM
                 areas
             WHERE
-                UUID IN ({placeholders})
+                id IN ({placeholders})
             """
-        rows = session.execute(text(sql), params).fetchall()
+        rows = (await session.execute(text(sql), params)).fetchall()
         return {row.UUID: row._asdict() for row in rows}

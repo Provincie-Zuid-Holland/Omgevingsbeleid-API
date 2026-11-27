@@ -5,7 +5,7 @@ from typing import Annotated
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -23,16 +23,16 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationVersionCreate(BaseModel):
-    Module_Status_ID: int
-    Mutation_Strategy: MutationStrategy = MutationStrategy.RENVOOI
+    module_status_id: int
+    mutation_strategy: MutationStrategy = MutationStrategy.RENVOOI
 
 
 class PublicationVersionCreatedResponse(BaseModel):
-    UUID: uuid.UUID
+    id: uuid.UUID
 
 
 @inject
-def post_create_version_endpoint(
+async def post_create_version_endpoint(
     publication: Annotated[PublicationTable, Depends(depends_publication)],
     module_status_repository: Annotated[
         ModuleStatusRepository, Depends(Provide[ApiContainer.module_status_repository])
@@ -48,66 +48,66 @@ def post_create_version_endpoint(
     defaults_provider: Annotated[
         PublicationVersionDefaultsProvider, Depends(Provide[ApiContainer.publication.version_defaults_provider])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: PublicationVersionCreate,
 ) -> PublicationVersionCreatedResponse:
     _guard_locked(publication)
 
-    module_status: ModuleStatusHistoryTable = _get_module_status(
+    module_status: ModuleStatusHistoryTable = await _get_module_status(
         session,
         module_status_repository,
-        publication.Module_ID,
-        object_in.Module_Status_ID,
+        publication.module_id,
+        object_in.module_status_id,
     )
 
-    bill_metadata = defaults_provider.get_bill_metadata(publication.Document_Type, publication.Procedure_Type)
-    bill_compact = defaults_provider.get_bill_compact(publication.Document_Type, publication.Procedure_Type)
+    bill_metadata = defaults_provider.get_bill_metadata(publication.document_type, publication.procedure_type)
+    bill_compact = defaults_provider.get_bill_compact(publication.document_type, publication.procedure_type)
     procedural = defaults_provider.get_procedural()
 
     # no active status for stateless/internal publication
     status = PublicationVersionStatus.NOT_APPLICABLE
-    if publication.Environment.Has_State:
+    if publication.environment.has_state:
         status = PublicationVersionStatus.ACTIVE
 
     timepoint: datetime = datetime.now(UTC)
     version: PublicationVersionTable = PublicationVersionTable(
-        UUID=uuid.uuid4(),
-        Publication_UUID=publication.UUID,
-        Module_Status_ID=module_status.ID,
-        Bill_Metadata=bill_metadata.model_dump(),
-        Bill_Compact=bill_compact.model_dump(),
-        Procedural=procedural.model_dump(),
-        Effective_Date=None,
-        Announcement_Date=None,
-        Is_Locked=False,
-        Status=status,
-        Mutation_Strategy=object_in.Mutation_Strategy,
-        Created_Date=timepoint,
-        Modified_Date=timepoint,
-        Created_By_UUID=user.UUID,
-        Modified_By_UUID=user.UUID,
+        id=uuid.uuid4(),
+        publication_id=publication.id,
+        module_status_id=module_status.id,
+        bill_metadata=bill_metadata.model_dump(),
+        bill_compact=bill_compact.model_dump(),
+        procedural=procedural.model_dump(),
+        effective_date=None,
+        announcement_date=None,
+        is_locked=False,
+        status=status,
+        mutation_strategy=object_in.mutation_strategy,
+        created_date=timepoint,
+        modified_date=timepoint,
+        created_by_id=user.id,
+        modified_by_id=user.id,
     )
 
     session.add(version)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return PublicationVersionCreatedResponse(
-        UUID=version.UUID,
+        id=version.id,
     )
 
 
 def _guard_locked(publication: PublicationTable):
-    if not publication.Module.is_active:
+    if not publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
-    if not publication.Act.Is_Active:
+    if not publication.act.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This act can no longer be used")
 
 
-def _get_module_status(
-    session: Session, module_status_repository: ModuleStatusRepository, module_id: int, status_id: int
+async def _get_module_status(
+    session: AsyncSession, module_status_repository: ModuleStatusRepository, module_id: int, status_id: int
 ) -> ModuleStatusHistoryTable:
-    module_status: ModuleStatusHistoryTable | None = module_status_repository.get_by_id(
+    module_status: ModuleStatusHistoryTable | None = await module_status_repository.get_by_id(
         session,
         module_id,
         status_id,

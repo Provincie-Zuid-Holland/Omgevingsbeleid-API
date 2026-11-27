@@ -5,7 +5,7 @@ from typing import Annotated, Any
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -19,11 +19,11 @@ from app.core.tables.users import UsersTable
 
 
 class PublicationEdit(BaseModel):
-    Template_UUID: uuid.UUID | None = None
+    template_id: uuid.UUID | None = None
 
 
 @inject
-def post_edit_publication_endpoint(
+async def post_edit_publication_endpoint(
     user: Annotated[
         UsersTable,
         Depends(
@@ -36,42 +36,42 @@ def post_edit_publication_endpoint(
     template_repository: Annotated[
         PublicationTemplateRepository, Depends(Provide[ApiContainer.publication.template_repository])
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     object_in: PublicationEdit,
 ) -> ResponseOK:
-    if not publication.Module.is_active:
+    if not publication.module.is_active:
         raise HTTPException(status.HTTP_409_CONFLICT, "This module is not active")
 
     changes: dict[str, Any] = object_in.model_dump(exclude_unset=True)
     if not changes:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Nothing to update")
 
-    if object_in.Template_UUID is not None:
-        _guard_template(session, template_repository, publication.Document_Type, object_in.Template_UUID)
+    if object_in.template_id is not None:
+        await _guard_template(session, template_repository, publication.document_type, object_in.template_id)
 
     for key, value in changes.items():
         setattr(publication, key, value)
 
-    publication.Modified_By_UUID = user.UUID
-    publication.Modified_Date = datetime.now(UTC)
+    publication.modified_by_id = user.id
+    publication.modified_date = datetime.now(UTC)
 
     session.add(publication)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")
 
 
-def _guard_template(
-    session: Session,
+async def _guard_template(
+    session: AsyncSession,
     template_repository: PublicationTemplateRepository,
     document_type: str,
-    template_uuid: uuid.UUID,
+    template_id: uuid.UUID,
 ) -> None:
-    template: PublicationTemplateTable | None = template_repository.get_by_uuid(session, template_uuid)
+    template: PublicationTemplateTable | None = await template_repository.get_by_id(session, template_id)
     if template is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template niet gevonden")
-    if not template.Is_Active:
+    if not template.is_active:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template is gesloten")
-    if template.Document_Type != document_type:
+    if template.document_type != document_type:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Template hoort niet bij dit document type")

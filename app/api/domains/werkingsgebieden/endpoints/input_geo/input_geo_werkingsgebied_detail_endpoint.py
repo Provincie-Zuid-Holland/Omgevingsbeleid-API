@@ -7,7 +7,7 @@ from app.api.domains.werkingsgebieden.types import InputGeoWerkingsgebiedDetaile
 from app.core.tables.werkingsgebieden import InputGeoWerkingsgebiedenTable
 
 
-def get_input_geo_werkingsgebieden_detail_endpoint(
+async def get_input_geo_werkingsgebieden_detail_endpoint(
     input_geo_werkingsgebied: Annotated[InputGeoWerkingsgebiedenTable, Depends(depends_input_geo_werkingsgebied)],
 ) -> InputGeoWerkingsgebiedDetailed:
     result: InputGeoWerkingsgebiedDetailed = InputGeoWerkingsgebiedDetailed.model_validate(input_geo_werkingsgebied)

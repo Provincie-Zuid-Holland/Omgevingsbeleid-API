@@ -1,33 +1,27 @@
+from collections.abc import AsyncIterator
+
 from fastapi import Request
-from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.utils.pagination import OptionalSort, OptionalSortedPagination, SimplePagination, SortOrder
 
 
-def depends_db_session(request: Request):
+async def depends_db_session(request: Request) -> AsyncIterator[AsyncSession]:
     db_sessionmaker = request.app.state.db_sessionmaker
 
-    with db_sessionmaker.begin() as session:
-        try:
-            # when using SQLite, ensure FK constraints and load Spatialite
-            if session.bind.dialect.name == "sqlite":
-                session.execute(text("PRAGMA foreign_keys = ON"))
-                session.execute(text("SELECT load_extension('mod_spatialite')"))
-            yield session
-            # commit happens automatically when exiting the 'with' block
-        except Exception:
-            session.rollback()
-            raise
+    # Commits when the block exits, rolls back on an exception.
+    async with db_sessionmaker.begin() as session:
+        yield session
 
 
-def depends_simple_pagination(
+async def depends_simple_pagination(
     offset: int | None = None,
     limit: int | None = None,
 ) -> SimplePagination:
     return SimplePagination(offset=offset, limit=limit)
 
 
-def depends_optional_sorted_pagination(
+async def depends_optional_sorted_pagination(
     offset: int | None = None,
     limit: int | None = None,
     sort_column: str | None = None,

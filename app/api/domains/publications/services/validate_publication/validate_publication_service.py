@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.types.api_input_data import ApiActInputData
 
@@ -47,7 +47,7 @@ class ValidatePublicationException(Exception):
 
 class ValidatePublicationRule(ABC):
     @abstractmethod
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         pass
 
 
@@ -66,10 +66,10 @@ class ValidatePublicationService:
     def __init__(self, rules: list[ValidatePublicationRule]):
         self._rules: list[ValidatePublicationRule] = rules
 
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> ValidatePublicationResult:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> ValidatePublicationResult:
         errors: list[ValidatePublicationError] = []
         for rule in self._rules:
-            errors += rule.validate(db, request)
+            errors += await rule.validate(db, request)
 
         return ValidatePublicationResult(
             errors=errors,

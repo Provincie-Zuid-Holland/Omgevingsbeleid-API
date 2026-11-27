@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.validate_publication.validate_publication_service import (
     ValidatePublicationError,
@@ -12,16 +12,16 @@ from app.api.domains.publications.services.validate_publication.validate_publica
 
 
 class AttachmentInBillReferenceRule(ValidatePublicationRule):
-    def validate(self, db: Session, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
+    async def validate(self, db: AsyncSession, request: ValidatePublicationRequest) -> list[ValidatePublicationError]:
         errors: list[ValidatePublicationError] = []
 
-        bill_compact: dict[str, Any] = request.input_data.Publication_Version.Bill_Compact or {}
+        bill_compact: dict[str, Any] = request.input_data.publication_version.bill_compact or {}
         referenced_ids: set[int] = self._extract_ref_ids(bill_compact)
 
         attachment_ids: set[int] = set()
         attachment_title_map: dict[int, str] = {}
 
-        for attachment in request.input_data.Publication_Data.bill_attachments:
+        for attachment in request.input_data.publication_data.bill_attachments:
             attachment_ids.add(attachment["id"])
             attachment_title_map[attachment["id"]] = attachment.get("title", attachment.get("filename", ""))
 
@@ -58,15 +58,15 @@ class AttachmentInBillReferenceRule(ValidatePublicationRule):
         ref_ids: set[int] = set()
         pattern = re.compile(r"\[REF_BILL_PDF:(\d+)\]")
 
-        for appendix in bill_compact.get("Appendices", []):
-            matches = pattern.findall(appendix.get("Content", ""))
+        for appendix in bill_compact.get("appendices", []):
+            matches = pattern.findall(appendix.get("content", ""))
             for match in matches:
                 ref_ids.add(int(match))
 
-        motivation: dict | None = bill_compact.get("Motivation")
+        motivation: dict | None = bill_compact.get("motivation")
         if motivation:
-            for appendix in motivation.get("Appendices", []):
-                matches = pattern.findall(appendix.get("Content", ""))
+            for appendix in motivation.get("appendices", []):
+                matches = pattern.findall(appendix.get("content", ""))
                 for match in matches:
                     ref_ids.add(int(match))
         return ref_ids

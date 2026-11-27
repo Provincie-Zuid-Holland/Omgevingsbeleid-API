@@ -11,13 +11,13 @@ from tests.fixtures.internal.spec.objects.base_object_spec import (
 
 class GebiedsaanwijzingMixin(BaseModel):
     __object_type__: ClassVar[str] = "gebiedsaanwijzing"
-    __inheritable__: ClassVar[set[str]] = {"Title", "Ref_Type", "Ref_Group", "Target_Codes"}
-    __object_fields__: ClassVar[set[str]] = {"Title", "Ref_Type", "Ref_Group", "Target_Codes"}
+    __inheritable__: ClassVar[set[str]] = {"title", "ref_type", "ref_group", "target_codes"}
+    __object_fields__: ClassVar[set[str]] = {"title", "ref_type", "ref_group", "target_codes"}
 
-    Title: str | None = None
-    Ref_Type: str | None = None
-    Ref_Group: str | None = None
-    Target_Codes: list[str] | None = None
+    title: str | None = None
+    ref_type: str | None = None
+    ref_group: str | None = None
+    target_codes: list[str] | None = None
 
 
 class GebiedsaanwijzingSpec(GebiedsaanwijzingMixin, BaseObjectSpec):

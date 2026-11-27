@@ -17,8 +17,8 @@ class EditPublicationEnvironmentEndpointBuilder(EndpointBuilder):
         endpoint_config: EndpointConfig,
         api: ObjectApi,
     ) -> ConfiguredFastapiEndpoint:
-        if "{environment_uuid}" not in builder_data.path:
-            raise RuntimeError("Missing {environment_uuid} argument in path")
+        if "{environment_id}" not in builder_data.path:
+            raise RuntimeError("Missing {environment_id} argument in path")
 
         return ConfiguredFastapiEndpoint(
             path=builder_data.path,

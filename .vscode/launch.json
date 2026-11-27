@@ -9,7 +9,7 @@
             "args": [
                 "app.main:app",
                 "--host",
-                "0.0.0.0",
+                "0.0.0.0"
             ],
             "env": {
                 "PYTHONWARNINGS": "default"
@@ -49,9 +49,9 @@
             "args": [
                 "create-dso-json-scenario",
                 "--publication_version",
-                "90000006-0000-0000-0000-000000000003",
+                "90000006-0000-0000-0000-000000000003"
             ],
             "justMyCode": false
-        },
+        }
     ]
 }

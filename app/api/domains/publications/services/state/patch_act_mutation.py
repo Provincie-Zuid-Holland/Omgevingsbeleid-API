@@ -2,10 +2,10 @@ from uuid import UUID
 
 import dso.models as dso_models
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.domains.publications.services.assets.publication_asset_provider import PublicationAssetProvider
-from app.api.domains.publications.services.state.versions.v7 import models
+from app.api.domains.publications.services.state.versions import active_models
 from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutation, ApiActInputData, PublicationGio
 
 
@@ -14,7 +14,7 @@ from app.api.domains.publications.types.api_input_data import ActFrbr, ActMutati
 # once, by the first new gio that reuses its lineage.
 class StateGioEntry(BaseModel):
     used_by: set[str]
-    state_gio: models.Gio
+    state_gio: active_models.Gio
     claimed: bool = False
 
 
@@ -42,14 +42,14 @@ class StateGioPool:
     withdrawn.
     """
 
-    def __init__(self, active_act: models.ActiveAct):
+    def __init__(self, active_act: active_models.ActiveAct):
         self._entries: list[StateGioEntry] = []
-        for gio_key, state_gio in active_act.Gios.items():
+        for gio_key, state_gio in active_act.gios.items():
             used_by: set[str] = set()
-            for groep in active_act.Gebiedengroepen.values():
+            for groep in active_act.gebiedengroepen.values():
                 if groep.gio_key == gio_key:
                     used_by.add(groep.code)
-            for aanwijzing in active_act.Gebiedsaanwijzingen.values():
+            for aanwijzing in active_act.gebiedsaanwijzingen.values():
                 if aanwijzing.gio_key == gio_key:
                     used_by.add(aanwijzing.code)
 
@@ -82,7 +82,7 @@ class StateGioPool:
                 return entry
         return None
 
-    def _apply_state_frbr(self, new_gio: PublicationGio, state_gio: models.Gio) -> PublicationGio:
+    def _apply_state_frbr(self, new_gio: PublicationGio, state_gio: active_models.Gio) -> PublicationGio:
         if self._gio_data_is_same(new_gio, state_gio):
             # Unchanged: reuse the state gio's FRBR as-is (same version).
             new_gio.new = False
@@ -95,14 +95,14 @@ class StateGioPool:
             # Changed: keep the same FRBR Work (the lineage) but a new expression.
             new_gio.new = True
             new_gio.geboorteregeling = state_gio.geboorteregeling
-            new_gio.frbr.Work_Province_ID = state_gio.frbr.Work_Province_ID
-            new_gio.frbr.Work_Date = state_gio.frbr.Work_Date
-            new_gio.frbr.Work_Other = state_gio.frbr.Work_Other
-            new_gio.frbr.Expression_Version = state_gio.frbr.Expression_Version + 1
+            new_gio.frbr.work_province_id = state_gio.frbr.work_province_id
+            new_gio.frbr.work_date = state_gio.frbr.work_date
+            new_gio.frbr.work_other = state_gio.frbr.work_other
+            new_gio.frbr.expression_version = state_gio.frbr.expression_version + 1
 
         return new_gio
 
-    def _gio_data_is_same(self, new_gio: PublicationGio, state_gio: models.Gio) -> bool:
+    def _gio_data_is_same(self, new_gio: PublicationGio, state_gio: active_models.Gio) -> bool:
         if state_gio.title != new_gio.title:
             return False
 
@@ -111,27 +111,27 @@ class StateGioPool:
 
         return state_locs == new_locs
 
-    def get_removed_state_gios(self) -> list[models.Gio]:
+    def get_removed_state_gios(self) -> list[active_models.Gio]:
         # Unclaimed state gios are no longer used and must be withdrawn.
         return [entry.state_gio for entry in self._entries if not entry.claimed]
 
 
 class PatchActMutation:
-    def __init__(self, asset_provider: PublicationAssetProvider, active_act: models.ActiveAct):
+    def __init__(self, asset_provider: PublicationAssetProvider, active_act: active_models.ActiveAct):
         self._asset_provider: PublicationAssetProvider = asset_provider
-        self._active_act: models.ActiveAct = active_act
+        self._active_act: active_models.ActiveAct = active_act
         self._gio_pool: StateGioPool = StateGioPool(active_act)
 
-    def patch(self, session: Session, data: ApiActInputData) -> ApiActInputData:
+    async def patch(self, session: AsyncSession, data: ApiActInputData) -> ApiActInputData:
         data = self._patch_gios(data)
         data = self._patch_documents(data)
-        data = self._patch_assets(session, data)
+        data = await self._patch_assets(session, data)
         data = self._patch_act_mutation(data)
         data = self._patch_ow_state(data)
         return data
 
     def _patch_gios(self, data: ApiActInputData) -> ApiActInputData:
-        gios: dict[str, PublicationGio] = data.Publication_Data.gios
+        gios: dict[str, PublicationGio] = data.publication_data.gios
 
         for gio_key, new_gio in gios.items():
             owner_codes: list[str] = self._owner_codes_for_gio(data, gio_key)
@@ -149,7 +149,7 @@ class PatchActMutation:
         # a matching source_hash exists, overwrite the generated basisgeo_id with the
         # original one to preserve identity across versions.
         state_hash_map: dict[str, str] = {}
-        for state_gio in self._active_act.Gios.values():
+        for state_gio in self._active_act.gios.values():
             for state_location in state_gio.locaties:
                 state_hash_map[state_location.source_hash] = state_location.basisgeo_id
 
@@ -161,7 +161,7 @@ class PatchActMutation:
                 new_gio.locaties[loc_index] = location
             gios[gio_key] = new_gio
 
-        data.Publication_Data.gios = gios
+        data.publication_data.gios = gios
 
         return data
 
@@ -172,12 +172,12 @@ class PatchActMutation:
         # the gebiedengroep lineage wins deterministically.
         owner_codes: list[str] = []
 
-        gebiedengroepen = data.Publication_Data.gebiedengroepen.values()
+        gebiedengroepen = data.publication_data.gebiedengroepen.values()
         for groep in sorted(gebiedengroepen, key=lambda g: g.code):
             if groep.gio_key == gio_key:
                 owner_codes.append(groep.code)
 
-        gebiedsaanwijzingen = data.Publication_Data.gebiedsaanwijzingen.values()
+        gebiedsaanwijzingen = data.publication_data.gebiedsaanwijzingen.values()
         for aanwijzing in sorted(gebiedsaanwijzingen, key=lambda a: a.code):
             if aanwijzing.gio_key == gio_key:
                 owner_codes.append(aanwijzing.code)
@@ -185,76 +185,76 @@ class PatchActMutation:
         return owner_codes
 
     def _patch_documents(self, data: ApiActInputData) -> ApiActInputData:
-        state_documents: dict[int, models.Document] = self._active_act.Documents
+        state_documents: dict[int, active_models.Document] = self._active_act.documents
 
-        documents: list[dict] = data.Publication_Data.documents
+        documents: list[dict] = data.publication_data.documents
         for index, document in enumerate(documents):
-            object_id: int = document["Object_ID"]
-            existing_document: models.Document | None = state_documents.get(object_id)
+            object_id: int = document["object_id"]
+            existing_document: active_models.Document | None = state_documents.get(object_id)
             if existing_document is None:
                 continue
 
-            # If the Hash are the same, then we use the state data
+            # If the hashes are the same, then we use the state data
             # and define the document as not new
-            if str(document["Hash"]) == existing_document.Hash:
-                documents[index]["New"] = False
-                documents[index]["UUID"] = existing_document.UUID
-                documents[index]["Geboorteregeling"] = existing_document.Owner_Act
+            if str(document["hash"]) == existing_document.hash:
+                documents[index]["new"] = False
+                documents[index]["id"] = existing_document.id
+                documents[index]["geboorteregeling"] = existing_document.owner_act
                 # Keep the same FRBR
-                documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
-                documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
-                documents[index]["Frbr"].Work_Other = existing_document.Frbr.Work_Other
-                documents[index]["Frbr"].Expression_Language = existing_document.Frbr.Expression_Language
-                documents[index]["Frbr"].Expression_Date = existing_document.Frbr.Expression_Date
-                documents[index]["Frbr"].Expression_Version = existing_document.Frbr.Expression_Version
+                documents[index]["frbr"].work_province_id = existing_document.frbr.work_province_id
+                documents[index]["frbr"].work_date = existing_document.frbr.work_date
+                documents[index]["frbr"].work_other = existing_document.frbr.work_other
+                documents[index]["frbr"].expression_language = existing_document.frbr.expression_language
+                documents[index]["frbr"].expression_date = existing_document.frbr.expression_date
+                documents[index]["frbr"].expression_version = existing_document.frbr.expression_version
             else:
                 # If the hash are different that we will publish this as a new version
-                documents[index]["New"] = True
-                documents[index]["Geboorteregeling"] = existing_document.Owner_Act
+                documents[index]["new"] = True
+                documents[index]["geboorteregeling"] = existing_document.owner_act
                 # Keep the same FRBR Work, but new expression
-                documents[index]["Frbr"].Work_Province_ID = existing_document.Frbr.Work_Province_ID
-                documents[index]["Frbr"].Work_Date = existing_document.Frbr.Work_Date
-                documents[index]["Frbr"].Work_Other = existing_document.Frbr.Work_Other
-                documents[index]["Frbr"].Expression_Version = existing_document.Frbr.Expression_Version + 1
+                documents[index]["frbr"].work_province_id = existing_document.frbr.work_province_id
+                documents[index]["frbr"].work_date = existing_document.frbr.work_date
+                documents[index]["frbr"].work_other = existing_document.frbr.work_other
+                documents[index]["frbr"].expression_version = existing_document.frbr.expression_version + 1
 
-        data.Publication_Data.documents = documents
+        data.publication_data.documents = documents
 
         return data
 
-    def _gebiedengroep_is_same(self, existing: models.Gebiedengroep, gebiedengroep: dict) -> bool:
+    def _gebiedengroep_is_same(self, existing: active_models.Gebiedengroep, gebiedengroep: dict) -> bool:
         return gebiedengroep["code"] == existing.code
 
-    def _patch_assets(self, session: Session, data: ApiActInputData) -> ApiActInputData:
-        state_assets: dict[str, models.Asset] = self._active_act.Assets
+    async def _patch_assets(self, session: AsyncSession, data: ApiActInputData) -> ApiActInputData:
+        state_assets: dict[str, active_models.Asset] = self._active_act.assets
 
-        fetched_assets_uuids: set[str] = {a["UUID"] for a in data.Publication_Data.assets}
-        additional_asset_uuids_str: set[str] = {
-            sa.UUID for _, sa in state_assets.items() if sa.UUID not in fetched_assets_uuids
+        fetched_assets_ids: set[str] = {a["id"] for a in data.publication_data.assets}
+        additional_asset_ids_str: set[str] = {
+            sa.id for _, sa in state_assets.items() if sa.id not in fetched_assets_ids
         }
-        additional_asset_uuids: list[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_uuids_str]
-        additional_assets: list[dict] = self._asset_provider.get_assets_by_uuids(session, additional_asset_uuids)
+        additional_asset_ids: list[UUID] = [UUID(uuid_str) for uuid_str in additional_asset_ids_str]
+        additional_assets: list[dict] = await self._asset_provider.get_assets_by_ids(session, additional_asset_ids)
 
-        data.Publication_Data.assets = data.Publication_Data.assets + additional_assets
+        data.publication_data.assets = data.publication_data.assets + additional_assets
 
         return data
 
     def _patch_act_mutation(self, data: ApiActInputData) -> ApiActInputData:
         consolidated_frbr: ActFrbr = ActFrbr(
-            Act_ID=0,
-            Work_Province_ID=self._active_act.Act_Frbr.Work_Province_ID,
-            Work_Country=self._active_act.Act_Frbr.Work_Country,
-            Work_Date=self._active_act.Act_Frbr.Work_Date,
-            Work_Other=self._active_act.Act_Frbr.Work_Other,
-            Expression_Language=self._active_act.Act_Frbr.Expression_Language,
-            Expression_Date=self._active_act.Act_Frbr.Expression_Date,
-            Expression_Version=self._active_act.Act_Frbr.Expression_Version,
+            act_id=0,
+            work_province_id=self._active_act.act_frbr.work_province_id,
+            work_country=self._active_act.act_frbr.work_country,
+            work_date=self._active_act.act_frbr.work_date,
+            work_other=self._active_act.act_frbr.work_other,
+            expression_language=self._active_act.act_frbr.expression_language,
+            expression_date=self._active_act.act_frbr.expression_date,
+            expression_version=self._active_act.act_frbr.expression_version,
         )
-        data.Act_Mutation = ActMutation(
-            Consolidated_Act_Frbr=consolidated_frbr,
-            Consolidated_Act_Text=self._active_act.Act_Text,
-            Known_Wid_Map=self._active_act.Wid_Data.Known_Wid_Map,
-            Known_Wids=self._active_act.Wid_Data.Known_Wids,
-            Removed_Gios=self._get_removed_gios(),
+        data.act_mutation = ActMutation(
+            consolidated_act_frbr=consolidated_frbr,
+            consolidated_act_text=self._active_act.act_text,
+            known_wid_map=self._active_act.wid_data.known_wid_map,
+            known_wids=self._active_act.wid_data.known_wids,
+            removed_gios=self._get_removed_gios(),
         )
         return data
 
@@ -273,5 +273,5 @@ class PatchActMutation:
         return removed_gios
 
     def _patch_ow_state(self, data: ApiActInputData) -> ApiActInputData:
-        data.Ow_State = self._active_act.Ow_State.model_dump_json()
+        data.ow_state = self._active_act.ow_state.model_dump_json()
         return data

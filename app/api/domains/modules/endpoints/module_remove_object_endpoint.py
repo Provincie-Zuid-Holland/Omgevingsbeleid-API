@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api_container import ApiContainer
 from app.api.dependencies import depends_db_session
@@ -21,7 +21,7 @@ from app.core.tables.users import UsersTable
 
 
 @inject
-def post_module_remove_object_endpoint(
+async def post_module_remove_object_endpoint(
     user: Annotated[UsersTable, Depends(depends_current_user)],
     module: Annotated[ModuleTable, Depends(depends_active_module)],
     object_context: Annotated[ModuleObjectContextTable, Depends(depends_active_module_object_context)],
@@ -31,7 +31,7 @@ def post_module_remove_object_endpoint(
             depends_object_static_by_object_type_and_id,
         ),
     ],
-    session: Annotated[Session, Depends(depends_db_session)],
+    session: Annotated[AsyncSession, Depends(depends_db_session)],
     module_object_repository: Annotated[
         ModuleObjectRepository, Depends(Provide[ApiContainer.module_object_repository])
     ],
@@ -40,32 +40,32 @@ def post_module_remove_object_endpoint(
     permission_service.guard_valid_user(
         Permissions.module_can_remove_object_from_module,
         user,
-        whitelisted_uuids=[
-            module.Module_Manager_1_UUID,
-            module.Module_Manager_2_UUID,
+        whitelisted_ids=[
+            module.module_manager_1_id,
+            module.module_manager_2_id,
         ],
     )
     guard_module_not_locked(module)
 
     timepoint: datetime = datetime.now(UTC)
-    object_context.Hidden = True
-    object_context.Modified_By_UUID = user.UUID
-    object_context.Modified_Date = timepoint
+    object_context.hidden = True
+    object_context.modified_by_id = user.id
+    object_context.modified_date = timepoint
     session.add(object_context)
 
-    _, new_record = module_object_repository.patch_latest_module_object(
+    _, new_record = await module_object_repository.patch_latest_module_object(
         session,
-        object_context.Module_ID,
-        object_context.Object_Type,
-        object_context.Object_ID,
+        object_context.module_id,
+        object_context.object_type,
+        object_context.object_id,
         {
-            "Deleted": True,
+            "deleted": True,
         },
         timepoint,
-        user.UUID,
+        user.id,
     )
     session.add(new_record)
-    session.flush()
-    session.commit()
+    await session.flush()
+    await session.commit()
 
     return ResponseOK(message="OK")

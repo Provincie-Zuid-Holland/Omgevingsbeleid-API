@@ -18,8 +18,9 @@ The Omgevingsbeleid API is a comprehensive policy management system developed fo
 
 ## System Requirements
 
-- Python 3.13+
-- SQLite with SpatiaLite (development) or Microsoft SQL Server (production)
+- [uv](https://docs.astral.sh/uv/) (installs Python 3.13+ for you)
+- PostgreSQL, or SQLite with SpatiaLite for local development and tests
+- Docker (optional, to run the API together with PostgreSQL)
 - Unix-based operating system (Linux/macOS)
 
 ## Quick Start
@@ -32,27 +33,28 @@ The Omgevingsbeleid API is a comprehensive policy management system developed fo
    cd Omgevingsbeleid-API
    ```
 
-2. **Set up Python environment**
-   
-   Ensure you have Python 3.13 installed. We recommend using `pyenv` for version management:
+2. **Install uv and SpatiaLite**
    ```bash
-   # If using pyenv
-   CONFIGURE_OPTS="--enable-loadable-sqlite-extensions" pyenv install 3.13
-   pyenv local 3.13
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   sudo apt install libsqlite3-mod-spatialite   # Debian/Ubuntu/Mint
    ```
 
-3. **Create virtual environment**
+3. **Install Python and all dependencies**
    ```bash
-   make prepare-env
+   uv sync
    ```
-   
-   Or manually:
+
+   This downloads the Python version from `.python-version` if needed, creates `.venv/` and installs
+   all runtime and development dependencies from `uv.lock`. You don't need to activate the venv:
+   `make` commands and `uv run` use it automatically.
+
+   On Linux, uv's Python supports loadable SQLite extensions out of the box, so SpatiaLite works without
+   compiling Python yourself. On macOS, uv's Python lacks this support; point uv at a Python that has it
+   (for example Homebrew's) with `uv python pin <path-to-python>`.
+
+   To verify SpatiaLite works:
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
+   uv run python -c "import sqlite3; c = sqlite3.connect(':memory:'); c.enable_load_extension(True); c.load_extension('mod_spatialite'); print(c.execute('select spatialite_version()').fetchone())"
    ```
 
 4. **Configure environment**
@@ -72,7 +74,7 @@ The Omgevingsbeleid API is a comprehensive policy management system developed fo
 5. **Initialize database**
    ```bash
    # Run migrations
-   python -m alembic upgrade head
+   uv run alembic upgrade head
    
    # Or use the make command
    make init-database
@@ -88,7 +90,7 @@ The Omgevingsbeleid API is a comprehensive policy management system developed fo
    
    Or directly with uvicorn:
    ```bash
-   uvicorn app.main:app --reload
+   uv run uvicorn app.main:app --reload
    ```
 
    The API will be available at `http://localhost:8000`
@@ -120,34 +122,49 @@ Omgevingsbeleid-API/
 ├── config/                 # Configuration files
 │   ├── main.yml           # Main configuration
 │   └── objects/           # Object type definitions
-├── requirements.txt       # Production dependencies
-└── requirements-dev.txt   # Development dependencies
+├── pyproject.toml         # Project metadata, dependencies and tool settings
+├── uv.lock                # Locked dependency versions (commit together with pyproject.toml)
+└── .python-version        # Python version used by uv
 ```
 
 ### Available Commands
 
+Run `make` to list all commands. The most common ones:
+
 ```bash
 # Development
-make run                # Start the development server
-make debug             # Start with debugging enabled
-make format            # Format code with Ruff
-make check             # Lint code without fixing
-make fix              # Fix linting issues and format
+make run                  # Start the development server
+make debug                # Start with debugging enabled
+make format               # Format code with Ruff
+make check                # Lint and check formatting without fixing
+make fix                  # Fix linting issues and format
 
 # Database Management
-make init-database     # Initialize database schema
-make drop-database     # Drop all database tables
-make load-fixtures     # Load sample data
+make init-database        # Initialize database schema
+make drop-database        # Drop all database tables
+make load-fixtures        # Load sample data
 make reset-test-database  # Reset database with fixtures
-
-# Dependency Management
-make pip-sync         # Sync dependencies with lock files
-make pip-compile      # Regenerate lock files
-make pip-upgrade      # Upgrade all dependencies
-
-# Environment Setup
-make prepare-env      # Create and setup virtual environment
 ```
+
+For Docker commands, see [Running with Docker](#running-with-docker).
+
+### Managing Dependencies
+
+Dependencies are defined in `pyproject.toml` and locked in `uv.lock`. Always commit both files together.
+
+```bash
+uv add <package>                      # Add a runtime dependency
+uv add --dev <package>                # Add a development-only dependency (tests, linting)
+uv remove <package>                   # Remove a dependency
+uv lock --upgrade                     # Upgrade all dependencies within their version ranges
+uv lock --upgrade-package <package>   # Upgrade a single package
+uv tree                               # Show the dependency tree
+```
+
+`uv add`, `uv remove` and `uv run` keep `.venv` in sync automatically. Run `uv sync` yourself after
+cloning, or after switching branches when you work in an activated venv (`source .venv/bin/activate`).
+
+To change the Python version: `uv python pin 3.14`, then `uv sync`.
 
 ### API Documentation
 
@@ -182,21 +199,29 @@ Key environment variables (see `app/core/settings.py` for full list):
 
 ### Database Configuration
 
-The system supports both SQLite (development) and Microsoft SQL Server (production):
+The database is configured with `SQLALCHEMY_DATABASE_URI`.
 
-**SQLite (Development)**:
+**PostgreSQL**:
+```env
+SQLALCHEMY_DATABASE_URI="postgresql+psycopg://omgevingsbeleid:your-password@localhost:5432/omgevingsbeleid"
+```
+
+**SQLite (local development and tests)**:
 ```env
 SQLALCHEMY_DATABASE_URI="sqlite+pysqlite:///api.db"
 ```
 
-**SQL Server (Production)**:
-```env
-DB_HOST=your-server-host
-DB_NAME=your-database-name
-DB_USER=your-username
-DB_PASS=your-password
-DB_DRIVER="ODBC Driver 17 for SQL Server"
+### Running with Docker
+
+The Docker setup runs the API together with a PostgreSQL database:
+
+```bash
+make docker-init     # Build and start the services, then run migrations
+make docker-psql     # Open a psql shell on the database
+make docker-down     # Stop the services and remove their volumes
 ```
+
+Run `make` for all Docker commands, such as loading fixtures or creating Alembic migrations inside the container.
 
 ### DSO Integration
 
@@ -213,11 +238,13 @@ PUBLICATION_KOOP__PRE__PREVIEW_API_URL="https://besluitpreviewservice-eto.overhe
 
 - **Framework**: FastAPI (Python 3.13)
 - **ORM**: SQLAlchemy 2.0
-- **Database**: SQLite/Microsoft SQL Server
+- **Database**: PostgreSQL (SQLite with SpatiaLite for development and tests)
+- **Migrations**: Alembic
 - **Validation**: Pydantic 2.0
 - **Authentication**: JWT (python-jose)
 - **Geospatial**: GeoPandas, Shapely
 - **Code Quality**: Ruff (linting & formatting)
+- **Packaging**: uv (dependencies, virtualenv and Python version)
 
 ### Design Patterns
 
@@ -234,6 +261,7 @@ Run the test suite:
 make test                    # Run all tests
 make testx                   # Run with verbose output and stop on first failure
 make testcase case=test_name # Run specific test case
+make testcov                 # Run with coverage (XML report)
 ```
 
 ## License

@@ -1,38 +1,56 @@
 from uuid import UUID
 
 from sqlalchemy import and_, select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.api.base_repository import BaseRepository
 from app.api.utils.pagination import PaginatedQueryResult, SortOrder
-from app.core.tables.publications import PublicationVersionTable
+from app.core.tables.publications import PublicationTable, PublicationVersionTable
 
 
 class PublicationVersionRepository(BaseRepository):
-    def get_by_uuid(self, session: Session, uuid: UUID) -> PublicationVersionTable | None:
-        stmt = select(PublicationVersionTable).where(PublicationVersionTable.UUID == uuid)
-        return self.fetch_first(session, stmt)
+    async def get_by_id(self, session: AsyncSession, uuid: UUID) -> PublicationVersionTable | None:
+        stmt = (
+            select(PublicationVersionTable)
+            .options(
+                selectinload(PublicationVersionTable.publication).selectinload(PublicationTable.module),
+                selectinload(PublicationVersionTable.publication).selectinload(PublicationTable.act),
+                selectinload(PublicationVersionTable.publication).selectinload(PublicationTable.environment),
+                selectinload(PublicationVersionTable.publication).selectinload(PublicationTable.template),
+                selectinload(PublicationVersionTable.module_status),
+                selectinload(PublicationVersionTable.attachments),
+                selectinload(PublicationVersionTable.act_packages),
+            )
+            .where(PublicationVersionTable.id == uuid)
+        )
+        return await self.fetch_first(session, stmt)
 
-    def get_with_filters(
+    async def get_with_filters(
         self,
-        session: Session,
-        publication_uuid: UUID | None = None,
+        session: AsyncSession,
+        publication_id: UUID | None = None,
         offset: int = 0,
         limit: int = 20,
     ) -> PaginatedQueryResult:
-        filters = [PublicationVersionTable.Deleted_At.is_(None)]
-        if publication_uuid is not None:
-            filters.append(and_(PublicationVersionTable.Publication_UUID == publication_uuid))
+        filters = [PublicationVersionTable.deleted_at.is_(None)]
+        if publication_id is not None:
+            filters.append(and_(PublicationVersionTable.publication_id == publication_id))
 
         stmt = (
-            select(PublicationVersionTable).filter(*filters).options(selectinload(PublicationVersionTable.Act_Packages))
+            select(PublicationVersionTable)
+            .filter(*filters)
+            .options(
+                selectinload(PublicationVersionTable.act_packages),
+                selectinload(PublicationVersionTable.module_status),
+            )
         )
 
-        paged_result = self.fetch_paginated(
+        paged_result = await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=offset,
             limit=limit,
-            sort=(PublicationVersionTable.Modified_Date, SortOrder.DESC),
+            sort=(PublicationVersionTable.modified_date, SortOrder.DESC),
         )
         return paged_result

@@ -1,4 +1,6 @@
 import logging
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 import sqlalchemy
 import sqlalchemy.exc
@@ -27,8 +29,14 @@ class FastAPIBuilder:
     def build(self, container: ApiContainer, routes: list[ConfiguredFastapiEndpoint]) -> FastAPI:
         init_logging()
 
+        @asynccontextmanager
+        async def lifespan(_: FastAPI) -> AsyncGenerator[None]:
+            yield
+            await container.db_engine().dispose()
+
         app: FastAPI = FastAPI(
             generate_unique_id_function=_generate_unique_id_function,
+            lifespan=lifespan,
         )
         app.container = container
 

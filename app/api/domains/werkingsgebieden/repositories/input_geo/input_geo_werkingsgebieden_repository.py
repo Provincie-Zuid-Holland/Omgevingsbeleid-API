@@ -3,7 +3,8 @@ from collections.abc import Sequence
 from datetime import date
 
 from sqlalchemy import desc, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
 from app.api.base_repository import BaseRepository
@@ -12,28 +13,30 @@ from app.core.tables.werkingsgebieden import InputGeoWerkingsgebiedenTable
 
 
 class InputGeoWerkingsgebiedenRepository(BaseRepository):
-    def get_by_id(self, session: Session, werkingsgbied_uuid: uuid.UUID) -> InputGeoWerkingsgebiedenTable | None:
+    async def get_by_id(
+        self, session: AsyncSession, werkingsgbied_uuid: uuid.UUID
+    ) -> InputGeoWerkingsgebiedenTable | None:
         stmt = select(InputGeoWerkingsgebiedenTable).where(InputGeoWerkingsgebiedenTable.UUID == werkingsgbied_uuid)
-        return self.fetch_first(session, stmt)
+        return await self.fetch_first(session, stmt)
 
-    def get_by_title_paginated(
-        self, session: Session, title: str, from_date: date | None
+    async def get_by_title_paginated(
+        self, session: AsyncSession, title: str, from_date: date | None
     ) -> Sequence[InputGeoWerkingsgebiedenTable]:
         stmt = select(InputGeoWerkingsgebiedenTable).filter(InputGeoWerkingsgebiedenTable.Title == title)
         if from_date:
             stmt = stmt.filter(InputGeoWerkingsgebiedenTable.Created_Date >= from_date)
 
-        result: Sequence[InputGeoWerkingsgebiedenTable] = session.scalars(stmt).all()
+        result: Sequence[InputGeoWerkingsgebiedenTable] = (await session.scalars(stmt)).all()
         return result
 
-    def get_unique_paginated(self, session: Session, pagination: SortedPagination) -> PaginatedQueryResult:
+    async def get_unique_paginated(self, session: AsyncSession, pagination: SortedPagination) -> PaginatedQueryResult:
         row_number = (
             func.row_number()
             .over(
                 partition_by=InputGeoWerkingsgebiedenTable.Title,
                 order_by=desc(InputGeoWerkingsgebiedenTable.Created_Date),
             )
-            .label("_RowNumber")
+            .label("_row_number")
         )
 
         subq = select(
@@ -42,10 +45,10 @@ class InputGeoWerkingsgebiedenRepository(BaseRepository):
         ).subquery("subq")
 
         aliased_objects = aliased(InputGeoWerkingsgebiedenTable, subq)
-        stmt = select(aliased_objects).filter(subq.c._RowNumber == 1)
+        stmt = select(aliased_objects).filter(subq.c._row_number == 1)
         sort_column = getattr(subq.c, pagination.sort.column)
 
-        return self.fetch_paginated(
+        return await self.fetch_paginated(
             session=session,
             statement=stmt,
             offset=pagination.offset,

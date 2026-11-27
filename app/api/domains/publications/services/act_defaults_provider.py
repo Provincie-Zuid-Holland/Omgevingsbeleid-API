@@ -9,6 +9,6 @@ class ActDefaultsProvider:
 
     def get_metadata(self, document_type: str) -> ActMetadata:
         key: str = document_type
-        defaults: dict = self._defaults[key]["metadata"]
+        defaults: dict = self._defaults[key]["meta_data"]
         result: ActMetadata = ActMetadata(**defaults)
         return result
